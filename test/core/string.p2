@@ -1,0 +1,16 @@
+
+export string
+
+string = [
+public
+    byte* ptr
+readonly
+    int length
+
+    empty = {
+        return length==0
+    }
+
+    //operator[] { /*this, */ int index
+    //}
+]

@@ -1,0 +1,77 @@
+[15:48:48.431] [  -1] Module[refs=5] test_imports
+[15:48:48.431] [   6]    Variable[refs=1] 'isit' bool (GLOBAL)
+[15:48:48.431] [   8]    NamedStruct[refs=1] Dog
+[15:48:48.431] [   8]       AnonStruct [int]
+[15:48:48.431] [   9]          Variable[refs=2] 'age' int (STRUCT)
+[15:48:48.431] [  11]          'new' Function[refs=0] (STRUCT)
+[15:48:48.431] [  11]             {} (type={Dog* this->Dog*})
+[15:48:48.431] [  11]                Arguments
+[15:48:48.431] [   8]                   Variable[refs=1] 'this' Dog* (PARAM)
+[15:48:48.431] [   9]                Initialiser (type=int)
+[15:48:48.431] [   9]                   ASSIGN (type=int)
+[15:48:48.431] [   9]                      ID:age (type=int)
+[15:48:48.431] [  -1]                      0 (type=const int)
+[15:48:48.431] [  -1]                return
+[15:48:48.431] [  -1]                   ID:this (type=Dog*)
+[15:48:48.431] [  11]    NamedStruct[refs=1] Cat
+[15:48:48.431] [  11]       AnonStruct [bool]
+[15:48:48.431] [  12]          Variable[refs=1] 'isGinger' bool (STRUCT)
+[15:48:48.431] [  14]          'new' Function[refs=1] (STRUCT)
+[15:48:48.431] [  14]             {} (type={Cat* this->Cat*})
+[15:48:48.431] [  14]                Arguments
+[15:48:48.431] [  11]                   Variable[refs=1] 'this' Cat* (PARAM)
+[15:48:48.431] [  12]                Initialiser (type=bool)
+[15:48:48.431] [  12]                   ASSIGN (type=bool)
+[15:48:48.431] [  12]                      ID:isGinger (type=bool)
+[15:48:48.431] [  -1]                      0 (type=const bool)
+[15:48:48.431] [  -1]                return
+[15:48:48.431] [  -1]                   ID:this (type=Cat*)
+[15:48:48.431] [  14]    NamedStruct[refs=1] Bat
+[15:48:48.431] [  14]       AnonStruct [float]
+[15:48:48.431] [  15]          Variable[refs=1] 'size' float (STRUCT)
+[15:48:48.431] [  17]          'new' Function[refs=3] (STRUCT)
+[15:48:48.432] [  17]             {} (type={Bat* this->Bat*})
+[15:48:48.432] [  17]                Arguments
+[15:48:48.432] [  14]                   Variable[refs=1] 'this' Bat* (PARAM)
+[15:48:48.432] [  15]                Initialiser (type=float)
+[15:48:48.432] [  15]                   ASSIGN (type=float)
+[15:48:48.432] [  15]                      ID:size (type=float)
+[15:48:48.432] [  -1]                      0.000000 (type=const float)
+[15:48:48.432] [  -1]                return
+[15:48:48.432] [  -1]                   ID:this (type=Bat*)
+[15:48:48.432] [  17]    NamedStruct[refs=1] Pig
+[15:48:48.432] [  17]       AnonStruct [int]
+[15:48:48.432] [  18]          Variable[refs=1] 'weight' int (STRUCT)
+[15:48:48.432] [  20]          'new' Function[refs=0] (STRUCT)
+[15:48:48.432] [  20]             {} (type={Pig* this->Pig*})
+[15:48:48.432] [  20]                Arguments
+[15:48:48.432] [  17]                   Variable[refs=1] 'this' Pig* (PARAM)
+[15:48:48.432] [  18]                Initialiser (type=int)
+[15:48:48.432] [  18]                   ASSIGN (type=int)
+[15:48:48.432] [  18]                      ID:weight (type=int)
+[15:48:48.432] [  -1]                      0 (type=const int)
+[15:48:48.432] [  -1]                return
+[15:48:48.432] [  -1]                   ID:this (type=Pig*)
+[15:48:48.432] [  20]    NamedStruct[refs=1] Wolf
+[15:48:48.432] [  20]       AnonStruct [bool]
+[15:48:48.432] [  21]          Variable[refs=1] 'isGrey' bool (STRUCT)
+[15:48:48.432] [  24]          'new' Function[refs=1] (STRUCT)
+[15:48:48.432] [  24]             {} (type={Wolf* this->Wolf*})
+[15:48:48.432] [  24]                Arguments
+[15:48:48.432] [  20]                   Variable[refs=1] 'this' Wolf* (PARAM)
+[15:48:48.432] [  21]                Initialiser (type=bool)
+[15:48:48.432] [  21]                   ASSIGN (type=bool)
+[15:48:48.432] [  21]                      ID:isGrey (type=bool)
+[15:48:48.432] [  -1]                      0 (type=const bool)
+[15:48:48.432] [  -1]                return
+[15:48:48.432] [  -1]                   ID:this (type=Wolf*)
+[15:48:48.432] [  -1]    'new' Function[refs=1] (GLOBAL)
+[15:48:48.432] [  -1]       {} (type={void->void})
+[15:48:48.432] [  -1]          Arguments
+[15:48:48.432] [   6]          Initialiser (type=bool)
+[15:48:48.432] [   6]             ASSIGN (type=bool)
+[15:48:48.433] [   6]                ID:isit (type=bool)
+[15:48:48.433] [   6]                0 (type=const bool)
+[15:48:48.433] ==============================================
+[15:48:48.433] ======================== Unresolved Nodes (0)
+[15:48:48.433] ==============================================

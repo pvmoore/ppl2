@@ -1,0 +1,13 @@
+
+export testMeta
+
+
+testMeta = {
+
+
+    int a   = 1
+    var ptr = #ptr(a)
+    var val = #val(ptr)
+
+
+}

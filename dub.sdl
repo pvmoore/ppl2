@@ -1,0 +1,26 @@
+name "ppl2"
+platforms "windows"
+
+buildType "debug" {
+	buildOptions "debugMode" "debugInfo" "alwaysStackFrame" "stackStomping" "warningsAsErrors"
+}
+buildType "release" {
+    dflags "-O5" platform="ldc"
+    dflags "-mcpu=haswell" platform="ldc"
+    dflags "-mattr=+fma,+avx2" platform="ldc"
+    dflags "-expensive-combines" platform="ldc"
+    dflags "-enable-cross-module-inlining" platform="ldc"
+    dflags "-cache=.dub/cache" platform="ldc"
+    dflags "-ffast-math" platform="ldc"
+
+	buildOptions "releaseMode" "optimize" "inline" "noBoundsCheck"
+}
+
+configuration "test" {
+	mainSourceFile "src/main.d"
+	targetType "executable"
+	targetName "ppl2"
+}
+
+dependency "llvm" version="~master"
+dependency "common" version="~master"

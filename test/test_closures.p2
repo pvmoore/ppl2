@@ -1,0 +1,89 @@
+/**
+ *
+ *
+ *
+ */
+
+export testClosures
+
+ // Module scope
+
+int g1
+
+gf1 = {}
+
+Struct = [
+    // Can see struct scope + module scope
+    int s1
+    f = {
+        // Struct member func
+        // Can see func scope + struct scope + module scope
+
+        closure = {
+            // Closure
+            // Can see closure scope only
+
+            int c1
+
+            c1  // ok
+            //c2  // nope
+            //s1  // nope
+            //s2  // nope
+
+            int c2
+        }
+    }
+    int s2
+]
+
+func = {    // {->}
+    // Can only see vars and funcs at this scope and module scope
+
+    int func1
+    f1 = {
+        // Can only see vars and funcs at this scope and module scope
+        int f1var = 1
+
+        f1var += 1  // ok
+    }
+
+    func1 += 1  // ok
+    g1 += 1     // ok
+    g2 += 1     // ok
+
+    closure = { // {->}
+        // Can only see vars and funcs at this scope and module scope
+
+        int clos1
+        f3 = {}
+
+        clos1 += 1  // ok
+        //clos2 += 1  // nope
+        //f1var += 1  // nope
+        //func1 += 1  // nope
+        //func2 += 1  // nope
+        g1 += 1     // ok
+        g2 += 1     // ok
+
+        gf1()     // ok
+        gf2()     // ok
+        //f1()      // nope
+        //f2()      // nope
+        f3()        // ok
+
+        int clos2
+    }
+    int func2
+    f2 = {}
+
+    func2 += 1 // ok
+}
+
+int g2
+gf2 = {}
+
+testClosures = {
+    Struct s
+    func()      // ok
+    //closure()   // nope
+}

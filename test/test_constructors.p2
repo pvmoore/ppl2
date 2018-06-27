@@ -1,0 +1,51 @@
+
+export testConstructors
+
+S = [
+private
+    int a
+readonly
+    int b = 1   // This initialisation will be moved to 'new' func
+public
+    bool flag
+
+    new = { /* S* this */
+        // All struct var initialisers will be put in here
+        // This will be called before properties are set manually during initialisation
+
+        b += 3
+    }
+    // rename me
+    new = { /* S* this, */ int value ->
+
+    }
+    new = { /* S* this, */ bool flag, short sh ->
+
+    }
+]
+S2 = [
+    // new function created automatically
+]
+
+testConstructors = {
+    S s         // Set s.a=0, s.b=0, s.flag=false
+                // Call s.new(s#ptr) if exists
+                // s.new() will set b = 1
+
+    S s2 = S()  // May need to rewrite this to S s2
+                //
+
+
+    S* sp   // sp = null
+    S* sp2 = null
+
+    var s3 = S(1)
+    //var s4 = S(value=1) // todo
+    //var s5 = S(sh=3, flag=true)   // todo
+
+// todo
+    //var s4 = S*()
+    //var s5 = S*(1)
+    //var s6 = S*(sh=3, flag=true)
+
+}

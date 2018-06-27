@@ -1,0 +1,87 @@
+[15:48:48.381] [  -1] Module[refs=2] test_constructors
+[15:48:48.381] [   4]    NamedStruct[refs=1] S
+[15:48:48.381] [   4]       AnonStruct [int, int, bool]
+[15:48:48.381] [   6]          Variable[refs=1] 'a' int (STRUCT)
+[15:48:48.381] [   8]          Variable[refs=2] 'b' int (STRUCT)
+[15:48:48.381] [  10]          Variable[refs=1] 'flag' bool (STRUCT)
+[15:48:48.381] [  12]          'new' Function[refs=4] (STRUCT)
+[15:48:48.381] [  12]             {} (type={S* this->S*})
+[15:48:48.381] [  12]                Arguments
+[15:48:48.381] [   4]                   Variable[refs=1] 'this' S* (PARAM)
+[15:48:48.381] [   6]                Initialiser (type=int)
+[15:48:48.381] [   6]                   ASSIGN (type=int)
+[15:48:48.381] [   6]                      ID:a (type=int)
+[15:48:48.381] [  -1]                      0 (type=const int)
+[15:48:48.381] [   8]                Initialiser (type=int)
+[15:48:48.381] [   8]                   ASSIGN (type=int)
+[15:48:48.381] [   8]                      ID:b (type=int)
+[15:48:48.381] [   8]                      1 (type=const byte)
+[15:48:48.381] [  10]                Initialiser (type=bool)
+[15:48:48.381] [  10]                   ASSIGN (type=bool)
+[15:48:48.381] [  10]                      ID:flag (type=bool)
+[15:48:48.381] [  -1]                      0 (type=const bool)
+[15:48:48.381] [  16]                ADD_ASSIGN (type=int)
+[15:48:48.382] [  16]                   ID:b (type=int)
+[15:48:48.382] [  16]                   3 (type=const byte)
+[15:48:48.382] [  -1]                return
+[15:48:48.382] [  -1]                   ID:this (type=S*)
+[15:48:48.382] [  19]          'new' Function[refs=1] (STRUCT)
+[15:48:48.382] [  19]             {} (type={S* this,int value->S*})
+[15:48:48.382] [  19]                Arguments
+[15:48:48.382] [   4]                   Variable[refs=2] 'this' S* (PARAM)
+[15:48:48.382] [  19]                   Variable[refs=0] 'value' int (PARAM)
+[15:48:48.382] [  -1]                Call Target: FUNC new {S* this->S*}
+[15:48:48.382] [  -1]                   ID:this (type=S*)
+[15:48:48.382] [  -1]                return
+[15:48:48.382] [  -1]                   ID:this (type=S*)
+[15:48:48.382] [  22]          'new' Function[refs=0] (STRUCT)
+[15:48:48.382] [  22]             {} (type={S* this,bool flag,short sh->S*})
+[15:48:48.382] [  22]                Arguments
+[15:48:48.382] [   4]                   Variable[refs=2] 'this' S* (PARAM)
+[15:48:48.382] [  22]                   Variable[refs=0] 'flag' bool (PARAM)
+[15:48:48.382] [  22]                   Variable[refs=0] 'sh' short (PARAM)
+[15:48:48.382] [  -1]                Call Target: FUNC new {S* this->S*}
+[15:48:48.382] [  -1]                   ID:this (type=S*)
+[15:48:48.382] [  -1]                return
+[15:48:48.382] [  -1]                   ID:this (type=S*)
+[15:48:48.382] [  30]    'testConstructors' Function[refs=1] (GLOBAL)
+[15:48:48.382] [  30]       {} (type={void->void})
+[15:48:48.382] [  30]          Arguments
+[15:48:48.382] [  31]          Variable[refs=2] 's' S (LOCAL)
+[15:48:48.382] [  31]             Initialiser (type=S)
+[15:48:48.382] [  31]                Dot (type=S*)
+[15:48:48.382] [  31]                   ID:s (type=S)
+[15:48:48.382] [  31]                   Call Target: STRUCTFUNC new {S* this->S*}
+[15:48:48.382] [  31]                      AddressOf (S*)
+[15:48:48.382] [  31]                         ID:s (type=S)
+[15:48:48.382] [  35]          Variable[refs=2] 's2' S (LOCAL)
+[15:48:48.382] [  35]             Initialiser (type=S)
+[15:48:48.382] [  35]                Dot (type=S*)
+[15:48:48.382] [  35]                   ID:s2 (type=S)
+[15:48:48.382] [  35]                   Call Target: STRUCTFUNC new {S* this->S*}
+[15:48:48.382] [  35]                      AddressOf (S*)
+[15:48:48.382] [  35]                         ID:s2 (type=S)
+[15:48:48.382] [  39]          Variable[refs=1] 'sp' S* (LOCAL)
+[15:48:48.382] [  39]             Initialiser (type=S*)
+[15:48:48.382] [  39]                ASSIGN (type=S*)
+[15:48:48.382] [  39]                   ID:sp (type=S*)
+[15:48:48.382] [  -1]                   null (type=const S*)
+[15:48:48.382] [  40]          Variable[refs=1] 'sp2' S* (LOCAL)
+[15:48:48.382] [  40]             Initialiser (type=S*)
+[15:48:48.382] [  40]                ASSIGN (type=S*)
+[15:48:48.382] [  40]                   ID:sp2 (type=S*)
+[15:48:48.382] [  40]                   null (type=const S*)
+[15:48:48.382] [  42]          Variable[refs=2] 's3' S (LOCAL)
+[15:48:48.382] [  42]             Initialiser (type=S)
+[15:48:48.382] [  42]                Dot (type=S*)
+[15:48:48.382] [  42]                   ID:s3 (type=S)
+[15:48:48.383] [  42]                   Call Target: STRUCTFUNC new {S* this,int value->S*}
+[15:48:48.383] [  42]                      AddressOf (S*)
+[15:48:48.383] [  42]                         ID:s3 (type=S)
+[15:48:48.383] [  42]                      1 (type=const byte)
+[15:48:48.383] [  -1]    'new' Function[refs=1] (GLOBAL)
+[15:48:48.383] [  -1]       {} (type={void->void})
+[15:48:48.383] [  -1]          Arguments
+[15:48:48.383] ==============================================
+[15:48:48.383] ======================== Unresolved Nodes (0)
+[15:48:48.383] ==============================================

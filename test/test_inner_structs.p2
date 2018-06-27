@@ -1,0 +1,35 @@
+/**
+ *
+ *
+ *
+ */
+
+export testInnerStructs
+
+int g1
+
+A = [
+    int a
+    B = [
+        int b
+        foo = { /* B* this */
+            closure = {
+                int c
+
+
+                c = 1   // ok
+            }
+        }
+        int b2
+    ]
+    int a2
+]
+
+int g2
+
+testInnerStructs = {
+    A a
+    A.B ab
+
+
+}

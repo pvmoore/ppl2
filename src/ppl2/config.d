@@ -1,0 +1,42 @@
+module ppl2.config;
+
+import ppl2.internal;
+///
+/// Singleton Config
+///
+Config getConfig() {
+    return g_config;
+}
+void setConfig(Config c) {
+    g_config = c;
+}
+
+final class Config {
+public:
+    string mainFile;
+    string basePath;
+    string targetPath = "test/.target/";
+    string targetExe  = "test.exe";
+
+    bool logDebug     = true;
+    bool logTokens    = false;
+    bool logParser    = false;
+    bool logResolver  = false;
+
+    bool foldConstants = true;  /// This MUST be enabled if you use consts
+                                /// to initialise array counts for example
+
+    bool dce           = true; /// dead code elimination
+
+    this(string mainFilePath) {
+        import std.path;
+        import std.array;
+
+        auto normalisedPath = cast(string)mainFilePath.asNormalizedPath.array;
+
+        mainFile = relativePath(normalisedPath).replace("\\", "/");
+        basePath = dirName(mainFile);
+
+        if(basePath.length > 0) basePath ~= "/";
+    }
+}

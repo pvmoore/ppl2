@@ -1,0 +1,28 @@
+
+export testLiteralStruct
+
+testLiteralStruct = {
+
+    [int a, int b] a = [1,2]
+
+    var b = [3,4]
+
+    [int,int] c
+    c = [5,6]
+
+    [7,8]
+
+    var z1 = a:0
+    //var z2 = a:2    // bounds error
+    var z3 = a.b
+    var z4 = [9,10]:1   // 10
+
+
+    var x1 = [a=3, b=true]
+    var x1b = x1.b
+
+    [int a, float b] y = [b = 3.14, a = 9]
+
+    //[a=4, 3] // error mixing initialisation
+
+}

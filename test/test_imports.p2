@@ -1,0 +1,24 @@
+
+export
+    Cat, Pig, Dog, Bat, Wolf,
+    AnInt
+
+bool isit = false
+
+Dog = [
+    int age
+]
+Cat = [
+    bool isGinger
+]
+Bat = [
+    float size
+]
+Pig = [
+    int weight
+]
+Wolf = [
+    bool isGrey
+]
+
+define AnInt = int

@@ -1,0 +1,41 @@
+[15:48:48.419] [  -1] Module[refs=2] test_casting
+[15:48:48.419] [   4]    'testCasting' Function[refs=1] (GLOBAL)
+[15:48:48.419] [   4]       {} (type={void->void})
+[15:48:48.419] [   4]          Arguments
+[15:48:48.419] [   5]          Variable[refs=1] 'a' int (LOCAL)
+[15:48:48.419] [   5]             Initialiser (type=int)
+[15:48:48.419] [   5]                ASSIGN (type=int)
+[15:48:48.419] [   5]                   ID:a (type=int)
+[15:48:48.419] [   5]                   1 (type=const int)
+[15:48:48.419] [   6]          Variable[refs=1] 'b' int (LOCAL)
+[15:48:48.419] [   6]             Initialiser (type=int)
+[15:48:48.419] [   6]                ASSIGN (type=int)
+[15:48:48.419] [   6]                   ID:b (type=int)
+[15:48:48.419] [   6]                   3 (type=const int)
+[15:48:48.419] [   7]          Variable[refs=1] 'c' byte (LOCAL)
+[15:48:48.419] [   7]             Initialiser (type=byte)
+[15:48:48.419] [   7]                ASSIGN (type=byte)
+[15:48:48.419] [   7]                   ID:c (type=byte)
+[15:48:48.419] [   7]                   3 (type=const byte)
+[15:48:48.419] [   8]          Variable[refs=1] 'd' int* (LOCAL)
+[15:48:48.419] [   8]             Initialiser (type=int*)
+[15:48:48.419] [   8]                ASSIGN (type=int*)
+[15:48:48.419] [   8]                   ID:d (type=int*)
+[15:48:48.419] [   8]                   As (int*)
+[15:48:48.419] [   8]                      3 (type=const long)
+[15:48:48.419] [   8]                      Type:int*
+[15:48:48.419] [  10]          Variable[refs=1] 'e' AnonStruct [int] (LOCAL)
+[15:48:48.419] [  10]             AnonStruct [int]
+[15:48:48.419] [  10]                Variable[refs=0] int (STRUCT)
+[15:48:48.419] [  10]             Initialiser (type=AnonStruct [int])
+[15:48:48.419] [  10]                ASSIGN (type=int)
+[15:48:48.419] [  10]                   Index (int) :0 (type=const int)
+[15:48:48.419] [  10]                      ID:e (type=AnonStruct [int])
+[15:48:48.419] [  -1]                      0 (type=const int)
+[15:48:48.419] [  -1]                   0 (type=const int)
+[15:48:48.420] [  -1]    'new' Function[refs=1] (GLOBAL)
+[15:48:48.420] [  -1]       {} (type={void->void})
+[15:48:48.420] [  -1]          Arguments
+[15:48:48.420] ==============================================
+[15:48:48.420] ======================== Unresolved Nodes (0)
+[15:48:48.420] ==============================================

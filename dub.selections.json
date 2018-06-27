@@ -1,0 +1,10 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"common": "~master",
+		"events": "~master",
+		"llvm": "~master",
+		"logging": "~master",
+		"maths": "~master"
+	}
+}

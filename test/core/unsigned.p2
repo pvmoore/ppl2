@@ -1,0 +1,30 @@
+/**
+ *  Handle unsigned div, mod and comparisons.
+ */export ucmp, ult, tlte, ugt, ugte, udiv, umod
+
+
+
+ucmp = { int a, int b ->
+    return 0
+}
+
+ult = { int a, int b ->
+    return false
+}
+ulte = { int a, int b ->
+    return false
+}
+ugt = { int a, int b ->
+    return false
+}
+ugte = { int a, int b ->
+    return false
+}
+
+udiv = { int a, int b ->
+    return 0
+}
+
+umod = { int a, int b ->
+    return 0
+}

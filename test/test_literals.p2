@@ -1,0 +1,61 @@
+
+import core.string
+
+export testLiterals
+
+new = {}
+
+testLiterals = {
+    booleans()
+    integers()
+    realNumbers()
+    chars()
+    strings()
+}
+booleans = {
+    bool b
+    bool b2 = true
+
+    bool b3 = assert true
+    //assert 1==0  // fails
+}
+integers = {
+    byte by
+    byte by2 = 100
+
+    short s
+    short s2 = 1
+
+    int i
+    int i2 = 3
+
+    long l
+    long l2 = 45
+}
+realNumbers = {
+    half h
+    half h2 = 3.14h
+    half h3 = 3.14
+    half h4 = 3
+
+    float f
+    float f2 = 3.14f
+    float f3 = 3.14
+    float f4 = 3
+
+    double d
+    double d2 = 3.14
+    double d3 = 3.14f
+    double d4 = 3
+}
+chars = {
+    int ch1 = 'a'
+    int ch2 = '\n'
+}
+strings = {
+    string s
+
+
+    var s1 = "hello"
+    var s2 = r"there"
+}

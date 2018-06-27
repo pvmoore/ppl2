@@ -1,0 +1,15 @@
+
+export putchar, puts
+export memcpy, memset, strlen
+
+
+// Externs are assumed to be C calling convention/mangling
+
+// stdio.h
+extern putchar {int char -> int}
+extern puts {byte* str -> int}
+
+// string.h
+extern memcpy {void* destination, void* source, long num -> void*}
+extern memset {void* ptr, int value, long num -> void*}
+extern strlen {byte* str -> long}

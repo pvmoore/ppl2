@@ -1,0 +1,65 @@
+
+export testArrays
+
+new = {
+
+}
+
+Hello = [
+    int a
+]
+
+StructWithArray = [
+    [:int 5] array
+
+    //[int,bool] struct // implement me
+    //Hello hello // implement me
+]
+
+testArrays = {
+    declarations()
+    indexing()
+    arrayOfArray()
+    inferredCount()
+    sparseElements()
+}
+declarations = {
+    [:int 2] a    = [: 1, 3]
+    var b         = [: 7, 13, 17]
+    var c         = [: 1, 3.3, true]
+    [:int 9]* ptr = null
+    [:int] d      = [: 1,2]             // [: int 2]
+    var e         = [: 1 as int,2,3]    // [: int 3]
+}
+arrayOfArray = {
+    [:StructWithArray 1] swa
+    swa:0.array:0
+
+    [:[:int 3] 1] z
+    z:0:1
+}
+inferredCount = {
+    [:int ?] inferredCount = [: 1,2,3]  // ok
+    //[:int ?] inferredCount2   // needs initialiser
+}
+sparseElements = {
+    const var n = 3
+    var a = [: 3=9,10=2]  // [:int 11] [: 0,0,0,9,0,0,0,0,0,2]
+
+    // using const id as index
+    var b = [: n=9,10=2]  // [:int 11] [: 0,0,0,9,0,0,0,0,0,2]
+
+    // using const id as count
+    [:int n] b      // [:int 3]
+}
+indexing = {
+    var a = [: 1,2]
+
+    int a1 = a:0
+    var a2 = a:1
+
+    //var a3 = a:2    // bounds error
+
+    var index = 1
+    var a4    = a:index
+}

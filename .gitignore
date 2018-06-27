@@ -1,0 +1,12 @@
+
+.out/
+.idea/
+*.iml
+
+.dub/
+.logs/
+
+*.exe
+*.lib
+*.lnk
+*.xml

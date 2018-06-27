@@ -1,0 +1,15 @@
+[15:48:48.428] [  -1] Module[refs=2] core.c
+[15:48:48.428] [   9]    'putchar' Function[refs=1] (EXTERN)
+[15:48:48.428] [   9]       FunctionType:{int char->int}
+[15:48:48.428] [   9]          Variable[refs=1] 'char' int (STRUCT)
+[15:48:48.428] [   9]             Initialiser (type=int)
+[15:48:48.429] [   9]                ASSIGN (type=int)
+[15:48:48.429] [   9]                   ID:char (type=int)
+[15:48:48.429] [  -1]                   0 (type=const int)
+[15:48:48.429] [   9]          Variable[refs=0] int (STRUCT)
+[15:48:48.429] [  -1]    'new' Function[refs=1] (GLOBAL)
+[15:48:48.429] [  -1]       {} (type={void->void})
+[15:48:48.429] [  -1]          Arguments
+[15:48:48.429] ==============================================
+[15:48:48.429] ======================== Unresolved Nodes (0)
+[15:48:48.429] ==============================================

@@ -1,0 +1,33 @@
+[15:48:48.434] [  -1] Module[refs=2] core.string
+[15:48:48.434] [   4]    NamedStruct[refs=1] string
+[15:48:48.435] [   4]       AnonStruct [byte*, int]
+[15:48:48.435] [   6]          Variable[refs=1] 'ptr' byte* (STRUCT)
+[15:48:48.435] [   8]          Variable[refs=2] 'length' int (STRUCT)
+[15:48:48.435] [  10]          'empty' Function[refs=0] (STRUCT)
+[15:48:48.435] [  10]             {} (type={string* this->bool})
+[15:48:48.435] [  10]                Arguments
+[15:48:48.435] [   4]                   Variable[refs=0] 'this' string* (PARAM)
+[15:48:48.435] [  11]                return
+[15:48:48.435] [  11]                   BOOL_EQ (type=bool)
+[15:48:48.435] [  11]                      ID:length (type=int)
+[15:48:48.435] [  11]                      0 (type=const byte)
+[15:48:48.435] [  -1]          'new' Function[refs=1] (STRUCT)
+[15:48:48.435] [  -1]             {} (type={string* this->string*})
+[15:48:48.435] [  -1]                Arguments
+[15:48:48.435] [   4]                   Variable[refs=1] 'this' string* (PARAM)
+[15:48:48.435] [   6]                Initialiser (type=byte*)
+[15:48:48.435] [   6]                   ASSIGN (type=byte*)
+[15:48:48.435] [   6]                      ID:ptr (type=byte*)
+[15:48:48.435] [  -1]                      null (type=const byte*)
+[15:48:48.435] [   8]                Initialiser (type=int)
+[15:48:48.435] [   8]                   ASSIGN (type=int)
+[15:48:48.435] [   8]                      ID:length (type=int)
+[15:48:48.435] [  -1]                      0 (type=const int)
+[15:48:48.435] [  -1]                return
+[15:48:48.435] [  -1]                   ID:this (type=string*)
+[15:48:48.435] [  -1]    'new' Function[refs=1] (GLOBAL)
+[15:48:48.435] [  -1]       {} (type={void->void})
+[15:48:48.435] [  -1]          Arguments
+[15:48:48.435] ==============================================
+[15:48:48.435] ======================== Unresolved Nodes (0)
+[15:48:48.435] ==============================================

@@ -1,0 +1,44 @@
+
+export testConsts
+
+testConsts = {
+    const A      = (((1 + (2))))
+    const var B  = 2 + A
+    const int C  = 3
+
+    // binary expressions
+    const long D = 10/2
+    const int E  = 3*5
+    const var F  = 9%2
+    const var G  = 1+4
+    const var H  = 3-2
+
+    const int I = 1 << 2
+    const int J = 0xff000000 as int >> 1
+    const int K = 0xff000000 as int >>> 1
+
+    const var L = 1 < 2
+    const var M = 1 > 2
+    const var N = 1 <= 1
+    const var O = 1 >= 1
+    const var P = 1 == 1
+    const var Q = 1 != 1
+
+    const var R = 0 & 0xff
+    const var S = 0 ^ 0xff
+    const var T = 0 | 0xff
+
+    const var U = true and false
+    const var V = (true or false)
+
+    const var W = -10
+
+    // unary expressions
+    const var woo = 1
+    var waa = -woo + (3 - ~3 as int)    // 6
+    var wii = not true
+
+    //const int D         // needs initialiser
+
+    //A += 1    // modifying const
+}
