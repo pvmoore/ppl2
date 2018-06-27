@@ -21,31 +21,42 @@ public:
         parent.addToEnd(n);
 
         /// Is this type already defined?
-        auto def = findType!Define(t.value, parent);
-        if(def) {
-            throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
-                "Type %s already defined".format(t.value));
-        }
-        auto ns = findType!NamedStruct(t.value, parent);
-        if(ns) {
-            if(ns.type.numMemberVariables==0) {
-                /// Re-use previous definition
-                n.detach();
-
-                ns.removeAt(0);
-                n = ns;
-                log("Re-using redefined struct %s", n.name);
-
-            } else {
+        auto type = findType(t.value, parent);
+        if(type) {
+            if(type.isDefine) {
                 throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
+                    "Type %s already defined".format(t.value));
+            } else if(type.isNamedStruct) {
+                auto ns = type.getNamedStruct;
+                if(ns.type.numMemberVariables==0) {
+                    /// Re-use previous definition
+                    n.detach();
+
+                    ns.removeAt(0);
+                    n = ns;
+                    log("Re-using redefined struct %s", n.name);
+
+                } else {
+                    throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
                     "Struct %s already defined".format(t.value));
+                }
             }
         }
-
-        //if(n is null) {
-        //    n = makeNode!NamedStruct(t);
+        //auto ns = findType!NamedStruct(t.value, parent);
+        //if(ns) {
+        //    if(ns.type.numMemberVariables==0) {
+        //        /// Re-use previous definition
+        //        n.detach();
+        //
+        //        ns.removeAt(0);
+        //        n = ns;
+        //        log("Re-using redefined struct %s", n.name);
+        //
+        //    } else {
+        //        throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
+        //            "Struct %s already defined".format(t.value));
+        //    }
         //}
-        //parent.addToEnd(n);
 
         /// name
         n.name = t.value;

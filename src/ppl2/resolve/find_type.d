@@ -10,12 +10,12 @@ import ppl2.internal;
 /// This allows us to use the parent (literal function) to find a node which
 /// wouldn't normally be necessary if we started from the node itself (which we may not have).
 ///
-T findType(T)(string name, ASTNode node)
-    if(is(T==Define) || is(T==NamedStruct))
-{
-    pragma(inline,true) T find(ASTNode n) {
-        auto def = cast(T)n;
-        if(def !is null && def.name==name) return def;
+Type findType(string name, ASTNode node) {
+    pragma(inline,true) Type find(ASTNode n) {
+        auto def = n.as!Define;
+        if(def && def.name==name) return def;
+        auto ns = n.as!NamedStruct;
+        if(ns && ns.name==name) return ns;
         return null;
     }
 
@@ -26,26 +26,26 @@ T findType(T)(string name, ASTNode node)
     if(nid==NodeID.MODULE) {
         /// Check all module level nodes
         foreach(n; node.children) {
-            auto def = find(n);
-            if(def) return def;
+            auto t = find(n);
+            if(t) return t;
         }
         return null;
 
     } else if(nid==NodeID.ANON_STRUCT || nid==NodeID.LITERAL_FUNCTION) {
         /// Check all scope level nodes
         foreach(n; node.children) {
-            auto def = find(n);
-            if(def) return def;
+            auto t = find(n);
+            if(t) return t;
         }
         /// Recurse up the tree
-        return findType!T(name, node.parent);
+        return findType(name, node.parent);
 
     }
     /// Check nodes that appear before 'node' in current scope
     foreach(n; node.prevSiblings()) {
-        auto def = find(n);
-        if (def) return def;
+        auto t = find(n);
+        if(t) return t;
     }
     /// Recurse up the tree
-    return findType!T(name, node.parent);
+    return findType(name, node.parent);
 }

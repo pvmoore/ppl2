@@ -78,22 +78,23 @@ public:
                 t.next;
                 type = new BasicType(p);
             }
-            /// Is it a NamedStruct?
+            /// Is it a NamedStruct or Define?
             if(type is null) {
-                auto ns = findType!NamedStruct(value, node);
-                if(ns) {
+                auto ty = findType(value, node);
+                if(ty) {
                     t.next;
-                    type = ns;
+                    type = ty;
+                    if(type.isA!Define && type.as!Define.isKnown) type = type.as!Define.type;
                 }
             }
             /// is it a Define?
-            if(type is null) {
-                auto def = findType!Define(value, node);
-                if(def) {
-                    t.next;
-                    type = def.isKnown ? def.type : def;
-                }
-            }
+            //if(type is null) {
+            //    auto def = findType!Define(value, node);
+            //    if(def) {
+            //        t.next;
+            //        type = def.isKnown ? def.type : def;
+            //    }
+            //}
             // todo - template type
             if(type is null) {
 

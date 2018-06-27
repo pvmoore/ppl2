@@ -477,7 +477,7 @@ private:
         auto s = makeNode!LiteralString(t);
         parent.addToEnd(s);
 
-        s.type = findType!Define("string", s);
+        s.type = findType("string", s);
         dd("type=", s.type);
 
         /// todo - Concatenate strings here if possible
