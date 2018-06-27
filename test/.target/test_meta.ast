@@ -1,27 +1,27 @@
-[15:48:48.389] [  -1] Module[refs=2] test_meta
-[15:48:48.389] [   5]    'testMeta' Function[refs=1] (GLOBAL)
-[15:48:48.389] [   5]       {} (type={void->void})
-[15:48:48.389] [   5]          Arguments
-[15:48:48.389] [   8]          Variable[refs=2] 'a' int (LOCAL)
-[15:48:48.389] [   8]             Initialiser (type=int)
-[15:48:48.390] [   8]                ASSIGN (type=int)
-[15:48:48.390] [   8]                   ID:a (type=int)
-[15:48:48.390] [   8]                   1 (type=const byte)
-[15:48:48.390] [   9]          Variable[refs=2] 'ptr' int* (LOCAL)
-[15:48:48.390] [   9]             Initialiser (type=int*)
-[15:48:48.390] [   9]                ASSIGN (type=int*)
-[15:48:48.390] [   9]                   ID:ptr (type=int*)
-[15:48:48.390] [   9]                   AddressOf (int*)
-[15:48:48.390] [   9]                      ID:a (type=int)
-[15:48:48.390] [  10]          Variable[refs=1] 'val' int (LOCAL)
-[15:48:48.390] [  10]             Initialiser (type=int)
-[15:48:48.390] [  10]                ASSIGN (type=int)
-[15:48:48.390] [  10]                   ID:val (type=int)
-[15:48:48.390] [  10]                   ValueOf (int)
-[15:48:48.390] [  10]                      ID:ptr (type=int*)
-[15:48:48.390] [  -1]    'new' Function[refs=1] (GLOBAL)
-[15:48:48.390] [  -1]       {} (type={void->void})
-[15:48:48.390] [  -1]          Arguments
-[15:48:48.390] ==============================================
-[15:48:48.390] ======================== Unresolved Nodes (0)
-[15:48:48.390] ==============================================
+[17:11:31.788] [  -1] Module[refs=2] test_meta
+[17:11:31.788] [   5]    'testMeta' Function[refs=1] (GLOBAL)
+[17:11:31.788] [   5]       {} (type={void->void})
+[17:11:31.788] [   5]          Arguments
+[17:11:31.788] [   8]          Variable[refs=2] 'a' int (LOCAL)
+[17:11:31.788] [   8]             Initialiser (type=int)
+[17:11:31.788] [   8]                ASSIGN (type=int)
+[17:11:31.788] [   8]                   ID:a (type=int)
+[17:11:31.788] [   8]                   1 (type=const byte)
+[17:11:31.788] [   9]          Variable[refs=2] 'ptr' int* (LOCAL)
+[17:11:31.788] [   9]             Initialiser (type=int*)
+[17:11:31.788] [   9]                ASSIGN (type=int*)
+[17:11:31.788] [   9]                   ID:ptr (type=int*)
+[17:11:31.788] [   9]                   AddressOf (int*)
+[17:11:31.788] [   9]                      ID:a (type=int)
+[17:11:31.788] [  10]          Variable[refs=1] 'val' int (LOCAL)
+[17:11:31.788] [  10]             Initialiser (type=int)
+[17:11:31.788] [  10]                ASSIGN (type=int)
+[17:11:31.789] [  10]                   ID:val (type=int)
+[17:11:31.789] [  10]                   ValueOf (int)
+[17:11:31.789] [  10]                      ID:ptr (type=int*)
+[17:11:31.789] [  -1]    'new' Function[refs=1] (GLOBAL)
+[17:11:31.789] [  -1]       {} (type={void->void})
+[17:11:31.789] [  -1]          Arguments
+[17:11:31.789] ==============================================
+[17:11:31.789] ======================== Unresolved Nodes (0)
+[17:11:31.789] ==============================================

@@ -1,15 +1,15 @@
-[15:48:48.426] [  -1] Module[refs=2] test_expressions
-[15:48:48.426] [   5]    'testExpressions' Function[refs=1] (GLOBAL)
-[15:48:48.426] [   5]       {} (type={void->void})
-[15:48:48.426] [   5]          Arguments
-[15:48:48.426] [  19]    Variable[refs=1] 'a' int (GLOBAL)
-[15:48:48.426] [  -1]    'new' Function[refs=1] (GLOBAL)
-[15:48:48.426] [  -1]       {} (type={void->void})
-[15:48:48.426] [  -1]          Arguments
-[15:48:48.426] [  19]          Initialiser (type=int)
-[15:48:48.426] [  19]             ASSIGN (type=int)
-[15:48:48.426] [  19]                ID:a (type=int)
-[15:48:48.426] [  -1]                0 (type=const int)
-[15:48:48.426] ==============================================
-[15:48:48.426] ======================== Unresolved Nodes (0)
-[15:48:48.426] ==============================================
+[17:11:31.820] [  -1] Module[refs=2] test_expressions
+[17:11:31.820] [   5]    'testExpressions' Function[refs=1] (GLOBAL)
+[17:11:31.820] [   5]       {} (type={void->void})
+[17:11:31.820] [   5]          Arguments
+[17:11:31.820] [  19]    Variable[refs=1] 'a' int (GLOBAL)
+[17:11:31.820] [  -1]    'new' Function[refs=1] (GLOBAL)
+[17:11:31.820] [  -1]       {} (type={void->void})
+[17:11:31.820] [  -1]          Arguments
+[17:11:31.820] [  19]          Initialiser (type=int)
+[17:11:31.820] [  19]             ASSIGN (type=int)
+[17:11:31.820] [  19]                ID:a (type=int)
+[17:11:31.820] [  -1]                0 (type=const int)
+[17:11:31.820] ==============================================
+[17:11:31.820] ======================== Unresolved Nodes (0)
+[17:11:31.820] ==============================================

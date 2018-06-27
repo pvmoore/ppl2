@@ -428,7 +428,7 @@ public:
     }
     void visit(LiteralString n) {
         if(n.type.isUnknown) {
-
+            resolveType(n.type);
         }
     }
     void visit(LiteralStruct n) {

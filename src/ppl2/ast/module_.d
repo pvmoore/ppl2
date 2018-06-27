@@ -13,6 +13,9 @@ public:
     bool isParsed;
     Set!ASTNode activeRoots;  /// Active root nodes
 
+    LiteralString[][string] literalStrings;
+    LiteralFunction[] literalFunctions;
+
     ModuleParser parser;
     StatementParser stmtParser;
     ExpressionParser exprParser;
@@ -37,6 +40,13 @@ public:
         m.canonicalName = canonicalName;
         log("Creating new Module(%s)", m.canonicalName);
         return m;
+    }
+
+    void addLiteralString(LiteralString s) {
+        literalStrings[s.value] ~= s;
+    }
+    void addLiteralFunction(LiteralFunction f) {
+        literalFunctions ~= f;
     }
 
     NodeBuilder builder(ASTNode n) { return nodeBuilder.forNode(n); }

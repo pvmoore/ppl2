@@ -1,403 +1,403 @@
-[15:48:48.401] [  -1] Module[refs=5] test
-[15:48:48.401] [  23]    Variable[refs=1] 'dd' int** (GLOBAL)
-[15:48:48.401] [  25]    NamedStruct[refs=1] Gold
-[15:48:48.401] [  30]       AnonStruct [Silver*]
-[15:48:48.401] [  31]          Variable[refs=1] 'silver' Silver* (STRUCT)
-[15:48:48.401] [  33]          'new' Function[refs=1] (STRUCT)
-[15:48:48.401] [  33]             {} (type={Gold* this->Gold*})
-[15:48:48.401] [  33]                Arguments
-[15:48:48.401] [  25]                   Variable[refs=1] 'this' Gold* (PARAM)
-[15:48:48.401] [  31]                Initialiser (type=Silver*)
-[15:48:48.401] [  31]                   ASSIGN (type=Silver*)
-[15:48:48.401] [  31]                      ID:silver (type=Silver*)
-[15:48:48.401] [  -1]                      null (type=const Silver*)
-[15:48:48.401] [  -1]                return
-[15:48:48.402] [  -1]                   ID:this (type=Gold*)
-[15:48:48.402] [  27]    NamedStruct[refs=1] Silver
-[15:48:48.402] [  27]       AnonStruct [Gold*]
-[15:48:48.402] [  28]          Variable[refs=1] 'gold' Gold* (STRUCT)
-[15:48:48.402] [  30]          'new' Function[refs=0] (STRUCT)
-[15:48:48.402] [  30]             {} (type={Silver* this->Silver*})
-[15:48:48.402] [  30]                Arguments
-[15:48:48.402] [  27]                   Variable[refs=1] 'this' Silver* (PARAM)
-[15:48:48.402] [  28]                Initialiser (type=Gold*)
-[15:48:48.402] [  28]                   ASSIGN (type=Gold*)
-[15:48:48.402] [  28]                      ID:gold (type=Gold*)
-[15:48:48.402] [  -1]                      null (type=const Gold*)
-[15:48:48.402] [  -1]                return
-[15:48:48.402] [  -1]                   ID:this (type=Silver*)
-[15:48:48.402] [  33]    Variable[refs=2] 'gold' Gold (GLOBAL)
-[15:48:48.402] [  36]    'new' Function[refs=1] (GLOBAL)
-[15:48:48.402] [  36]       {} (type={void->void})
-[15:48:48.402] [  36]          Arguments
-[15:48:48.402] [  23]          Initialiser (type=int**)
-[15:48:48.402] [  23]             ASSIGN (type=int**)
-[15:48:48.402] [  23]                ID:dd (type=int**)
-[15:48:48.402] [  -1]                null (type=const int**)
-[15:48:48.402] [  33]          Initialiser (type=Gold)
-[15:48:48.402] [  33]             Dot (type=Gold*)
-[15:48:48.402] [  33]                ID:gold (type=Gold)
-[15:48:48.402] [  33]                Call Target: STRUCTFUNC new {Gold* this->Gold*}
-[15:48:48.402] [  33]                   AddressOf (Gold*)
-[15:48:48.402] [  33]                      ID:gold (type=Gold)
-[15:48:48.402] [  64]          Initialiser (type=int)
-[15:48:48.402] [  64]             ASSIGN (type=int)
-[15:48:48.402] [  64]                ID:boop (type=int)
-[15:48:48.402] [  64]                1 (type=const byte)
-[15:48:48.402] [  68]          Initialiser (type=int)
-[15:48:48.402] [  68]             ASSIGN (type=int)
-[15:48:48.402] [  68]                ID:unr (type=int)
-[15:48:48.402] [  68]                77 (type=const byte)
-[15:48:48.402] [ 174]          Initialiser (type=bool)
-[15:48:48.402] [ 174]             ASSIGN (type=bool)
-[15:48:48.402] [ 174]                ID:yop (type=bool)
-[15:48:48.402] [  -1]                0 (type=const bool)
-[15:48:48.402] [  38]          ADD_ASSIGN (type=int)
-[15:48:48.402] [  38]             ID:boop (type=int)
-[15:48:48.402] [  38]             7 (type=const byte)
-[15:48:48.402] [  41]    NamedStruct[refs=1] Goal
-[15:48:48.402] [  41]       AnonStruct [int]
-[15:48:48.403] [  42]          Variable[refs=1] 'scorer' int (STRUCT)
-[15:48:48.403] [  45]          'new' Function[refs=1] (STRUCT)
-[15:48:48.403] [  45]             {} (type={Goal* this->Goal*})
-[15:48:48.403] [  45]                Arguments
-[15:48:48.403] [  41]                   Variable[refs=1] 'this' Goal* (PARAM)
-[15:48:48.403] [  42]                Initialiser (type=int)
-[15:48:48.403] [  42]                   ASSIGN (type=int)
-[15:48:48.403] [  42]                      ID:scorer (type=int)
-[15:48:48.403] [  -1]                      0 (type=const int)
-[15:48:48.403] [  -1]                return
-[15:48:48.403] [  -1]                   ID:this (type=Goal*)
-[15:48:48.403] [  45]    NamedStruct[refs=1] Animal
-[15:48:48.403] [  45]       AnonStruct [int, ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)], Goal, AnonStruct [int, bool]]
-[15:48:48.403] [  46]          Variable[refs=1] 'age' int (STRUCT)
-[15:48:48.403] [  47]          Variable[refs=1] 's' ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)] (STRUCT)
-[15:48:48.403] [  47]             ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)]
-[15:48:48.403] [  47]                4 (type=const byte)
-[15:48:48.403] [  48]          Variable[refs=2] 'g' Goal (STRUCT)
-[15:48:48.403] [  49]          Variable[refs=2] 'anon' AnonStruct [int, bool] (STRUCT)
-[15:48:48.403] [  49]             AnonStruct [int, bool]
-[15:48:48.403] [  49]                Variable[refs=0] int (STRUCT)
-[15:48:48.403] [  49]                Variable[refs=0] bool (STRUCT)
-[15:48:48.403] [  50]          'bark' Function[refs=0] (STRUCT)
-[15:48:48.403] [  50]             {} (type={Animal* this->void})
-[15:48:48.403] [  50]                Arguments
-[15:48:48.403] [  45]                   Variable[refs=0] 'this' Animal* (PARAM)
-[15:48:48.403] [  55]          'new' Function[refs=0] (STRUCT)
-[15:48:48.403] [  55]             {} (type={Animal* this->Animal*})
-[15:48:48.403] [  55]                Arguments
-[15:48:48.403] [  45]                   Variable[refs=1] 'this' Animal* (PARAM)
-[15:48:48.404] [  46]                Initialiser (type=int)
-[15:48:48.404] [  46]                   ASSIGN (type=int)
-[15:48:48.404] [  46]                      ID:age (type=int)
-[15:48:48.404] [  -1]                      0 (type=const int)
-[15:48:48.404] [  47]                Initialiser (type=ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)])
-[15:48:48.404] [  47]                   ASSIGN (type=ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)])
-[15:48:48.404] [  47]                      ID:s (type=ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)])
-[15:48:48.404] [  47]                      [: ] ArrayType:[nid=1347, subtype=int, count=4 (type=const byte)] (index based)
-[15:48:48.404] [  -1]                         3 (type=const int)
-[15:48:48.404] [  -1]                         0 (type=const int)
-[15:48:48.404] [  48]                Initialiser (type=Goal)
-[15:48:48.404] [  48]                   Dot (type=Goal*)
-[15:48:48.404] [  48]                      ID:g (type=Goal)
-[15:48:48.404] [  48]                      Call Target: STRUCTFUNC new {Goal* this->Goal*}
-[15:48:48.404] [  48]                         AddressOf (Goal*)
-[15:48:48.404] [  48]                            ID:g (type=Goal)
-[15:48:48.404] [  49]                Initialiser (type=AnonStruct [int, bool])
-[15:48:48.404] [  49]                   ASSIGN (type=int)
-[15:48:48.404] [  49]                      Index (int) :0 (type=const int)
-[15:48:48.404] [  49]                         ID:anon (type=AnonStruct [int, bool])
-[15:48:48.404] [  -1]                         0 (type=const int)
-[15:48:48.404] [  -1]                      0 (type=const int)
-[15:48:48.404] [  49]                   ASSIGN (type=bool)
-[15:48:48.404] [  49]                      Index (bool) :1 (type=const int)
-[15:48:48.404] [  49]                         ID:anon (type=AnonStruct [int, bool])
-[15:48:48.404] [  -1]                         1 (type=const int)
-[15:48:48.404] [  -1]                      0 (type=const bool)
-[15:48:48.404] [  -1]                return
-[15:48:48.404] [  -1]                   ID:this (type=Animal*)
-[15:48:48.404] [  55]    Define[refs=1] GreyWolf = Wolf
-[15:48:48.404] [  59]    'dothings' Function[refs=1] (GLOBAL)
-[15:48:48.404] [  59]       {} (type={int a,Cat cat->Cat})
-[15:48:48.404] [  59]          Arguments
-[15:48:48.404] [  59]             Variable[refs=0] 'a' int (PARAM)
-[15:48:48.404] [  59]             Variable[refs=1] 'cat' Cat (PARAM)
-[15:48:48.404] [  60]          Variable[refs=1] 'local' int (LOCAL)
-[15:48:48.404] [  60]             Initialiser (type=int)
-[15:48:48.404] [  60]                ASSIGN (type=int)
-[15:48:48.404] [  60]                   ID:local (type=int)
-[15:48:48.404] [  -1]                   0 (type=const int)
-[15:48:48.404] [  61]          return
-[15:48:48.405] [  61]             ID:cat (type=Cat)
-[15:48:48.405] [  64]    Variable[refs=2] 'boop' int (GLOBAL)
-[15:48:48.405] [  68]    Variable[refs=1] 'unr' int (GLOBAL)
-[15:48:48.405] [  74]    NamedStruct[refs=1] Thingy
-[15:48:48.405] [  74]       AnonStruct [int]
-[15:48:48.405] [  75]          Variable[refs=2] 'a' int (STRUCT)
-[15:48:48.405] [  83]          'new' Function[refs=1] (STRUCT)
-[15:48:48.405] [  83]             {} (type={Thingy* this->Thingy*})
-[15:48:48.405] [  83]                Arguments
-[15:48:48.405] [  74]                   Variable[refs=1] 'this' Thingy* (PARAM)
-[15:48:48.405] [  75]                Initialiser (type=int)
-[15:48:48.405] [  75]                   ASSIGN (type=int)
-[15:48:48.405] [  75]                      ID:a (type=int)
-[15:48:48.405] [  -1]                      0 (type=const int)
-[15:48:48.405] [  -1]                return
-[15:48:48.405] [  -1]                   ID:this (type=Thingy*)
-[15:48:48.405] [  83]    'main' Function[refs=1] (GLOBAL)
-[15:48:48.405] [  83]       {} (type={void->void})
-[15:48:48.405] [  83]          Arguments
-[15:48:48.405] [  28]          Call Target: FUNC test_closures.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC core.string.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_imports.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC core.c.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_expressions.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_consts.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_casting.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_structs.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_literal_struct.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_literals.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_meta.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_arrays.new {void->void}
-[15:48:48.405] [  28]          Call Target: FUNC test_constructors.new {void->void}
-[15:48:48.405] [  84]          Variable[refs=2] 'wolf' Wolf (LOCAL)
-[15:48:48.405] [  84]             Initialiser (type=Wolf)
-[15:48:48.405] [  84]                Dot (type=Wolf*)
-[15:48:48.405] [  84]                   ID:wolf (type=Wolf)
-[15:48:48.406] [  84]                   Call Target: STRUCTFUNC test_imports.new {Wolf* this->Wolf*}
-[15:48:48.406] [  84]                      AddressOf (Wolf*)
-[15:48:48.406] [  84]                         ID:wolf (type=Wolf)
-[15:48:48.406] [  85]          Variable[refs=1] 'animal' Animal* (LOCAL)
-[15:48:48.406] [  85]             Initialiser (type=Animal*)
-[15:48:48.406] [  85]                ASSIGN (type=Animal*)
-[15:48:48.406] [  85]                   ID:animal (type=Animal*)
-[15:48:48.406] [  -1]                   null (type=const Animal*)
-[15:48:48.406] [  86]          Variable[refs=1] 'animal2' Animal** (LOCAL)
-[15:48:48.406] [  86]             Initialiser (type=Animal**)
-[15:48:48.406] [  86]                ASSIGN (type=Animal**)
-[15:48:48.406] [  86]                   ID:animal2 (type=Animal**)
-[15:48:48.406] [  -1]                   null (type=const Animal**)
-[15:48:48.406] [  87]          Variable[refs=1] 'animalPtr' Animal* (LOCAL)
-[15:48:48.406] [  87]             Initialiser (type=Animal*)
-[15:48:48.406] [  87]                ASSIGN (type=Animal*)
-[15:48:48.406] [  87]                   ID:animalPtr (type=Animal*)
-[15:48:48.406] [  -1]                   null (type=const Animal*)
-[15:48:48.406] [  88]          Variable[refs=1] 'ip' int* (LOCAL)
-[15:48:48.406] [  88]             Initialiser (type=int*)
-[15:48:48.406] [  88]                ASSIGN (type=int*)
-[15:48:48.406] [  88]                   ID:ip (type=int*)
-[15:48:48.406] [  -1]                   null (type=const int*)
-[15:48:48.406] [  90]          Variable[refs=3] 'cat' Cat (LOCAL)
-[15:48:48.406] [  90]             Initialiser (type=Cat)
-[15:48:48.406] [  90]                Dot (type=Cat*)
-[15:48:48.406] [  90]                   ID:cat (type=Cat)
-[15:48:48.406] [  90]                   Call Target: STRUCTFUNC test_imports.new {Cat* this->Cat*}
-[15:48:48.406] [  90]                      AddressOf (Cat*)
-[15:48:48.406] [  90]                         ID:cat (type=Cat)
-[15:48:48.406] [  91]          Variable[refs=3] 'dog' Dog* (LOCAL)
-[15:48:48.406] [  91]             Initialiser (type=Dog*)
-[15:48:48.406] [  91]                ASSIGN (type=Dog*)
-[15:48:48.406] [  91]                   ID:dog (type=Dog*)
-[15:48:48.406] [  -1]                   null (type=const Dog*)
-[15:48:48.406] [  92]          ADD_ASSIGN (type=int)
-[15:48:48.406] [  92]             Dot (type=int)
-[15:48:48.406] [  92]                ID:dog (type=Dog*)
-[15:48:48.406] [  92]                ID:age (type=int)
-[15:48:48.407] [  92]             1 (type=const byte)
-[15:48:48.407] [  94]          Variable[refs=2] 'bertyStruct' AnonStruct [int, Bat] (LOCAL)
-[15:48:48.407] [  94]             AnonStruct [int, Bat]
-[15:48:48.407] [  94]                Variable[refs=0] int (STRUCT)
-[15:48:48.407] [  94]                Variable[refs=0] 'berty' Bat (STRUCT)
-[15:48:48.407] [  94]             Initialiser (type=AnonStruct [int, Bat])
-[15:48:48.407] [  94]                ASSIGN (type=int)
-[15:48:48.407] [  94]                   Index (int) :0 (type=const int)
-[15:48:48.407] [  94]                      ID:bertyStruct (type=AnonStruct [int, Bat])
-[15:48:48.407] [  -1]                      0 (type=const int)
-[15:48:48.407] [  -1]                   0 (type=const int)
-[15:48:48.407] [  94]                ASSIGN (type=Bat)
-[15:48:48.407] [  94]                   Index (Bat) :1 (type=const int)
-[15:48:48.407] [  94]                      ID:bertyStruct (type=AnonStruct [int, Bat])
-[15:48:48.407] [  -1]                      1 (type=const int)
-[15:48:48.407] [  -1]                   Composite
-[15:48:48.407] [  -1]                      Variable[refs=2] '__Bat0' Bat (STRUCT)
-[15:48:48.407] [  -1]                         ValueOf (Bat)
-[15:48:48.407] [  -1]                            Dot (type=Bat*)
-[15:48:48.407] [  -1]                               ID:__Bat0 (type=Bat)
-[15:48:48.407] [  -1]                               Call Target: STRUCTFUNC new {Bat* this->Bat*}
-[15:48:48.407] [  -1]                                  AddressOf (Bat*)
-[15:48:48.407] [  -1]                                     ID:__Bat0 (type=Bat)
-[15:48:48.407] [  96]          Variable[refs=1] 'a' int (LOCAL)
-[15:48:48.407] [  96]             Initialiser (type=int)
-[15:48:48.407] [  96]                ASSIGN (type=int)
-[15:48:48.407] [  96]                   ID:a (type=int)
-[15:48:48.407] [  96]                   1 (type=const byte)
-[15:48:48.407] [  97]          Variable[refs=1] 'b' byte (LOCAL)
-[15:48:48.407] [  97]             Initialiser (type=byte)
-[15:48:48.407] [  97]                ASSIGN (type=byte)
-[15:48:48.407] [  97]                   ID:b (type=byte)
-[15:48:48.407] [  97]                   2 (type=const byte)
-[15:48:48.407] [  99]          Variable[refs=3] 'thingy' Thingy (LOCAL)
-[15:48:48.407] [  99]             Initialiser (type=Thingy)
-[15:48:48.407] [  99]                Dot (type=Thingy*)
-[15:48:48.407] [  99]                   ID:thingy (type=Thingy)
-[15:48:48.407] [  99]                   Call Target: STRUCTFUNC new {Thingy* this->Thingy*}
-[15:48:48.407] [  99]                      AddressOf (Thingy*)
-[15:48:48.408] [  99]                         ID:thingy (type=Thingy)
-[15:48:48.408] [ 100]          ASSIGN (type=int)
-[15:48:48.408] [ 100]             Dot (type=int)
-[15:48:48.408] [ 100]                ID:thingy (type=Thingy)
-[15:48:48.408] [ 100]                ID:a (type=int)
-[15:48:48.408] [ 100]             9 (type=const byte)
-[15:48:48.408] [ 102]          Call Target: FUNC test_arrays.testArrays {void->void}
-[15:48:48.408] [ 103]          Call Target: FUNC test_literals.testLiterals {void->void}
-[15:48:48.408] [ 104]          Call Target: FUNC test_expressions.testExpressions {void->void}
-[15:48:48.408] [ 105]          Call Target: FUNC test_structs.testStructs {void->void}
-[15:48:48.408] [ 106]          Call Target: FUNC test_casting.testCasting {void->void}
-[15:48:48.408] [ 107]          Call Target: FUNC test_closures.testClosures {void->void}
-[15:48:48.408] [ 108]          Call Target: FUNC test_consts.testConsts {void->void}
-[15:48:48.408] [ 109]          Call Target: FUNC test_constructors.testConstructors {void->void}
-[15:48:48.408] [ 110]          Call Target: FUNC test_meta.testMeta {void->void}
-[15:48:48.408] [ 111]          Call Target: FUNC test_literal_struct.testLiteralStruct {void->void}
-[15:48:48.408] [ 113]          Call Target: FUNC dothings {int a,Cat cat->Cat}
-[15:48:48.408] [ 113]             0 (type=const byte)
-[15:48:48.408] [ 113]             ID:cat (type=Cat)
-[15:48:48.408] [ 114]          Call Target: FUNC core.c.putchar {int char->int}
-[15:48:48.408] [ 114]             1 (type=const byte)
-[15:48:48.408] [ 116]          Variable[refs=3] 'dd' Dog* (LOCAL)
-[15:48:48.408] [ 116]             Initialiser (type=Dog*)
-[15:48:48.408] [ 116]                ASSIGN (type=Dog*)
-[15:48:48.408] [ 116]                   ID:dd (type=Dog*)
-[15:48:48.408] [ 116]                   null (type=const Dog*)
-[15:48:48.408] [ 117]          ASSIGN (type=Dog*)
-[15:48:48.408] [ 117]             ID:dd (type=Dog*)
-[15:48:48.408] [ 117]             ID:dog (type=Dog*)
-[15:48:48.408] [ 118]          ASSIGN (type=Dog*)
-[15:48:48.408] [ 118]             ID:dd (type=Dog*)
-[15:48:48.408] [ 118]             null (type=const Dog*)
-[15:48:48.408] [ 125]          Variable[refs=2] 'funcptr' {bool->void} (LOCAL)
-[15:48:48.408] [ 125]             FunctionType:{bool->void}
-[15:48:48.408] [ 125]                Variable[refs=0] bool (STRUCT)
-[15:48:48.408] [ 125]                Variable[refs=0] void (STRUCT)
-[15:48:48.408] [ 125]             Initialiser (type={bool->void})
-[15:48:48.408] [ 125]                ASSIGN (type={bool->void})
-[15:48:48.409] [ 125]                   ID:funcptr (type={bool->void})
-[15:48:48.409] [ 125]                   {} (type={bool b->byte})
-[15:48:48.409] [ 125]                      Arguments
-[15:48:48.409] [ 125]                         Variable[refs=0] 'b' bool (PARAM)
-[15:48:48.409] [ 127]                      return
-[15:48:48.409] [ 127]                         99 (type=const byte)
-[15:48:48.409] [ 132]          Variable[refs=1] 'hello' {int a->short} (LOCAL)
-[15:48:48.409] [ 132]             Initialiser (type={int a->short})
-[15:48:48.409] [ 132]                ASSIGN (type={int a->short})
-[15:48:48.409] [ 132]                   ID:hello (type={int a->short})
-[15:48:48.409] [ 132]                   {} (type={int a->short})
-[15:48:48.409] [ 132]                      Arguments
-[15:48:48.409] [ 132]                         Variable[refs=0] 'a' int (PARAM)
-[15:48:48.409] [ 132]                      return
-[15:48:48.409] [ 132]                         700 (type=const short)
-[15:48:48.409] [ 135]          Call Target: VAR funcptr {bool->void}
-[15:48:48.409] [ 135]             1 (type=const bool)
-[15:48:48.409] [ 137]          Variable[refs=1] 'piggywiggy' {void->Pig**} (LOCAL)
-[15:48:48.409] [ 137]             FunctionType:{void->Pig**}
-[15:48:48.409] [ 137]                Variable[refs=0] void (STRUCT)
-[15:48:48.409] [ 137]                Variable[refs=0] Pig** (STRUCT)
-[15:48:48.409] [ 137]             Initialiser (type={void->Pig**})
-[15:48:48.409] [ 137]                ASSIGN (type={void->Pig**})
-[15:48:48.409] [ 137]                   ID:piggywiggy (type={void->Pig**})
-[15:48:48.409] [  -1]                   null (type=const {void->Pig**})
-[15:48:48.409] [ 138]          Variable[refs=1] 'piggywiggy2' {void->Pig} (LOCAL)
-[15:48:48.409] [ 138]             FunctionType:{void->Pig}
-[15:48:48.409] [ 138]                Variable[refs=0] void (STRUCT)
-[15:48:48.409] [ 138]                Variable[refs=0] Pig (STRUCT)
-[15:48:48.409] [ 138]             Initialiser (type={void->Pig})
-[15:48:48.409] [ 138]                ASSIGN (type={void->Pig})
-[15:48:48.409] [ 138]                   ID:piggywiggy2 (type={void->Pig})
-[15:48:48.410] [  -1]                   null (type=const {void->Pig})
-[15:48:48.410] [ 141]          Variable[refs=1] 'a' Pig* (LOCAL)
-[15:48:48.410] [ 141]             Initialiser (type=Pig*)
-[15:48:48.410] [ 141]                ASSIGN (type=Pig*)
-[15:48:48.410] [ 141]                   ID:a (type=Pig*)
-[15:48:48.410] [ 141]                   As (Pig*)
-[15:48:48.410] [ 141]                      null (type=const Pig*)
-[15:48:48.410] [ 141]                      Type:Pig*
-[15:48:48.410] [ 143]          Variable[refs=1] 'zz' ArrayType:[nid=1539, subtype=Bat, count=3 (type=const byte)] (LOCAL)
-[15:48:48.410] [ 143]             ArrayType:[nid=1539, subtype=Bat, count=3 (type=const byte)]
-[15:48:48.410] [ 143]                3 (type=const byte)
-[15:48:48.410] [ 143]             Initialiser (type=ArrayType:[nid=1539, subtype=Bat, count=3 (type=const byte)])
-[15:48:48.410] [ 143]                ASSIGN (type=ArrayType:[nid=1539, subtype=Bat, count=3 (type=const byte)])
-[15:48:48.410] [ 143]                   ID:zz (type=ArrayType:[nid=1539, subtype=Bat, count=3 (type=const byte)])
-[15:48:48.410] [ 143]                   [: ] ArrayType:[nid=1539, subtype=Bat, count=3 (type=const byte)] (index based)
-[15:48:48.410] [  -1]                      2 (type=const int)
-[15:48:48.410] [  -1]                      Composite
-[15:48:48.410] [  -1]                         Variable[refs=2] '__Bat1' Bat (STRUCT)
-[15:48:48.410] [  -1]                            ValueOf (Bat)
-[15:48:48.410] [  -1]                               Dot (type=Bat*)
-[15:48:48.410] [  -1]                                  ID:__Bat1 (type=Bat)
-[15:48:48.410] [  -1]                                  Call Target: STRUCTFUNC new {Bat* this->Bat*}
-[15:48:48.410] [  -1]                                     AddressOf (Bat*)
-[15:48:48.410] [  -1]                                        ID:__Bat1 (type=Bat)
-[15:48:48.410] [ 147]          Variable[refs=1] 'inty' int (LOCAL)
-[15:48:48.410] [ 147]             Initialiser (type=int)
-[15:48:48.410] [ 147]                ASSIGN (type=int)
-[15:48:48.410] [ 147]                   ID:inty (type=int)
-[15:48:48.410] [  -1]                   0 (type=const int)
-[15:48:48.410] [ 148]          Variable[refs=1] 'funky' {void->void} (LOCAL)
-[15:48:48.410] [ 148]             FunctionType:{void->void}
-[15:48:48.410] [ 148]                Variable[refs=0] void (STRUCT)
-[15:48:48.410] [ 148]                Variable[refs=0] void (STRUCT)
-[15:48:48.410] [ 148]             Initialiser (type={void->void})
-[15:48:48.410] [ 148]                ASSIGN (type={void->void})
-[15:48:48.411] [ 148]                   ID:funky (type={void->void})
-[15:48:48.411] [  -1]                   null (type=const {void->void})
-[15:48:48.411] [ 149]          Variable[refs=2] 'batty' Bat (LOCAL)
-[15:48:48.411] [ 149]             Initialiser (type=Bat)
-[15:48:48.411] [ 149]                Dot (type=Bat*)
-[15:48:48.411] [ 149]                   ID:batty (type=Bat)
-[15:48:48.411] [ 149]                   Call Target: STRUCTFUNC test_imports.new {Bat* this->Bat*}
-[15:48:48.411] [ 149]                      AddressOf (Bat*)
-[15:48:48.411] [ 149]                         ID:batty (type=Bat)
-[15:48:48.411] [ 150]          Variable[refs=1] 'battyptr' Bat* (LOCAL)
-[15:48:48.411] [ 150]             Initialiser (type=Bat*)
-[15:48:48.411] [ 150]                ASSIGN (type=Bat*)
-[15:48:48.411] [ 150]                   ID:battyptr (type=Bat*)
-[15:48:48.411] [  -1]                   null (type=const Bat*)
-[15:48:48.411] [ 151]          Variable[refs=1] 'arrayy' ArrayType:[nid=1559, subtype=int, count=1 (type=const byte)] (LOCAL)
-[15:48:48.411] [ 151]             ArrayType:[nid=1559, subtype=int, count=1 (type=const byte)]
-[15:48:48.411] [ 151]                1 (type=const byte)
-[15:48:48.411] [ 151]             Initialiser (type=ArrayType:[nid=1559, subtype=int, count=1 (type=const byte)])
-[15:48:48.411] [ 151]                ASSIGN (type=ArrayType:[nid=1559, subtype=int, count=1 (type=const byte)])
-[15:48:48.411] [ 151]                   ID:arrayy (type=ArrayType:[nid=1559, subtype=int, count=1 (type=const byte)])
-[15:48:48.411] [ 151]                   [: ] ArrayType:[nid=1559, subtype=int, count=1 (type=const byte)] (index based)
-[15:48:48.411] [  -1]                      0 (type=const int)
-[15:48:48.411] [  -1]                      0 (type=const int)
-[15:48:48.411] [ 152]          Variable[refs=2] 'structy' AnonStruct [int, bool] (LOCAL)
-[15:48:48.411] [ 152]             AnonStruct [int, bool]
-[15:48:48.411] [ 152]                Variable[refs=0] 'a' int (STRUCT)
-[15:48:48.411] [ 152]                Variable[refs=0] 'b' bool (STRUCT)
-[15:48:48.411] [ 152]             Initialiser (type=AnonStruct [int, bool])
-[15:48:48.411] [ 152]                ASSIGN (type=int)
-[15:48:48.411] [ 152]                   Index (int) :0 (type=const int)
-[15:48:48.411] [ 152]                      ID:structy (type=AnonStruct [int, bool])
-[15:48:48.411] [  -1]                      0 (type=const int)
-[15:48:48.411] [  -1]                   0 (type=const int)
-[15:48:48.411] [ 152]                ASSIGN (type=bool)
-[15:48:48.411] [ 152]                   Index (bool) :1 (type=const int)
-[15:48:48.411] [ 152]                      ID:structy (type=AnonStruct [int, bool])
-[15:48:48.411] [  -1]                      1 (type=const int)
-[15:48:48.411] [  -1]                   0 (type=const bool)
-[15:48:48.411] [ 156]          Variable[refs=2] 'ptr' int* (LOCAL)
-[15:48:48.411] [ 156]             Initialiser (type=int*)
-[15:48:48.412] [ 156]                ASSIGN (type=int*)
-[15:48:48.412] [ 156]                   ID:ptr (type=int*)
-[15:48:48.412] [  -1]                   null (type=const int*)
-[15:48:48.412] [ 160]          Index (int) :0 (type=const byte)
-[15:48:48.412] [ 160]             ID:ptr (type=int*)
-[15:48:48.412] [ 160]             0 (type=const byte)
-[15:48:48.412] [ 164]          Define[refs=0] Wazzer = float
-[15:48:48.412] [ 165]          Define[refs=0] Zipper = float
-[15:48:48.412] [ 166]          Define[refs=0] Zippers = float*
-[15:48:48.412] [ 174]    Variable[refs=1] 'yop' bool (GLOBAL)
-[15:48:48.412] ==============================================
-[15:48:48.412] ======================== Unresolved Nodes (0)
-[15:48:48.412] ==============================================
+[17:11:31.801] [  -1] Module[refs=5] test
+[17:11:31.801] [  23]    Variable[refs=1] 'dd' int** (GLOBAL)
+[17:11:31.801] [  25]    NamedStruct[refs=1] Gold
+[17:11:31.801] [  30]       AnonStruct [Silver*]
+[17:11:31.801] [  31]          Variable[refs=1] 'silver' Silver* (STRUCT)
+[17:11:31.801] [  33]          'new' Function[refs=1] (STRUCT)
+[17:11:31.801] [  33]             {} (type={Gold* this->Gold*})
+[17:11:31.801] [  33]                Arguments
+[17:11:31.801] [  25]                   Variable[refs=1] 'this' Gold* (PARAM)
+[17:11:31.801] [  31]                Initialiser (type=Silver*)
+[17:11:31.801] [  31]                   ASSIGN (type=Silver*)
+[17:11:31.801] [  31]                      ID:silver (type=Silver*)
+[17:11:31.801] [  -1]                      null (type=const Silver*)
+[17:11:31.801] [  -1]                return
+[17:11:31.801] [  -1]                   ID:this (type=Gold*)
+[17:11:31.801] [  27]    NamedStruct[refs=1] Silver
+[17:11:31.801] [  27]       AnonStruct [Gold*]
+[17:11:31.801] [  28]          Variable[refs=1] 'gold' Gold* (STRUCT)
+[17:11:31.801] [  30]          'new' Function[refs=0] (STRUCT)
+[17:11:31.801] [  30]             {} (type={Silver* this->Silver*})
+[17:11:31.801] [  30]                Arguments
+[17:11:31.801] [  27]                   Variable[refs=1] 'this' Silver* (PARAM)
+[17:11:31.801] [  28]                Initialiser (type=Gold*)
+[17:11:31.801] [  28]                   ASSIGN (type=Gold*)
+[17:11:31.801] [  28]                      ID:gold (type=Gold*)
+[17:11:31.801] [  -1]                      null (type=const Gold*)
+[17:11:31.801] [  -1]                return
+[17:11:31.801] [  -1]                   ID:this (type=Silver*)
+[17:11:31.801] [  33]    Variable[refs=2] 'gold' Gold (GLOBAL)
+[17:11:31.801] [  36]    'new' Function[refs=1] (GLOBAL)
+[17:11:31.801] [  36]       {} (type={void->void})
+[17:11:31.801] [  36]          Arguments
+[17:11:31.801] [  23]          Initialiser (type=int**)
+[17:11:31.801] [  23]             ASSIGN (type=int**)
+[17:11:31.801] [  23]                ID:dd (type=int**)
+[17:11:31.802] [  -1]                null (type=const int**)
+[17:11:31.802] [  33]          Initialiser (type=Gold)
+[17:11:31.802] [  33]             Dot (type=Gold*)
+[17:11:31.802] [  33]                ID:gold (type=Gold)
+[17:11:31.802] [  33]                Call Target: STRUCTFUNC new {Gold* this->Gold*}
+[17:11:31.802] [  33]                   AddressOf (Gold*)
+[17:11:31.802] [  33]                      ID:gold (type=Gold)
+[17:11:31.802] [  64]          Initialiser (type=int)
+[17:11:31.802] [  64]             ASSIGN (type=int)
+[17:11:31.802] [  64]                ID:boop (type=int)
+[17:11:31.802] [  64]                1 (type=const byte)
+[17:11:31.802] [  68]          Initialiser (type=int)
+[17:11:31.802] [  68]             ASSIGN (type=int)
+[17:11:31.802] [  68]                ID:unr (type=int)
+[17:11:31.802] [  68]                77 (type=const byte)
+[17:11:31.802] [ 174]          Initialiser (type=bool)
+[17:11:31.802] [ 174]             ASSIGN (type=bool)
+[17:11:31.802] [ 174]                ID:yop (type=bool)
+[17:11:31.802] [  -1]                0 (type=const bool)
+[17:11:31.802] [  38]          ADD_ASSIGN (type=int)
+[17:11:31.802] [  38]             ID:boop (type=int)
+[17:11:31.802] [  38]             7 (type=const byte)
+[17:11:31.802] [  41]    NamedStruct[refs=1] Goal
+[17:11:31.802] [  41]       AnonStruct [int]
+[17:11:31.802] [  42]          Variable[refs=1] 'scorer' int (STRUCT)
+[17:11:31.802] [  45]          'new' Function[refs=1] (STRUCT)
+[17:11:31.802] [  45]             {} (type={Goal* this->Goal*})
+[17:11:31.802] [  45]                Arguments
+[17:11:31.802] [  41]                   Variable[refs=1] 'this' Goal* (PARAM)
+[17:11:31.802] [  42]                Initialiser (type=int)
+[17:11:31.802] [  42]                   ASSIGN (type=int)
+[17:11:31.802] [  42]                      ID:scorer (type=int)
+[17:11:31.802] [  -1]                      0 (type=const int)
+[17:11:31.802] [  -1]                return
+[17:11:31.802] [  -1]                   ID:this (type=Goal*)
+[17:11:31.802] [  45]    NamedStruct[refs=1] Animal
+[17:11:31.802] [  45]       AnonStruct [int, ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)], Goal, AnonStruct [int, bool]]
+[17:11:31.802] [  46]          Variable[refs=1] 'age' int (STRUCT)
+[17:11:31.802] [  47]          Variable[refs=1] 's' ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)] (STRUCT)
+[17:11:31.802] [  47]             ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)]
+[17:11:31.802] [  47]                4 (type=const byte)
+[17:11:31.802] [  48]          Variable[refs=2] 'g' Goal (STRUCT)
+[17:11:31.802] [  49]          Variable[refs=2] 'anon' AnonStruct [int, bool] (STRUCT)
+[17:11:31.802] [  49]             AnonStruct [int, bool]
+[17:11:31.802] [  49]                Variable[refs=0] int (STRUCT)
+[17:11:31.802] [  49]                Variable[refs=0] bool (STRUCT)
+[17:11:31.802] [  50]          'bark' Function[refs=0] (STRUCT)
+[17:11:31.802] [  50]             {} (type={Animal* this->void})
+[17:11:31.802] [  50]                Arguments
+[17:11:31.802] [  45]                   Variable[refs=0] 'this' Animal* (PARAM)
+[17:11:31.802] [  55]          'new' Function[refs=0] (STRUCT)
+[17:11:31.802] [  55]             {} (type={Animal* this->Animal*})
+[17:11:31.802] [  55]                Arguments
+[17:11:31.802] [  45]                   Variable[refs=1] 'this' Animal* (PARAM)
+[17:11:31.802] [  46]                Initialiser (type=int)
+[17:11:31.802] [  46]                   ASSIGN (type=int)
+[17:11:31.802] [  46]                      ID:age (type=int)
+[17:11:31.802] [  -1]                      0 (type=const int)
+[17:11:31.802] [  47]                Initialiser (type=ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)])
+[17:11:31.802] [  47]                   ASSIGN (type=ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)])
+[17:11:31.802] [  47]                      ID:s (type=ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)])
+[17:11:31.802] [  47]                      [: ] ArrayType:[nid=1343, subtype=int, count=4 (type=const byte)] (index based)
+[17:11:31.802] [  -1]                         3 (type=const int)
+[17:11:31.802] [  -1]                         0 (type=const int)
+[17:11:31.802] [  48]                Initialiser (type=Goal)
+[17:11:31.802] [  48]                   Dot (type=Goal*)
+[17:11:31.802] [  48]                      ID:g (type=Goal)
+[17:11:31.802] [  48]                      Call Target: STRUCTFUNC new {Goal* this->Goal*}
+[17:11:31.802] [  48]                         AddressOf (Goal*)
+[17:11:31.802] [  48]                            ID:g (type=Goal)
+[17:11:31.802] [  49]                Initialiser (type=AnonStruct [int, bool])
+[17:11:31.803] [  49]                   ASSIGN (type=int)
+[17:11:31.803] [  49]                      Index (int) :0 (type=const int)
+[17:11:31.803] [  49]                         ID:anon (type=AnonStruct [int, bool])
+[17:11:31.803] [  -1]                         0 (type=const int)
+[17:11:31.803] [  -1]                      0 (type=const int)
+[17:11:31.803] [  49]                   ASSIGN (type=bool)
+[17:11:31.803] [  49]                      Index (bool) :1 (type=const int)
+[17:11:31.803] [  49]                         ID:anon (type=AnonStruct [int, bool])
+[17:11:31.803] [  -1]                         1 (type=const int)
+[17:11:31.803] [  -1]                      0 (type=const bool)
+[17:11:31.803] [  -1]                return
+[17:11:31.803] [  -1]                   ID:this (type=Animal*)
+[17:11:31.803] [  55]    Define[refs=1] GreyWolf = Wolf
+[17:11:31.803] [  59]    'dothings' Function[refs=1] (GLOBAL)
+[17:11:31.803] [  59]       {} (type={int a,Cat cat->Cat})
+[17:11:31.803] [  59]          Arguments
+[17:11:31.803] [  59]             Variable[refs=0] 'a' int (PARAM)
+[17:11:31.803] [  59]             Variable[refs=1] 'cat' Cat (PARAM)
+[17:11:31.803] [  60]          Variable[refs=1] 'local' int (LOCAL)
+[17:11:31.803] [  60]             Initialiser (type=int)
+[17:11:31.803] [  60]                ASSIGN (type=int)
+[17:11:31.803] [  60]                   ID:local (type=int)
+[17:11:31.803] [  -1]                   0 (type=const int)
+[17:11:31.803] [  61]          return
+[17:11:31.803] [  61]             ID:cat (type=Cat)
+[17:11:31.803] [  64]    Variable[refs=2] 'boop' int (GLOBAL)
+[17:11:31.803] [  68]    Variable[refs=1] 'unr' int (GLOBAL)
+[17:11:31.803] [  74]    NamedStruct[refs=1] Thingy
+[17:11:31.803] [  74]       AnonStruct [int]
+[17:11:31.803] [  75]          Variable[refs=2] 'a' int (STRUCT)
+[17:11:31.803] [  83]          'new' Function[refs=1] (STRUCT)
+[17:11:31.803] [  83]             {} (type={Thingy* this->Thingy*})
+[17:11:31.803] [  83]                Arguments
+[17:11:31.803] [  74]                   Variable[refs=1] 'this' Thingy* (PARAM)
+[17:11:31.803] [  75]                Initialiser (type=int)
+[17:11:31.803] [  75]                   ASSIGN (type=int)
+[17:11:31.803] [  75]                      ID:a (type=int)
+[17:11:31.803] [  -1]                      0 (type=const int)
+[17:11:31.803] [  -1]                return
+[17:11:31.803] [  -1]                   ID:this (type=Thingy*)
+[17:11:31.803] [  83]    'main' Function[refs=1] (GLOBAL)
+[17:11:31.803] [  83]       {} (type={void->void})
+[17:11:31.803] [  83]          Arguments
+[17:11:31.803] [  28]          Call Target: FUNC test_closures.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC core.string.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_imports.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC core.c.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_expressions.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_consts.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_casting.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_structs.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_literal_struct.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_literals.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_meta.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_arrays.new {void->void}
+[17:11:31.803] [  28]          Call Target: FUNC test_constructors.new {void->void}
+[17:11:31.803] [  84]          Variable[refs=2] 'wolf' Wolf (LOCAL)
+[17:11:31.803] [  84]             Initialiser (type=Wolf)
+[17:11:31.803] [  84]                Dot (type=Wolf*)
+[17:11:31.803] [  84]                   ID:wolf (type=Wolf)
+[17:11:31.803] [  84]                   Call Target: STRUCTFUNC test_imports.new {Wolf* this->Wolf*}
+[17:11:31.803] [  84]                      AddressOf (Wolf*)
+[17:11:31.803] [  84]                         ID:wolf (type=Wolf)
+[17:11:31.803] [  85]          Variable[refs=1] 'animal' Animal* (LOCAL)
+[17:11:31.803] [  85]             Initialiser (type=Animal*)
+[17:11:31.803] [  85]                ASSIGN (type=Animal*)
+[17:11:31.803] [  85]                   ID:animal (type=Animal*)
+[17:11:31.803] [  -1]                   null (type=const Animal*)
+[17:11:31.803] [  86]          Variable[refs=1] 'animal2' Animal** (LOCAL)
+[17:11:31.803] [  86]             Initialiser (type=Animal**)
+[17:11:31.803] [  86]                ASSIGN (type=Animal**)
+[17:11:31.804] [  86]                   ID:animal2 (type=Animal**)
+[17:11:31.804] [  -1]                   null (type=const Animal**)
+[17:11:31.804] [  87]          Variable[refs=1] 'animalPtr' Animal* (LOCAL)
+[17:11:31.804] [  87]             Initialiser (type=Animal*)
+[17:11:31.804] [  87]                ASSIGN (type=Animal*)
+[17:11:31.804] [  87]                   ID:animalPtr (type=Animal*)
+[17:11:31.804] [  -1]                   null (type=const Animal*)
+[17:11:31.804] [  88]          Variable[refs=1] 'ip' int* (LOCAL)
+[17:11:31.804] [  88]             Initialiser (type=int*)
+[17:11:31.804] [  88]                ASSIGN (type=int*)
+[17:11:31.804] [  88]                   ID:ip (type=int*)
+[17:11:31.804] [  -1]                   null (type=const int*)
+[17:11:31.804] [  90]          Variable[refs=3] 'cat' Cat (LOCAL)
+[17:11:31.804] [  90]             Initialiser (type=Cat)
+[17:11:31.804] [  90]                Dot (type=Cat*)
+[17:11:31.804] [  90]                   ID:cat (type=Cat)
+[17:11:31.804] [  90]                   Call Target: STRUCTFUNC test_imports.new {Cat* this->Cat*}
+[17:11:31.804] [  90]                      AddressOf (Cat*)
+[17:11:31.804] [  90]                         ID:cat (type=Cat)
+[17:11:31.804] [  91]          Variable[refs=3] 'dog' Dog* (LOCAL)
+[17:11:31.804] [  91]             Initialiser (type=Dog*)
+[17:11:31.804] [  91]                ASSIGN (type=Dog*)
+[17:11:31.804] [  91]                   ID:dog (type=Dog*)
+[17:11:31.804] [  -1]                   null (type=const Dog*)
+[17:11:31.804] [  92]          ADD_ASSIGN (type=int)
+[17:11:31.804] [  92]             Dot (type=int)
+[17:11:31.804] [  92]                ID:dog (type=Dog*)
+[17:11:31.804] [  92]                ID:age (type=int)
+[17:11:31.804] [  92]             1 (type=const byte)
+[17:11:31.804] [  94]          Variable[refs=2] 'bertyStruct' AnonStruct [int, Bat] (LOCAL)
+[17:11:31.804] [  94]             AnonStruct [int, Bat]
+[17:11:31.804] [  94]                Variable[refs=0] int (STRUCT)
+[17:11:31.804] [  94]                Variable[refs=0] 'berty' Bat (STRUCT)
+[17:11:31.804] [  94]             Initialiser (type=AnonStruct [int, Bat])
+[17:11:31.804] [  94]                ASSIGN (type=int)
+[17:11:31.804] [  94]                   Index (int) :0 (type=const int)
+[17:11:31.804] [  94]                      ID:bertyStruct (type=AnonStruct [int, Bat])
+[17:11:31.804] [  -1]                      0 (type=const int)
+[17:11:31.804] [  -1]                   0 (type=const int)
+[17:11:31.804] [  94]                ASSIGN (type=Bat)
+[17:11:31.804] [  94]                   Index (Bat) :1 (type=const int)
+[17:11:31.804] [  94]                      ID:bertyStruct (type=AnonStruct [int, Bat])
+[17:11:31.804] [  -1]                      1 (type=const int)
+[17:11:31.804] [  -1]                   Composite
+[17:11:31.804] [  -1]                      Variable[refs=2] '__Bat0' Bat (STRUCT)
+[17:11:31.804] [  -1]                         ValueOf (Bat)
+[17:11:31.804] [  -1]                            Dot (type=Bat*)
+[17:11:31.804] [  -1]                               ID:__Bat0 (type=Bat)
+[17:11:31.804] [  -1]                               Call Target: STRUCTFUNC new {Bat* this->Bat*}
+[17:11:31.804] [  -1]                                  AddressOf (Bat*)
+[17:11:31.804] [  -1]                                     ID:__Bat0 (type=Bat)
+[17:11:31.804] [  96]          Variable[refs=1] 'a' int (LOCAL)
+[17:11:31.804] [  96]             Initialiser (type=int)
+[17:11:31.804] [  96]                ASSIGN (type=int)
+[17:11:31.804] [  96]                   ID:a (type=int)
+[17:11:31.804] [  96]                   1 (type=const byte)
+[17:11:31.804] [  97]          Variable[refs=1] 'b' byte (LOCAL)
+[17:11:31.804] [  97]             Initialiser (type=byte)
+[17:11:31.804] [  97]                ASSIGN (type=byte)
+[17:11:31.804] [  97]                   ID:b (type=byte)
+[17:11:31.804] [  97]                   2 (type=const byte)
+[17:11:31.804] [  99]          Variable[refs=3] 'thingy' Thingy (LOCAL)
+[17:11:31.804] [  99]             Initialiser (type=Thingy)
+[17:11:31.804] [  99]                Dot (type=Thingy*)
+[17:11:31.804] [  99]                   ID:thingy (type=Thingy)
+[17:11:31.804] [  99]                   Call Target: STRUCTFUNC new {Thingy* this->Thingy*}
+[17:11:31.804] [  99]                      AddressOf (Thingy*)
+[17:11:31.804] [  99]                         ID:thingy (type=Thingy)
+[17:11:31.804] [ 100]          ASSIGN (type=int)
+[17:11:31.804] [ 100]             Dot (type=int)
+[17:11:31.804] [ 100]                ID:thingy (type=Thingy)
+[17:11:31.804] [ 100]                ID:a (type=int)
+[17:11:31.804] [ 100]             9 (type=const byte)
+[17:11:31.804] [ 102]          Call Target: FUNC test_arrays.testArrays {void->void}
+[17:11:31.804] [ 103]          Call Target: FUNC test_literals.testLiterals {void->void}
+[17:11:31.804] [ 104]          Call Target: FUNC test_expressions.testExpressions {void->void}
+[17:11:31.805] [ 105]          Call Target: FUNC test_structs.testStructs {void->void}
+[17:11:31.805] [ 106]          Call Target: FUNC test_casting.testCasting {void->void}
+[17:11:31.805] [ 107]          Call Target: FUNC test_closures.testClosures {void->void}
+[17:11:31.805] [ 108]          Call Target: FUNC test_consts.testConsts {void->void}
+[17:11:31.805] [ 109]          Call Target: FUNC test_constructors.testConstructors {void->void}
+[17:11:31.805] [ 110]          Call Target: FUNC test_meta.testMeta {void->void}
+[17:11:31.805] [ 111]          Call Target: FUNC test_literal_struct.testLiteralStruct {void->void}
+[17:11:31.805] [ 113]          Call Target: FUNC dothings {int a,Cat cat->Cat}
+[17:11:31.805] [ 113]             0 (type=const byte)
+[17:11:31.805] [ 113]             ID:cat (type=Cat)
+[17:11:31.805] [ 114]          Call Target: FUNC core.c.putchar {int char->int}
+[17:11:31.805] [ 114]             1 (type=const byte)
+[17:11:31.805] [ 116]          Variable[refs=3] 'dd' Dog* (LOCAL)
+[17:11:31.805] [ 116]             Initialiser (type=Dog*)
+[17:11:31.805] [ 116]                ASSIGN (type=Dog*)
+[17:11:31.805] [ 116]                   ID:dd (type=Dog*)
+[17:11:31.805] [ 116]                   null (type=const Dog*)
+[17:11:31.805] [ 117]          ASSIGN (type=Dog*)
+[17:11:31.805] [ 117]             ID:dd (type=Dog*)
+[17:11:31.805] [ 117]             ID:dog (type=Dog*)
+[17:11:31.805] [ 118]          ASSIGN (type=Dog*)
+[17:11:31.805] [ 118]             ID:dd (type=Dog*)
+[17:11:31.805] [ 118]             null (type=const Dog*)
+[17:11:31.805] [ 125]          Variable[refs=2] 'funcptr' {bool->void} (LOCAL)
+[17:11:31.805] [ 125]             FunctionType:{bool->void}
+[17:11:31.805] [ 125]                Variable[refs=0] bool (STRUCT)
+[17:11:31.805] [ 125]                Variable[refs=0] void (STRUCT)
+[17:11:31.805] [ 125]             Initialiser (type={bool->void})
+[17:11:31.805] [ 125]                ASSIGN (type={bool->void})
+[17:11:31.805] [ 125]                   ID:funcptr (type={bool->void})
+[17:11:31.805] [ 125]                   {} (type={bool b->byte})
+[17:11:31.805] [ 125]                      Arguments
+[17:11:31.805] [ 125]                         Variable[refs=0] 'b' bool (PARAM)
+[17:11:31.805] [ 127]                      return
+[17:11:31.805] [ 127]                         99 (type=const byte)
+[17:11:31.805] [ 132]          Variable[refs=1] 'hello' {int a->short} (LOCAL)
+[17:11:31.805] [ 132]             Initialiser (type={int a->short})
+[17:11:31.805] [ 132]                ASSIGN (type={int a->short})
+[17:11:31.805] [ 132]                   ID:hello (type={int a->short})
+[17:11:31.805] [ 132]                   {} (type={int a->short})
+[17:11:31.805] [ 132]                      Arguments
+[17:11:31.805] [ 132]                         Variable[refs=0] 'a' int (PARAM)
+[17:11:31.805] [ 132]                      return
+[17:11:31.805] [ 132]                         700 (type=const short)
+[17:11:31.805] [ 135]          Call Target: VAR funcptr {bool->void}
+[17:11:31.805] [ 135]             1 (type=const bool)
+[17:11:31.805] [ 137]          Variable[refs=1] 'piggywiggy' {void->Pig**} (LOCAL)
+[17:11:31.805] [ 137]             FunctionType:{void->Pig**}
+[17:11:31.805] [ 137]                Variable[refs=0] void (STRUCT)
+[17:11:31.805] [ 137]                Variable[refs=0] Pig** (STRUCT)
+[17:11:31.805] [ 137]             Initialiser (type={void->Pig**})
+[17:11:31.805] [ 137]                ASSIGN (type={void->Pig**})
+[17:11:31.805] [ 137]                   ID:piggywiggy (type={void->Pig**})
+[17:11:31.805] [  -1]                   null (type=const {void->Pig**})
+[17:11:31.805] [ 138]          Variable[refs=1] 'piggywiggy2' {void->Pig} (LOCAL)
+[17:11:31.805] [ 138]             FunctionType:{void->Pig}
+[17:11:31.805] [ 138]                Variable[refs=0] void (STRUCT)
+[17:11:31.805] [ 138]                Variable[refs=0] Pig (STRUCT)
+[17:11:31.805] [ 138]             Initialiser (type={void->Pig})
+[17:11:31.805] [ 138]                ASSIGN (type={void->Pig})
+[17:11:31.805] [ 138]                   ID:piggywiggy2 (type={void->Pig})
+[17:11:31.805] [  -1]                   null (type=const {void->Pig})
+[17:11:31.805] [ 141]          Variable[refs=1] 'a' Pig* (LOCAL)
+[17:11:31.805] [ 141]             Initialiser (type=Pig*)
+[17:11:31.805] [ 141]                ASSIGN (type=Pig*)
+[17:11:31.805] [ 141]                   ID:a (type=Pig*)
+[17:11:31.805] [ 141]                   As (Pig*)
+[17:11:31.805] [ 141]                      null (type=const Pig*)
+[17:11:31.805] [ 141]                      Type:Pig*
+[17:11:31.806] [ 143]          Variable[refs=1] 'zz' ArrayType:[nid=1535, subtype=Bat, count=3 (type=const byte)] (LOCAL)
+[17:11:31.806] [ 143]             ArrayType:[nid=1535, subtype=Bat, count=3 (type=const byte)]
+[17:11:31.806] [ 143]                3 (type=const byte)
+[17:11:31.806] [ 143]             Initialiser (type=ArrayType:[nid=1535, subtype=Bat, count=3 (type=const byte)])
+[17:11:31.806] [ 143]                ASSIGN (type=ArrayType:[nid=1535, subtype=Bat, count=3 (type=const byte)])
+[17:11:31.806] [ 143]                   ID:zz (type=ArrayType:[nid=1535, subtype=Bat, count=3 (type=const byte)])
+[17:11:31.806] [ 143]                   [: ] ArrayType:[nid=1535, subtype=Bat, count=3 (type=const byte)] (index based)
+[17:11:31.806] [  -1]                      2 (type=const int)
+[17:11:31.806] [  -1]                      Composite
+[17:11:31.806] [  -1]                         Variable[refs=2] '__Bat1' Bat (STRUCT)
+[17:11:31.806] [  -1]                            ValueOf (Bat)
+[17:11:31.806] [  -1]                               Dot (type=Bat*)
+[17:11:31.806] [  -1]                                  ID:__Bat1 (type=Bat)
+[17:11:31.806] [  -1]                                  Call Target: STRUCTFUNC new {Bat* this->Bat*}
+[17:11:31.806] [  -1]                                     AddressOf (Bat*)
+[17:11:31.806] [  -1]                                        ID:__Bat1 (type=Bat)
+[17:11:31.806] [ 147]          Variable[refs=1] 'inty' int (LOCAL)
+[17:11:31.806] [ 147]             Initialiser (type=int)
+[17:11:31.806] [ 147]                ASSIGN (type=int)
+[17:11:31.806] [ 147]                   ID:inty (type=int)
+[17:11:31.806] [  -1]                   0 (type=const int)
+[17:11:31.806] [ 148]          Variable[refs=1] 'funky' {void->void} (LOCAL)
+[17:11:31.806] [ 148]             FunctionType:{void->void}
+[17:11:31.806] [ 148]                Variable[refs=0] void (STRUCT)
+[17:11:31.806] [ 148]                Variable[refs=0] void (STRUCT)
+[17:11:31.806] [ 148]             Initialiser (type={void->void})
+[17:11:31.806] [ 148]                ASSIGN (type={void->void})
+[17:11:31.806] [ 148]                   ID:funky (type={void->void})
+[17:11:31.806] [  -1]                   null (type=const {void->void})
+[17:11:31.806] [ 149]          Variable[refs=2] 'batty' Bat (LOCAL)
+[17:11:31.806] [ 149]             Initialiser (type=Bat)
+[17:11:31.806] [ 149]                Dot (type=Bat*)
+[17:11:31.806] [ 149]                   ID:batty (type=Bat)
+[17:11:31.806] [ 149]                   Call Target: STRUCTFUNC test_imports.new {Bat* this->Bat*}
+[17:11:31.806] [ 149]                      AddressOf (Bat*)
+[17:11:31.806] [ 149]                         ID:batty (type=Bat)
+[17:11:31.806] [ 150]          Variable[refs=1] 'battyptr' Bat* (LOCAL)
+[17:11:31.806] [ 150]             Initialiser (type=Bat*)
+[17:11:31.806] [ 150]                ASSIGN (type=Bat*)
+[17:11:31.806] [ 150]                   ID:battyptr (type=Bat*)
+[17:11:31.806] [  -1]                   null (type=const Bat*)
+[17:11:31.806] [ 151]          Variable[refs=1] 'arrayy' ArrayType:[nid=1555, subtype=int, count=1 (type=const byte)] (LOCAL)
+[17:11:31.806] [ 151]             ArrayType:[nid=1555, subtype=int, count=1 (type=const byte)]
+[17:11:31.806] [ 151]                1 (type=const byte)
+[17:11:31.806] [ 151]             Initialiser (type=ArrayType:[nid=1555, subtype=int, count=1 (type=const byte)])
+[17:11:31.806] [ 151]                ASSIGN (type=ArrayType:[nid=1555, subtype=int, count=1 (type=const byte)])
+[17:11:31.806] [ 151]                   ID:arrayy (type=ArrayType:[nid=1555, subtype=int, count=1 (type=const byte)])
+[17:11:31.806] [ 151]                   [: ] ArrayType:[nid=1555, subtype=int, count=1 (type=const byte)] (index based)
+[17:11:31.806] [  -1]                      0 (type=const int)
+[17:11:31.806] [  -1]                      0 (type=const int)
+[17:11:31.806] [ 152]          Variable[refs=2] 'structy' AnonStruct [int, bool] (LOCAL)
+[17:11:31.806] [ 152]             AnonStruct [int, bool]
+[17:11:31.806] [ 152]                Variable[refs=0] 'a' int (STRUCT)
+[17:11:31.806] [ 152]                Variable[refs=0] 'b' bool (STRUCT)
+[17:11:31.806] [ 152]             Initialiser (type=AnonStruct [int, bool])
+[17:11:31.806] [ 152]                ASSIGN (type=int)
+[17:11:31.806] [ 152]                   Index (int) :0 (type=const int)
+[17:11:31.806] [ 152]                      ID:structy (type=AnonStruct [int, bool])
+[17:11:31.806] [  -1]                      0 (type=const int)
+[17:11:31.806] [  -1]                   0 (type=const int)
+[17:11:31.806] [ 152]                ASSIGN (type=bool)
+[17:11:31.806] [ 152]                   Index (bool) :1 (type=const int)
+[17:11:31.806] [ 152]                      ID:structy (type=AnonStruct [int, bool])
+[17:11:31.806] [  -1]                      1 (type=const int)
+[17:11:31.806] [  -1]                   0 (type=const bool)
+[17:11:31.806] [ 156]          Variable[refs=2] 'ptr' int* (LOCAL)
+[17:11:31.806] [ 156]             Initialiser (type=int*)
+[17:11:31.807] [ 156]                ASSIGN (type=int*)
+[17:11:31.807] [ 156]                   ID:ptr (type=int*)
+[17:11:31.807] [  -1]                   null (type=const int*)
+[17:11:31.807] [ 160]          Index (int) :0 (type=const byte)
+[17:11:31.807] [ 160]             ID:ptr (type=int*)
+[17:11:31.807] [ 160]             0 (type=const byte)
+[17:11:31.807] [ 164]          Define[refs=0] Wazzer = float
+[17:11:31.807] [ 165]          Define[refs=0] Zipper = float
+[17:11:31.807] [ 166]          Define[refs=0] Zippers = float*
+[17:11:31.807] [ 174]    Variable[refs=1] 'yop' bool (GLOBAL)
+[17:11:31.807] ==============================================
+[17:11:31.807] ======================== Unresolved Nodes (0)
+[17:11:31.807] ==============================================

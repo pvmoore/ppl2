@@ -24,8 +24,6 @@ __gshared Queue!Task g_taskQueue;
 __gshared Set!string definesRequested;      /// key = moduleName|defineName
 __gshared Set!string functionsRequested;  /// key = moduleName|funcName
 
-//__gshared Set!string g_uniqModuleNames = new Set!string;
-
 __gshared int[string] g_builtinTypes;
 __gshared string[int] g_typeToString;
 

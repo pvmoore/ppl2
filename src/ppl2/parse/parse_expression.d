@@ -70,15 +70,15 @@ private:
             case TT.LSQBRACKET:
                 if(t.peek(1).type==TT.COLON) {
                     /// [:
-                    parseArrayLiteral(t, parent);
+                    parseLiteralArray(t, parent);
                 } else {
                     /// [
-                    parseStructLiteral(t, parent);
+                    parseLiteralStruct(t, parent);
                 }
                 break;
             case TT.LANGLE:
             case TT.LCURLY:
-                parseFunctionLiteral(t, parent);
+                parseLiteralFunction(t, parent);
                 break;
             case TT.MINUS:
             case TT.TILDE:
@@ -334,7 +334,7 @@ private:
     ///
     /// literal_function ::= [template_args] "{" [ arguments "->" ] { statement } "}"
     ///
-    void parseFunctionLiteral(TokenNavigator t, ASTNode parent) {
+    void parseLiteralFunction(TokenNavigator t, ASTNode parent) {
         if(t.type==TT.LANGLE) {
             /// Template function - just gather the args and tokens
             auto f = makeNode!LiteralFunctionTemplate(t);
@@ -391,12 +391,14 @@ private:
                 stmtParser().parse(t, f);
             }
             t.skip(TT.RCURLY);
+
+            module_.addLiteralFunction(f);
         }
     }
     ///
     /// literal_struct ::= "[" { [name "="] expression } [ "," [name "="] expression ] "]"
     ///
-    void parseStructLiteral(TokenNavigator t, ASTNode parent) {
+    void parseLiteralStruct(TokenNavigator t, ASTNode parent) {
         auto e = makeNode!LiteralStruct(t);
         parent.addToEnd(e);
 
@@ -429,7 +431,7 @@ private:
     ///
     /// literal_array ::= "[:" [digits"="] expression { "," [digits"="] expression } "]"
     ///
-    void parseArrayLiteral(TokenNavigator t, ASTNode parent) {
+    void parseLiteralArray(TokenNavigator t, ASTNode parent) {
         auto e = makeNode!LiteralArray(t);
         parent.addToEnd(e);
 
@@ -475,6 +477,9 @@ private:
         auto s = makeNode!LiteralString(t);
         parent.addToEnd(s);
 
+        s.type = findType!Define("string", s);
+        dd("type=", s.type);
+
         /// todo - Concatenate strings here if possible
 
         string text = t.value;
@@ -500,8 +505,7 @@ private:
 
         s.value = text;
 
-        /// Calculate and set array length
-        s.type.addToEnd(LiteralNumber.makeConst(s.calculateLength(), TYPE_INT));
+        module_.addLiteralString(s);
     }
     void parseUnary(TokenNavigator t, ASTNode parent) {
 

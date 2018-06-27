@@ -1,4 +1,4 @@
-module ppl2.resolve.find_node;
+module ppl2.resolve.find_type;
 
 import ppl2.internal;
 

@@ -11,14 +11,12 @@ import ppl2.internal;
 final class LiteralString : Expression {
     enum Encoding { U8, RAW }
 
-    ArrayType type;
+    Type type;
     string value;
     Encoding enc;
 
     this() {
-        type         = makeNode!ArrayType(this);
-        type.subtype = TYPE_BYTE;
-
+        type = TYPE_UNKNOWN;
         enc  = Encoding.U8;
     }
 
