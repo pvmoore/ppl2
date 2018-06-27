@@ -53,9 +53,7 @@ chars = {
     int ch2 = '\n'
 }
 strings = {
-    string s
-
-
-    var s1 = "hello"
-    var s2 = r"there"
+    string s    // set to an empty string
+    string s1 = "hello"
+    var s2    = r"there"
 }
