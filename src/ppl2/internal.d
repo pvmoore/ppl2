@@ -17,7 +17,8 @@ import std.algorithm.sorting   : sort;
 import common : Array, Set, Queue, Stack, StringBuffer,
                 as, isA, firstNotNull, flushConsole, endsWith,
                 removeChars, repeat, visit;
-//import llvm.all;
+
+import llvm.all;
 
 import ppl2.access;
 import ppl2.config;
@@ -77,6 +78,7 @@ import ppl2.misc.mangle;
 import ppl2.misc.node_builder;
 import ppl2.misc.tasks;
 import ppl2.misc.util;
+import ppl2.misc.writer;
 
 import ppl2.parse.parse_expression;
 import ppl2.parse.parse_module;

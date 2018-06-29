@@ -13,8 +13,6 @@ __gshared Config g_config;
 
 __gshared int g_nodeid = 1;
 
-__gshared Module[string] g_allModules;
-
 __gshared string g_mainModuleCanonicalName;
 __gshared int g_mainModuleNID;
 

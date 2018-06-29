@@ -537,12 +537,12 @@ public:
         }
     }
     //==========================================================================
-    void dumpToFile() {
+    void writeAST() {
         if(!getConfig().logDebug) return;
 
         //dd("DUMP MODULE", module_);
 
-        auto f = new FileLogger(getConfig().targetPath~module_.canonicalName~".ast");
+        auto f = new FileLogger(getConfig().targetPath~"ast/" ~ module_.canonicalName~".ast");
         scope(exit) f.close();
 
         module_.dump(f);

@@ -38,5 +38,26 @@ public:
         basePath = dirName(mainFile);
 
         if(basePath.length > 0) basePath ~= "/";
+
+        generateTargetDirectories();
+    }
+private:
+    void generateTargetDirectories() {
+        import std.file : exists, mkdir;
+
+        string astpath = targetPath ~ "ast/";
+        if(!exists(astpath)) {
+            mkdir(astpath);
+        }
+
+        string irpath = targetPath ~ "ir/";
+        if(!exists(irpath)) {
+            mkdir(irpath);
+        }
+
+        string bcpath = targetPath ~ "bc/";
+        if(!exists(bcpath)) {
+            mkdir(bcpath);
+        }
     }
 }

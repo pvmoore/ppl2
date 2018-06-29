@@ -2,25 +2,20 @@ module ppl2.ppl2;
 
 import ppl2.internal;
 
-struct ModuleMeta {
-    Module module_;
-    ModuleResolver resolver;
-    ModuleChecker checker;
-    ModuleConstantFolder constFolder;
-    OptimisationDCE dce;
-}
-
 final class PPL2 {
-    ModuleMeta[string] modules; /// key=canonical module name
+    __gshared static Module[string] modules; /// key=canonical module name
+    LLVMWrapper llvm;
 public:
-    __gshared static getModule(string canonicalName) {
-        return g_allModules.get(canonicalName, null);
+    __gshared static Module getModule(string canonicalName) {
+        return modules.get(canonicalName, null);
     }
 
     this(string mainFileRaw) {
         try{
             StopWatch watch;
             watch.start();
+
+            llvm = new LLVMWrapper();
 
             setConfig(new Config(mainFileRaw));
 
@@ -43,6 +38,9 @@ public:
             removeUnreferencedNodes();
             afterResolution();
             semanticCheck();
+            generateIR();
+            optimiseModules();
+            link();
 
             auto time = watch.peek().total!"nsecs";
 
@@ -53,7 +51,7 @@ public:
             writefln("\nOk");
             writefln("Live modules ........... %s", countLiveModules());
             writefln("Modules processed ...... %s", modules.length);
-            writefln("Parser time ............ %.2f ms", modules.values.map!(it=>it.module_.parser.getElapsedNanos).sum() * 1e-6);
+            writefln("Parser time ............ %.2f ms", modules.values.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6);
             writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
             writefln("Constant folder time ... %.2f ms", modules.values.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6);
             writefln("Semantic checker time .. %.2f ms", modules.values.map!(it=>it.checker.getElapsedNanos).sum() * 1e-6);
@@ -62,7 +60,7 @@ public:
 
             writefln("\nLive modules:");
             flushLogs();
-            foreach(m; g_allModules) {
+            foreach(m; modules.values) {
                 writefln("- %s", m.canonicalName);
                 m.dumpInfo();
             }
@@ -71,10 +69,11 @@ public:
             prettyErrorMsg(e);
         }catch(UnresolvedSymbols e) {
             dd("unresolved symbols");
-            displayUnresolved(modules);
+            displayUnresolved(modules.values);
         }catch(Throwable e) {
             throw e;
         }finally{
+            if(llvm) llvm.destroy();
             dumpAST();
             flushLogs();
         }
@@ -93,25 +92,12 @@ private:
                 log("%s", t);
                 //dd(t);
 
-                ModuleMeta meta;
-                Module mod;
+                Module mod = PPL2.getModule(t.moduleName);
                 bool moduleCreated;
-                auto p = t.moduleName in modules;
-                if(p) {
-                    meta = *p;
-                    mod  = meta.module_;
-                } else {
+                if(mod is null) {
                     moduleCreated = true;
-                    mod = Module.fromCanonicalName(t.moduleName);
-                    g_allModules[t.moduleName] = mod;
-                    meta = ModuleMeta(
-                        mod,
-                        new ModuleResolver(mod),
-                        new ModuleChecker(mod),
-                        new ModuleConstantFolder(mod),
-                        new OptimisationDCE(mod)
-                    );
-                    modules[t.moduleName] = meta;
+                    mod = new Module(t.moduleName, llvm);
+                    modules[t.moduleName] = mod;
                 }
 
                 log("Executing %s (%s queued)", t, countTasks());
@@ -139,10 +125,10 @@ private:
 
                 final switch (t.type) with(Task.Type) {
                     case FUNC:
-                        meta.resolver.resolveFunction(t.elementName);
+                        mod.resolver.resolveFunction(t.elementName);
                         break;
                     case DEFINE:
-                        meta.resolver.resolveDefine(t.elementName);
+                        mod.resolver.resolveDefine(t.elementName);
                         break;
                     case EXPORTS:
                         break;
@@ -167,8 +153,7 @@ private:
         dd("after resolution");
         auto initFuncs = new Array!Function;
 
-        foreach(meta; modules) {
-            auto mod = meta.module_;
+        foreach(mod; modules) {
 
             /// Move global var initialisers to module new()
             auto initFunc = mod.getInitFunction();
@@ -184,7 +169,7 @@ private:
 
         // todo - get this in the right order
         /// Call module init functions at start of program entry
-        auto mainModule = g_allModules[g_mainModuleCanonicalName];
+        auto mainModule = modules[g_mainModuleCanonicalName];
         auto entry      = mainModule.getFunctions("main")[0];
         assert(entry);
 
@@ -196,12 +181,12 @@ private:
         }
     }
     void dumpAST() {
-        foreach(meta; modules) {
-            meta.resolver.dumpToFile();
+        foreach(m; modules) {
+            m.resolver.writeAST();
         }
     }
     ulong countLiveModules() {
-        return g_allModules.length;
+        return modules.length;
     }
     int runResolvePass() {
         log("Running resolvers...");
@@ -213,9 +198,9 @@ private:
             numUnresolvedNodes += num;
 
             if(num == 0) {
-                log("\t.. %s is resolved", m.module_.canonicalName);
+                log("\t.. %s is resolved", m.canonicalName);
             } else {
-                log("\t.. %s is unresolved (%s)", m.module_.canonicalName, num);
+                log("\t.. %s is unresolved (%s)", m.canonicalName, num);
                 numUnresolvedModules++;
             }
         }
@@ -243,18 +228,17 @@ private:
 
         log("Removing dead nodes...");
         auto removeMe = new Array!Module;
-        foreach(m; g_allModules.values) {
+        foreach(m; modules.values) {
             if(m.numRefs==0) {
                 log("\t  Removing unreferenced module %s", m.canonicalName);
                 removeMe.add(m);
             }
         }
         foreach(m; removeMe) {
-            g_allModules.remove(m.canonicalName);
             modules.remove(m.canonicalName);
         }
-        foreach(meta; modules.values) {
-            meta.dce.opt();
+        foreach(m; modules.values) {
+            m.dce.opt();
         }
     }
     void semanticCheck() {
@@ -264,5 +248,17 @@ private:
             m.checker.check();
         }
     }
+    void generateIR() {
+        log("Generating IR");
+        dd("gen IR");
+        foreach(m; modules.values) {
+            m.gen.generate();
+        }
+    }
+    void optimiseModules() {
 
+    }
+    void link() {
+
+    }
 }

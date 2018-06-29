@@ -17,6 +17,12 @@ public:
     LiteralFunction[] literalFunctions;
 
     ModuleParser parser;
+    ModuleResolver resolver;
+    ModuleChecker checker;
+    ModuleConstantFolder constFolder;
+    OptimisationDCE dce;
+    ModuleGenerator gen;
+
     StatementParser stmtParser;
     ExpressionParser exprParser;
     TypeParser typeParser;
@@ -24,8 +30,21 @@ public:
     VariableParser varParser;
     NodeBuilder nodeBuilder;
 
-    this() {
+    LLVMModule llvmValue;
+
+    this(string canonicalName, LLVMWrapper llvm) {
+        this.nid           = g_nodeid++;
+        this.canonicalName = canonicalName;
+
+        log("Creating new Module(%s)", canonicalName);
+
         parser            = new ModuleParser(this);
+        resolver          = new ModuleResolver(this);
+        checker           = new ModuleChecker(this);
+        constFolder       = new ModuleConstantFolder(this);
+        dce               = new OptimisationDCE(this);
+        gen               = new ModuleGenerator(this, llvm);
+
         stmtParser        = new StatementParser(this);
         exprParser        = new ExpressionParser(this);
         typeParser        = new TypeParser(this);
@@ -33,13 +52,6 @@ public:
         varParser         = new VariableParser(this);
         nodeBuilder       = new NodeBuilder(this);
         activeRoots       = new Set!ASTNode;
-    }
-
-    static Module fromCanonicalName(string canonicalName) {
-        Module m        = makeNode!Module;
-        m.canonicalName = canonicalName;
-        log("Creating new Module(%s)", m.canonicalName);
-        return m;
     }
 
     void addLiteralString(LiteralString s) {

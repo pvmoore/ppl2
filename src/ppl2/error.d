@@ -142,14 +142,13 @@ void prettyErrorMsg(Module m, int line, int col, int errNum, string msg) {
     writefln("%s", lines[line-1]);
 }
 //==============================================================================================
-void displayUnresolved(ModuleMeta[string] modules) {
-    foreach(m; modules.values) {
+void displayUnresolved(Module[] modules) {
+    foreach(m; modules) {
         auto nodes = m.resolver.getUnresolvedNodes();
         if(nodes.length>0) {
-            auto mod = m.module_;
 
             foreach(n; nodes) {
-                prettyErrorMsg(mod, n.line, n.column, Err.UNRESOLVED_SYMBOL,
+                prettyErrorMsg(m, n.line, n.column, Err.UNRESOLVED_SYMBOL,
                     "Unresolved symbol");
             }
         }
