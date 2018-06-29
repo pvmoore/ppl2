@@ -1,5 +1,5 @@
 
-import core.string
+import core.string  // should be implicit later
 
 export testLiterals
 
@@ -56,4 +56,10 @@ strings = {
     string s    // set to an empty string
     string s1 = "hello"
     var s2    = r"there"
+
+    var len = "stringy".length
+    //var ptr = "stringy".ptr
+    //var ch = "stringy"[0]
+
+    //"stringy"[0] = 'S' // readonly
 }

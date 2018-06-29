@@ -37,11 +37,10 @@ public:
         /// Generate initialisation AST for our parent Variable
         if(numChildren > 0) {
             /// Initialisation provided by the user
-            assert(last().isExpression, "last is a %s".format(last()));
-            assert(numChildren==1);
-
-            if(!var.type.isPtr && var.type.isStruct) {
-                /// Already assignments
+            if(var.type.isNamedStruct) {
+                convertToAssignment();
+            } else if(var.type.isAnonStruct) {
+                /// nothing to do
             } else {
                 convertToAssignment();
             }
@@ -74,12 +73,6 @@ public:
         return "Initialiser (type=%s)".format(getType);
     }
 private:
-    void convertToAssignment() {
-        _literal = last().as!LiteralNumber;
-        auto b      = getModule.builder(var);
-        auto assign = b.binary(Operator.ASSIGN, b.identifier(var), last().as!Expression, var.type);
-        addToEnd(assign);
-    }
     void gen(PtrType ptr) {
         addToEnd(LiteralNull.makeConst(var.type));
         convertToAssignment();
@@ -116,5 +109,11 @@ private:
     void gen(FunctionType func) {
         addToEnd(LiteralNull.makeConst(var.type));
         convertToAssignment();
+    }
+    void convertToAssignment() {
+        _literal = last().as!LiteralNumber;
+        auto b      = getModule.builder(var);
+        auto assign = b.binary(Operator.ASSIGN, b.identifier(var), last().as!Expression, var.type);
+        addToEnd(assign);
     }
 }

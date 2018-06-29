@@ -5,7 +5,12 @@ string = [
 public
     byte* ptr
 readonly
-    int length
+    long length
+
+    new = { byte* ptr, long len ->
+        this.ptr    = ptr
+        this.length = len
+    }
 
     empty = {
         return length==0

@@ -469,19 +469,33 @@ private:
         }
         t.skip(TT.RSQBRACKET);
     }
+    void parseUnary(TokenNavigator t, ASTNode parent) {
+
+        auto u = makeNode!Unary(t);
+        parent.addToEnd(u);
+
+        /// - ~ not
+        if("not"==t.value) {
+            u.op = Operator.BOOL_NOT;
+        } else if(t.type==TT.TILDE) {
+            u.op = Operator.BIT_NOT;
+        } else if(t.type==TT.MINUS) {
+            u.op = Operator.NEG;
+        } else assert(false, "How did we get here?");
+
+        t.next;
+
+        parse(t, u);
+    }
     ///
     /// literal_string ::= prefix '"' { char } '"'
     /// prefix ::= nothing | "r" | "u8"
     ///
     void parseLiteralString(TokenNavigator t, ASTNode parent) {
-        auto s = makeNode!LiteralString(t);
-        parent.addToEnd(s);
 
-        s.type = findType("string", s);
-        dd("type=", s.type);
+        auto s = makeNode!LiteralString(t);
 
         /// todo - Concatenate strings here if possible
-
         string text = t.value;
         t.next;
 
@@ -506,24 +520,27 @@ private:
         s.value = text;
 
         module_.addLiteralString(s);
-    }
-    void parseUnary(TokenNavigator t, ASTNode parent) {
 
-        auto u = makeNode!Unary(t);
-        parent.addToEnd(u);
+        auto b = module_.builder(parent);
 
-        /// - ~ not
-        if("not"==t.value) {
-            u.op = Operator.BOOL_NOT;
-        } else if(t.type==TT.TILDE) {
-            u.op = Operator.BIT_NOT;
-        } else if(t.type==TT.MINUS) {
-            u.op = Operator.NEG;
-        } else assert(false, "How did we get here?");
+        /// Create an alloca
+        auto var = makeNode!Variable(t);
+        var.name = module_.makeTemporary("str");
+        var.type = findType("string", parent);
+        parent.addToEnd(var);
 
-        t.next;
+        /// Call string.new(this, byte*, int)
 
-        parse(t, u);
+        Call call    = b.call("new", null);
+        auto thisPtr = b.addressOf(b.identifier(var.name));
+        call.addToEnd(thisPtr);
+        call.addToEnd(s);
+        call.addToEnd(LiteralNumber.makeConst(s.calculateLength(), TYPE_INT));
+
+        auto dot = b.dot(b.identifier(var.name), call);
+
+        auto v = b.valueOf(dot);
+        parent.addToEnd(v);
     }
     ///
     /// constructor ::= identifier "(" { cexpr [ "," cexpr ] } ")"
@@ -544,55 +561,30 @@ private:
         auto b = module_.builder(parent);
         Call call = b.call("new", null);
 
-        /// Optimisation - if this is a Variable initialiser then re-use the alloca of the variable
-        if(parent.isA!Initialiser) {
+        string name    = type.isDefine ? type.getDefine.name : type.getNamedStruct.name;
+        string varName = module_.makeTemporary(name);
 
-            auto var = parent.as!Initialiser.var;
-
-            if(var.type.isUnknown) {
-                var.type = type;
-            }
-
-            Expression thisPtr;
-            if(var.type.isPtr) {
-                /// Heap malloc
-                assert(false, "Implement malloc constructor");
-                // todo - set thisPtr
-            } else {
-                /// Use the alloca of the variable
-                thisPtr = b.addressOf(b.identifier(var.name));
-            }
-
-            call.addToEnd(thisPtr);
-            auto dot = b.dot(b.identifier(var.name), call);
-            parent.addToEnd(dot);
-
+        Expression thisPtr;
+        /// allocate memory
+        if(type.isPtr) {
+            /// Heap malloc
+            assert(false, "Implement malloc constructor");
+            // todo - set thisPtr
         } else {
-            string name    = type.isDefine ? type.getDefine.name : type.getNamedStruct.name;
-            string varName = module_.makeTemporary(name);
+            /// Stack alloca
+            auto var = b.variable(varName, type, false);
+            parent.addToEnd(var);
 
-            Expression thisPtr;
-            /// allocate memory
-            if(type.isPtr) {
-                /// Heap malloc
-                assert(false, "Implement malloc constructor");
-                // todo - set thisPtr
-            } else {
-                /// Stack alloca
-                auto var = b.variable(varName, type, false);
-                parent.addToEnd(var);
-
-                thisPtr = b.addressOf(b.identifier(var.name));
-            }
-
-            call.addToEnd(thisPtr);
-
-            Expression dot = b.dot(b.identifier(varName), call);
-            if(type.isValue) {
-                dot = b.valueOf(dot);
-            }
-            parent.addToEnd(dot);
+            thisPtr = b.addressOf(b.identifier(var.name));
         }
+
+        call.addToEnd(thisPtr);
+
+        Expression dot = b.dot(b.identifier(varName), call);
+        if(type.isValue) {
+            dot = b.valueOf(dot);
+        }
+        parent.addToEnd(dot);
 
         /// (
         t.skip(TT.LBRACKET);

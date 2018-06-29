@@ -16,7 +16,7 @@ final class LiteralString : Expression {
     Encoding enc;
 
     this() {
-        type = TYPE_UNKNOWN;
+        type = PtrType.of(new BasicType(Type.BYTE), 1);
         enc  = Encoding.U8;
     }
 
@@ -30,13 +30,13 @@ final class LiteralString : Expression {
     ///
     int calculateLength() {
         final switch(enc) with(Encoding) {
-            case U8:  return value.length.as!int;
-            case RAW: return value.length.as!int;
+            case U8:  return value.length.as!int - 1;
+            case RAW: return value.length.as!int - 1;
         }
     }
 
     override string toString() {
         string e = enc==Encoding.RAW ? "r" : "";
-        return "%s\"%s\" (type=%s)".format(e, value, type);
+        return "String: %s\"%s\" (type=%s)".format(e, value, type);
     }
 }

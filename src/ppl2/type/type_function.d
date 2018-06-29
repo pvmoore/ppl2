@@ -86,7 +86,7 @@ final class FunctionType : ASTNode, Type {
             foreach (i, t; argTypes) {
                 if (i>0) a ~= ",";
                 a ~= "%s".format(t);
-                if (argNames[i] !is null) a ~= " " ~ argNames[i];
+                //if (argNames[i] !is null) a ~= " " ~ argNames[i];
             }
         }
         return "{%s->%s}".format(a, returnType);
