@@ -514,9 +514,6 @@ private:
             assert(false, "How did we get here? string is %s".format(text));
         }
 
-        /// Add zero to the end
-        text ~= '\0';
-
         s.value = text;
 
         module_.addLiteralString(s);

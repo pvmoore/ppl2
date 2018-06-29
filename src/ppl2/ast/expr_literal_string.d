@@ -14,6 +14,7 @@ final class LiteralString : Expression {
     Type type;
     string value;
     Encoding enc;
+    LLVMValueRef llvmValue;
 
     this() {
         type = PtrType.of(new BasicType(Type.BYTE), 1);

@@ -6,24 +6,25 @@ final class ModuleGenerator {
 public:
     Module module_;
     LLVMWrapper llvm;
+    LLVMBuilder builder;
     LLVMValueRef lhs;
     LLVMValueRef rhs;
 
     this(Module module_, LLVMWrapper llvm) {
         this.module_ = module_;
         this.llvm    = llvm;
+        this.builder = llvm.builder;
     }
     void generate() {
         log("Generating IR for module %s", module_.canonicalName);
 
-        /// Generate:
-        ///     - literal strings
-        ///     - literal functions
-
-        this.lhs        = null;
-        this.rhs        = null;
+        this.lhs = null;
+        this.rhs = null;
 
         module_.llvmValue = llvm.createModule(module_.canonicalName);
+
+
+        generateGlobalStrings();
 
         visitChildren(module_);
 
@@ -52,6 +53,24 @@ private:
     void visitChildren(ASTNode n) {
         foreach(ch; n.children) {
             ch.visit!ModuleGenerator(this);
+        }
+    }
+    void generateGlobalStrings() {
+        foreach(LiteralString[] array; module_.literalStrings.values) {
+            /// create a global string for only one of these
+            auto s = array[0];
+            log("Generating string literal decl ... %s", s);
+            auto str = constString(s.value);
+            auto g   = module_.llvmValue.addGlobal(str.getType);
+            g.setInitialiser(str);
+            g.setConstant(true);
+            g.setLinkage(LLVMLinkage.LLVMInternalLinkage);
+
+            auto llvmValue = builder.bitcast(g, pointerType(i8Type()));
+            //// set the same llvmValue on each reference
+            foreach(sl; array) {
+                sl.llvmValue = llvmValue;
+            }
         }
     }
 }
