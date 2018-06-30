@@ -63,6 +63,18 @@ public:
     Expression defaultInitialiser() {
         return LiteralNull.makeConst(this);
     }
+    LLVMTypeRef getLLVMType() {
+        LLVMTypeRef t = decorated.getLLVMType();
+        /// void* is not allowed so use i8* instead
+        if(decorated.isVoid) {
+            t = i8Type();
+        }
+        for(auto i=0;i<ptrDepth;i++) {
+            t = pointerType(t);
+        }
+        return t;
+    }
+
 /// End of Type interface
     //========================================================================================
     int getPtrDepth() const { return ptrDepth; }

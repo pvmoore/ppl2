@@ -74,6 +74,10 @@ final class FunctionType : ASTNode, Type {
         /// Assume this is always a ptr
         return LiteralNull.makeConst(this);
     }
+    LLVMTypeRef getLLVMType() {
+        return function_(returnType.getLLVMType(),
+                         argTypes.map!(it=>it.getLLVMType()).array);
+    }
     //============================================================
     override string description() {
         return "FunctionType:%s".format(toString());

@@ -46,6 +46,10 @@ final class AnonStruct : ASTNode, Type, Container {
 
         return lit;
     }
+    LLVMTypeRef getLLVMType() {
+        LLVMTypeRef[] types = memberVariableTypes.map!(it=>it.getLLVMType()).array;
+        return .struct_(types, true);
+    }
     //========================================================================================
     bool isNamed() {
         return parent && parent.isNamedStruct;

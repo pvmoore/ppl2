@@ -70,6 +70,9 @@ final class NamedStruct : ASTNode, Type {
 
         return composite;
     }
+    LLVMTypeRef getLLVMType() {
+        return type.getLLVMType();
+    }
     //========================================================================================
     bool isTemplate() const { return templateArgNames.length > 0; }
 

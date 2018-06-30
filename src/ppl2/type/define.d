@@ -28,6 +28,7 @@ class Define : Statement, Type {
     bool exactlyMatches(Type other)      { assert(false, "Shouldn't get here"); }
     bool canImplicitlyCastTo(Type other) { assert(false, "Shouldn't get here"); }
     Expression defaultInitialiser()      { assert(false, "Shouldn't get here"); }
+    LLVMTypeRef getLLVMType()            { assert(false, "Shouldn't get here"); }
     //=======================================================================================
 
     string getMangledName() {

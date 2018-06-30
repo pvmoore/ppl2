@@ -19,6 +19,7 @@ interface Type {
     bool exactlyMatches(Type other);
     bool canImplicitlyCastTo(Type other);
     Expression defaultInitialiser();
+    LLVMTypeRef getLLVMType();
     //-------------------------------------
 pragma(inline,true) {
     final bool isLong() const { return getEnum()==LONG; }
@@ -166,9 +167,3 @@ bool prelimCanImplicitlyCastTo(Type left, Type right) {
     /// Do the base checks now
     return true;
 }
-
-
-
-
-
-

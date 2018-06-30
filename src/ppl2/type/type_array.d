@@ -58,6 +58,9 @@ final class ArrayType : ASTNode, Type {
 
         return lit;
     }
+    LLVMTypeRef getLLVMType() {
+        return arrayType(subtype.getLLVMType(), countAsInt());
+    }
     //============================================================
     bool hasCountExpr() {
         return numChildren > 0;

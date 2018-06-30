@@ -54,8 +54,24 @@ final class BasicType : Type {
             default: assert(false, "addDefaultValue - How did we get here?");
         }
     }
+    LLVMTypeRef getLLVMType() {
+        switch(type) with(Type) {
+            case BOOL:
+            case BYTE: return i8Type();
+            case SHORT: return i16Type();
+            case INT: return i32Type();
+            case LONG: return i64Type();
+            case HALF: return f16Type();
+            case FLOAT: return f32Type();
+            case DOUBLE: return f64Type();
+            case VOID: return voidType();
+            default:
+                assert(false, "type is %s".format(type));
+        }
+    }
     //===============================================================
     override string toString() {
         return "%s".format(g_typeToString[type]);
     }
 }
+
