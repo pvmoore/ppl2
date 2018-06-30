@@ -69,6 +69,7 @@ import ppl2.opt.opt_const_fold;
 import ppl2.gen.gen_function;
 import ppl2.gen.gen_module;
 import ppl2.gen.gen_struct;
+import ppl2.gen.gen_variable;
 
 import ppl2.interfaces.callable;
 import ppl2.interfaces.container;

@@ -17,6 +17,8 @@ final class Variable : Statement, Callable {
     bool isImplicit;    /// true if this is a "var"
     int numRefs;
 
+    LLVMValueRef llvmValue;
+
     string getName() { return name; }
 
     override bool isResolved() { return type.isKnown; }

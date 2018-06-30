@@ -44,3 +44,32 @@ void generateFunctionDeclaration(Module module_, Function f) {
     //    f.llvmValue.setLinkage(LLVMLinkage.LLVMInternalLinkage);
     //}
 }
+/*
+void generateFunctionBody(Node f, Type type, LLVMValueRef llvmValue) {
+
+    auto numArgs = type.func.argTypes.length;
+
+    if(llvmValue is null) error("!!! func %s llvmValue is null".format(f));
+    auto args  = getFunctionArgs(llvmValue);
+    auto entry = llvmValue.appendBasicBlock("entry");
+    builder.positionAtEndOf(entry);
+
+    // set the arg values into local variable allocs
+    // so that we can store to them later if needed
+    foreach(i, n; f.children[0..numArgs]) {
+        n.visit!Generator(gen);
+        builder.store(args[i], gen.lhs);
+    }
+
+    // visit the body nodes
+    foreach(Node n; f.children[numArgs..$]) {
+        n.visit!Generator(gen);
+    }
+
+    if(type.func.returnType.isVoid) {
+        if(!f.hasChild || !f.lastChild.isReturn) {
+            builder.retVoid();
+        }
+    }
+}
+*/

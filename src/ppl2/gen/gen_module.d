@@ -32,6 +32,7 @@ public:
         generateIntrinsicFuncDeclarations();
         generateStructDeclarations(module_);
         generateFunctionDeclarations(module_);
+        generateGlobalVariables(module_);
 
         visitChildren(module_);
 
