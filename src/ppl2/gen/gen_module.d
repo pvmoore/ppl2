@@ -30,8 +30,8 @@ public:
 
         generateGlobalStrings();
         generateIntrinsicFuncDeclarations();
+        generateStructDeclarations(module_);
         generateFunctionDeclarations(module_);
-        generateStructDeclarations();
 
         visitChildren(module_);
 
@@ -96,30 +96,5 @@ private:
         //            [bytePointerType(), bytePointerType(), i64Type()],
         //            LLVMCallConv.LLVMCCallConv
         //		);
-    }
-
-    void generateStructDeclarations() {
-    //    // do this in 2 phases to allow embedded structs
-    //    Struct[] structs = m.structs.allLocalConcrete;
-    //
-    //    foreach(Struct s; structs) {
-    //        logln("Generating struct decl ... %s", s);
-    //        s.llvmType = struct_(s.name);
-    //    }
-    //    foreach(s; m.imports.getImportedStructs) {
-    //        logln("Generating imported struct decl ... %s", s);
-    //        s.llvmType = struct_(s.name);
-    //    }
-    //    foreach(Struct s; structs) {
-    //        logln("Adding struct body: %s", s.name);
-    //        auto elementTypes = s.types.map!(it=>it.toLLVMType).array;
-    //
-    //        setTypes(s.llvmType, elementTypes, true);
-    //    }
-    //    foreach(s; m.imports.getImportedStructs) {
-    //        logln("[%s] Adding imported struct body: %s",m.name, s.name);
-    //        auto elementTypes = s.types.map!(it=>it.toLLVMType).array;
-    //        setTypes(s.llvmType, elementTypes, true);
-    //    }
     }
 }

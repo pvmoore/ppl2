@@ -167,3 +167,13 @@ bool prelimCanImplicitlyCastTo(Type left, Type right) {
     /// Do the base checks now
     return true;
 }
+void getChildTypes(Type t, Array!Type array) {
+    if(t.isAnonStruct()) {
+        array.add(t.getAnonStruct.memberVariableTypes());
+    } else if(t.isFunction) {
+        array.add(t.getFunctionType.argTypes());
+        array.add(t.getFunctionType.returnType());
+    } else if(t.isArray) {
+        array.add(t.getArrayType.subtype);
+    }
+}

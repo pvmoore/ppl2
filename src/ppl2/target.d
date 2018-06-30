@@ -10,13 +10,12 @@ private:
 
     Module module_;
     TargetType ttype;
-
-    Module targetModule;
     Variable var;
     Function func;
     int memberIndex;
 public:
     bool isSet = false;
+    Module targetModule;
 
     this(Module module_) {
         this.module_ = module_;

@@ -8,6 +8,9 @@ import ppl2.internal;
 ///     count_expr
 ///
 final class ArrayType : ASTNode, Type {
+private:
+    LLVMTypeRef _llvmType;
+public:
     Type subtype;
     bool inferCount;
 
@@ -59,7 +62,10 @@ final class ArrayType : ASTNode, Type {
         return lit;
     }
     LLVMTypeRef getLLVMType() {
-        return arrayType(subtype.getLLVMType(), countAsInt());
+        if(!_llvmType) {
+            _llvmType = arrayType(subtype.getLLVMType(), countAsInt());
+        }
+        return _llvmType;
     }
     //============================================================
     bool hasCountExpr() {

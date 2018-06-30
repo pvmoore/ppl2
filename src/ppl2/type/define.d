@@ -25,10 +25,10 @@ class Define : Statement, Type {
     final int getEnum() const { return type.getEnum(); }
     final bool isKnown() { return !isImport && type.isKnown(); }
 
-    bool exactlyMatches(Type other)      { assert(false, "Shouldn't get here"); }
-    bool canImplicitlyCastTo(Type other) { assert(false, "Shouldn't get here"); }
-    Expression defaultInitialiser()      { assert(false, "Shouldn't get here"); }
-    LLVMTypeRef getLLVMType()            { assert(false, "Shouldn't get here"); }
+    bool exactlyMatches(Type other)      { assert(false); }
+    bool canImplicitlyCastTo(Type other) { assert(false); }
+    Expression defaultInitialiser()      { assert(false); }
+    LLVMTypeRef getLLVMType()            { assert(false); }
     //=======================================================================================
 
     string getMangledName() {

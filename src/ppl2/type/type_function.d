@@ -3,6 +3,9 @@ module ppl2.type.type_function;
 import ppl2.internal;
 
 final class FunctionType : ASTNode, Type {
+private:
+    LLVMTypeRef _llvmType;
+public:
     Type _returnType;       /// This gets calculated later by the FunctionLiteral if there is one
     Arguments args;         /// Point to Arguments of FunctionLiteral
 
@@ -75,8 +78,11 @@ final class FunctionType : ASTNode, Type {
         return LiteralNull.makeConst(this);
     }
     LLVMTypeRef getLLVMType() {
-        return function_(returnType.getLLVMType(),
-                         argTypes.map!(it=>it.getLLVMType()).array);
+        if(!_llvmType) {
+            _llvmType = function_(returnType.getLLVMType(),
+                                  argTypes.map!(it=>it.getLLVMType()).array);
+        }
+        return _llvmType;
     }
     //============================================================
     override string description() {

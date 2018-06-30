@@ -8,6 +8,7 @@ import ppl2.internal;
 final class NamedStruct : ASTNode, Type {
 private:
     string _uniqueName;
+    LLVMTypeRef _llvmType;
 public:
     string name;
     AnonStruct type;
@@ -74,7 +75,10 @@ public:
         return composite;
     }
     LLVMTypeRef getLLVMType() {
-        return type.getLLVMType();
+        if(!_llvmType) {
+            _llvmType = struct_(getUniqueName());
+        }
+        return _llvmType;
     }
     //========================================================================================
     bool isTemplate() const { return templateArgNames.length > 0; }

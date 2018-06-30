@@ -20,11 +20,11 @@ void generateFunctionDeclaration(Module module_, Function f) {
         f.getCallingConvention()
     );
     f.llvmValue = func;
-    //
+
     //// inline
     //bool isInline   = f.isOperatorOverload;
     //bool isNoInline = false;
-    //
+
     //// check if user has set a preference
     //if(f.attributes && f.attributes.has(AttrType.INLINE)) {
     //    auto inline = f.attributes.get(AttrType.INLINE);
@@ -36,11 +36,11 @@ void generateFunctionDeclaration(Module module_, Function f) {
     //} else if(isNoInline) {
     //    addFunctionAttribute(func, LLVMAttribute.NoInline);
     //}
-    //
-    //addFunctionAttribute(func, LLVMAttribute.NoUnwind);
-    //
+
+    addFunctionAttribute(func, LLVMAttribute.NoUnwind);
+
     //// linkage
-    //if(!f.isExported && f.access.isPrivate) {
+    //if(!f.isExport && f.access==Access.PRIVATE) {
     //    f.llvmValue.setLinkage(LLVMLinkage.LLVMInternalLinkage);
     //}
 }

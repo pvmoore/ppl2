@@ -156,12 +156,41 @@ public:
         );
         return cast(Function[])array[];
     }
+    //================================================================================
+    NamedStruct[] getImportedNamedStructs() {
+        NamedStruct[string] structs;
+        auto array = new Array!ASTNode;
+        recursiveCollect(array, it=>
+            it.id()==NodeID.IDENTIFIER &&
+            it.as!Identifier.target.isVariable() &&
+            it.as!Identifier.target.targetModule.nid != nid
+        );
+        foreach(id; array[].as!(Identifier[])) {
+            auto var     = id.target.getVariable();
+            auto struct_ = var.type.getNamedStruct;
+            if(struct_) {
+                structs[struct_.getUniqueName] = struct_;
+            }
+        }
+        auto types = new Array!Type;
+        foreach(f; getImportedFunctions()) {
+            types.clear();
+            f.getType.getChildTypes(types);
+            foreach(t; types) {
+                auto struct_ = t.getNamedStruct;
+                if(struct_) {
+                    structs[struct_.getUniqueName] = struct_;
+                }
+            }
+        }
+        return structs.values;
+    }
     Function[] getImportedFunctions() {
         auto array = new Array!ASTNode;
         recursiveCollect(array,
             it=> it.id()==NodeID.CALL &&
                  it.as!Call.target.isFunction() &&
-                 it.as!Call.target.getFunction().moduleName != canonicalName
+                 it.as!Call.target.targetModule.nid != nid
         );
         return cast(Function[])array[].map!(it=>it.as!Call.target.getFunction()).array;
     }
@@ -174,11 +203,11 @@ public:
     void dumpInfo() {
         writefln("\tExported types ............ %s", exportedTypes);
         writefln("\tExported functions ........ %s", exportedFunctions);
+
         writefln("\tLocal anon structs ........ %s", getAnonStructs());
         writefln("\tLocal named structs ....... %s", getNamedStructs().map!(it=>it.name));
+        writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
 
-        //writefln("\tLocal defines ............. %s", getLocalDefines.map!(it=>it.name));
-        //writefln("\tImported defines .......... %s", getImportedDefines().map!(it=>it.name));
         writefln("\tLocal functions ........... %s", getLocalFunctions().map!(it=>it.getUniqueName));
         writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getUniqueName));
         writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
