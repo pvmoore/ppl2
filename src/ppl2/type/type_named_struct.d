@@ -6,6 +6,9 @@ import ppl2.internal;
 ///
 ///
 final class NamedStruct : ASTNode, Type {
+private:
+    string _uniqueName;
+public:
     string name;
     AnonStruct type;
     int numRefs;
@@ -75,6 +78,13 @@ final class NamedStruct : ASTNode, Type {
     }
     //========================================================================================
     bool isTemplate() const { return templateArgNames.length > 0; }
+
+    string getUniqueName() {
+        if(!_uniqueName) {
+            _uniqueName = mangle(this);
+        }
+        return _uniqueName;
+    }
 
     //bool hasDefaultConstructor() {
     //    assert(type.isKnown);

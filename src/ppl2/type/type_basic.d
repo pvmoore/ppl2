@@ -50,8 +50,8 @@ final class BasicType : Type {
             case FLOAT:
             case DOUBLE:
                 return LiteralNumber.makeConst(0, this);
-            case VOID: assert(false, "addDefaultValue - type is VOID");
-            default: assert(false, "addDefaultValue - How did we get here?");
+            default:
+                assert(false, "type is %s".format(type));
         }
     }
     LLVMTypeRef getLLVMType() {

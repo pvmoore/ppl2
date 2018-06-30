@@ -10,6 +10,10 @@ public:
     LLVMValueRef lhs;
     LLVMValueRef rhs;
 
+    LLVMValueRef memsetFunc;
+    LLVMValueRef expectBoolFunc;
+    //LLVMValueRef memcmpFunc;
+
     this(Module module_, LLVMWrapper llvm) {
         this.module_ = module_;
         this.llvm    = llvm;
@@ -25,6 +29,9 @@ public:
 
 
         generateGlobalStrings();
+        generateIntrinsicFuncDeclarations();
+        generateFunctionDeclarations(module_);
+        generateStructDeclarations();
 
         visitChildren(module_);
 
@@ -33,9 +40,6 @@ public:
     //======================================================================================
     void visit(AnonStruct n) {
 
-    }
-    void visit(Define n) {
-        // todo - should we have removed this earlier?
     }
     void visit(Function n) {
 
@@ -72,5 +76,50 @@ private:
                 sl.llvmValue = llvmValue;
             }
         }
+    }
+    void generateIntrinsicFuncDeclarations() {
+        memsetFunc = module_.llvmValue.addFunction(
+            "llvm.memset.p0i8.i32",
+            voidType(),
+            [bytePointerType(), i8Type(), i32Type(), i32Type(), i1Type()],
+            LLVMCallConv.LLVMCCallConv
+        );
+        expectBoolFunc = module_.llvmValue.addFunction(
+            "llvm.expect.i1",
+            i1Type(),
+            [i1Type(), i1Type()],
+            LLVMCallConv.LLVMCCallConv
+        );
+        //		memcmpFunc = llvmmod.addFunction(
+        //            "memcmp",
+        //            i32Type(),
+        //            [bytePointerType(), bytePointerType(), i64Type()],
+        //            LLVMCallConv.LLVMCCallConv
+        //		);
+    }
+
+    void generateStructDeclarations() {
+    //    // do this in 2 phases to allow embedded structs
+    //    Struct[] structs = m.structs.allLocalConcrete;
+    //
+    //    foreach(Struct s; structs) {
+    //        logln("Generating struct decl ... %s", s);
+    //        s.llvmType = struct_(s.name);
+    //    }
+    //    foreach(s; m.imports.getImportedStructs) {
+    //        logln("Generating imported struct decl ... %s", s);
+    //        s.llvmType = struct_(s.name);
+    //    }
+    //    foreach(Struct s; structs) {
+    //        logln("Adding struct body: %s", s.name);
+    //        auto elementTypes = s.types.map!(it=>it.toLLVMType).array;
+    //
+    //        setTypes(s.llvmType, elementTypes, true);
+    //    }
+    //    foreach(s; m.imports.getImportedStructs) {
+    //        logln("[%s] Adding imported struct body: %s",m.name, s.name);
+    //        auto elementTypes = s.types.map!(it=>it.toLLVMType).array;
+    //        setTypes(s.llvmType, elementTypes, true);
+    //    }
     }
 }

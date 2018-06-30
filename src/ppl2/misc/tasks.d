@@ -7,8 +7,8 @@ public:
 
 void functionRequired(string moduleName, string funcName) {
     string key = "%s|%s".format(moduleName, funcName);
-    if(functionsRequested.contains(key)) return;
-    functionsRequested.add(key);
+    if(g_functionsRequested.contains(key)) return;
+    g_functionsRequested.add(key);
     Task t = {
         Task.Type.FUNC,
         moduleName,
@@ -18,8 +18,8 @@ void functionRequired(string moduleName, string funcName) {
 }
 void defineRequired(string moduleName, string defineName) {
     string key = "%s|%s".format(moduleName, defineName);
-    if(definesRequested.contains(key)) return;
-    definesRequested.add(key);
+    if(g_definesRequested.contains(key)) return;
+    g_definesRequested.add(key);
     Task t = {
         Task.Type.DEFINE,
         moduleName,

@@ -41,6 +41,8 @@ public:
             } else if(d.numRefs==0) {
                 log("\t  unreferenced define %s", d.name);
                 d.detach();
+            } else {
+                d.detach();
             }
         }
         /// Look at module scope defines that are not referenced

@@ -19,8 +19,11 @@ __gshared int g_mainModuleNID;
 __gshared FileLogger g_logger;
 
 __gshared Queue!Task g_taskQueue;
-__gshared Set!string definesRequested;      /// key = moduleName|defineName
-__gshared Set!string functionsRequested;  /// key = moduleName|funcName
+__gshared Set!string g_definesRequested;      /// key = moduleName|defineName
+__gshared Set!string g_functionsRequested;  /// key = moduleName|funcName
+
+__gshared Set!string g_uniqueFunctionNames;
+__gshared Set!string g_uniqueStructNames;
 
 __gshared int[string] g_builtinTypes;
 __gshared string[int] g_typeToString;
@@ -41,8 +44,10 @@ __gshared const FALSE = 0;
 shared static this() {
     g_logger = new FileLogger(".logs/log.log");
     g_taskQueue = new Queue!Task(1024);
-    definesRequested = new Set!string;
-    functionsRequested = new Set!string;
+    g_definesRequested = new Set!string;
+    g_functionsRequested = new Set!string;
+    g_uniqueFunctionNames = new Set!string;
+    g_uniqueStructNames = new Set!string;
 
     g_builtinTypes["var"]    = Type.UNKNOWN;
     g_builtinTypes["bool"]   = Type.BOOL;

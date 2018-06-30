@@ -5,6 +5,9 @@ import ppl2.internal;
  *  function::= identifier "=" function_literal
  */
 final class Function : Statement, Callable {
+private:
+    string _uniqueName;
+public:
     string name;
     Type externType;          /// for extern functions only
     string moduleName;
@@ -12,10 +15,12 @@ final class Function : Statement, Callable {
     bool isExtern;
     int numRefs;
 
+    LLVMValueRef llvmValue;
+
     this() {
         this.externType = TYPE_UNKNOWN;
     }
-
+/// ASTNode
     override bool isResolved() { return getType.isKnown; }
     override NodeID id() const { return NodeID.FUNCTION; }
     override Type getType() {
@@ -23,7 +28,7 @@ final class Function : Statement, Callable {
         // Return type of body
         return getBody().getType;
     }
-
+///
     bool isLocal() const {
         return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
@@ -45,6 +50,9 @@ final class Function : Statement, Callable {
     string getName() { return name; }
     Arguments args() { return isExtern ? null : getBody().args(); }
 
+    bool isProgramEntry() {
+        return "main"==name && moduleName == g_mainModuleCanonicalName;
+    }
     LiteralFunction getBody() {
         assert(!isExtern, "Function %s is extern".format(name));
         assert(hasChildren(), "Function %s has no body".format(name));
@@ -54,16 +62,23 @@ final class Function : Statement, Callable {
         }
         assert(false, "Non extern function %s has no LiteralFunction".format(name));
     }
-
-    string getMangledName() {
-        return .mangle(this);
+    string getUniqueName() {
+        if(!_uniqueName) {
+            _uniqueName = .mangle(this);
+        }
+        return _uniqueName;
+    }
+    LLVMCallConv getCallingConvention() {
+        if(isExtern) return LLVMCallConv.LLVMCCallConv;
+        if(isProgramEntry) return LLVMCallConv.LLVMCCallConv;
+        return LLVMCallConv.LLVMFastCallConv;
     }
 
     override string toString() {
         string loc = isExtern ? "EXTERN" :
-                     isImport ? "IMPORT" :
-                     isLocal ? "LOCAL" :
-                     isGlobal ? "GLOBAL" : "STRUCT";
+        isImport ? "IMPORT" :
+        isLocal ? "LOCAL" :
+        isGlobal ? "GLOBAL" : "STRUCT";
         return "'%s' Function[refs=%s] (%s)".format(name, numRefs, loc);
     }
 }

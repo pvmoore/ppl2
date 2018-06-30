@@ -66,6 +66,7 @@ import ppl2.check.check_module;
 import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;
 
+import ppl2.gen.gen_function;
 import ppl2.gen.gen_module;
 
 import ppl2.interfaces.callable;

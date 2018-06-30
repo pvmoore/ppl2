@@ -42,21 +42,6 @@ public:
                 }
             }
         }
-        //auto ns = findType!NamedStruct(t.value, parent);
-        //if(ns) {
-        //    if(ns.type.numMemberVariables==0) {
-        //        /// Re-use previous definition
-        //        n.detach();
-        //
-        //        ns.removeAt(0);
-        //        n = ns;
-        //        log("Re-using redefined struct %s", n.name);
-        //
-        //    } else {
-        //        throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
-        //            "Struct %s already defined".format(t.value));
-        //    }
-        //}
 
         /// name
         n.name = t.value;

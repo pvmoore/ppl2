@@ -2,10 +2,39 @@ module ppl2.misc.mangle;
 
 import ppl2.internal;
 
+string mangle(NamedStruct ns) {
+    string name = ns.name;
+    int i = 2;
+    string prefix = name;
+    while(g_uniqueStructNames.contains(name)) {
+        name = "%s%s".format(prefix, i);
+        i++;
+    }
+    g_uniqueStructNames.add(name);
+    return name;
+}
 string mangle(Function f) {
-    if(f.isExtern) return f.name;
-    if(f.args.numArgs==0) return f.name;
-    return "%s(%s)".format(f.name, mangle(f.args.argTypes()));
+    if(f.isExtern || f.isProgramEntry) return f.name;
+
+    string name = f.name;
+    if(f.args.numArgs>0) {
+        name ~= "(%s)".format(mangle(f.args.argTypes()));
+    }
+    if(!g_uniqueFunctionNames.contains(name)) {
+        g_uniqueFunctionNames.add(name);
+        return name;
+    }
+
+    name = f.getModule().canonicalName ~ "::" ~ name;
+
+    int i = 2;
+    string prefix = name;
+    while(g_uniqueFunctionNames.contains(name)) {
+        name = "%s%s".format(prefix, i);
+        i++;
+    }
+    g_uniqueFunctionNames.add(name);
+    return name;
 }
 string mangle(Type t) {
     string s;
@@ -22,7 +51,7 @@ string mangle(Type t) {
         case VOID:   s = "v"; break;
         case NAMED_STRUCT:
             auto n = t.getNamedStruct;
-            s = "N[%s]".format(n.name);
+            s = "N[%s]".format(n.getUniqueName());
             break;
         case ANON_STRUCT:
             auto st = t.getAnonStruct;

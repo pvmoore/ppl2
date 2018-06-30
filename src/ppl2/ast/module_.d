@@ -31,6 +31,7 @@ public:
     NodeBuilder nodeBuilder;
 
     LLVMModule llvmValue;
+    LiteralString moduleNameLiteral;
 
     this(string canonicalName, LLVMWrapper llvm) {
         this.nid           = g_nodeid++;
@@ -52,6 +53,10 @@ public:
         varParser         = new VariableParser(this);
         nodeBuilder       = new NodeBuilder(this);
         activeRoots       = new Set!ASTNode;
+
+        moduleNameLiteral = makeNode!LiteralString;
+        moduleNameLiteral.value = canonicalName;
+        addLiteralString(moduleNameLiteral);
     }
 
     void addLiteralString(LiteralString s) {
@@ -174,9 +179,9 @@ public:
 
         //writefln("\tLocal defines ............. %s", getLocalDefines.map!(it=>it.name));
         //writefln("\tImported defines .......... %s", getImportedDefines().map!(it=>it.name));
-        writefln("\tLocal functions ........... %s", getLocalFunctions().map!(it=>it.getMangledName));
-        writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getMangledName));
-        writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getMangledName));
+        writefln("\tLocal functions ........... %s", getLocalFunctions().map!(it=>it.getUniqueName));
+        writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getUniqueName));
+        writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
     }
 
     override string toString() const {
