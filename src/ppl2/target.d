@@ -110,7 +110,8 @@ public:
     override string toString() {
         string s = isSet && targetModule.nid != module_.nid ? targetModule.canonicalName~"." : "";
         s ~= var?var.name : func?func.name: "";
-        return "Target: %s %s %s".format(ttype, s, getType);
+        string i = module_.nid == targetModule.nid ? "" : " (import)";
+        return "Target: %s %s %s%s".format(ttype, s, getType, i);
     }
 private:
     void addRef() {

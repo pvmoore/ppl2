@@ -159,6 +159,7 @@ public:
     //================================================================================
     NamedStruct[] getImportedNamedStructs() {
         NamedStruct[string] structs;
+        /// Collect Identifiers with external targets
         auto array = new Array!ASTNode;
         recursiveCollect(array, it=>
             it.id()==NodeID.IDENTIFIER &&
@@ -172,6 +173,19 @@ public:
                 structs[struct_.getUniqueName] = struct_;
             }
         }
+        array.clear();
+
+        /// Collect struct Variables
+        recursiveCollect(array, it=>
+            it.id()==NodeID.VARIABLE &&
+            it.as!Variable.type.isNamedStruct
+        );
+        foreach(v; array) {
+            auto ns = v.as!Variable.type.getNamedStruct;
+            if(ns.getModule.nid != nid) structs[ns.getUniqueName] = ns;
+        }
+
+        /// Collect structs from arguments of imported functions
         auto types = new Array!Type;
         foreach(f; getImportedFunctions()) {
             types.clear();

@@ -94,6 +94,8 @@ main = {
 
     assert true
 
+    Cat cat
+
     /*
     GreyWolf wolf
     Animal* animal
@@ -101,7 +103,7 @@ main = {
     AnimalPtr animalPtr
     IntPtr ip
 
-    Cat cat
+
     Dog* dog
 
     dog.age += 1

@@ -68,8 +68,7 @@ public:
             import core.memory : GC;
 
             writefln("\nOk");
-            writefln("Live modules ........... %s", countLiveModules());
-            writefln("Modules processed ...... %s", modules.length);
+            writefln("Active modules ......... %s", modules.length);
             writefln("Parser time ............ %.2f ms", modules.values.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6);
             writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
             writefln("Constant folder time ... %.2f ms", modules.values.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6);
@@ -199,9 +198,6 @@ private:
         foreach(m; modules) {
             m.resolver.writeAST();
         }
-    }
-    ulong countLiveModules() {
-        return modules.length;
     }
     int runResolvePass() {
         log("Running resolvers...");
