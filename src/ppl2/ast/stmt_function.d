@@ -1,9 +1,9 @@
 module ppl2.ast.stmt_function;
 
 import ppl2.internal;
-/**
- *  function::= identifier "=" function_literal
- */
+///
+///  function::= identifier "=" function_literal
+///
 final class Function : Statement, Callable {
 private:
     string _uniqueName;
@@ -33,7 +33,7 @@ public:
         return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isStructMember() const {
-        return getContainer().id()==NodeID.ANON_STRUCT;
+        return parent.id()==NodeID.ANON_STRUCT;
     }
     bool isGlobal() const {
         return parent.isModule;
@@ -49,6 +49,10 @@ public:
 
     string getName() { return name; }
     Arguments args() { return isExtern ? null : getBody().args(); }
+    AnonStruct getStruct() {
+        assert(isStructMember());
+        return parent.as!AnonStruct;
+    }
 
     bool isProgramEntry() {
         return "main"==name && moduleName == g_mainModuleCanonicalName;

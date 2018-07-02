@@ -177,3 +177,45 @@ void getChildTypes(Type t, Array!Type array) {
         array.add(t.getArrayType.subtype);
     }
 }
+int size(Type t) {
+    if(t.isPtr) return 8;
+    final switch(t.getEnum) with(Type) {
+        case UNKNOWN:
+        case FUNCTION:
+        case VOID:
+            assert(false, "size - %s has no size".format(t));
+        case BOOL:
+        case BYTE: return 1;
+        case SHORT: return 2;
+        case INT: return 4;
+        case LONG: return 8;
+        case HALF: return 2;
+        case FLOAT: return 4;
+        case DOUBLE: return 8;
+        case NAMED_STRUCT: return t.getNamedStruct.type.memberVariableTypes().map!(it=>it.size).sum;
+        case ANON_STRUCT: return t.getAnonStruct.memberVariableTypes().map!(it=>it.size).sum;
+        case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
+    }
+}
+LLVMValueRef zero(Type t) {
+    if(t.isPtr) {
+        return constNullPointer(t.getLLVMType());
+    }
+    final switch(t.getEnum) with(Type) {
+        case UNKNOWN:
+        case NAMED_STRUCT:
+        case ANON_STRUCT:
+        case FUNCTION:
+        case VOID:
+            assert(false, "zero - type is %s".format(t));
+        case BOOL: return constI8(FALSE);
+        case BYTE: return constI8(0);
+        case SHORT: return constI16(0);
+        case INT: return constI32(0);
+        case LONG: return constI64(0);
+        case HALF: return constF16(0);
+        case FLOAT: return constF32(0);
+        case DOUBLE: return constF64(0);
+    }
+    assert(false);
+}

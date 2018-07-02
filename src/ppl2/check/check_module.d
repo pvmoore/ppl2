@@ -130,6 +130,11 @@ public:
 
             }
         } else {
+            if(n.isStructIndex) {
+                throw new CompilerError(Err.INDEX_STRUCT_INDEX_MUST_BE_CONST, n,
+                    "Struct index must be a const number");
+            }
+
             /// We could add a runtime check here in debug mode
         }
     }

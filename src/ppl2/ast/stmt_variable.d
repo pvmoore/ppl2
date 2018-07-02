@@ -58,6 +58,21 @@ final class Variable : Statement, Callable {
         return hasInitialiser() ? initialiser().getType() : null;
     }
 
+    AnonStruct getAnonStruct() {
+        assert(isAnonStructMember);
+        return parent.as!AnonStruct;
+    }
+    NamedStruct getNamedStruct() {
+        assert(isNamedStructMember());
+        return parent.parent.as!NamedStruct;
+    }
+    Function getFunction() {
+        assert(isParameter());
+        auto bd = getContainingFunctionBody();
+        assert(bd);
+        return bd.getFunction();
+    }
+
     void setType(Type t) {
         this.type = t;
 

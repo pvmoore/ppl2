@@ -53,6 +53,11 @@ final class Index : Expression {
 
     Type leftType() { return left().getType; }
 
+    int getIndexAsInt() {
+        assert(index().isA!LiteralNumber);
+        return index().as!LiteralNumber.value.getInt();
+    }
+
     override string toString() {
         return "Index (%s) :%s".format(getType(), index());
     }

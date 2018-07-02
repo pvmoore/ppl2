@@ -34,7 +34,6 @@ import ppl2.ast.ast_node;
 import ppl2.ast.expression;
 import ppl2.ast.expr_address_of;
 import ppl2.ast.expr_as;
-import ppl2.ast.expr_assert;
 import ppl2.ast.expr_binary;
 import ppl2.ast.expr_call;
 import ppl2.ast.expr_composite;
@@ -56,6 +55,7 @@ import ppl2.ast.expr_type;
 import ppl2.ast.expr_unary;
 import ppl2.ast.statement;
 import ppl2.ast.module_;
+import ppl2.ast.stmt_assert;
 import ppl2.ast.stmt_function;
 import ppl2.ast.stmt_return;
 import ppl2.ast.expr_value_of;
@@ -63,13 +63,14 @@ import ppl2.ast.stmt_variable;
 
 import ppl2.check.check_module;
 
-import ppl2.opt.opt_dce;
-import ppl2.opt.opt_const_fold;
-
+import ppl2.gen.gen_binary;
 import ppl2.gen.gen_function;
 import ppl2.gen.gen_module;
 import ppl2.gen.gen_struct;
 import ppl2.gen.gen_variable;
+
+import ppl2.opt.opt_dce;
+import ppl2.opt.opt_const_fold;
 
 import ppl2.interfaces.callable;
 import ppl2.interfaces.container;

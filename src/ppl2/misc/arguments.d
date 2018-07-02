@@ -28,6 +28,10 @@ final class Arguments : ASTNode {
     Variable[] getArgs() {
         return children[].as!(Variable[]);
     }
+    Function getFunction() {
+        assert(parent.isLiteralFunction);
+        return parent.as!LiteralFunction.getFunction();
+    }
 
     ///
     /// This function is not global so requires the this* of the enclosing struct.

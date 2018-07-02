@@ -237,19 +237,30 @@ public:
     }
     void visit(Identifier n) {
         if(!n.target.isResolved) {
+
             if(n.isStartOfChain()) {
-                //if("this"==n.name) {
-                //    auto struct_ = n.getAncestor!AnonStruct;
-                //    //if(struct_ is null) throw new CompilerError(Err.);
-                //
-                //}
+
                 auto var = identifierResolver.findFirstVariable(n.name, n);
                 if(!var) {
                     throw new CompilerError(Err.IDENTIFIER_NOT_FOUND, n,
-                    "Identifier %s not found".format(n.name));
+                        "Identifier %s not found".format(n.name));
                 }
-                if(!n.target.isSet) {
-                    n.target.set(var);
+
+                /// Is it a struct member variable?
+                if(var.isStructMember) {
+                    auto struct_ = n.getContainingStruct();
+                    assert(struct_);
+                    //checkStructMemberAccessIsNotPrivate(struct_, var);
+                    //checkForReadOnlyAssignment(struct_, var);
+                    int index = struct_.getMemberIndex(var);
+                    if(!n.target.isSet) {
+                        n.target.set(var, index);
+                    }
+                } else {
+                    /// Global, local or parameter
+                    if(!n.target.isSet) {
+                        n.target.set(var);
+                    }
                 }
 
                 /// If var is unknown we need to do some detective work...
@@ -282,7 +293,6 @@ public:
                         if(!n.target.isSet) {
                             n.target.set(var, index);
                         }
-
                     }
                 }
             }

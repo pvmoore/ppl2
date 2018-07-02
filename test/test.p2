@@ -80,7 +80,21 @@ Thingy = [
     //new = { Thingy* This }    // implicit
 ]
 
+myfunc = { bool flag ->
+    return flag
+}
+
 main = {
+    int a = 3
+    int b = a - 2
+
+    myfunc(true)
+
+    [int, float] anon
+
+    assert true
+
+    /*
     GreyWolf wolf
     Animal* animal
     Animal** animal2
@@ -89,6 +103,7 @@ main = {
 
     Cat cat
     Dog* dog
+
     dog.age += 1
 
     [int, Bat berty] bertyStruct
@@ -169,8 +184,8 @@ main = {
     //Wazzer myWazzer
     //Zipper zipper
     //Zippers zips
+    */
 }
-
 bool yop
 
 

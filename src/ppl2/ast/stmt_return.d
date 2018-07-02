@@ -14,6 +14,13 @@ final class Return : Statement {
     Expression expr() {
         return cast(Expression)first();
     }
+    Type getReturnType() {
+        auto func = getContaining!Function;
+        assert(func);
+        auto type = func.getType.getFunctionType;
+        assert(type);
+        return type.returnType;
+    }
 
     override string toString() {
         return "return";

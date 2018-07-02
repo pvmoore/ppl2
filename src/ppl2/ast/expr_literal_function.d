@@ -29,6 +29,10 @@ class LiteralFunction : Expression, Scope, Container {
 
     bool isTemplate() { return false; }
 
+    Function getFunction() {
+        assert(parent.isA!Function);
+        return parent.as!Function;
+    }
     Return[] getReturns() {
         auto array = new Array!Return;
         selectDescendents!Return(array);

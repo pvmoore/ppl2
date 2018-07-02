@@ -38,9 +38,11 @@ public:
             removeUnreferencedNodes();
             afterResolution();
             semanticCheck();
-            generateIR();
-            optimiseModules();
-            link();
+
+            if(generateIR()) {
+                optimiseModules();
+                link();
+            }
 
             auto time = watch.peek().total!"nsecs";
 
@@ -248,12 +250,14 @@ private:
             m.checker.check();
         }
     }
-    void generateIR() {
+    bool generateIR() {
         log("Generating IR");
         dd("gen IR");
+        bool allOk = true;
         foreach(m; modules.values) {
-            m.gen.generate();
+            allOk &= m.gen.generate();
         }
+        return allOk;
     }
     void optimiseModules() {
 

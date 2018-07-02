@@ -78,6 +78,10 @@ public:
             parseDefine(t, parent);
             return true;
         }
+        if(t.isKeyword("assert")) {
+            parseAssert(t, parent);
+            return true;
+        }
 
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
 
@@ -268,6 +272,14 @@ private: //=====================================================================
         if(t.type!=TT.RCURLY && t.get().line==line) {
             exprParser().parse(t, r);
         }
+    }
+    void parseAssert(TokenNavigator t, ASTNode parent) {
+        auto a = makeNode!Assert(t);
+        parent.addToEnd(a);
+
+        t.skip("assert");
+
+        exprParser().parse(t, a);
     }
 }
 

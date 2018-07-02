@@ -16,7 +16,12 @@ string mangle(NamedStruct ns) {
 string mangle(Function f) {
     if(f.isExtern || f.isProgramEntry) return f.name;
 
-    string name = f.name;
+    string name  = f.name;
+    auto struct_ = f.getContainingStruct();
+    if(struct_ && struct_.isNamed) {
+        name = struct_.getName ~ "." ~ name;
+    }
+
     if(f.args.numArgs>0) {
         name ~= "(%s)".format(mangle(f.args.argTypes()));
     }

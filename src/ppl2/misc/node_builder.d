@@ -19,7 +19,14 @@ final class NodeBuilder {
         auto id   = makeNode!Identifier(node);
         id.target = new Target(module_);
         id.name   = v.name;
-        id.target.set(v);
+
+        if(v.isStructMember) {
+            auto struct_ = v.parent.as!AnonStruct;
+            assert(struct_);
+            id.target.set(v, struct_.getMemberIndex(v));
+        } else {
+            id.target.set(v);
+        }
         return id;
     }
     Identifier identifier(string name) {
@@ -55,7 +62,13 @@ final class NodeBuilder {
         call.target = new Target(module_);
         call.name   = name;
         if(f) {
-            call.target.set(f);
+            if(f.isStructMember) {
+                auto struct_ = f.parent.as!AnonStruct;
+                assert(struct_);
+                call.target.set(f, struct_.getMemberIndex(f));
+            } else {
+                call.target.set(f);
+            }
         }
         return call;
     }

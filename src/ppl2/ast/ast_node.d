@@ -65,20 +65,21 @@ T makeNode(T)(ASTNode p) {
     assert(n.children);
     return n;
 }
+bool isAnonStruct(inout ASTNode n) { return n.id()==NodeID.ANON_STRUCT; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isDefine(inout ASTNode n) { return n.id()==NodeID.DEFINE; }
 bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }
 bool isExpression(inout ASTNode n) { return n.as!Expression !is null; }
 bool isFunction(inout ASTNode n) { return n.id()==NodeID.FUNCTION; }
 bool isIdentifier(inout ASTNode n) { return n.id()==NodeID.IDENTIFIER; }
+bool isInitialiser(inout ASTNode n) { return n.id()==NodeID.INITIALISER; }
 bool isLiteralNull(inout ASTNode n) { return n.id()==NodeID.LITERAL_NULL; }
 bool isLiteralNumber(inout ASTNode n) { return n.id()==NodeID.LITERAL_NUMBER; }
 bool isLiteralFunction(inout ASTNode n) { return n.id()==NodeID.LITERAL_FUNCTION; }
 bool isModule(inout ASTNode n) { return n.id()==NodeID.MODULE; }
-bool isAnonStruct(inout ASTNode n) { return n.id()==NodeID.ANON_STRUCT; }
 bool isNamedStruct(inout ASTNode n) { return n.id()==NodeID.NAMED_STRUCT; }
+bool isReturn(inout ASTNode n) { return n.id()==NodeID.RETURN; }
 bool isVariable(inout ASTNode n) { return n.id()==NodeID.VARIABLE; }
-bool isInitialiser(inout ASTNode n) { return n.id()==NodeID.INITIALISER; }
 
 bool areAll(NodeID ID)(ASTNode[] n) { return n.all!(it=>it.id==ID); }
 bool areResolved(ASTNode[] nodes) { return nodes.all!(it=>it.isResolved); }
@@ -196,11 +197,21 @@ abstract class ASTNode {
         if(parent) return parent.getContainer();
         throw new Exception("We are not inside a container!!");
     }
+    T getContaining(T)() {
+        if(parent is null) return null;
+        if(parent.isA!T) return parent.as!T;
+        return parent.getContaining!T;
+    }
     /// This may return null if we are not in a struct
     AnonStruct getContainingStruct() {
         if(parent is null) return null;
         if(parent.isAnonStruct) return parent.as!AnonStruct;
         return parent.getContainingStruct();
+    }
+    LiteralFunction getContainingFunctionBody() {
+        if(parent is null) return null;
+        if(parent.isLiteralFunction) return parent.as!LiteralFunction;
+        return parent.getContainingFunctionBody();
     }
     //================================================================================= Dump
     void dumpToConsole(string indent="") {

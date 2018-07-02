@@ -28,9 +28,14 @@ public:
 
     bool dce           = true; /// dead code elimination
 
+    bool nullChecks    = true;
+    bool enableAsserts = true;
+
     this(string mainFilePath) {
         import std.path;
         import std.array;
+
+        setToDebug();
 
         auto normalisedPath = cast(string)mainFilePath.asNormalizedPath.array;
 
@@ -59,5 +64,13 @@ private:
         if(!exists(bcpath)) {
             mkdir(bcpath);
         }
+    }
+    void setToDebug() {
+        nullChecks    = true;
+        enableAsserts = true;
+    }
+    void setToRelease() {
+        nullChecks    = false;
+        enableAsserts = false;
     }
 }

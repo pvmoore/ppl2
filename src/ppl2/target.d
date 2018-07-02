@@ -87,23 +87,26 @@ public:
         if(var) return var;
         return func;
     }
-    bool isFunction() const {
-        return func !is null;
+    bool isFunction() const { return func !is null; }
+    bool isVariable() const { return var !is null; }
+    bool isMemberVariable() const { return ttype==TargetType.STRUCTVAR; }
+    bool isMemberFunction() const { return ttype==TargetType.STRUCTFUNC; }
+
+    LLVMValueRef llvmValue() {
+        if(isFunction) return func.llvmValue;
+        if(isVariable) return var.llvmValue;
+        return null;
     }
-    bool isVariable() const {
-        return var !is null;
+    Type returnType() {
+        assert(isSet);
+        assert(getType.isFunction);
+        return getType.getFunctionType.returnType();
     }
-    bool isMemberVariable() const {
-        return ttype==TargetType.STRUCTVAR;
+    Type[] argTypes() {
+        assert(isSet);
+        assert(getType.isFunction);
+        return getType.getFunctionType.argTypes();
     }
-    bool isMemberFunction() const {
-        return ttype==TargetType.STRUCTFUNC;
-    }
-    //LLVMValueRef llvmValue() {
-    //    if(isFunction) return func.llvmValue;
-    //    if(isVariable) return var.llvmValue;
-    //    return null;
-    //}
     override string toString() {
         string s = isSet && targetModule.nid != module_.nid ? targetModule.canonicalName~"." : "";
         s ~= var?var.name : func?func.name: "";

@@ -44,7 +44,9 @@ final class LiteralNumber : Expression {
         value  = Value(this);
     }
     override string toString() {
-        return "%s (type=const %s)".format(value.lit && value.type && value.type.isKnown ? value.getString() : str, type);
+        string v = value.getString();
+        //string v = value.lit && value.type && value.type.isKnown ? value.getString() : str;
+        return "%s (type=const %s)".format(v, type);
     }
 }
 //============================================================================================
@@ -69,7 +71,7 @@ struct Value {
     int getInt()       { return cast(int)getLong(); }
     long getLong()     { if(type.isReal) return cast(long)f; return i; }
     double getDouble() { if(!type.isReal) return cast(double)i; return f; }
-    string getString() { return type.isReal ? "%f".format(f) : "%s".format(i); }
+    string getString() { return type.isReal ? "%f".format(getDouble()) : "%s".format(getLong()); }
 
     void applyUnary(Operator op) {
         switch(op.id) with(Operator) {

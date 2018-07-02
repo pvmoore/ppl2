@@ -41,8 +41,6 @@ private:
             parseTypeExpr(t, parent);
         } else if(t.value=="not") {
             parseUnary(t, parent);
-        } else if(t.value=="assert") {
-            parseAssert(t, parent);
         } else switch(t.type) {
             case TT.NUMBER:
             case TT.CHAR:
@@ -630,14 +628,6 @@ private:
 
         /// )
         t.skip(TT.RBRACKET);
-    }
-    void parseAssert(TokenNavigator t, ASTNode parent) {
-        auto a = makeNode!Assert(t);
-        parent.addToEnd(a);
-
-        t.skip("assert");
-
-        parse(t, a);
     }
 }
 
