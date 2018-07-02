@@ -3,7 +3,7 @@ export testExpressions
 
 
 testExpressions = {
-
+    testIf()
 
 }
 
@@ -17,5 +17,4 @@ testIf2 = {
 }
 
 int a
-
 define A = int

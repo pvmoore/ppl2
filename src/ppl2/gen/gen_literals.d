@@ -10,6 +10,26 @@ final class LiteralGenerator {
         this.gen     = gen;
         this.builder = gen.builder;
     }
+    void generate(LiteralArray n) {
+
+        /// Alloca some space
+        gen.lhs  = builder.alloca(n.type.getLLVMType(), "literal_array");
+        auto ptr = gen.lhs;
+
+        if(n.isIndexBased) {
+            assert(false, "implement me");
+        } else {
+
+            /// Set the values
+            foreach(int i, ch; n.elementValues()) {
+                ch.visit!ModuleGenerator(gen);
+                gen.rhs = gen.castType(gen.rhs, ch.getType, n.type.subtype);
+
+                gen.setArrayValue(ptr, gen.rhs, i, "[%s]".format(i));
+            }
+        }
+        gen.rhs = builder.load(gen.lhs);
+    }
     void generate(LiteralFunction n) {
         if(n.isClosure) {
             /// Generate declaration

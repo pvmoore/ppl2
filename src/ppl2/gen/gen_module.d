@@ -73,6 +73,13 @@ public:
             builder.store(args[i], lhs);
         }
     }
+    void visit(As n) {
+        dd("visit As");
+
+        n.left.visit!ModuleGenerator(this);
+
+        rhs = castType(rhs, n.left().getType, n.getType);
+    }
     void visit(Assert a) {
         dd("visit Assert");
 
@@ -233,6 +240,10 @@ public:
         dd("visit Initialiser");
         visitChildren(n);
     }
+    void visit(LiteralArray n) {
+        dd("visit LiteralArray");
+        literalGen.generate(n);
+    }
     void visit(LiteralFunction n) {
         dd("visit LiteralFunction");
         literalGen.generate(n);
@@ -373,7 +384,7 @@ public:
         return builder.ccall(expectBoolFunc, [value, expectedValue]);
     }
     void setArrayValue(LLVMValueRef arrayPtr, LLVMValueRef value, uint index, string name=null) {
-        auto indices = [constI32(index)];
+        auto indices = [constI32(0), constI32(index)];
         auto ptr = builder.getElementPointer_inBounds(arrayPtr, indices, name);
         builder.store(value, ptr);
     }

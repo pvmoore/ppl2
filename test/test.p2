@@ -84,6 +84,12 @@ myfunc = { bool flag ->
     return flag
 }
 
+someArrays = {
+    [:int 5] array
+    var a2 = [: 1,2]
+    var a3 = [: 3=999]
+}
+
 main = {
     int a = 3
     int b = a - 2
@@ -112,23 +118,24 @@ main = {
     Thingy thingy
     thingy.a = 9
 
+    someArrays()
+
     importedFunc()
 
     testLiterals()
     testExpressions()
+    testCasting()
+    testConsts()
+    testMeta()
+    //testArrays()
 
     /*
-
-    testArrays()
-
     testStructs()
-    testCasting()
     testClosures()
-    testConsts()
     testConstructors()
-    testMeta()
     testLiteralStruct()
-*/
+    */
+
     dothings(0, cat)
 
     putchar('a')

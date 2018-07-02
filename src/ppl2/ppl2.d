@@ -46,12 +46,19 @@ public:
             afterResolution();
             semanticCheck();
 
+            bool ok = false;
+
             if(generateIR()) {
                 optimiseModules();
                 combineModules();
                 if(link()) {
-                    writefln("OK");
+                    ok = true;
                 }
+            }
+
+            if(!ok) {
+                writefln("Fail");
+                return;
             }
 
             /// Finished
@@ -67,7 +74,7 @@ public:
 
             import core.memory : GC;
 
-            writefln("\nOk");
+            writefln("");
             writefln("Active modules ......... %s", modules.length);
             writefln("Parser time ............ %.2f ms", modules.values.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6);
             writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
