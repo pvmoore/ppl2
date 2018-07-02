@@ -53,14 +53,13 @@ chars = {
     int ch2 = '\n'
 }
 strings = {
-    //string s    // set to an empty string
-    //string s1 = "hello"
-    //var s2    = r"there"
+    string s    // set to an empty string
+    string s1 = "hello"
+    var s2    = r"there"
 
-    //var len = "stringy".length
+    var len = "stringy".length
+    var ptr = "stringy".ptr
 
-    //var ptr = "stringy".ptr
-    //var ch = "stringy"[0]
-
+    //var ch = "stringy"[0] // todo
     //"stringy"[0] = 'S' // readonly
 }

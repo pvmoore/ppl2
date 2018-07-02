@@ -1,7 +1,7 @@
 @echo off
 cls
 
-del /Q test\.target\*.*
+del /Q test\.target\*.exe
 
 if not exist "ppl2.exe" goto COMPILE
 del ppl2.exe

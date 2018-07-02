@@ -6,6 +6,7 @@ final class ModuleGenerator {
 public:
     Module module_;
     BinaryGenerator binaryGen;
+    LiteralGenerator literalGen;
 
     LLVMWrapper llvm;
     LLVMBuilder builder;
@@ -19,10 +20,11 @@ public:
     LLVMValueRef[string] structMemberThis;  /// key = struct.getUniqueName
 
     this(Module module_, LLVMWrapper llvm) {
-        this.module_   = module_;
-        this.llvm      = llvm;
-        this.builder   = llvm.builder;
-        this.binaryGen = new BinaryGenerator(this);
+        this.module_    = module_;
+        this.llvm       = llvm;
+        this.builder    = llvm.builder;
+        this.binaryGen  = new BinaryGenerator(this);
+        this.literalGen = new LiteralGenerator(this);
     }
     bool generate() {
         log("Generating IR for module %s", module_.canonicalName);
@@ -233,50 +235,19 @@ public:
     }
     void visit(LiteralFunction n) {
         dd("visit LiteralFunction");
-        if(n.isClosure) {
-            /// Generate declaration
-
-            assert(false, "implement me");
-        }
-        auto func     = n.getFunction();
-        auto argTypes = n.type.argTypes();
-        auto numArgs  = argTypes.length;
-        assert(func.llvmValue, "Function value is null: %s".format(func));
-
-        auto args  = getFunctionArgs(func.llvmValue);
-        auto entry = func.llvmValue.appendBasicBlock("entry");
-        builder.positionAtEndOf(entry);
-
-        /// Visit body statements
-        foreach(ch; n.children) {
-            ch.visit!ModuleGenerator(this);
-        }
-
-        if(n.type.returnType().isVoid) {
-            if(!n.hasChildren || !n.last().isReturn) {
-                builder.retVoid();
-            }
-        }
+        literalGen.generate(n);
     }
     void visit(LiteralNull n) {
-        rhs = constNullPointer(n.type.getLLVMType());
+        dd("visit LiteralNull");
+        literalGen.generate(n);
     }
     void visit(LiteralNumber n) {
         dd("visit LiteralNumber", n);
-        LLVMValueRef value;
-        switch(n.type.getEnum) with(Type) {
-            case BOOL:   value = constI8(n.value.getInt()); break;
-            case BYTE:   value = constI8(n.value.getInt()); break;
-            case SHORT:  value = constI16(n.value.getInt()); break;
-            case INT:    value = constI32(n.value.getInt()); break;
-            case LONG:   value = constI64(n.value.getLong()); break;
-            case HALF:   value = constF16(n.value.getDouble()); break;
-            case FLOAT:  value = constF32(n.value.getDouble()); break;
-            case DOUBLE: value = constF64(n.value.getDouble()); break;
-            default:
-                assert(false, "Invalid type %s".format(n.type));
-        }
-        rhs = value;
+        literalGen.generate(n);
+    }
+    void visit(LiteralString n) {
+        dd("visit LiteralString");
+        literalGen.generate(n);
     }
     void visit(NamedStruct n) {
         dd("visit NamedStruct", n.name);

@@ -31,8 +31,8 @@ final class LiteralString : Expression {
     ///
     int calculateLength() {
         final switch(enc) with(Encoding) {
-            case U8:  return value.length.as!int - 1;
-            case RAW: return value.length.as!int - 1;
+            case U8:  return value.length.as!int;
+            case RAW: return value.length.as!int;
         }
     }
 

@@ -201,7 +201,12 @@ public:
                  it.as!Call.target.isFunction() &&
                  it.as!Call.target.targetModule.nid != nid
         );
-        return cast(Function[])array[].map!(it=>it.as!Call.target.getFunction()).array;
+        /// De-dup
+        auto set = new Set!Function;
+        foreach(call; array) {
+            set.add(call.as!Call.target.getFunction());
+        }
+        return set.values;
     }
     Function[] getExternalFunctions() {
         return getFunctions().filter!(it=>it.isExtern).array;

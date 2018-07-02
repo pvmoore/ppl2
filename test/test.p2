@@ -115,11 +115,12 @@ main = {
     importedFunc()
 
     testLiterals()
+    testExpressions()
 
     /*
 
     testArrays()
-    testExpressions()
+
     testStructs()
     testCasting()
     testClosures()

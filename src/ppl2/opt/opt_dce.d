@@ -4,19 +4,12 @@ import ppl2.internal;
 ///
 /// Remove any nodes that do not affect the result. ie. they are not referenced
 ///
-/// Todo:
-///     Remove unreferenced Modules
-///     Remove calls that call a function with nothing in it
-///     Remove Functions that are not called
-///
-/// Maybe merge this back into ModuleConstantFolder
-///
 final class OptimisationDCE {
 private:
     Module module_;
 public:
     this(Module module_) {
-        this.module_     = module_;
+        this.module_ = module_;
     }
 
     void opt() {
