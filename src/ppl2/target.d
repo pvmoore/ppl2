@@ -120,7 +120,10 @@ private:
         } else {
             func.numRefs++;
         }
-        if(targetModule.nid != module_.nid) targetModule.numRefs++;
+        if(targetModule.nid != module_.nid) {
+            targetModule.numRefs++;
+            if(func) func.numExternalRefs++;
+        }
     }
     void removeRef() {
         if(var) {
@@ -128,6 +131,9 @@ private:
         } else {
             func.numRefs--;
         }
-        if(targetModule.nid != module_.nid) targetModule.numRefs--;
+        if(targetModule.nid != module_.nid) {
+            targetModule.numRefs--;
+            if(func) func.numExternalRefs--;
+        }
     }
 }

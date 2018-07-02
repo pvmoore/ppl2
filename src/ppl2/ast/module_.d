@@ -141,20 +141,15 @@ public:
     Variable[] getVariables() {
         return cast(Variable[])children[].filter!(it=>it.id()==NodeID.VARIABLE).array;
     }
+    ///
+    /// Find all AnonStructs at module scope.
+    ///
     Type[] getAnonStructs() {
         auto array = new Array!ASTNode;
         recursiveCollect(array,
             it => it.getType.isAnonStruct
         );
         return cast(Type[])array[].map!(it=>it.getType).array;
-    }
-    Function[] getLocalFunctions() {
-        auto array = new Array!ASTNode;
-        recursiveCollect(array,
-            it=> it.id()==NodeID.FUNCTION &&
-                 it.as!Function.isGlobal
-        );
-        return cast(Function[])array[];
     }
     //================================================================================
     NamedStruct[] getImportedNamedStructs() {
@@ -222,7 +217,7 @@ public:
         writefln("\tLocal named structs ....... %s", getNamedStructs().map!(it=>it.name));
         writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
 
-        writefln("\tLocal functions ........... %s", getLocalFunctions().map!(it=>it.getUniqueName));
+        writefln("\tLocal functions ........... %s", getFunctions().map!(it=>it.getUniqueName));
         writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getUniqueName));
         writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
     }
@@ -231,8 +226,8 @@ public:
         return "Module[refs=%s] %s".format(numRefs, canonicalName);
     }
     //==============================================================================
-    // Assumes path is normalised
     static string getCanonicalName(string path) {
+        /// Assumes path is normalised
         import std.array;
         import std.path;
 

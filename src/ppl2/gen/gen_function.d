@@ -2,6 +2,11 @@ module ppl2.gen.gen_function;
 
 import ppl2.internal;
 
+void generateStandardFunctionDeclarations(Module module_) {
+    foreach(f; module_.getFunctions()) {
+        generateFunctionDeclaration(module_, f);
+    }
+}
 void generateImportedFunctionDeclarations(Module module_) {
     foreach(f; module_.getImportedFunctions) {
         generateFunctionDeclaration(module_, f);
@@ -12,9 +17,7 @@ void generateStructMemberFunctionDeclarations(Module module_) {
         foreach(f; s.type.getMemberFunctions()) {
             //dd("member function", f.getUniqueName);
 
-            if(f.numRefs>0) {
-                generateFunctionDeclaration(module_, f);
-            }
+            generateFunctionDeclaration(module_, f);
         }
     }
 }
@@ -30,8 +33,8 @@ void generateFunctionDeclaration(Module module_, Function f) {
     f.llvmValue = func;
 
     //// inline
-    //bool isInline   = f.isOperatorOverload;
-    //bool isNoInline = false;
+    bool isInline   = f.isClosure; //f.isOperatorOverload;
+    bool isNoInline = false;
 
     //// check if user has set a preference
     //if(f.attributes && f.attributes.has(AttrType.INLINE)) {
@@ -39,16 +42,17 @@ void generateFunctionDeclaration(Module module_, Function f) {
     //    isInline   = "-1"==inline.value;
     //    isNoInline = !isInline;
     //}
-    //if(isInline) {
-    //    addFunctionAttribute(func, LLVMAttribute.AlwaysInline);
-    //} else if(isNoInline) {
-    //    addFunctionAttribute(func, LLVMAttribute.NoInline);
-    //}
+    if(isInline) {
+        addFunctionAttribute(func, LLVMAttribute.AlwaysInline);
+    } else if(isNoInline) {
+        addFunctionAttribute(func, LLVMAttribute.NoInline);
+    }
 
     addFunctionAttribute(func, LLVMAttribute.NoUnwind);
 
     //// linkage
     //if(!f.isExport && f.access==Access.PRIVATE) {
-    //    f.llvmValue.setLinkage(LLVMLinkage.LLVMInternalLinkage);
-    //}
+    if(f.numExternalRefs==0 && !f.isProgramEntry) {
+        f.llvmValue.setLinkage(LLVMLinkage.LLVMInternalLinkage);
+    }
 }

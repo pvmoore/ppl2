@@ -9,11 +9,12 @@ private:
     string _uniqueName;
 public:
     string name;
-    Type externType;          /// for extern functions only
+    Type externType;        /// for extern functions only
     string moduleName;
-    bool isImport;
+    bool isImport;          /// true if this is just a proxy for an imported function
     bool isExtern;
-    int numRefs;
+    int numRefs;            /// Total calls to this function
+    int numExternalRefs;    /// Num calls to this function from outside the module
 
     LLVMValueRef llvmValue;
 
@@ -83,6 +84,6 @@ public:
         isImport ? "IMPORT" :
         isLocal ? "LOCAL" :
         isGlobal ? "GLOBAL" : "STRUCT";
-        return "'%s' Function[refs=%s] (%s)".format(name, numRefs, loc);
+        return "'%s' Function[refs=%s,%s] (%s)".format(name, numRefs, numExternalRefs, loc);
     }
 }

@@ -45,11 +45,19 @@ public:
                 d.detach();
             }
         }
-        /// Look at module scope defines that are not referenced
-        foreach(d; module_.getNamedStructs()) {
-            if(d.numRefs==0) {
-                log("\t  unreferenced named struct %s", d.name);
-                d.detach();
+        /// Look at module scope named structs that are not referenced
+        foreach(ns; module_.getNamedStructs()) {
+            if(ns.numRefs==0) {
+                log("\t  unreferenced named struct %s", ns.name);
+                ns.detach();
+            } else {
+                /// The struct is referenced but some of the functions may not be
+                foreach(f; ns.type.getMemberFunctions()) {
+                    if(f.numRefs==0) {
+                        log("\t  unreferenced func %s.%s", ns.name, f.name);
+                        f.detach();
+                    }
+                }
             }
         }
     }

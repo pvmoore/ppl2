@@ -1,7 +1,7 @@
 
 export
     Cat, Pig, Dog, Bat, Wolf,
-    AnInt
+    AnInt, importedFunc
 
 bool isit = false
 
@@ -22,3 +22,7 @@ Wolf = [
 ]
 
 define AnInt = int
+
+importedFunc = {
+
+}

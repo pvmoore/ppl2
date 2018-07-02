@@ -34,8 +34,10 @@ public:
 
         generateGlobalStrings();
         generateGlobalVariables();
-        generateIntrinsicFuncDeclarations();
         generateImportedStructDeclarations(module_);
+
+        generateIntrinsicFuncDeclarations();
+        generateStandardFunctionDeclarations(module_);
         generateStructMemberFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
 
@@ -138,7 +140,7 @@ public:
             rhs = builder.load(n.target.llvmValue);
             rhs = builder.call(rhs, argValues, LLVMCallConv.LLVMFastCallConv);
         } else if(n.target.isFunction) {
-            assert(n.target.llvmValue);
+            assert(n.target.llvmValue, "Function llvmValue is null: %s".format(n.target.getFunction));
             rhs = builder.call(n.target.llvmValue, argValues, n.target.getFunction().getCallingConvention());
         }
         //
@@ -169,7 +171,6 @@ public:
     }
     void visit(Function n) {
         dd("visit Function", n.name);
-        generateFunctionDeclaration(module_, n);
         if(!n.isExtern) {
             n.getBody().visit!ModuleGenerator(this);
         }
@@ -184,7 +185,7 @@ public:
         } else if(n.target.isMemberVariable) {
 
             /// Get the "this" variable
-            if(n.target.getVariable.isNamedStructMember) {
+            if(!n.parent.isDot && n.target.getVariable.isNamedStructMember) {
                 auto struct_ = n.target.getVariable.getNamedStruct;
                 assert(struct_);
 
@@ -240,7 +241,7 @@ public:
         auto func     = n.getFunction();
         auto argTypes = n.type.argTypes();
         auto numArgs  = argTypes.length;
-        assert(func.llvmValue);
+        assert(func.llvmValue, "Function value is null: %s".format(func));
 
         auto args  = getFunctionArgs(func.llvmValue);
         auto entry = func.llvmValue.appendBasicBlock("entry");

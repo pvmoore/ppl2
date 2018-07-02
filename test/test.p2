@@ -94,19 +94,15 @@ main = {
 
     assert true
 
-    Cat cat
-
-    /*
     GreyWolf wolf
     Animal* animal
     Animal** animal2
     AnimalPtr animalPtr
     IntPtr ip
 
-
+    Cat cat
     Dog* dog
-
-    dog.age += 1
+    //dog.age += 1
 
     [int, Bat berty] bertyStruct
 
@@ -116,8 +112,13 @@ main = {
     Thingy thingy
     thingy.a = 9
 
-    testArrays()
+    importedFunc()
+
     testLiterals()
+
+    /*
+
+    testArrays()
     testExpressions()
     testStructs()
     testCasting()
@@ -126,15 +127,16 @@ main = {
     testConstructors()
     testMeta()
     testLiteralStruct()
-
+*/
     dothings(0, cat)
-    putchar(1)
+
+    putchar('a')
 
     Dog* dd = null
     dd = dog
     dd = null
 
-
+/*
     // inferred return type
     // {void->}
     // {void->var}
