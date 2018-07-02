@@ -70,13 +70,6 @@ public:
                 if(v.isConst) {
                     errorConstVariableNeedsInitialiser(v);
                 }
-
-                /// Generate default initialisation
-                if(!v.isParameter && !v.isAnonStructMember && !v.isGlobal) {
-                    auto ini = makeNode!Initialiser(v);
-                    ini.var = v;
-                    v.addToEnd(ini);
-                }
             }
         } else if(t.type==TT.COMMA) {
             t.next;

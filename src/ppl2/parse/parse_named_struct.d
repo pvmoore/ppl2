@@ -169,10 +169,10 @@ private:
         assert(initFunc);
 
         foreach_reverse(v; anonStruct.getMemberVariables()) {
-            assert(v.hasInitialiser);
-
-            /// Arguments should always be at index 0 so add these at index 1
-            initFunc.getBody().insertAt(1, v.initialiser);
+            if(v.hasInitialiser) {
+                /// Arguments should always be at index 0 so add these at index 1
+                initFunc.getBody().insertAt(1, v.initialiser);
+            }
         }
     }
 }

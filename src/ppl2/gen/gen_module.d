@@ -310,6 +310,10 @@ public:
 
         } else {
             //// it must be a local/parameter
+
+            // allocaArray
+            // mallocArray
+
             lhs = builder.alloca(n.type.getLLVMType(), n.name);
             n.llvmValue = lhs;
 
@@ -328,6 +332,9 @@ public:
 
                 //log("assign: %s to %s", n.initialiser.getType, n.type);
                 //builder.store(rhs, n.llvmValue);
+            } else if(!n.isParameter) {
+                auto zero = constAllZeroes(n.type.getLLVMType());
+                builder.store(zero, n.llvmValue);
             }
         }
     }

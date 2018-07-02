@@ -35,35 +35,14 @@ public:
         if(!areResolved(children[])) return;
 
         /// Generate initialisation AST for our parent Variable
-        if(numChildren > 0) {
-            /// Initialisation provided by the user
-            if(var.type.isNamedStruct) {
-                convertToAssignment();
-            } else if(var.type.isAnonStruct) {
-                /// nothing to do
-            } else {
-                convertToAssignment();
-            }
+        assert(numChildren>0);
+
+        if(var.type.isNamedStruct) {
+            convertToAssignment();
+        } else if(var.type.isAnonStruct) {
+            /// nothing to do
         } else {
-            /// We need to generate some initialisation code
-
-            auto type = var.type;
-            assert(!type.isDefine, "%s".format(type));
-
-            if(type.isPtr) {
-                gen(type.as!PtrType);
-            } else if(type.isBasicType) {
-                gen(type.getBasicType);
-            } else if(type.isNamedStruct) {
-                gen(type.getNamedStruct);
-            } else if(type.isStruct) {
-                gen(type.getAnonStruct);
-            } else if(type.isArray) {
-                gen(type.getArrayType);
-            } else {
-                assert(type.isFunction);
-                gen(type.getFunctionType);
-            }
+            convertToAssignment();
         }
 
         astGenerated = true;
@@ -73,43 +52,6 @@ public:
         return "Initialiser (type=%s)".format(getType);
     }
 private:
-    void gen(PtrType ptr) {
-        addToEnd(LiteralNull.makeConst(var.type));
-        convertToAssignment();
-    }
-    void gen(BasicType basic) {
-        addToEnd(basic.defaultInitialiser());
-        convertToAssignment();
-    }
-    void gen(NamedStruct ns) {
-        auto b = getModule.builder(var);
-
-        auto id        = b.identifier(var.name);
-        auto thisPtr   = b.addressOf(id);
-
-        auto call     = b.call("new", null);
-        call.addToEnd(thisPtr);
-        auto dot      = b.dot(b.identifier(id.name), call);
-
-        addToEnd(dot);
-    }
-    void gen(AnonStruct struct_) {
-        auto b = getModule.builder(var);
-
-        foreach(i, mv; struct_.getMemberVariables()) {
-            auto index  = b.index(b.identifier(var), LiteralNumber.makeConst(i, TYPE_INT));
-            auto assign = b.binary(Operator.ASSIGN, index, mv.type.defaultInitialiser(), mv.type);
-            addToEnd(assign);
-        }
-    }
-    void gen(ArrayType array) {
-        addToEnd(array.defaultInitialiser());
-        convertToAssignment();
-    }
-    void gen(FunctionType func) {
-        addToEnd(LiteralNull.makeConst(var.type));
-        convertToAssignment();
-    }
     void convertToAssignment() {
         _literal = last().as!LiteralNumber;
         auto b      = getModule.builder(var);
