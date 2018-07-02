@@ -48,21 +48,16 @@ public:
     }
 private:
     void generateTargetDirectories() {
+        createTargetDir("ast/");
+        createTargetDir("ir/");
+        createTargetDir("ir_opt/");
+        createTargetDir("bc/");
+    }
+    void createTargetDir(string dir) {
         import std.file : exists, mkdir;
-
-        string astpath = targetPath ~ "ast/";
-        if(!exists(astpath)) {
-            mkdir(astpath);
-        }
-
-        string irpath = targetPath ~ "ir/";
-        if(!exists(irpath)) {
-            mkdir(irpath);
-        }
-
-        string bcpath = targetPath ~ "bc/";
-        if(!exists(bcpath)) {
-            mkdir(bcpath);
+        string path = targetPath ~ dir;
+        if(!exists(path)) {
+            mkdir(path);
         }
     }
     void setToDebug() {

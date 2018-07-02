@@ -41,7 +41,7 @@ public:
 
         visitChildren(module_);
 
-        writeLL(module_);
+        writeLL(module_, "ir/");
 
         return verify();
     }

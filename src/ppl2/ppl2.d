@@ -261,7 +261,12 @@ private:
         return allOk;
     }
     void optimiseModules() {
-
+        auto passManager = llvm.passManager;
+        passManager.addPasses();
+        foreach(m; modules.values) {
+            passManager.runOnModule(m.llvmValue);
+            writeLL(m, "ir_opt/");
+        }
     }
     void link() {
 
