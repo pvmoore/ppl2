@@ -23,6 +23,9 @@ public:
     bool logParser    = false;
     bool logResolver  = false;
 
+    bool writeASM = true;
+    bool writeOBJ = true;
+
     bool foldConstants = true;  /// This MUST be enabled if you use consts
                                 /// to initialise array counts for example
 

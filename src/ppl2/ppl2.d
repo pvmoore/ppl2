@@ -5,9 +5,13 @@ import ppl2.internal;
 final class PPL2 {
     __gshared static Module[string] modules; /// key=canonical module name
     LLVMWrapper llvm;
+    Linker linker;
 public:
     __gshared static Module getModule(string canonicalName) {
         return modules.get(canonicalName, null);
+    }
+    __gshared static Module mainModule() {
+        return modules[g_mainModuleCanonicalName];
     }
 
     this(string mainFileRaw) {
@@ -15,7 +19,8 @@ public:
             StopWatch watch;
             watch.start();
 
-            llvm = new LLVMWrapper();
+            llvm   = new LLVMWrapper();
+            linker = new Linker(llvm);
 
             setConfig(new Config(mainFileRaw));
 
@@ -41,12 +46,22 @@ public:
 
             if(generateIR()) {
                 optimiseModules();
-                link();
+                combineModules();
+                if(link()) {
+                    writefln("OK");
+                }
             }
 
             auto time = watch.peek().total!"nsecs";
 
             ///========================================= end resolving
+
+            writefln("\nModule info:");
+            flushLogs();
+            foreach(m; modules.values) {
+                writefln("- %s", m.canonicalName);
+                m.dumpInfo();
+            }
 
             import core.memory : GC;
 
@@ -57,15 +72,9 @@ public:
             writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
             writefln("Constant folder time ... %.2f ms", modules.values.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6);
             writefln("Semantic checker time .. %.2f ms", modules.values.map!(it=>it.checker.getElapsedNanos).sum() * 1e-6);
+            writefln("Link time .............. %.2f ms", linker.getElapsedNanos * 1e-6);
             writefln("Total time.............. %.2f ms", time * 1e-6);
             writefln("Memory used ............ %s KB", GC.stats.usedSize / 1024);
-
-            writefln("\nLive modules:");
-            flushLogs();
-            foreach(m; modules.values) {
-                writefln("- %s", m.canonicalName);
-                m.dumpInfo();
-            }
 
         }catch(CompilerError e) {
             prettyErrorMsg(e);
@@ -268,7 +277,22 @@ private:
             writeLL(m, "ir_opt/");
         }
     }
-    void link() {
+    void combineModules() {
+        dd("combining");
+        auto mainModule   = mainModule();
+        auto otherModules = modules.values
+                                   .filter!(it=>it.nid != mainModule.nid)
+                                   .map!(it=>it.llvmValue)
+                                   .array;
+        if(otherModules.length>0) {
+            llvm.linkModules(mainModule.llvmValue, otherModules);
+        }
 
+        writeLL(mainModule, "");
+    }
+    bool link() {
+        dd("linking");
+        log("Linking");
+        return linker.link(mainModule());
     }
 }

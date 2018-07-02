@@ -77,6 +77,7 @@ import ppl2.interfaces.container;
 
 import ppl2.misc.arguments;
 import ppl2.misc.lexer;
+import ppl2.misc.linker;
 import ppl2.misc.misc_logging;
 import ppl2.misc.mangle;
 import ppl2.misc.node_builder;
