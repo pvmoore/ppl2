@@ -71,13 +71,13 @@ public:
     }
 private:
     ///
-    ///  1) Check that there is only 1 module init function.
-    ///  2) Create one if there are none.
-    ///  3) Make main module init function live.
-    ///  4) Check that we have a program entry point and set it live
-    ///  5) Request resolution of the module "new" method
+    ///  - Check that there is only 1 module init function.
+    ///  - Create one if there are none.
+    ///  - Check that we have a program entry point
+    ///  - Request resolution of the module "new" method
     ///
     void moduleFullyParsed() {
+        /// Ensure no more than one module new() function exists
         auto fns = module_.getFunctions("new");
         if(fns.length>1) {
             throw new CompilerError(Err.MULTIPLE_MODULE_INITS, fns[1],
@@ -86,6 +86,7 @@ private:
         bool hasModuleInit = fns.length==1;
         bool isMainModule  = module_.canonicalName==g_mainModuleCanonicalName;
 
+        /// Add a module new() function if it does not exist
         Function initFunc;
         if(hasModuleInit) {
             initFunc = fns[0];
@@ -107,6 +108,7 @@ private:
         if(isMainModule) {
             g_mainModuleNID = module_.nid;
 
+            /// Check for a program entry point
             auto mainfns = module_.getFunctions("main");
             if(mainfns.length > 1) {
                 throw new CompilerError(Err.MULTIPLE_ENTRY_POINTS, mainfns[1],
@@ -150,9 +152,6 @@ private:
                 t.next;
             }
         }
-
-        //dd("   exports", names.values);
-        //dd("   indexes", indexes.values);
 
         if(names.length==0) return;
 

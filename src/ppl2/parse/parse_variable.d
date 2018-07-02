@@ -72,7 +72,7 @@ public:
                 }
 
                 /// Generate default initialisation
-                if(!v.isParameter && !v.isAnonStructMember) {
+                if(!v.isParameter && !v.isAnonStructMember && !v.isGlobal) {
                     auto ini = makeNode!Initialiser(v);
                     ini.var = v;
                     v.addToEnd(ini);

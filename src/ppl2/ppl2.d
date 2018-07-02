@@ -160,10 +160,11 @@ private:
             /// Move global var initialisers to module new()
             auto initFunc = mod.getInitFunction();
             foreach_reverse(v; mod.getVariables()) {
-                assert(v.initialiser);
 
-                /// Arguments should always be the 1st child of body
-                initFunc.getBody().insertAt(1, v.initialiser);
+                if(v.hasInitialiser) {
+                    /// Arguments should always be the 1st child of body
+                    initFunc.getBody().insertAt(1, v.initialiser);
+                }
             }
 
             initFuncs.add(mod.getInitFunction());
