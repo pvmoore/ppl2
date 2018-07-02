@@ -81,6 +81,7 @@ import ppl2.misc.linker;
 import ppl2.misc.misc_logging;
 import ppl2.misc.mangle;
 import ppl2.misc.node_builder;
+import ppl2.misc.optimiser;
 import ppl2.misc.tasks;
 import ppl2.misc.util;
 import ppl2.misc.writer;
