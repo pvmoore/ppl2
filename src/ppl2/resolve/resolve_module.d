@@ -567,7 +567,7 @@ public:
 //==========================================================================
 private:
     void recursiveVisit(ASTNode m) {
-        //dd("resolve", typeid(m), m.nid);
+        dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
 
         if(!m.isResolved) {

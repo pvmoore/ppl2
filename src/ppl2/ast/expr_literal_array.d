@@ -28,6 +28,24 @@ final class LiteralArray : Expression {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
+    string generateName() {
+        string name = "literal_array";
+        ASTNode node = parent;
+        while(node) {
+            if(node.id==NodeID.VARIABLE) {
+                name ~= "_for_" ~ node.as!Variable.name;
+                break;
+            } else if(node.id==NodeID.IDENTIFIER) {
+                name ~= "_for_" ~ node.as!Identifier.name;
+                break;
+            } else if(node.id==NodeID.LITERAL_FUNCTION) {
+                break;
+            }
+            node = node.parent;
+        }
+        return name;
+    }
+
     ///
     /// Try to infer the type based on the elements
     ///
@@ -38,10 +56,10 @@ final class LiteralArray : Expression {
         type.subtype = t;
 
         if(isIndexBased) {
-            auto indices = indexElements();
-            if(!indexElements().types.areKnown) return;
+            auto indices = elementIndexes();
+            if(!indices.types.areKnown) return;
 
-            foreach(n; indexElements()) {
+            foreach(n; indices) {
                 if(!n.isConst) errorArrayIndexMustBeConst(n);
             }
 
@@ -70,6 +88,15 @@ final class LiteralArray : Expression {
     Type[] elementTypes() {
         return elementValues().map!(it=>it.getType).array;
     }
+    Expression[] elementIndexes() {
+        if(!isIndexBased) return null;
+        auto n = new Array!Expression;
+        foreach(i, e; children[]) {
+            if((i&1)==1) continue;
+            n.add(e.as!Expression);
+        }
+        return n[];
+    }
 
     override string toString() {
         return "[: ] %s%s".format(type, isIndexBased ? " (index based)" : "");
@@ -80,7 +107,7 @@ private:
             /// Indices must be resolvable at compile time to a number
 
             int largest = 0;
-            foreach(n; indexElements()) {
+            foreach(n; elementIndexes()) {
 
                 auto lit = n.as!LiteralNumber;
 
@@ -91,15 +118,6 @@ private:
             return max!int(largest, numChildren / 2);
         }
         return numChildren;
-    }
-    Expression[] indexElements() {
-        if(!isIndexBased) return null;
-        auto n = new Array!Expression;
-        foreach(i, e; children[]) {
-            if((i&1)==1) continue;
-            n.add(e.as!Expression);
-        }
-        return n[];
     }
     ///
     /// Get the largest type of all elements.

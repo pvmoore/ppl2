@@ -13,11 +13,27 @@ final class LiteralGenerator {
     void generate(LiteralArray n) {
 
         /// Alloca some space
-        gen.lhs  = builder.alloca(n.type.getLLVMType(), "literal_array");
+        string name = n.generateName();
+        gen.lhs  = builder.alloca(n.type.getLLVMType(), name);
         auto ptr = gen.lhs;
 
         if(n.isIndexBased) {
-            assert(false, "implement me");
+            /// Set to all zeroes
+            builder.store(constAllZeroes(n.type.getLLVMType()), ptr);
+
+            auto indices = n.elementIndexes();
+            auto values  = n.elementValues();
+            assert(indices.length==values.length);
+
+            foreach(i, idx; indices) {
+                auto index = idx.as!LiteralNumber.value.getInt();
+                auto ele   = values[i];
+
+                ele.visit!ModuleGenerator(gen);
+                gen.rhs = gen.castType(gen.rhs, ele.getType, n.type.subtype);
+
+                gen.setArrayValue(ptr, gen.rhs, index, "[%s]".format(index));
+            }
         } else {
 
             /// Set the values
