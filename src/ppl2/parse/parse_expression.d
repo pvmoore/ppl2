@@ -164,7 +164,13 @@ private:
     }
     Expression attachAndRead(TokenNavigator t, ASTNode parent, Expression newExpr) {
         ASTNode prev = parent;
-        if(prev.isA!Expression) {
+
+        ///
+        /// Swap expressions according to operator precedence
+        ///
+        const doPrecedenceCheck = prev.isA!Expression && !prev.isCall;
+        if(doPrecedenceCheck) {
+
             /// Ensure two expressions in a row do not have the same priority
             /// as this could lead to ambiguous results
             bool isAmbiguous = parent.isExpression &&

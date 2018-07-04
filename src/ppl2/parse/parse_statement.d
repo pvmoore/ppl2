@@ -37,6 +37,10 @@ public:
             }
         }
 
+        if(t.type==TT.SEMICOLON) {
+            t.next;
+            return true;
+        }
         if(t.isKeyword("public")) {
             t.access = Access.PUBLIC;
             t.next;
