@@ -27,6 +27,6 @@ final class ValueOf : Expression {
     Expression expr() { return children[0].as!Expression; }
 
     override string toString() {
-        return "ValueOf (%s)".format(getType());
+        return "ValueOf (%s)".format(getType);
     }
 }

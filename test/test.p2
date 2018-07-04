@@ -1,4 +1,31 @@
 
+/*
+import core.c
+
+//import notfound
+
+S = [
+    int a = 'A'
+    float b = 1
+    new = {
+
+    }
+    new = { int v ->
+
+    }
+]
+
+main = {
+    //S s    = S('B')
+
+    S* ptr = S*('C')
+
+    putchar(ptr.a)
+}
+*/
+
+
+import core.c
 import core.string
 //import c = core.c
 
@@ -8,7 +35,6 @@ import test_arrays
 import test_expressions
 import test_structs
 import test_casting
-import core.c
 import test_closures
 import test_consts
 import test_constructors
@@ -129,12 +155,10 @@ main = {
     testMeta()
     //testArrays()
 
-    /*
     testStructs()
-    testClosures()
-    testConstructors()
-    testLiteralStruct()
-    */
+    //testClosures()
+    //testConstructors()
+    //testLiteralStruct()
 
     dothings(0, cat)
 
@@ -143,6 +167,9 @@ main = {
     Dog* dd = null
     dd = dog
     dd = null
+
+    // broken
+    //puts("Hi there".ptr)
 
 /*
     // inferred return type
@@ -169,8 +196,6 @@ main = {
 
     [:Bat 3] zz
 
-
-
     int inty
     {void->void} funky
     Bat batty
@@ -178,25 +203,20 @@ main = {
     [:int 1] arrayy
     [int a,bool b] structy
 
-
-
     int* ptr
-
 
     //var v0 =
     ptr:0
-
-
 
     define Wazzer = float
     define Zipper = Wazzer
     define Zippers = Zipper*
 
-
     //Wazzer myWazzer
     //Zipper zipper
     //Zippers zips
     */
+
 }
 bool yop
 

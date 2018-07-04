@@ -30,7 +30,7 @@ public:
             /// Type is not a ptr any more
             return t.as!PtrType.decoratedType;
         }
-        assert(addPtrDepth >= 0);
+        assert(addPtrDepth >= 0, "%s".format(addPtrDepth));
         if(addPtrDepth>0) {
             return new PtrType(t, addPtrDepth);
         }

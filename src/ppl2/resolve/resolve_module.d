@@ -143,6 +143,7 @@ public:
             auto overloadSet = new Array!Callable;
 
             if(n.isStartOfChain()) {
+
                 if(callResolver.find(n.name, n, overloadSet)) {
 
                     /// Filter out until we only have 1 match
@@ -219,6 +220,9 @@ public:
     }
     void visit(CompositeExpression n) {
 
+    }
+    void visit(Constructor n) {
+        resolveType(n.type);
     }
     void visit(Define n) {
         resolveType(n.type);
@@ -488,6 +492,9 @@ public:
     }
     void visit(NamedStruct n) {
 
+    }
+    void visit(Malloc n) {
+        resolveType(n.valueType);
     }
     void visit(Module n) {
 

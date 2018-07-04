@@ -68,9 +68,18 @@ public:
         auto func = n.getFunction();
         auto args = getFunctionArgs(func.llvmValue);
 
-        foreach(i, ch; n.children) {
-            ch.visit!ModuleGenerator(this);
+        foreach(i, v; n.getArgs()) {
+            v.visit!ModuleGenerator(this);
             builder.store(args[i], lhs);
+
+            /// Remember values of "this" so that we can access member variables later
+            if(v.name=="this") {
+                auto struct_ = v.type.getNamedStruct;
+                assert(struct_);
+
+                rhs = builder.load(lhs, "this");
+                structMemberThis[struct_.getUniqueName] = args[i]; // rhs
+            }
         }
     }
     void visit(As n) {
@@ -78,7 +87,7 @@ public:
 
         n.left.visit!ModuleGenerator(this);
 
-        rhs = castType(rhs, n.left().getType, n.getType);
+        rhs = castType(rhs, n.left().getType, n.getType, "as");
     }
     void visit(Assert a) {
         dd("visit Assert");
@@ -118,7 +127,6 @@ public:
     void visit(Call n) {
         dd("visit Call");
         Type returnType     = n.target.returnType;
-       // auto argExpressions = cast(Expression[])n.children;
         Type[] funcArgTypes	= n.target.argTypes;
         LLVMValueRef[] argValues;
 
@@ -126,7 +134,6 @@ public:
             e.visit!ModuleGenerator(this);
             argValues ~= castType(rhs, e.getType, funcArgTypes[i]);
         }
-        //dd("argValues=", argValues);
 
         if(n.target.isMemberVariable) {
 
@@ -140,7 +147,7 @@ public:
 
             int index = n.target.structMemberIndex;
             lhs = builder.getElementPointer_struct(lhs, index);
-            rhs = builder.load(lhs);
+            rhs = builder.load(lhs, "rvalue");
             rhs = builder.call(rhs, argValues, LLVMCallConv.LLVMFastCallConv);
         } else if(n.target.isMemberFunction) {
             assert(n.target.llvmValue);
@@ -163,6 +170,10 @@ public:
         //    gen.lhs = builder.alloca(returnType.toLLVMType, "returnValStorage");
         //    builder.store(gen.rhs, gen.lhs);
         //}
+    }
+    void visit(Constructor n) {
+        dd("visit Constructor");
+        visitChildren(n);
     }
     void visit(Dot n) {
         dd("visit Dot");
@@ -256,6 +267,11 @@ public:
         dd("visit LiteralNumber", n);
         literalGen.generate(n);
     }
+    void visit(Malloc n) {
+        dd("visit Malloc");
+
+        rhs = builder.malloc(n.valueType.getLLVMType(), "malloc");
+    }
     void visit(LiteralString n) {
         dd("visit LiteralString");
         literalGen.generate(n);
@@ -280,10 +296,13 @@ public:
             builder.retVoid();
         }
     }
+    void visit(TypeExpr n) {
+        /// ignore
+    }
     void visit(ValueOf n) {
         n.expr().visit!ModuleGenerator(this);
 
-        rhs = builder.load(rhs);
+        rhs = builder.load(rhs, "valueOf");
     }
     void visit(Variable n) {
         dd("visit Variable", n.name);
@@ -294,20 +313,8 @@ public:
         } else {
             //// it must be a local/parameter
 
-            // allocaArray
-            // mallocArray
-
             lhs = builder.alloca(n.type.getLLVMType(), n.name);
             n.llvmValue = lhs;
-
-            /// Remember values of "this" so that we can access member variables later
-            if(n.isParameter && n.name=="this") {
-                auto struct_ = n.type.getNamedStruct;
-                if(struct_) {
-                    rhs = builder.load(lhs);
-                    structMemberThis[struct_.getUniqueName] = rhs;
-                }
-            }
 
             if(n.hasInitialiser) {
                 n.initialiser.visit!ModuleGenerator(this);
@@ -421,29 +428,30 @@ public:
 		}
         return v;
     }*/
-    LLVMValueRef castType(LLVMValueRef v, Type from, Type to) {
+    LLVMValueRef castType(LLVMValueRef v, Type from, Type to, string name=null) {
+        dd("cast", from, to);
         if(from==to) return v;
         /// cast to different pointer type
         if(from.isPtr && to.isPtr) {
-            rhs = builder.bitcast(v, to.getLLVMType);
+            rhs = builder.bitcast(v, to.getLLVMType, name);
             return rhs;
         }
         if(from.isPtr && to.isLong) {
-            rhs = builder.ptrToInt(v, to.getLLVMType);
+            rhs = builder.ptrToInt(v, to.getLLVMType, name);
             return rhs;
         }
         if(from.isLong && to.isPtr) {
-            rhs = builder.intToPtr(v, to.getLLVMType);
+            rhs = builder.intToPtr(v, to.getLLVMType, name);
             return rhs;
         }
         /// real->int or int->real
         if(from.isReal != to.isReal) {
             if(!from.isReal) {
                 /// int->real
-                rhs = builder.sitofp(v, to.getLLVMType);
+                rhs = builder.sitofp(v, to.getLLVMType, name);
             } else {
                 /// real->int
-                rhs = builder.fptosi(v, to.getLLVMType);
+                rhs = builder.fptosi(v, to.getLLVMType, name);
             }
             return rhs;
         }
@@ -451,16 +459,16 @@ public:
         if(from.size < to.size) {
             /// widen
             if(from.isReal) {
-                rhs = builder.fpext(v, to.getLLVMType);
+                rhs = builder.fpext(v, to.getLLVMType, name);
             } else {
-                rhs = builder.sext(v, to.getLLVMType);
+                rhs = builder.sext(v, to.getLLVMType, name);
             }
         } else {
             /// truncate
             if(from.isReal) {
-                rhs = builder.fptrunc(v, to.getLLVMType);
+                rhs = builder.fptrunc(v, to.getLLVMType, name);
             } else {
-                rhs = builder.trunc(v, to.getLLVMType);
+                rhs = builder.trunc(v, to.getLLVMType, name);
             }
         }
         return rhs;

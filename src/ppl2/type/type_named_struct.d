@@ -49,6 +49,9 @@ public:
     Expression defaultInitialiser() {
         assert(isKnown);
 
+        float f = 0;
+        if(f < 1) assert(false);
+
         /// call default constructor
         /// return this*
         auto composite = makeNode!CompositeExpression();

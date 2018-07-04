@@ -1,0 +1,12 @@
+
+export __assert
+
+import core.c
+
+__assert = { string moduleName, int line ->
+
+    puts("Assertion failed: ")
+    puts(moduleName.ptr)
+
+    exit(-1)
+}

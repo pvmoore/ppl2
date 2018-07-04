@@ -23,6 +23,7 @@ enum NodeID {
     BINARY,
     CALL,
     COMPOSITE,
+    CONSTRUCTOR,
     DEFAULT_INITIALISER,    // remove me later?
     DOT,
     IDENTIFIER,
@@ -35,6 +36,7 @@ enum NodeID {
     LITERAL_NUMBER,
     LITERAL_STRING,
     LITERAL_STRUCT,
+    MALLOC,
     META_FUNCTION,
     PARENTHESIS,
     STRUCT_CONSTRUCTOR,
@@ -66,7 +68,9 @@ T makeNode(T)(ASTNode p) {
     return n;
 }
 bool isAnonStruct(inout ASTNode n) { return n.id()==NodeID.ANON_STRUCT; }
+bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
+bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
 bool isDefine(inout ASTNode n) { return n.id()==NodeID.DEFINE; }
 bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }
 bool isExpression(inout ASTNode n) { return n.as!Expression !is null; }
@@ -215,6 +219,7 @@ abstract class ASTNode {
     }
     //================================================================================= Dump
     void dumpToConsole(string indent="") {
+        //dd(this.id);
         dd("[% 4s] %s".format(this.line, indent ~ this.toString()));
         foreach(ch; this.children) {
             ch.dumpToConsole(indent ~ "   ");

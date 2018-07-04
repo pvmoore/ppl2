@@ -41,6 +41,8 @@ public:
             convertToAssignment();
         } else if(var.type.isAnonStruct) {
             /// nothing to do
+
+            // todo - this might not be working
         } else {
             convertToAssignment();
         }

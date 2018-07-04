@@ -25,8 +25,6 @@ public:
             res = type !is null;
         }catch(TypeParserBailout e) {
             res = false;
-        }catch(CompilerError e) {
-            throw e;
         }finally{
             t.resetToMark();
             /// Ensure we remove any nodes that were added
@@ -47,8 +45,6 @@ public:
             t.markPosition();
             type = parse(t, parent);
             t.discardMark();
-        }catch(CompilerError e) {
-            throw e;
         }catch(TypeParserBailout e) {
             t.resetToMark();
             /// Ensure we remove any nodes that were added
@@ -56,6 +52,30 @@ public:
         }
         //dd("tryParse end", type);
         return type;
+    }
+    ///
+    /// Return the offset of the end of a type.
+    /// Returns -1 if no type is found.
+    /// eg.
+    /// int   // returns 0
+    /// int** // returns 2
+    ///
+    int findEndOffset(TokenNavigator t) {
+        auto fakeNode = makeNode!LiteralNumber(t);
+        t.module_.addToEnd(fakeNode);
+        int start  = t.index;
+        int offset = -1;
+        try{
+            t.markPosition();
+            parse(t, fakeNode);
+            offset = t.index - start - 1;
+        }catch(TypeParserBailout e) {
+            /// ignore
+        }finally{
+            t.resetToMark();
+            t.module_.remove(fakeNode);
+        }
+        return offset;
     }
     Type parse(TokenNavigator t, ASTNode node) {
         //dd("parseType");

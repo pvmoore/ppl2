@@ -84,6 +84,9 @@ public:
     void visit(CompositeExpression n) {
 
     }
+    void visit(Constructor n) {
+
+    }
     void visit(Define n) {
         if(n.type.isAnonStruct) {
 
@@ -200,6 +203,9 @@ public:
         } else {
             /// This is a list of elements
         }
+    }
+    void visit(Malloc n) {
+
     }
     void visit(Module n) {
 

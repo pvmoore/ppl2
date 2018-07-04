@@ -9,6 +9,9 @@ export memcpy, memset, strlen
 extern putchar {int char -> int}
 extern puts {byte* str -> int}
 
+// stdlib
+extern exit {int status->void}
+
 // string.h
 extern memcpy {void* destination, void* source, long num -> void*}
 extern memset {void* ptr, int value, long num -> void*}

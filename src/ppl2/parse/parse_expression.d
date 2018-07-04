@@ -52,12 +52,10 @@ private:
             case TT.IDENTIFIER:
                 if("true"==t.value || "false"==t.value || "null"==t.value) {
                     parseLiteral(t, parent);
+                } else if(typeParser().isType(t, parent)) {
+                    parseStructConstructor(t, parent);
                 } else if(t.peek(1).type==TT.LBRACKET) {
-                    if(typeParser().isType(t, parent)) {
-                        parseStructConstructor(t, parent);
-                    } else {
-                        parseCall(t, parent);
-                    }
+                    parseCall(t, parent);
                 } else {
                     parseIdentifier(t, parent);
                 }
@@ -86,6 +84,7 @@ private:
                 parseMetaFunction(t, parent);
                 break;
             default:
+                writefln("BAD LHS %s", t.get);
                 parent.getModule.dumpToConsole();
                 throw new CompilerError(Err.BAD_LHS_EXPR, t, "Bad LHS");
         }
@@ -157,6 +156,7 @@ private:
                     /// end of expression
                     return;
                 default:
+                    writefln("BAD RHS %s", t.get);
                     parent.getModule.dumpToConsole();
                     throw new CompilerError(Err.BAD_RHS_EXPR, t, "Bad RHS");
             }
@@ -165,24 +165,29 @@ private:
     Expression attachAndRead(TokenNavigator t, ASTNode parent, Expression newExpr) {
         ASTNode prev = parent;
         if(prev.isA!Expression) {
-            /// Ensure two binary expressions in a row do not have the same priority
+            /// Ensure two expressions in a row do not have the same priority
             /// as this could lead to ambiguous results
-            if(newExpr.isBinary && parent.isBinary) {
-                if(newExpr.priority == parent.as!Binary.priority) {
-                    errorAmbiguousExpr(parent);
-                }
+            bool isAmbiguous = parent.isExpression &&
+                              (newExpr.priority == parent.as!Expression.priority);
+
+            isAmbiguous |= (newExpr.isBinary && parent.isBinary);
+            isAmbiguous |= (newExpr.isAs && parent.isAs);
+
+            if(isAmbiguous) {
+                errorAmbiguousExpr(parent);
             }
 
             /// Adjust to account for operator precedence
-            Expression prevExpr = cast(Expression)prev;
-            while(prevExpr.parent && newExpr.priority >= prevExpr.priority) {
-                if(prevExpr.parent.isA!Expression) {
-                    prevExpr = prevExpr.parent.as!Expression;
-                    prev = prevExpr;
-                } else {
+            Expression prevExpr = prev.as!Expression;
+            while(prevExpr.parent && newExpr.priority > prevExpr.priority) { // >=
+
+                if(!prevExpr.parent.isExpression) {
                     prev = prevExpr.parent;
                     break;
                 }
+
+                prevExpr = prevExpr.parent.as!Expression;
+                prev     = prevExpr;
             }
         }
 
@@ -267,6 +272,7 @@ private:
             lit.str = t.value;
             e = lit;
             parent.addToEnd(e);
+            lit.determineType();
             t.next;
         } else if("null"==t.value) {
             e = makeNode!LiteralNull(t);
@@ -542,44 +548,61 @@ private:
     /// cexpr :: expression | paramname "=" expression
     ///
     void parseStructConstructor(TokenNavigator t, ASTNode parent) {
+        /// S(...)
+        ///    Variable _temp
+        ///    ValueOf
+        ///       Dot
+        ///          _temp
+        ///          Call new
+        ///             this*
+        ///
+        /// S*(...)
+        ///       Dot
+        ///          TypeExpr (S*)
+        ///          Call new
+        ///             malloc
+        ///
+        auto con = makeNode!Constructor(t);
+        parent.addToEnd(con);
+
+        auto b = module_.builder(con);
 
         /// type
-        auto type = typeParser().parse(t, parent);
-        if(!type) {
+        con.type = typeParser().parse(t, parent);
+        if(!con.type) {
             errorMissingType(t, t.value);
         }
-        if(!type.isDefine && !type.isNamedStruct) {
+        if(!con.type.isDefine && !con.type.isNamedStruct) {
             errorBadSyntax(t, "Expecting a struct name here");
         }
 
         /// Prepare the call to new(this, ...)
-        auto b = module_.builder(parent);
-        Call call = b.call("new", null);
-
-        string name    = type.isDefine ? type.getDefine.name : type.getNamedStruct.name;
-        string varName = module_.makeTemporary(name);
+        auto call       = b.call("new", null);
+        Expression expr = call;
 
         Expression thisPtr;
         /// allocate memory
-        if(type.isPtr) {
+        if(con.type.isPtr) {
             /// Heap malloc
-            assert(false, "Implement malloc constructor");
-            // todo - set thisPtr
+            auto malloc  = makeNode!Malloc(t);
+            malloc.valueType = con.type.getValueType;
+
+            thisPtr = malloc;
+
+            expr = b.dot(b.typeExpr(con.type), call);
         } else {
             /// Stack alloca
-            auto var = b.variable(varName, type, false);
-            parent.addToEnd(var);
+            auto var  = b.variable(module_.makeTemporary(con.getName()), con.type, false);
+            con.addToEnd(var);
 
             thisPtr = b.addressOf(b.identifier(var.name));
-        }
 
+            auto dot = b.dot(b.identifier(var), call);
+            expr = b.valueOf(dot);
+        }
         call.addToEnd(thisPtr);
 
-        Expression dot = b.dot(b.identifier(varName), call);
-        if(type.isValue) {
-            dot = b.valueOf(dot);
-        }
-        parent.addToEnd(dot);
+        con.addToEnd(expr);
 
         /// (
         t.skip(TT.LBRACKET);

@@ -93,5 +93,10 @@ final class NodeBuilder {
         d.addToEnd(right);
         return d;
     }
+    TypeExpr typeExpr(Type t) {
+        auto e = makeNode!TypeExpr(node);
+        e.type = t;
+        return e;
+    }
 }
 

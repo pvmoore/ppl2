@@ -84,6 +84,7 @@ public:
         }
 
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
+            /// Could be a function, a named struct or a binary expression
 
             if(t.peek(2).type==TT.LCURLY) {
                 /// name = {
@@ -99,8 +100,19 @@ public:
             return true;
         }
 
-        if(typeParser().isType(t, parent)) {
-            varParser().parse(t, parent);
+        int eot = typeParser().findEndOffset(t);
+        if(eot!=-1) {
+            /// First token is a type so this could be one of:
+            /// constructor or variable declaration
+
+            if(t.peek(eot+1).type==TT.LBRACKET) {
+                /// Constructor
+                noExprAllowedAtModuleScope();
+                exprParser.parse(t, parent);
+            } else {
+                /// Variable decl
+                varParser().parse(t, parent);
+            }
             return true;
         }
 
