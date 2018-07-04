@@ -50,7 +50,7 @@ Colour = [
     new = { int a ->
         new()
     }
-    new = { int this, bool a, int b ->
+    new = { int thing, bool a, int b ->
 
     }
 ]

@@ -49,6 +49,10 @@ public:
 
         if(t.type==TT.IDENTIFIER) {
             v.name = t.value;
+            if(v.name=="this") {
+                throw new CompilerError(Err.VAR_CAN_NOT_BE_CALLED_THIS, t,
+                    "'this' is a reserved word");
+            }
             t.next;
 
             /// initialiser

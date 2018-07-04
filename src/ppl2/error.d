@@ -57,6 +57,7 @@ enum Err {
     CONST_VAR_WITHOUT_INITIALISER,
     VAR_INIT_MUST_BE_CONST,
     VAR_MUST_HAVE_EXPLICIT_TYPE,
+    VAR_CAN_NOT_BE_CALLED_THIS,
 
     DUPLICATE_DEFINITION,
     DUPLICATE_ARGUMENT_NAME,
@@ -67,6 +68,8 @@ enum Err {
     ARRAY_INDEX_MUST_BE_CONST,
     ARRAY_BOUNDS,
     INCORRECT_RETURN_TYPE,
+
+    /// Function stuff
     NEW_RESERVED_FOR_CONSTRUCTORS,
 }
 //======================================================================
