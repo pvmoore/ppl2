@@ -96,6 +96,7 @@ import ppl2.parse.parse_statement;
 import ppl2.parse.parse_type;
 import ppl2.parse.parse_variable;
 
+import ppl2.resolve.after_resolution;
 import ppl2.resolve.find_type;
 import ppl2.resolve.resolve_call;
 import ppl2.resolve.resolve_identifier;

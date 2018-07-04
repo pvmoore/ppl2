@@ -136,12 +136,14 @@ public:
         }
     }
     void visit(Call n) {
-
         if(!n.target.isResolved) {
 
             // todo - handle template function call
 
             auto overloadSet = new Array!Callable;
+
+            dd("call", n.name);
+            dd("    ", n.isStartOfChain());
 
             if(n.isStartOfChain()) {
 
@@ -172,6 +174,7 @@ public:
                 }
             } else {
                 Expression prev = n.prevLink();
+                assert(prev);
                 Type prevType   = prev.getType;
 
                 if(prevType.isKnown) {

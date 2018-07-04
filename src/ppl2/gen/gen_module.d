@@ -159,16 +159,16 @@ public:
             assert(n.target.llvmValue, "Function llvmValue is null: %s".format(n.target.getFunction));
             rhs = builder.call(n.target.llvmValue, argValues, n.target.getFunction().getCallingConvention());
         }
-        //
+
         //if(returnType.isStruct &&
         //(c.parent.isDot || c.parent.isParens) &&
-        //!returnType.isPointer)
+        //!returnType.isPtr)
         //{
-        //    // special case for this no-op
-        //    // we need to store the result locally
-        //    // so that we can take a pointer to it
-        //    gen.lhs = builder.alloca(returnType.toLLVMType, "returnValStorage");
-        //    builder.store(gen.rhs, gen.lhs);
+        //    /// special case for this no-op
+        //    /// we need to store the result locally
+        //    /// so that we can take a pointer to it
+        //    lhs = builder.alloca(returnType.tgetLLVMType(), "retValStorage");
+        //    builder.store(grhs, lhs);
         //}
     }
     void visit(Constructor n) {

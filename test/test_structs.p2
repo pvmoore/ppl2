@@ -37,10 +37,13 @@ public
         boo()
     }
     int z
-    boo = { /* Fruit* this, */
+    boo = { /* Fruit* this, */ float inc ->
 
 
         this.a += 1
+    }
+    retThis = {
+        return this
     }
 ]
 Colour = [
@@ -62,8 +65,10 @@ testStructs = {
 
     t.a += 2
 
-    // fixme - add this arg
-    //t.foo()
+    t.foo()
+    t.boo(3.1)
+
+    t.retThis().foo()
 
     //Colour col
 }

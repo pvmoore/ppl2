@@ -190,10 +190,6 @@ void errorArrayCountMustBeConst(ASTNode n) {
     throw new CompilerError(Err.ARRAY_COUNT_MUST_BE_CONST, n,
         "Array count expression must be a const");
 }
-void errorConstVariableNeedsInitialiser(ASTNode n) {
-    throw new CompilerError(Err.CONST_VAR_WITHOUT_INITIALISER, n,
-        "Const variable must be initialised");
-}
 void errorArrayIndexMustBeConst(ASTNode n) {
     throw new CompilerError(Err.ARRAY_INDEX_MUST_BE_CONST, n,
         "Array index expression must be a const");

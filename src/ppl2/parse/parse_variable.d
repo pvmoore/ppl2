@@ -70,9 +70,9 @@ public:
                     throw new CompilerError(Err.VAR_WITHOUT_INITIALISER, v,
                         "Implicitly typed variable requires initialisation");
                 }
-
                 if(v.isConst) {
-                    errorConstVariableNeedsInitialiser(v);
+                    throw new CompilerError(Err.CONST_VAR_WITHOUT_INITIALISER, v,
+                        "Const variable must be initialised");
                 }
             }
         } else if(t.type==TT.COMMA) {

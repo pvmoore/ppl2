@@ -170,16 +170,16 @@ private:
             bool isAmbiguous = parent.isExpression &&
                               (newExpr.priority == parent.as!Expression.priority);
 
-            isAmbiguous |= (newExpr.isBinary && parent.isBinary);
-            isAmbiguous |= (newExpr.isAs && parent.isAs);
+            bool binary = (newExpr.isBinary && parent.isBinary);
+            bool as     = (newExpr.isAs && parent.isAs);
 
-            if(isAmbiguous) {
+            if(isAmbiguous && (binary || as)) {
                 errorAmbiguousExpr(parent);
             }
 
             /// Adjust to account for operator precedence
             Expression prevExpr = prev.as!Expression;
-            while(prevExpr.parent && newExpr.priority > prevExpr.priority) { // >=
+            while(prevExpr.parent && newExpr.priority >= prevExpr.priority) {
 
                 if(!prevExpr.parent.isExpression) {
                     prev = prevExpr.parent;

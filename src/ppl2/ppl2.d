@@ -168,38 +168,11 @@ private:
     ///
     /// - Move global variable initialisation code into the module constructor new() function.
     /// - Call module new() functions at start of program entry
-    ///    
+    ///
     void afterResolution() {
         dd("after resolution");
-        auto initFuncs = new Array!Function;
-
-        foreach(mod; modules) {
-
-            /// Move global var initialisers to module new()
-            auto initFunc = mod.getInitFunction();
-            foreach_reverse(v; mod.getVariables()) {
-
-                if(v.hasInitialiser) {
-                    /// Arguments should always be the 1st child of body
-                    initFunc.getBody().insertAt(1, v.initialiser);
-                }
-            }
-
-            initFuncs.add(mod.getInitFunction());
-        }
-
-        // todo - get this in the right order
-        /// Call module init functions at start of program entry
-        auto mainModule = modules[g_mainModuleCanonicalName];
-        auto entry      = mainModule.getFunctions("main")[0];
-        assert(entry);
-
-        foreach(f; initFuncs) {
-            auto call = mainModule.nodeBuilder.call("new", f);
-
-            /// Arguments should always be the 1st child of body
-            entry.getBody().insertAt(1, call);
-        }
+        new AfterResolution(modules.values)
+            .process();
     }
     void dumpAST() {
         foreach(m; modules) {

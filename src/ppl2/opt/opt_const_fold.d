@@ -134,6 +134,9 @@ public:
             return;
         }
     }
+    void visit(TypeExpr n) {
+
+    }
     void visit(Unary n) {
         if(!n.isResolved) return;
 

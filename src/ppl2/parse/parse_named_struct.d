@@ -38,7 +38,7 @@ public:
 
                 } else {
                     throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
-                    "Struct %s already defined".format(t.value));
+                        "Struct %s already defined".format(t.value));
                 }
             }
         }
@@ -104,14 +104,6 @@ private:
     void addImplicitThisArg(NamedStruct ns, AnonStruct anonStruct) {
         foreach(f; anonStruct.getMemberFunctions()) {
             if(!f.isExtern && !f.isImport) {
-
-                if(f.args.numArgs>0) {
-                    auto arg0 = f.args.getArg(0);
-                    if(arg0.name=="this" && arg0.type.getPtrDepth==1 && arg0.type.exactlyMatches(ns)) {
-                        /// User has already added one
-                        continue;
-                    }
-                }
 
                 f.args().addThisParameter(ns);
             }
