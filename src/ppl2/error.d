@@ -10,6 +10,8 @@ enum Err {
     INVALID_BOOL,
     NOT_A_NUMBER,
 
+    MODULE_DOES_NOT_EXIST,
+
     EXPORT_NOT_FOUND,
 // syntax
     VAR_WITHOUT_INITIALISER = 2000,

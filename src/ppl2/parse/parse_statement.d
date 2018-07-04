@@ -172,6 +172,7 @@ private: //=====================================================================
 
         /// module name
         string moduleName = t.value;
+        t.markPosition();
         t.next;
 
         while(t.type==TT.DOT) {
@@ -180,6 +181,15 @@ private: //=====================================================================
             moduleName ~= t.value;
             t.next;
         }
+
+        /// Check that the import exists
+        import std.file : exists;
+        if(!exists(Module.getFullPath(moduleName))) {
+            t.resetToMark();
+            throw new CompilerError(Err.MODULE_DOES_NOT_EXIST, t,
+            "Module %s does not exist".format(moduleName));
+        }
+        t.discardMark();
 
         /// Request exports and pause if they are not already available
         auto mod = PPL2.getModule(moduleName);

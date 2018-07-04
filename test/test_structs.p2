@@ -62,7 +62,8 @@ testStructs = {
 
     t.a += 2
 
-    t.foo()
+    // fixme - add this arg
+    //t.foo()
 
     //Colour col
 }

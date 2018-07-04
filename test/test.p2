@@ -24,7 +24,6 @@ main = {
 }
 */
 
-
 import core.c
 import core.string
 //import c = core.c

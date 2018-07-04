@@ -71,12 +71,11 @@ public:
     override bool isResolved() { return true; }
     override NodeID id() const { return NodeID.MODULE; }
 
+    string getPath() {
+        return getFullPath(canonicalName);
+    }
     bool isMainModule() {
         return nid==g_mainModuleNID;
-    }
-    string getPath() const {
-        import std.array;
-        return getConfig().basePath ~ canonicalName.replace(".", "/") ~ ".p2";
     }
     string makeTemporary(string prefix) {
         return "__%s%s".format(prefix, tempCounter++);
@@ -238,5 +237,12 @@ public:
 
         auto rel = path[getConfig().basePath.length..$];
         return rel.stripExtension.replace("/", ".").replace("\\", ".");
+    }
+    ///
+    /// Return the full path including the module filename and extension
+    ///
+    static string getFullPath(string canonicalName) {
+        import std.array;
+        return getConfig().basePath ~ canonicalName.replace(".", "/") ~ ".p2";
     }
 }

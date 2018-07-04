@@ -33,10 +33,10 @@ declarations = {
 }
 arrayOfArray = {
     [:StructWithArray 1] swa
-    swa:0.array:0
+    (swa:0).(array:0)
 
     [:[:int 3] 1] z
-    z:0:1
+    (z:0):1
 }
 inferredCount = {
     [:int ?] inferredCount = [: 1,2,3]  // ok
