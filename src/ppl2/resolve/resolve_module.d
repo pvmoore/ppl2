@@ -157,26 +157,12 @@ public:
 
             // todo - handle template function call
 
-            overloadSet.clear();
-
             if(n.isStartOfChain()) {
 
-                if(callResolver.find(n.name, n, overloadSet)) {
-
-                    /// Filter out until we only have 1 match
-                    callResolver.filterOverloads(n.argTypes(), overloadSet);
-
-                    if(overloadSet.length==0) {
-                        throw new CompilerError(Err.FUNCTION_NOT_FOUND, n,
-                        "Function %s not found".format(n.name));
-                    }
-                    if(overloadSet.length > 1) {
-                        throw new CompilerError(Err.AMBIGUOUS_CALL, n,
-                        "Ambiguous call");
-                    }
-
+                auto callable = callResolver.find(n.name, n.argTypes(), n);
+                if(callable) {
                     /// If we get here then we have 1 good match
-                    auto o = overloadSet[0];
+                    auto o = callable;
                     auto f = cast(Function)o;
                     if(f) {
                         n.target.set(f);
@@ -201,6 +187,7 @@ public:
                     auto var   = struct_.getMemberVariable(n.name);
 
                     /// Filter
+                    overloadSet.clear();
                     foreach(f; fns) overloadSet.add(f);
                     if(var) overloadSet.add(var);
                     callResolver.filterOverloads(n.argTypes(), overloadSet);
