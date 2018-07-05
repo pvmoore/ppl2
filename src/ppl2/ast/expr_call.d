@@ -9,6 +9,10 @@ final class Call : Expression {
     int numArgs() {
         return numChildren();
     }
+    Expression arg(int index) {
+        assert(index<numChildren);
+        return children[index].to!Expression;
+    }
 
     override bool isResolved() { return target.isResolved; }
     override NodeID id() const { return NodeID.CALL; }

@@ -300,6 +300,14 @@ private:
         c.name = t.value;
         t.next;
 
+        if(c.name=="new") {
+            ///
+            /// This is a construtor call. We don't currently allow this
+            ///
+            throw new CompilerError(Err.CALL_CONSTRUCTOR_CALLS_DISALLOWED, c,
+                "Explicit constructor calls not allowed");
+        }
+
         t.skip(TT.LBRACKET);
 
         while(t.type!=TT.RBRACKET) {

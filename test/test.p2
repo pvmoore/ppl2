@@ -8,6 +8,12 @@ S = [
     new = {
 
     }
+    new = { int i ->
+
+    }
+    new = { float f, bool b ->
+
+    }
     ptrfunc = {
         return this
     }
@@ -26,28 +32,26 @@ println = { string s ->
 }
 
 main = {
+
+    S s = S(1)
+
+
+
+
     /* string s0;
     var s1    = "one"
     string s2 = "three"
     var s3    = string(s1.ptr, s1.length)
 
-    // fixme
     var s4 = string("four".ptr, 4)
 
     println(s1)
     println(s2)
     println(s3)
 
-
-
     //puts(s4.ptr)
 
     var len = s1.length */
-
-    // fixme
-    var s4 = string("four".ptr, 4)
-
-    println(s4)
 }
 
 

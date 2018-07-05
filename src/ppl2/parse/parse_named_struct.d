@@ -118,40 +118,12 @@ private:
                 assert(bdy);
                 assert(bdy.first().isA!Arguments);
 
-                bool hasCallToDefault = false;
+                auto call = builder().call("new", null);
+                auto arg  = builder().identifier("this");
 
-                foreach(call; bdy.getCalls()) {
-                    if(call.name=="new") {
-                        if(call.numArgs==0) {
-                            /// new()
-                            /// Add the implicit this parameter
-                            auto arg = builder().identifier("this");
-                            call.addToEnd(arg);
-                            hasCallToDefault = true;
-                        } else if(call.numArgs==1) {
-                            /// new(expr)
-                            /// Ensure expr is identifier 'this'
-                            auto arg = call.children[0].as!Identifier;
-                            if(!arg || arg.name!="this") {
-                                constructorCannotCallNonDefaultConstructor(call);
-                            }
-                            hasCallToDefault = true;
-                        } else {
-                            constructorCannotCallNonDefaultConstructor(call);
-                        }
-                    } else {
-                        /// Not a call to constructor
-                    }
-                }
-
-                if(!hasCallToDefault) {
-                    auto call = builder().call("new", null);
-                    auto arg  = builder().identifier("this");
-
-                    call.addToEnd(arg);
-                    /// Add it after Arguments
-                    bdy.insertAt(1, call);
-                }
+                call.addToEnd(arg);
+                /// Add it after Arguments
+                bdy.insertAt(1, call);
             }
         }
     }

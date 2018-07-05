@@ -70,7 +70,8 @@ enum Err {
     INCORRECT_RETURN_TYPE,
 
     /// Function stuff
-    NEW_RESERVED_FOR_CONSTRUCTORS,
+    CALL_NEW_RESERVED_FOR_CONSTRUCTORS,
+    CALL_CONSTRUCTOR_CALLS_DISALLOWED,
 }
 //======================================================================
 class CompilerError : Exception {
@@ -220,10 +221,10 @@ void errorIncorrectReturnType(ASTNode n, string msg) {
     throw new CompilerError(Err.INCORRECT_RETURN_TYPE, n, msg);
 }
 void newReservedForConstructors(ASTNode n) {
-    throw new CompilerError(Err.NEW_RESERVED_FOR_CONSTRUCTORS, n,
+    throw new CompilerError(Err.CALL_NEW_RESERVED_FOR_CONSTRUCTORS, n,
         "Invalid constructor. Must be a struct or module member");
 }
 void constructorCannotCallNonDefaultConstructor(ASTNode n) {
-    throw new CompilerError(Err.NEW_RESERVED_FOR_CONSTRUCTORS, n,
+    throw new CompilerError(Err.CALL_NEW_RESERVED_FOR_CONSTRUCTORS, n,
         "Cannot call non-default constructor from within a constructor");
 }

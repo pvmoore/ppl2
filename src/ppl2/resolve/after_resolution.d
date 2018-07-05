@@ -61,6 +61,7 @@ private:
     void rewriteCallToMemberFunction(Call n) {
 
         if(n.target.isMemberFunction && n.name!="new") {
+
             auto dot   = n.parent.as!Dot;
             auto id    = n.prevSibling();
             auto dummy = TypeExpr.make(id.getType);
