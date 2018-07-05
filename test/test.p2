@@ -3,50 +3,63 @@
 import core.c
 import core.string
 import core.intrinsics
-
-S = [
-    int a = 'A'
-    new = {
-
-    }
-    new = { int i ->
-
-    }
-    new = { float f, bool b ->
-
-    }
-    ptrfunc = {
-        return this
-    }
-    set = { int ch ->
-        a = ch
-        return #val(this)
-    }
-    blart = {
-        putchar(a)
-        return this
-    }
-]
-
-println = { string s ->
-    puts(s.ptr)
-}
+import core.console
 
 main = {
 
-    assert true
+    //assert true
 
-    //string s0;
-    //var s1    = "one"
-    //string s2 = "three"
-    //var s3    = string(s1.ptr, s1.length)
-    //var s4 = string("four".ptr, 4)
+    /* var a = true
+    var b = not a
 
-    //println(s1)
-    //println(s2)
-    //println(s3)
-    //println(s4)
-    //var len = s1.length
+    if(not b) {
+        putchar('y')
+    } */
+
+    float f = 0
+    //int a = 1
+    //int* ptr
+
+    assert f != 0
+
+    /* int a = 1
+
+    if(true) {
+        a += 2
+        a += 2
+
+        int b = 1
+        int c = a
+
+    } else {
+        a -= 3
+
+        int d = 2
+        int e = d
+    }
+
+    int d = 1 */
+
+
+
+/*
+    int* ptr
+
+    int* r2 = if(true) {
+        null
+    } else {
+        ptr
+    }
+
+    var r = if(1>2) {
+        6
+    } else {
+        1
+    }
+    putchar(r) */
+
+
+    //assert true
 }
 
 

@@ -38,7 +38,7 @@ __gshared Type TYPE_BYTE    = new BasicType(Type.BYTE);
 __gshared Type TYPE_INT     = new BasicType(Type.INT);
 __gshared Type TYPE_VOID    = new BasicType(Type.VOID);
 
-__gshared const TRUE  = 1;
+__gshared const TRUE  = -1;
 __gshared const FALSE = 0;
 
 shared static this() {

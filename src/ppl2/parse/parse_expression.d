@@ -25,19 +25,11 @@ public:
         //log("Expression: parse---------------------------- END");
     }
 private:
-    /**
-     *  lhs ::= literal_number
-     *          literal_string
-     *          literal_char
-     *          literal_function
-     *          literal_struct
-     *          call "(  { expression "}"
-     *          identifier
-     *          parenthesis
-     */
     void parseLHS(TokenNavigator t, ASTNode parent) {
 
-        if(t.peek(-1).value=="as") {
+        if("if"==t.value) {
+            parseIf(t, parent);
+        } else if(t.peek(-1).value=="as") {
             parseTypeExpr(t, parent);
         } else if(t.value=="not") {
             parseUnary(t, parent);
@@ -168,7 +160,7 @@ private:
         ///
         /// Swap expressions according to operator precedence
         ///
-        const doPrecedenceCheck = prev.isA!Expression && !prev.isCall;
+        const doPrecedenceCheck = prev.isA!Expression && !prev.isCall && !prev.isIf;
         if(doPrecedenceCheck) {
 
             /// Ensure two expressions in a row do not have the same priority
@@ -668,6 +660,72 @@ private:
 
         /// )
         t.skip(TT.RBRACKET);
+    }
+    ///
+    /// if   ::= "if" "(" expression ")" then [ else ]
+    /// then ::= [ "{" ] {statement} [ "}" ]
+    /// else ::= "else" [ "{" ] {statement}  [ "}" ]
+    ///
+    void parseIf(TokenNavigator t, ASTNode parent) {
+        auto i = makeNode!If(t);
+        parent.addToEnd(i);
+
+        /// if
+        t.skip("if");
+
+        /// (
+        t.skip(TT.LBRACKET);
+
+        /// condition
+        parse(t, i);
+
+        /// )
+        t.skip(TT.RBRACKET);
+
+        /// then block
+        if(t.type==TT.LCURLY) {
+            t.skip(TT.LCURLY);
+
+            auto then = makeNode!Composite(t);
+            i.addToEnd(then);
+
+            while(t.type!=TT.RCURLY) {
+                stmtParser().parse(t, then);
+            }
+            t.skip(TT.RCURLY);
+
+            if(!then.hasChildren) {
+                /// empty then block
+                i.remove(then);
+            }
+        } else {
+            stmtParser().parse(t, i);
+        }
+
+        /// else block
+        if(t.isKeyword("else")) {
+            t.skip("else");
+
+            if(t.type==TT.LCURLY) {
+                t.skip(TT.LCURLY);
+
+                auto else_ = makeNode!Composite(t);
+                i.addToEnd(else_);
+
+                while(t.type!=TT.RCURLY) {
+                    stmtParser().parse(t, else_);
+                }
+                t.skip(TT.RCURLY);
+
+                if(!else_.hasChildren) {
+                    /// empty else block
+                    i.remove(else_);
+                }
+
+            } else {
+                stmtParser().parse(t, i);
+            }
+        }
     }
 }
 

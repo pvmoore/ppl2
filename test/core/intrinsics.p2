@@ -5,10 +5,11 @@ import core.c
 import core.string
 import core.console
 
-__assert = { string moduleName, int line ->
-
-    println("Assertion failed: ")
-    println(moduleName)
-
-    exit(-1)
+__assert = { bool result, string moduleName, int line ->
+    if(not result) {
+        println("Assertion failed in module ")
+        println(moduleName)
+        println("on line (todo)")
+        exit(-1)
+    }
 }

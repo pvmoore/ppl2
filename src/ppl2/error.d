@@ -37,6 +37,7 @@ enum Err {
 // semantic
     BAD_IMPLICIT_CAST = 4000,
     BAD_EXPLICIT_CAST,
+    BAD_NULL_CAST,
     NO_PROGRAM_ENTRY_POINT,
     MULTIPLE_ENTRY_POINTS,
     MULTIPLE_MODULE_INITS,
@@ -68,6 +69,12 @@ enum Err {
     ARRAY_INDEX_MUST_BE_CONST,
     ARRAY_BOUNDS,
     INCORRECT_RETURN_TYPE,
+
+    /// if
+    IF_TYPES_NO_NOT_MATCH,
+    IF_USED_AS_RESULT_MUST_HAVE_THEN_AND_ELSE,
+    IF_USED_AS_RESULT_MUST_NOT_RETURN,
+    IF_USED_AS_RESULT_MUST_NOT_BE_VOID,
 
     /// Function stuff
     CALL_NEW_RESERVED_FOR_CONSTRUCTORS,
@@ -174,6 +181,10 @@ void errorBadSyntax(TokenNavigator t, string msg) {
 void errorBadImplicitCast(ASTNode n, Type from, Type to) {
     throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
         "Cannot implicitly cast %s to %s".format(from, to));
+}
+void errorBadNullCast(ASTNode n, Type to) {
+    throw new CompilerError(Err.BAD_NULL_CAST, n,
+    "Cannot implicitly cast null to %s".format(to));
 }
 void errorBadExplicitCast(ASTNode n, Type from, Type to) {
     throw new CompilerError(Err.BAD_EXPLICIT_CAST, n,

@@ -7,6 +7,7 @@ public:
     Module module_;
     BinaryGenerator binaryGen;
     LiteralGenerator literalGen;
+    IfGenerator ifGen;
 
     LLVMWrapper llvm;
     LLVMBuilder builder;
@@ -25,6 +26,7 @@ public:
         this.builder    = llvm.builder;
         this.binaryGen  = new BinaryGenerator(this);
         this.literalGen = new LiteralGenerator(this);
+        this.ifGen      = new IfGenerator(this);
     }
     bool generate() {
         log("Generating IR for module %s", module_.canonicalName);
@@ -63,62 +65,12 @@ public:
             f.visit!ModuleGenerator(this);
         }
     }
-    void visit(Parameters n) {
-        dd("visit Parameters");
-        auto func   = n.getFunction();
-        auto params = getFunctionParams(func.llvmValue);
-
-        foreach(i, v; n.getParams()) {
-            v.visit!ModuleGenerator(this);
-            builder.store(params[i], lhs);
-
-            /// Remember values of "this" so that we can access member variables later
-            if(v.name=="this") {
-                auto struct_ = v.type.getNamedStruct;
-                assert(struct_);
-
-                rhs = builder.load(lhs, "this");
-                structMemberThis[struct_.getUniqueName] = params[i]; // rhs
-            }
-        }
-    }
     void visit(As n) {
         dd("visit As");
 
         n.left.visit!ModuleGenerator(this);
 
         rhs = castType(rhs, n.left().getType, n.getType, "as");
-    }
-    void visit(Assert a) {
-        dd("visit Assert");
-
-        if(!getConfig().enableAsserts) {
-            return;
-        }
-
-        log("Generating ... %s", a);
-
-        auto thenLabel = createBlock(a, "assert_failed");
-        auto endLabel  = createBlock(a, "assert_passed");
-
-        a.expr().visit!ModuleGenerator(this);
-
-        auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntEQ, rhs, a.expr().getType.zero);
-        builder.condBr(cmp, thenLabel, endLabel);
-
-        /// assert failed
-        builder.positionAtEndOf(thenLabel);
-
-        LLVMValueRef[] argValues = [
-            module_.moduleNameLiteral.llvmValue,
-            constI32(a.line)
-        ];
-        // todo
-        //builder.call(a.func.llvmValue, argValues, LLVMCallConv.LLVMFastCallConv);
-        builder.unreachable();
-
-        /// end
-        builder.positionAtEndOf(endLabel);
     }
     void visit(Binary n) {
         dd("visit Binary", n.op);
@@ -227,6 +179,10 @@ public:
             rhs = builder.load(lhs);
         }
     }
+    void visit(If n) {
+        dd("visit If");
+        ifGen.generate(n);
+    }
     void visit(Index n) {
         dd("visit Index", n.getType);
 
@@ -286,6 +242,25 @@ public:
 
         visitChildren(n);
     }
+    void visit(Parameters n) {
+        dd("visit Parameters");
+        auto func   = n.getFunction();
+        auto params = getFunctionParams(func.llvmValue);
+
+        foreach(i, v; n.getParams()) {
+            v.visit!ModuleGenerator(this);
+            builder.store(params[i], lhs);
+
+            /// Remember values of "this" so that we can access member variables later
+            if(v.name=="this") {
+                auto struct_ = v.type.getNamedStruct;
+                assert(struct_);
+
+                rhs = builder.load(lhs, "this");
+                structMemberThis[struct_.getUniqueName] = params[i]; // rhs
+            }
+        }
+    }
     void visit(Parenthesis n) {
         n.expr().visit!ModuleGenerator(this);
     }
@@ -302,6 +277,20 @@ public:
     }
     void visit(TypeExpr n) {
         /// ignore
+    }
+    void visit(Unary n) {
+
+        n.expr().visit!ModuleGenerator(this);
+
+        if(n.op is Operator.BOOL_NOT) {
+            rhs = forceToBool(rhs, n.expr().getType);
+            rhs = builder.not(rhs, "not");
+        } else if(n.op is Operator.BIT_NOT) {
+            rhs = builder.not(rhs, "not");
+        } else if(n.op is Operator.NEG) {
+            auto op = n.getType.isReal ? LLVMOpcode.LLVMFSub : LLVMOpcode.LLVMSub;
+            rhs = builder.binop(op, n.expr().getType.zero, rhs);
+        }
     }
     void visit(ValueOf n) {
         n.expr().visit!ModuleGenerator(this);
@@ -417,7 +406,7 @@ public:
 	///
     LLVMValueRef forceToBool(LLVMValueRef v, Type fromType) {
         if(fromType.isBool) return v;
-        auto i1 = builder.icmp(LLVMIntPredicate.LLVMIntNE, v, fromType.zero);
+        auto i1 = builder.icmp(LLVMIntPredicate.LLVMIntNE, v, fromType.zero, "tobool");
         return castI1ToI8(i1);
     }
     LLVMValueRef castI1ToI8(LLVMValueRef v) {

@@ -67,9 +67,6 @@ public:
         if(t.isKeyword("import")) {
             return parseImport(t, parent);
         }
-        if(t.isKeyword("if")) {
-            assert(false, "if");
-        }
         if(t.isKeyword("return")) {
             parseReturn(t, parent);
             return true;
@@ -84,6 +81,11 @@ public:
         }
         if(t.isKeyword("assert")) {
             parseAssert(t, parent);
+            return true;
+        }
+        if(t.isKeyword("if")) {
+            noExprAllowedAtModuleScope();
+            exprParser.parse(t, parent);
             return true;
         }
 
@@ -300,12 +302,16 @@ private: //=====================================================================
         }
     }
     void parseAssert(TokenNavigator t, ASTNode parent) {
-        auto a = makeNode!Assert(t);
-        parent.addToEnd(a);
-
         t.skip("assert");
 
-        exprParser().parse(t, a);
+        auto a = makeNode!Assert(t);
+
+        /// Only add if asserts are enabled
+        if(getConfig().enableAsserts) {
+            parent.addToEnd(a);
+        }
+
+        parse(t, a);
     }
 }
 

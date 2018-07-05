@@ -8,14 +8,16 @@ import ppl2.internal;
 final class Composite : Expression {
 
     override bool isResolved() { return areResolved(children[]); }
-    override bool isConst() { return false; }
     override NodeID id() const { return NodeID.COMPOSITE; }
     override int priority() const { return 15; }
 
     /// The type is the type of the last element
-    override Type getType() { return last().getType(); }
+    override Type getType() {
+        if(hasChildren) return last().getType();
+        return TYPE_VOID;
+    }
 
     override string toString() {
-        return "Composite";
+        return "Composite (type=%s)".format(getType);
     }
 }

@@ -71,11 +71,13 @@ bool isAnonStruct(inout ASTNode n) { return n.id()==NodeID.ANON_STRUCT; }
 bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
+bool isComposite(inout ASTNode n) { return n.id()==NodeID.COMPOSITE; }
 bool isDefine(inout ASTNode n) { return n.id()==NodeID.DEFINE; }
 bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }
 bool isExpression(inout ASTNode n) { return n.as!Expression !is null; }
 bool isFunction(inout ASTNode n) { return n.id()==NodeID.FUNCTION; }
 bool isIdentifier(inout ASTNode n) { return n.id()==NodeID.IDENTIFIER; }
+bool isIf(inout ASTNode n) { return n.id()==NodeID.IF; }
 bool isInitialiser(inout ASTNode n) { return n.id()==NodeID.INITIALISER; }
 bool isLiteralNull(inout ASTNode n) { return n.id()==NodeID.LITERAL_NULL; }
 bool isLiteralNumber(inout ASTNode n) { return n.id()==NodeID.LITERAL_NUMBER; }
@@ -183,12 +185,6 @@ abstract class ASTNode {
     }
     ASTNode[] allSiblings() {
         return parent.children[].filter!(it=>it !is this).array;
-    }
-    T getAncestor(T)() {
-        T a = cast(T)parent;
-        if(a) return a;
-        if(parent.parent) return parent.parent.getAncestor!T();
-        return null;
     }
     Module getModule() {
         if(this.isA!Module) return this.as!Module;

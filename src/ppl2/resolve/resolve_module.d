@@ -100,7 +100,7 @@ public:
     void visit(AddressOf n) {
 
     }
-    void visit(Parameters n) {
+    void visit(AnonStruct n) {
 
     }
     void visit(ArrayType n) {
@@ -112,19 +112,31 @@ public:
     void visit(Assert n) {
         if(!n.isResolved) {
 
-            Type stringType = findType("string", n);
-            if(stringType) {
-                auto params = [stringType, TYPE_INT];
-                auto func   = callResolver.find("__assert", params, n);
-                if(func) {
-                    if(!n.target) {
-                        n.target = new Target(module_);
-                    }
-                    if(!n.target.isSet) {
-                        n.target.set(func.as!Function);
-                    }
-                }
+            /// Wait until we know what the type is
+            Type type = n.first().getType();
+            if(type.isUnknown) return;
+
+            /// Convert to a call to __assert(bool, string, int)
+            auto parent = n.parent;
+            auto b      = module_.builder(n);
+
+            auto c = b.call("__assert", null);
+            parent.replaceChild(n, c);
+
+            /// value
+            Expression zero;
+            if(type.isPtr) {
+                zero = LiteralNull.makeConst(type);
+            } else {
+                zero = LiteralNumber.makeConst(0);
             }
+            c.addToEnd(b.binary(Operator.BOOL_NE, n.expr(), zero));
+
+            /// string
+            c.addToEnd(b.string_(module_.moduleNameLiteral));
+
+            /// line
+            c.addToEnd(LiteralNumber.makeConst(n.line, TYPE_INT));
         }
     }
     void visit(Binary n) {
@@ -141,6 +153,7 @@ public:
                     n.type = TYPE_BOOL;
                 } else {
                     /// Set to largest of left or right type
+
                     auto t = getBestFit(lt, rt);
                     /// Promote byte, short to int
                     if(t.isValue && t.isInteger && t.getEnum < TYPE_INT.getEnum) {
@@ -163,11 +176,11 @@ public:
                 if(callable) {
                     /// If we get here then we have 1 good match
                     auto o = callable;
-                    auto f = cast(Function)o;
+                    auto f = o.as!Function;
                     if(f) {
                         n.target.set(f);
                     }
-                    auto v = cast(Variable)o;
+                    auto v = o.as!Variable;
                     if(v) {
                         n.target.set(v);
                     }
@@ -307,36 +320,42 @@ public:
             }
         }
     }
-    void visit(Initialiser n) {
-        n.resolve();
+    void visit(If n) {
+        if(!n.isResolved) {
+            if(!n.isUsedAsExpr) {
+                n.type = TYPE_VOID;
+                return;
+            }
+            if(!n.hasThen) {
+                n.type = TYPE_VOID;
+                return;
+            }
 
-        //if(n.getType.isUnknown) {
-        //    Type parentType;
-        //    switch(n.parent.id) with(NodeID) {
-        //        case VARIABLE:
-        //            parentType = n.parent.as!Variable.type;
-        //            break;
-        //        case BINARY:
-        //            parentType = n.parent.as!Binary.otherSide(n).getType;
-        //            break;
-        //        case LITERAL_FUNCTION:
-        //            parentType = n.getInferredType();
-        //            break;
-        //        case INITIALISER:
-        //            parentType = n.parent.as!Initialiser.getType;
-        //            break;
-        //        default:
-        //            assert(false, "Parent of Initialiser is %s".format(n.parent.id));
-        //    }
-        //    if(parentType && parentType.isKnown) {
-        //        auto type = parentType.getAnonStruct;
-        //        if(type) {
-        //            n.type = type;
-        //        }
-        //    }
+            auto thenType = n.thenType();
+            if(thenType.isUnknown) return;
+
+            if(n.hasElse) {
+                auto elseType = n.elseType();
+                if(elseType.isUnknown) return;
+
+                auto t = getBestFit(thenType, elseType);
+                if(!t) {
+                    throw new CompilerError(Err.IF_TYPES_NO_NOT_MATCH, n,
+                        "%s and %s are incompatible as if result".format(thenType, elseType));
+                }
+
+                n.type = t;
+
+            } else {
+                n.type = thenType;
+            }
+        }
     }
     void visit(Index n) {
 
+    }
+    void visit(Initialiser n) {
+        n.resolve();
     }
     void visit(LiteralArray n) {
         if(n.type.isUnknown) {
@@ -431,12 +450,28 @@ public:
                     case INITIALISER:
                         t = n.parent.as!Initialiser.getType;
                         break;
+                    case IF:
+                        auto if_ = n.parent.as!If;
+                        if(if_.hasThen && if_.hasElse) {
+                            if(n.nid==if_.thenStmt().nid) {
+                                t = if_.elseType();
+                            } else {
+                                t = if_.thenType();
+                            }
+                        }
+                        break;
+                    case COMPOSITE:
+                        break;
                     default:
                         assert(false, "parent is %s".format(n.parent.id()));
                 }
             }
             if(t.isKnown) {
-                n.type = t;
+                if(t.isPtr) {
+                    n.type = t;
+                } else {
+                    errorBadNullCast(n, t);
+                }
             }
         }
     }
@@ -495,22 +530,22 @@ public:
             }
         }
     }
-    void visit(NamedStruct n) {
-
-    }
     void visit(Malloc n) {
         resolveType(n.valueType);
     }
     void visit(Module n) {
 
     }
+    void visit(NamedStruct n) {
+
+    }
+    void visit(Parameters n) {
+
+    }
     void visit(Parenthesis n) {
 
     }
     void visit(Return n) {
-
-    }
-    void visit(AnonStruct n) {
 
     }
     void visit(TypeExpr n) {
@@ -553,7 +588,7 @@ public:
             if(n.type.isReal && n.type.isValue && n.hasInitialiser) {
                 auto lit = n.initialiser.literal;
                 if(lit) {
-                    lit.type = n.type;
+                    lit.setType(n.type);
                 }
             }
         }

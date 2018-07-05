@@ -79,6 +79,12 @@ public:
             return;
         }
     }
+    void visit(Composite n) {
+        if(n.numChildren==1) {
+            auto child = n.first();
+            n.parent.replaceChild(n, child);
+        }
+    }
     void visit(Identifier n) {
         auto type = n.target.getType;
         auto var  = n.target.getVariable;
@@ -156,6 +162,7 @@ private:
                 (m.isExpression && m.as!Expression.isConst) //||
                 //(it.isFunction && it.as!Function.numRefs==0)
             ;
+            fold |= m.isComposite;
 
             if(fold) {
                 //dd("fold", typeid(m), m.nid);

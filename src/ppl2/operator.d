@@ -21,7 +21,7 @@ struct Op {
 enum Operator : Op {
     NEG      = Op(0, 2, "neg"),
     BIT_NOT  = Op(1, 2, "~"),
-    BOOL_NOT = Op(2, 2, "!"),
+    BOOL_NOT = Op(2, 2, "not"),
 
     DIV  = Op(3, 3, "/"),
     MUL = Op(5, 3, "*"),

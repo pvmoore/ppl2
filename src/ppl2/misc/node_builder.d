@@ -98,5 +98,25 @@ final class NodeBuilder {
         e.type = t;
         return e;
     }
+    Constructor string_(LiteralString lit) {
+        /// Create an alloca
+        auto con = makeNode!Constructor(node);
+        con.type = findType("string", module_);
+
+        auto var = variable(module_.makeTemporary("str"), con.type);
+        con.addToEnd(var);
+
+        /// Call string.new(this, byte*, int)
+        Call call = call("new", null);
+            call.addToEnd(addressOf(identifier(var.name)));
+            call.addToEnd(lit);
+            call.addToEnd(LiteralNumber.makeConst(lit.calculateLength(), TYPE_INT));
+
+        //auto dot = dot(identifier(var.name), call);
+
+        //auto valueof = valueOf(dot);
+        con.addToEnd(valueOf(dot(identifier(var.name), call)));
+        return con;
+    }
 }
 

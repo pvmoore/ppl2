@@ -11,6 +11,11 @@ final class LiteralNumber : Expression {
         type = TYPE_UNKNOWN;
     }
 
+    void setType(Type t) {
+        value.changeType(type, t);
+        type = t;
+    }
+
     static LiteralNumber makeConst(long num, Type t=TYPE_UNKNOWN) {
         auto lit = makeNode!LiteralNumber;
         lit.str  = num.to!string;
@@ -66,7 +71,14 @@ struct Value {
             f = lit.str.to!double;
         } else assert(false, "How did we get here? type is %s".format(type()));
     }
-    Type type()        { return lit.type; }
+    void changeType(Type from, Type to) {
+        if(from.isReal && to.isInteger) {
+            i = cast(long)f;
+        } else if(from.isInteger && to.isReal) {
+            f = cast(double)i;
+        }
+    }
+    Type type()  { return lit.type; }
     bool getBool()     { return getLong() != FALSE; }
     int getInt()       { return cast(int)getLong(); }
     long getLong()     { if(type.isReal) return cast(long)f; return i; }
@@ -75,7 +87,7 @@ struct Value {
 
     void applyUnary(Operator op) {
         switch(op.id) with(Operator) {
-            case BOOL_NOT.id: i = !getBool(); break;
+            case BOOL_NOT.id: i = ~getLong(); break;
             case BIT_NOT.id:  i = ~getLong(); break;
             case NEG.id:
                 if(type.isReal) {

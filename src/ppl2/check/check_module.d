@@ -57,9 +57,6 @@ public:
             errorBadExplicitCast(n, fromType, toType);
         }
     }
-    void visit(Assert n) {
-
-    }
     void visit(Binary n) {
 
         if(n.op.isAssign) {
@@ -103,6 +100,29 @@ public:
     }
     void visit(Identifier n) {
 
+    }
+    void visit(If n) {
+        if(n.isUsedAsExpr) {
+            /// Type must not be void
+            if(n.type.isVoid && n.type.isValue) {
+                throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_NOT_BE_VOID, n,
+                    "If must not have void result");
+            }
+
+            /// Both then and else are required
+            if(!n.hasThen || !n.hasElse) {
+                throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_HAVE_THEN_AND_ELSE, n,
+                    "If must have both a then and an else result");
+            }
+
+            /// Don't allow any returns in then or else block
+            auto array = new Array!Return;
+            n.selectDescendents!Return(array);
+            if(array.length>0) {
+                throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_NOT_RETURN, array[0],
+                    "An if used as a result cannot return");
+            }
+        }
     }
     void visit(Index n) {
         auto lit = n.index().as!LiteralNumber;

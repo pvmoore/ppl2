@@ -69,6 +69,7 @@ import ppl2.check.check_module;
 import ppl2.gen.gen_binary;
 import ppl2.gen.gen_function;
 import ppl2.gen.gen_literals;
+import ppl2.gen.gen_if;
 import ppl2.gen.gen_module;
 import ppl2.gen.gen_struct;
 import ppl2.gen.gen_variable;
