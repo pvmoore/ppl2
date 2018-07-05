@@ -1,5 +1,5 @@
 
-/*
+
 import core.c
 import core.string
 
@@ -26,32 +26,34 @@ println = { string s ->
 }
 
 main = {
-    string s0;
+    /* string s0;
     var s1    = "one"
     string s2 = "three"
     var s3    = string(s1.ptr, s1.length)
 
     // fixme
-    //var s4    = string("four".ptr, 4)
+    var s4 = string("four".ptr, 4)
 
     println(s1)
     println(s2)
     println(s3)
 
-    // fixme
-    //println("The End")
+
 
     //puts(s4.ptr)
 
-    var len = s1.length
+    var len = s1.length */
 
+    // fixme
+    var s4 = string("four".ptr, 4)
 
+    println(s4)
 }
-*/
 
 
 
 
+/*
 import core.c
 import core.string
 //import c = core.c
@@ -199,7 +201,7 @@ main = {
     //puts("Hi there".ptr)
 }
 bool yop
-
+*/
 
 /*
     // inferred return type

@@ -222,7 +222,7 @@ public:
             }
         }
     }
-    void visit(CompositeExpression n) {
+    void visit(Composite n) {
 
     }
     void visit(Constructor n) {

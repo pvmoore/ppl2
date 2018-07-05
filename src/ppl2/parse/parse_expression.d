@@ -503,6 +503,9 @@ private:
     ///
     void parseLiteralString(TokenNavigator t, ASTNode parent) {
 
+        auto composite = makeNode!Composite(t);
+        parent.addToEnd(composite);
+
         auto s = makeNode!LiteralString(t);
 
         /// todo - Concatenate strings here if possible
@@ -534,7 +537,7 @@ private:
         auto var = makeNode!Variable(t);
         var.name = module_.makeTemporary("str");
         var.type = findType("string", parent);
-        parent.addToEnd(var);
+        composite.addToEnd(var);
 
         /// Call string.new(this, byte*, int)
 
@@ -546,8 +549,8 @@ private:
 
         auto dot = b.dot(b.identifier(var.name), call);
 
-        auto v = b.valueOf(dot);
-        parent.addToEnd(v);
+        auto valueof = b.valueOf(dot);
+        composite.addToEnd(valueof);
     }
     ///
     /// constructor ::= identifier "(" { cexpr [ "," cexpr ] } ")"

@@ -2,7 +2,10 @@ module ppl2.ast.expr_composite;
 
 import ppl2.internal;
 
-final class CompositeExpression : Expression {
+///
+/// Wrap one or more nodes to appear as one single node.
+///
+final class Composite : Expression {
 
     override bool isResolved() { return areResolved(children[]); }
     override bool isConst() { return false; }

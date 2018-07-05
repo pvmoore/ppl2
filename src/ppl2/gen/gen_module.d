@@ -171,6 +171,10 @@ public:
         //    builder.store(grhs, lhs);
         //}
     }
+    void visit(Composite n) {
+        dd("visit Composite");
+        visitChildren(n);
+    }
     void visit(Constructor n) {
         dd("visit Constructor");
         visitChildren(n);

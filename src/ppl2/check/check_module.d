@@ -81,7 +81,7 @@ public:
     void visit(Call n) {
 
     }
-    void visit(CompositeExpression n) {
+    void visit(Composite n) {
 
     }
     void visit(Constructor n) {
