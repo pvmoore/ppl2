@@ -46,37 +46,6 @@ public:
         /// Types implicitly match
         return .canImplicitlyCastTo(type.memberVariableTypes(), right.type.memberVariableTypes);
     }
-    Expression defaultInitialiser() {
-        assert(isKnown);
-
-        float f = 0;
-        if(f < 1) assert(false);
-
-        /// call default constructor
-        /// return this*
-        auto composite = makeNode!CompositeExpression();
-        auto module_   = getModule();
-        auto builder   = module_.nodeBuilder;
-
-        /// Create a Variable only if we really have to
-        auto var = builder.variable(module_.makeTemporary(name), this);
-
-        auto id        = builder.identifier(var.name);
-        auto thisPtr   = builder.addressOf(id);
-
-        auto structId = builder.identifier(id.name);
-        auto call     = builder.call("new", null);
-        call.addToEnd(thisPtr);
-
-        auto dot = builder.dot(structId, call);
-        auto val = builder.valueOf(dot);
-
-        var.addToEnd(val);
-
-        composite.addToEnd(var);
-
-        return composite;
-    }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
             _llvmType = struct_(getUniqueName());

@@ -72,11 +72,6 @@ public:
 
         return .exactlyMatch(argTypes, right.argTypes);
     }
-    Expression defaultInitialiser() {
-        assert(isKnown);
-        /// Assume this is always a ptr
-        return LiteralNull.makeConst(this);
-    }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
             _llvmType = function_(returnType.getLLVMType(),

@@ -65,12 +65,14 @@ public:
 
             auto time = watch.peek().total!"nsecs";
 
-            writefln("\nModule info:");
-            flushLogs();
-            foreach(m; modules.values) {
-                writefln("- %s", m.canonicalName);
-                m.dumpInfo();
-            }
+            //writefln("\nModule info:");
+            //flushLogs();
+            //foreach(m; modules.values) {
+            //    writefln("- %s", m.canonicalName);
+            //    m.dumpInfo();
+            //}
+
+            writefln("\nOK");
 
             import core.memory : GC;
 

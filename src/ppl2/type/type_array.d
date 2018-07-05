@@ -48,19 +48,6 @@ public:
 
         return countAsInt() == rightArray.countAsInt();
     }
-    Expression defaultInitialiser() {
-        assert(isKnown);
-
-        /// Create a literal array
-        auto lit         = makeNode!LiteralArray(this);
-        lit.type         = this;
-        lit.isIndexBased = true;
-
-        lit.addToEnd(LiteralNumber.makeConst(countAsInt() - 1, TYPE_INT));
-        lit.addToEnd(subtype.defaultInitialiser());
-
-        return lit;
-    }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
             _llvmType = arrayType(subtype.getLLVMType(), countAsInt());

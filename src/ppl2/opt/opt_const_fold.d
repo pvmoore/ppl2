@@ -79,16 +79,6 @@ public:
             return;
         }
     }
-    //void visit(DefaultInitialiser n) {
-    //
-    //    if(n.var.type.isKnown) {
-    //
-    //        auto ini = n.var.type.defaultInitialiser(n.var);
-    //        ini.setLive();
-    //        n.parent.replaceChild(n, ini);
-    //        nodesFolded++;
-    //    }
-    //}
     void visit(Identifier n) {
         auto type = n.target.getType;
         auto var  = n.target.getVariable;

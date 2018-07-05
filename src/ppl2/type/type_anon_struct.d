@@ -36,19 +36,6 @@ final class AnonStruct : ASTNode, Type, Container {
         /// Types implicitly match
         return .canImplicitlyCastTo(memberVariableTypes(), right.memberVariableTypes);
     }
-    Expression defaultInitialiser() {
-        assert(isKnown);
-
-        auto lit = makeNode!LiteralStruct(this);
-        lit.type = this;
-
-        /// Create default assignment for each member type
-        foreach(v; getMemberVariables()) {
-            lit.addToEnd(v.type.defaultInitialiser());
-        }
-
-        return lit;
-    }
     LLVMTypeRef getLLVMType() {
         return .struct_(getLLVMTypes(), true);
     }

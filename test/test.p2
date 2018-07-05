@@ -1,28 +1,56 @@
 
 /*
 import core.c
-
-//import notfound
+import core.string
 
 S = [
     int a = 'A'
-    float b = 1
     new = {
 
     }
-    new = { int v ->
-
+    ptrfunc = {
+        return this
+    }
+    set = { int ch ->
+        a = ch
+        return #val(this)
+    }
+    blart = {
+        putchar(a)
+        return this
     }
 ]
 
+println = { string s ->
+    puts(s.ptr)
+}
+
 main = {
-    //S s    = S('B')
+    string s0;
+    var s1    = "one"
+    string s2 = "three"
+    var s3    = string(s1.ptr, s1.length)
 
-    S* ptr = S*('C')
+    // fixme
+    //var s4    = string("four".ptr, 4)
 
-    putchar(ptr.a)
+    println(s1)
+    println(s2)
+    println(s3)
+
+    // fixme
+    //println("The End")
+
+    //puts(s4.ptr)
+
+    var len = s1.length
+
+
 }
 */
+
+
+
 
 import core.c
 import core.string
@@ -169,6 +197,9 @@ main = {
 
     // broken
     //puts("Hi there".ptr)
+}
+bool yop
+
 
 /*
     // inferred return type
@@ -216,8 +247,7 @@ main = {
     //Zippers zips
     */
 
-}
-bool yop
+
 
 
 

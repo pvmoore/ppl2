@@ -37,23 +37,6 @@ final class BasicType : Type {
         }
         return right.isReal;
     }
-    Expression defaultInitialiser() {
-        assert(isKnown);
-
-        switch(type) with(Type) {
-            case BOOL:
-            case BYTE:
-            case SHORT:
-            case INT:
-            case LONG:
-            case HALF:
-            case FLOAT:
-            case DOUBLE:
-                return LiteralNumber.makeConst(0, this);
-            default:
-                assert(false, "type is %s".format(type));
-        }
-    }
     LLVMTypeRef getLLVMType() {
         switch(type) with(Type) {
             case BOOL:

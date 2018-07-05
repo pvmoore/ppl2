@@ -60,9 +60,6 @@ public:
         return (decorated is otherPtr.decorated) ||
                decorated.canImplicitlyCastTo(otherPtr.decorated);
     }
-    Expression defaultInitialiser() {
-        return LiteralNull.makeConst(this);
-    }
     LLVMTypeRef getLLVMType() {
         LLVMTypeRef t = decorated.getLLVMType();
         /// void* is not allowed so use i8* instead

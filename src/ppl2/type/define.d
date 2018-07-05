@@ -27,7 +27,6 @@ class Define : Statement, Type {
 
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
-    Expression defaultInitialiser()      { assert(false); }
     LLVMTypeRef getLLVMType()            { assert(false); }
     //=======================================================================================
 

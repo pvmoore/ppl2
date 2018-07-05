@@ -18,7 +18,6 @@ interface Type {
     bool isKnown();
     bool exactlyMatches(Type other);
     bool canImplicitlyCastTo(Type other);
-    Expression defaultInitialiser();
     LLVMTypeRef getLLVMType();
     //-------------------------------------
 pragma(inline,true) {
