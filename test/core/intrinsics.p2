@@ -2,11 +2,13 @@
 export __assert
 
 import core.c
+import core.string
+import core.console
 
 __assert = { string moduleName, int line ->
 
-    puts("Assertion failed: ")
-    puts(moduleName.ptr)
+    println("Assertion failed: ")
+    println(moduleName)
 
     exit(-1)
 }

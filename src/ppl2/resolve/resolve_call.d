@@ -14,10 +14,32 @@ final class CallResolver {
 private:
     Module module_;
     ModuleResolver moduleResolver;
+    Array!Callable overloads;
 public:
     this(ModuleResolver moduleResolver) {
         this.module_        = moduleResolver.module_;
         this.moduleResolver = moduleResolver;
+        this.overloads      = new Array!Callable;
+    }
+
+    Callable find(string name, Type[] argTypes, ASTNode node) {
+        overloads.clear();
+
+        if(find(name, node, overloads)) {
+            filterOverloads(argTypes, overloads);
+
+            if(overloads.length==0) {
+                throw new CompilerError(Err.FUNCTION_NOT_FOUND, node,
+                    "Function %s not found".format(name));
+            }
+            if(overloads.length > 1) {
+                throw new CompilerError(Err.AMBIGUOUS_CALL, node,
+                    "Ambiguous call");
+            }
+
+            return overloads[0];
+        }
+        return null;
     }
     ///
     /// Find any function or variable that matches the given function name.
@@ -69,10 +91,11 @@ public:
         return find(name, node.parent, results, ready);
     }
     ///
-    /// Filter out all but 1 function/funcptr from the overload set.         
+    /// Filter out all but 1 function/funcptr from the overload set.
+    /// Assume all names are the same.
     /// Assume all types are known.
     ///
-    void filterOverloads(Call call, Array!Callable overloadSet) {
+    void filterOverloads(Type[] argTypes, Array!Callable overloadSet) {
         if(overloadSet.length < 2) return;
 
         /// More than 1 overload. Filter some out until we have 1 remaining
@@ -91,8 +114,8 @@ public:
                 type = o.as!Function.getType().getFunctionType;
                 assert(type);
 
-                Type[] args = type.argTypes();
-                if(args.length != call.numArgs()) {
+                Type[] params = type.paramTypes();
+                if(params.length != argTypes.length) {
                     overloadSet.remove(o);
                 }
 

@@ -1,31 +1,31 @@
-module ppl2.misc.arguments;
+module ppl2.ast.parameters;
 
 import ppl2.internal;
 ///
-/// Wrap function arguments.
+/// Wrap function parameters
 ///
-final class Arguments : ASTNode {
+final class Parameters : ASTNode {
 
-    override bool isResolved() { return getArgs().as!(ASTNode[]).areResolved; }
+    override bool isResolved() { return getParams().as!(ASTNode[]).areResolved; }
     override NodeID id() const { return NodeID.ARGUMENTS; }
 
-    int numArgs() const {
+    int numParams() const {
         return children.length.as!int;
     }
-    string[] argNames() {
-        return getArgs().map!(it=>it.name).array;
+    string[] paramNames() {
+        return getParams().map!(it=>it.name).array;
     }
-    Type[] argTypes() {
-        return getArgs().map!(it=>it.type).array;
+    Type[] paramTypes() {
+        return getParams().map!(it=>it.type).array;
     }
-    Variable getArg(ulong index) {
-        return getArgs()[index];
+    Variable getParam(ulong index) {
+        return getParams()[index];
     }
-    Variable getArg(string name) {
-        auto r = getArgs().filter!(it=>it.name==name).takeOne;
+    Variable getParam(string name) {
+        auto r = getParams().filter!(it=>it.name==name).takeOne;
         return r.empty ? null : r.front;
     }
-    Variable[] getArgs() {
+    Variable[] getParams() {
         return children[].as!(Variable[]);
     }
     Function getFunction() {
@@ -37,7 +37,7 @@ final class Arguments : ASTNode {
     /// This function is not global so requires the this* of the enclosing struct.
     ///
     void addThisParameter(NamedStruct ns) {
-        // Poke the this* ptr into the start of the argument list
+        // Poke the this* ptr into the start of the parameter list
 
         auto a = makeNode!Variable(ns);
         a.name = "this";
@@ -46,6 +46,6 @@ final class Arguments : ASTNode {
     }
 
     override string toString() {
-        return "Arguments";
+        return "Parameters";
     }
 }

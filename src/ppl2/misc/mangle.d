@@ -22,8 +22,8 @@ string mangle(Function f) {
         name = struct_.getName ~ "." ~ name;
     }
 
-    if(f.args.numArgs>0) {
-        name ~= "(%s)".format(mangle(f.args.argTypes()));
+    if(f.params().numParams>0) {
+        name ~= "(%s)".format(mangle(f.params().paramTypes()));
     }
     if(!g_uniqueFunctionNames.contains(name)) {
         g_uniqueFunctionNames.add(name);
@@ -64,7 +64,7 @@ string mangle(Type t) {
             break;
         case FUNCTION:
             auto f = t.getFunctionType;
-            s = "F[%s]".format(mangle(f.argTypes));
+            s = "F[%s]".format(mangle(f.paramTypes));
             break;
         case ARRAY:
             auto a = t.getArrayType;

@@ -105,7 +105,7 @@ public:
     Type[] argTypes() {
         assert(isSet);
         assert(getType.isFunction);
-        return getType.getFunctionType.argTypes();
+        return getType.getFunctionType.paramTypes();
     }
     override string toString() {
         string s = isSet && targetModule.nid != module_.nid ? targetModule.canonicalName~"." : "";

@@ -57,6 +57,7 @@ import ppl2.ast.expr_type;
 import ppl2.ast.expr_unary;
 import ppl2.ast.statement;
 import ppl2.ast.module_;
+import ppl2.ast.parameters;
 import ppl2.ast.stmt_assert;
 import ppl2.ast.stmt_function;
 import ppl2.ast.stmt_return;
@@ -78,7 +79,6 @@ import ppl2.opt.opt_const_fold;
 import ppl2.interfaces.callable;
 import ppl2.interfaces.container;
 
-import ppl2.misc.arguments;
 import ppl2.misc.lexer;
 import ppl2.misc.linker;
 import ppl2.misc.misc_logging;

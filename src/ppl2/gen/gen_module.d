@@ -63,14 +63,14 @@ public:
             f.visit!ModuleGenerator(this);
         }
     }
-    void visit(Arguments n) {
-        dd("visit Arguments");
-        auto func = n.getFunction();
-        auto args = getFunctionArgs(func.llvmValue);
+    void visit(Parameters n) {
+        dd("visit Parameters");
+        auto func   = n.getFunction();
+        auto params = getFunctionParams(func.llvmValue);
 
-        foreach(i, v; n.getArgs()) {
+        foreach(i, v; n.getParams()) {
             v.visit!ModuleGenerator(this);
-            builder.store(args[i], lhs);
+            builder.store(params[i], lhs);
 
             /// Remember values of "this" so that we can access member variables later
             if(v.name=="this") {
@@ -78,7 +78,7 @@ public:
                 assert(struct_);
 
                 rhs = builder.load(lhs, "this");
-                structMemberThis[struct_.getUniqueName] = args[i]; // rhs
+                structMemberThis[struct_.getUniqueName] = params[i]; // rhs
             }
         }
     }

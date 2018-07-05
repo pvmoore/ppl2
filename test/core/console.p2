@@ -1,0 +1,14 @@
+
+export println
+
+import core.c
+import core.string
+
+public
+
+println = { string s ->
+
+    // Can we assume string will
+    // have a trailing zero?
+    puts(s.ptr)
+}

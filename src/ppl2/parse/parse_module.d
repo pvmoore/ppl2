@@ -97,11 +97,11 @@ private:
             initFunc.moduleName = module_.canonicalName;
             module_.addToEnd(initFunc);
 
-            auto args = makeNode!Arguments;
-            auto type = makeNode!FunctionType;
-            type.args = args;
-            auto lit  = makeNode!LiteralFunction;
-            lit.addToEnd(args);
+            auto params = makeNode!Parameters;
+            auto type   = makeNode!FunctionType;
+            type.params = params;
+            auto lit    = makeNode!LiteralFunction;
+            lit.addToEnd(params);
             lit.type = type;
             initFunc.addToEnd(lit);
         }

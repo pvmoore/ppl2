@@ -10,6 +10,7 @@ private:
     int pass;
     bool addedModuleScopeElements;
     Set!ASTNode unresolved;
+    Array!Callable overloadSet;
 public:
     Module module_;
 
@@ -21,6 +22,7 @@ public:
         this.callResolver = new CallResolver(this);
         this.identifierResolver = new IdentifierResolver(this);
         this.unresolved = new Set!ASTNode;
+        this.overloadSet = new Array!Callable;
         this.pass = 1;
     }
 
@@ -98,7 +100,7 @@ public:
     void visit(AddressOf n) {
 
     }
-    void visit(Arguments n) {
+    void visit(Parameters n) {
 
     }
     void visit(ArrayType n) {
@@ -108,7 +110,22 @@ public:
 
     }
     void visit(Assert n) {
+        if(!n.isResolved) {
 
+            Type stringType = findType("string", n);
+            if(stringType) {
+                auto params = [stringType, TYPE_INT];
+                auto func   = callResolver.find("__assert", params, n);
+                if(func) {
+                    if(!n.target) {
+                        n.target = new Target(module_);
+                    }
+                    if(!n.target.isSet) {
+                        n.target.set(func.as!Function);
+                    }
+                }
+            }
+        }
     }
     void visit(Binary n) {
         if(n.type.isUnknown) {
@@ -140,17 +157,14 @@ public:
 
             // todo - handle template function call
 
-            auto overloadSet = new Array!Callable;
-
-            dd("call", n.name);
-            dd("    ", n.isStartOfChain());
+            overloadSet.clear();
 
             if(n.isStartOfChain()) {
 
                 if(callResolver.find(n.name, n, overloadSet)) {
 
                     /// Filter out until we only have 1 match
-                    callResolver.filterOverloads(n, overloadSet);
+                    callResolver.filterOverloads(n.argTypes(), overloadSet);
 
                     if(overloadSet.length==0) {
                         throw new CompilerError(Err.FUNCTION_NOT_FOUND, n,
@@ -189,7 +203,7 @@ public:
                     /// Filter
                     foreach(f; fns) overloadSet.add(f);
                     if(var) overloadSet.add(var);
-                    callResolver.filterOverloads(n, overloadSet);
+                    callResolver.filterOverloads(n.argTypes(), overloadSet);
 
                     if(overloadSet.length==0) {
                         throw new CompilerError(Err.FUNCTION_NOT_FOUND, n,
@@ -398,12 +412,12 @@ public:
             if(ty.returnType.isUnknown) {
                 ty.returnType = n.determineReturnType();
             }
-            foreach(i, a; ty.argTypes) {
+            foreach(i, a; ty.paramTypes) {
                 if(a.isUnknown) {
-                    /// Set arg type from child arg Variable
-                    auto arg = n.args.getArg(i);
-                    if(arg.type.isKnown) {
-                        ty.argTypes[i] = arg.type;
+                    /// Set param type from child param Variable
+                    auto param = n.params().getParam(i);
+                    if(param.type.isKnown) {
+                        ty.paramTypes[i] = param.type;
                     }
                 }
             }

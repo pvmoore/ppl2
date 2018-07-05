@@ -42,7 +42,7 @@ final class Variable : Statement, Callable {
         return parent.isModule;
     }
     bool isParameter() {
-        return parent.isA!Arguments;
+        return parent.isA!Parameters;
     }
     bool hasInitialiser() {
         return children[].any!(it=>it.isInitialiser);

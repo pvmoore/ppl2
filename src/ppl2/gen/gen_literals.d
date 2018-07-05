@@ -52,12 +52,12 @@ final class LiteralGenerator {
 
             assert(false, "implement me");
         }
-        auto func     = n.getFunction();
-        auto argTypes = n.type.argTypes();
-        auto numArgs  = argTypes.length;
+        auto func       = n.getFunction();
+        auto paramTypes = n.type.paramTypes();
+        auto numParams  = paramTypes.length;
         assert(func.llvmValue, "Function value is null: %s".format(func));
 
-        auto args  = getFunctionArgs(func.llvmValue);
+        //auto args  = getFunctionArgs(func.llvmValue);
         auto entry = func.llvmValue.appendBasicBlock("entry");
         builder.positionAtEndOf(entry);
 

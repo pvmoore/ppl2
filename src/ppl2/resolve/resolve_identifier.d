@@ -78,9 +78,9 @@ private:
         if(v && v.name==name) {
             return v;
         }
-        auto args = n.as!Arguments;
-        if(args) {
-            return args.getArg(name);
+        auto params = n.as!Parameters;
+        if(params) {
+            return params.getParam(name);
 
         }
         return null;

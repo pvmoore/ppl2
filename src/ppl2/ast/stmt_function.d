@@ -45,11 +45,11 @@ public:
     bool isDefaultConstructor() {
         if(isImport || isExtern) return false;
         if(name!="new") return false;
-        return args.numArgs==0 || (args.numArgs==1 && args.argNames[0]=="this");
+        return params().numParams==0 || (params().numParams==1 && params().paramNames[0]=="this");
     }
 
     string getName() { return name; }
-    Arguments args() { return isExtern ? null : getBody().args(); }
+    Parameters params() { return isExtern ? null : getBody().params(); }
     AnonStruct getStruct() {
         assert(isStructMember());
         return parent.as!AnonStruct;

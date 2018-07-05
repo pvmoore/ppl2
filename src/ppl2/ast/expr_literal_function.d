@@ -19,8 +19,8 @@ class LiteralFunction : Expression, Scope, Container {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
-    Arguments args() {
-        return children[0].as!Arguments;
+    Parameters params() {
+        return children[0].as!Parameters;
     }
 
     bool isClosure() const {

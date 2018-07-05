@@ -380,11 +380,11 @@ private:
             LiteralFunction f = makeNode!LiteralFunction(t);
             parent.addToEnd(f);
 
-            auto args = makeNode!Arguments(t);
-            f.addToEnd(args);
+            auto params = makeNode!Parameters(t);
+            f.addToEnd(params);
 
-            auto type = makeNode!FunctionType(t);
-            type.args = args;
+            auto type   = makeNode!FunctionType(t);
+            type.params = params;
             f.type = type;
 
             t.skip(TT.LCURLY);
@@ -394,7 +394,7 @@ private:
                 /// collect the args
                 while(t.type!=TT.RT_ARROW) {
 
-                    varParser().parse(t, args);
+                    varParser().parse(t, params);
 
                     t.expect(TT.RT_ARROW, TT.COMMA);
                     if(t.type==TT.COMMA) t.next;

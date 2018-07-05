@@ -7,7 +7,7 @@ private:
     LLVMTypeRef _llvmType;
 public:
     Type _returnType;       /// This gets calculated later by the FunctionLiteral if there is one
-    Arguments args;         /// Point to Arguments of FunctionLiteral
+    Parameters params;      /// Point to Parameters of FunctionLiteral
 
     override bool isResolved() { return isKnown; }
     override NodeID id() const { return NodeID.FUNC_TYPE; }
@@ -17,22 +17,22 @@ public:
         _returnType = t;
     }
     Type returnType() {
-        if(args) return firstNotNull(_returnType, TYPE_UNKNOWN);
+        if(params) return firstNotNull(_returnType, TYPE_UNKNOWN);
         return children[$-1].as!Variable.type;
     }
 
-    Type[] argTypes() {
+    Type[] paramTypes() {
         /// If there is a FunctionLiteral
-        if(args) return args.argTypes();
+        if(params) return params.paramTypes();
         /// Variable or extern function
         if(hasChildren) {
             return children[0..$-1].map!(it=>it.getType).array;
         }
         assert(false, "FunctionType has no children");
     }
-    string[] argNames() {
+    string[] paramNames() {
         /// If there is a FunctionLiteral
-        if(args) return args.argNames();
+        if(params) return params.paramNames();
         /// Variable or extern function
         if(hasChildren) {
             return children[0..$-1].map!(it=>it.as!Variable.name).array;
@@ -45,7 +45,7 @@ public:
         return Type.FUNCTION;
     }
     bool isKnown() {
-        return returnType().isKnown && argTypes.areKnown();
+        return returnType().isKnown && paramTypes.areKnown();
     }
     bool exactlyMatches(Type other) {
         /// Do the common checks
@@ -58,7 +58,7 @@ public:
 
         /// check returnType?
 
-        return .exactlyMatch(argTypes, right.argTypes);
+        return .exactlyMatch(paramTypes(), right.paramTypes());
     }
     bool canImplicitlyCastTo(Type other) {
         /// Do the common checks
@@ -70,12 +70,12 @@ public:
 
         /// check returnType?
 
-        return .exactlyMatch(argTypes, right.argTypes);
+        return .exactlyMatch(paramTypes(), right.paramTypes());
     }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
             _llvmType = function_(returnType.getLLVMType(),
-                                  argTypes.map!(it=>it.getLLVMType()).array);
+                                  paramTypes().map!(it=>it.getLLVMType()).array);
         }
         return _llvmType;
     }
@@ -85,13 +85,13 @@ public:
     }
     override string toString() {
         string a;
-        if(argTypes.length == 0) {
+        if(paramTypes().length == 0) {
             a = "void";
         } else {
-            foreach (i, t; argTypes) {
+            foreach (i, t; paramTypes()) {
                 if (i>0) a ~= ",";
                 a ~= "%s".format(t);
-                //if (argNames[i] !is null) a ~= " " ~ argNames[i];
+                //if (paramNames[i] !is null) a ~= " " ~ paramNames[i];
             }
         }
         return "{%s->%s}".format(a, returnType);

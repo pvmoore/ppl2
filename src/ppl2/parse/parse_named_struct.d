@@ -73,12 +73,12 @@ private:
             defCons.moduleName = module_.canonicalName;
             anonStruct.addToEnd(defCons);
 
-            auto args = makeNode!Arguments(t);
-            auto type = makeNode!FunctionType(t);
-            type.args = args;
+            auto params = makeNode!Parameters(t);
+            auto type   = makeNode!FunctionType(t);
+            type.params = params;
 
             auto bdy  = makeNode!LiteralFunction(t);
-            bdy.addToEnd(args);
+            bdy.addToEnd(params);
             bdy.type = type;
             defCons.addToEnd(bdy);
         }
@@ -105,7 +105,7 @@ private:
         foreach(f; anonStruct.getMemberFunctions()) {
             if(!f.isExtern && !f.isImport) {
 
-                f.args().addThisParameter(ns);
+                f.params().addThisParameter(ns);
             }
         }
     }
@@ -116,7 +116,7 @@ private:
             if(!c.isDefaultConstructor) {
                 auto bdy = c.getBody();
                 assert(bdy);
-                assert(bdy.first().isA!Arguments);
+                assert(bdy.first().isA!Parameters);
 
                 auto call = builder().call("new", null);
                 auto arg  = builder().identifier("this");

@@ -11,7 +11,13 @@ final class Call : Expression {
     }
     Expression arg(int index) {
         assert(index<numChildren);
-        return children[index].to!Expression;
+        return args()[index];
+    }
+    Expression[] args() {
+        return children[].as!(Expression[]);
+    }
+    Type[] argTypes() {
+        return types(args());
     }
 
     override bool isResolved() { return target.isResolved; }

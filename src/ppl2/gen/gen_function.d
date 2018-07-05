@@ -27,7 +27,7 @@ void generateFunctionDeclaration(Module module_, Function f) {
     auto func = module_.llvmValue.addFunction(
         f.getUniqueName(),
         type.returnType.getLLVMType(),
-        type.argTypes.map!(it=>it.getLLVMType()).array,
+        type.paramTypes().map!(it=>it.getLLVMType()).array,
         f.getCallingConvention()
     );
     f.llvmValue = func;

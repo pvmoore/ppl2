@@ -2,6 +2,7 @@
 
 import core.c
 import core.string
+import core.intrinsics
 
 S = [
     int a = 'A'
@@ -33,25 +34,19 @@ println = { string s ->
 
 main = {
 
-    S s = S(1)
+    assert true
 
+    //string s0;
+    //var s1    = "one"
+    //string s2 = "three"
+    //var s3    = string(s1.ptr, s1.length)
+    //var s4 = string("four".ptr, 4)
 
-
-
-    /* string s0;
-    var s1    = "one"
-    string s2 = "three"
-    var s3    = string(s1.ptr, s1.length)
-
-    var s4 = string("four".ptr, 4)
-
-    println(s1)
-    println(s2)
-    println(s3)
-
-    //puts(s4.ptr)
-
-    var len = s1.length */
+    //println(s1)
+    //println(s2)
+    //println(s3)
+    //println(s4)
+    //var len = s1.length
 }
 
 
@@ -157,7 +152,7 @@ main = {
 
     [int, float] anon
 
-    assert true
+    //assert true
 
     GreyWolf wolf
     Animal* animal

@@ -29,12 +29,12 @@ public:
     void visit(AnonStruct n) {
 
     }
-    void visit(Arguments n) {
+    void visit(Parameters n) {
         /// Check that all arg names are unique
         auto names = new Set!string;
-        foreach(i, a; n.argNames) {
+        foreach(i, a; n.paramNames) {
             if(names.contains(a)) {
-                throw new CompilerError(Err.DUPLICATE_ARGUMENT_NAME, n.getArg(i), "Duplicate argument name");
+                throw new CompilerError(Err.DUPLICATE_PARAMETER_NAME, n.getParam(i), "Duplicate parameter name");
             }
             names.add(a);
         }
@@ -148,7 +148,7 @@ public:
 
     }
     void visit(LiteralFunction n) {
-        assert(n.first().isA!Arguments);
+        assert(n.first().isA!Parameters);
 
     }
     void visit(LiteralMap n) {
