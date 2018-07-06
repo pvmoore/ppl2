@@ -222,17 +222,11 @@ public:
                     auto o = overloadSet[0];
                     auto f = o.as!Function;
                     if(f) {
-                        int index = struct_.getMemberIndex(f);
-                        if(!n.target.isSet) {
-                            n.target.set(f, index);
-                        }
+                        n.target.set(f, struct_.getMemberIndex(f));
                     }
                     auto v = o.as!Variable;
                     if(v) {
-                        int index = struct_.getMemberIndex(v);
-                        if(!n.target.isSet) {
-                            n.target.set(v, index);
-                        }
+                        n.target.set(v, struct_.getMemberIndex(v));
                     }
                 }
             }
@@ -276,15 +270,10 @@ public:
                     assert(struct_);
                     //checkStructMemberAccessIsNotPrivate(struct_, var);
                     //checkForReadOnlyAssignment(struct_, var);
-                    int index = struct_.getMemberIndex(var);
-                    if(!n.target.isSet) {
-                        n.target.set(var, index);
-                    }
+                    n.target.set(var, struct_.getMemberIndex(var));
                 } else {
                     /// Global, local or parameter
-                    if(!n.target.isSet) {
-                        n.target.set(var);
-                    }
+                    n.target.set(var);
                 }
 
                 /// If var is unknown we need to do some detective work...
@@ -313,10 +302,7 @@ public:
                     if(var) {
                         //checkStructMemberAccessIsNotPrivate(struct_, var);
                         //checkForReadOnlyAssignment(struct_, var);
-                        int index = struct_.getMemberIndex(var);
-                        if(!n.target.isSet) {
-                            n.target.set(var, index);
-                        }
+                        n.target.set(var, struct_.getMemberIndex(var));
                     }
                 }
             }

@@ -23,7 +23,8 @@ public:
 
     void set(Variable v) {
         assert(v, "Variable should not be null");
-        assert(!isSet);
+        if(isSet && v==var) return;
+        if(isSet) removeRef();
         this.isSet        = true;
         this.ttype        = TargetType.VAR;
         this.var          = v;
@@ -33,7 +34,8 @@ public:
     }
     void set(Function f) {
         assert(f, "Function should not be null");
-        assert(!isSet);
+        if(isSet && f==func) return;
+        if(isSet) removeRef();
         this.isSet        = true;
         this.ttype        = TargetType.FUNC;
         this.func         = f;
@@ -44,7 +46,8 @@ public:
     /// Struct member variable (could also be a func variable)
     void set(Variable v, int memberIndex) {
         assert(v, "Variable should not be null");
-        assert(!isSet);
+        if(isSet && v==var) return;
+        if(isSet) removeRef();
         this.isSet        = true;
         this.ttype        = TargetType.STRUCTVAR;
         this.var          = v;
@@ -56,7 +59,8 @@ public:
     /// Struct member function
     void set(Function f, int memberIndex) {
         assert(f, "Function should not be null");
-        assert(!isSet);
+        if(isSet && f==func) return;
+        if(isSet) removeRef();
         this.isSet        = true;
         this.ttype        = TargetType.STRUCTFUNC;
         this.func         = f;
