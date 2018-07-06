@@ -7,6 +7,7 @@ private:
     Module module_;
 
     TypeParser typeParser() { return module_.typeParser; }
+    TypeDetector typeDetector() { return module_.typeDetector; }
     StatementParser stmtParser() { return module_.stmtParser; }
     VariableParser varParser() { return module_.varParser; }
     NodeBuilder builder() { return module_.nodeBuilder; }
@@ -27,26 +28,35 @@ public:
 private:
     void parseLHS(TokenNavigator t, ASTNode parent) {
 
-        if("if"==t.value) {
+        /// Is this a type?
+        int eot = typeDetector().endOffset(t, parent);
+        if(eot!=-1) {
+            auto nextTok = t.peek(eot+1);
+
+            if(nextTok.value=="is") {
+                parseTypeExpr(t, parent);
+                return;
+            }
+            if(nextTok.type==TT.LBRACKET) {
+                parseStructConstructor(t, parent);
+                return;
+            }
+        }
+
+        if(t.type==TT.NUMBER || t.type==TT.CHAR || "true"==t.value || "false"==t.value || "null"==t.value) {
+            parseLiteral(t, parent);
+        } else if("if"==t.value) {
             parseIf(t, parent);
         } else if(t.peek(-1).value=="as") {
             parseTypeExpr(t, parent);
         } else if(t.value=="not") {
             parseUnary(t, parent);
         } else switch(t.type) {
-            case TT.NUMBER:
-            case TT.CHAR:
-                parseLiteral(t, parent);
-                break;
             case TT.STRING:
                 parseLiteralString(t, parent);
                 break;
             case TT.IDENTIFIER:
-                if("true"==t.value || "false"==t.value || "null"==t.value) {
-                    parseLiteral(t, parent);
-                } else if(typeParser().isType(t, parent)) {
-                    parseStructConstructor(t, parent);
-                } else if(t.peek(1).type==TT.LBRACKET) {
+                if(t.peek(1).type==TT.LBRACKET) {
                     parseCall(t, parent);
                 } else {
                     parseIdentifier(t, parent);
@@ -84,9 +94,9 @@ private:
     void parseRHS(TokenNavigator t, ASTNode parent) {
 
         while(true) {
-            /// is, is not
-
-            if("as"==t.value) {
+            if("is"==t.value) {
+                parent = attachAndRead(t, parent, parseIs(t));
+            } else if("as"==t.value) {
                 parent = attachAndRead(t, parent, parseAs(t));
             } else if("and"==t.value || "or"==t.value) {
                 parent = attachAndRead(t, parent, parseBinary(t));
@@ -148,10 +158,9 @@ private:
                     /// end of expression
                     return;
                 default:
-                    //writefln("BAD RHS %s", t.get);
-                    //parent.getModule.dumpToConsole();
-                    //throw new CompilerError(Err.BAD_RHS_EXPR, t, "Bad RHS");
-                    return;
+                    writefln("BAD RHS %s", t.get);
+                    parent.getModule.dumpToConsole();
+                    throw new CompilerError(Err.BAD_RHS_EXPR, t, "Bad RHS");
             }
         }
     }
@@ -248,7 +257,21 @@ private:
 
         return a;
     }
+    Expression parseIs(TokenNavigator t) {
+        dd("IS");
+        auto i = makeNode!Is(t);
+
+        t.skip("is");
+
+        if(t.value=="not") {
+            t.skip("not");
+            i.negate = true;
+        }
+
+        return i;
+    }
     void parseTypeExpr(TokenNavigator t, ASTNode parent) {
+        dd("TYPE");
         auto e = makeNode!TypeExpr(t);
         parent.addToEnd(e);
 
@@ -382,7 +405,7 @@ private:
 
             t.skip(TT.LCURLY);
 
-            int arrow = t.findInScope(TT.RT_ARROW);
+            int arrow = t.findInCurrentScope(TT.RT_ARROW);
             if(arrow!=-1) {
                 /// collect the args
                 while(t.type!=TT.RT_ARROW) {

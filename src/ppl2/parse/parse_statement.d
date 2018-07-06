@@ -9,6 +9,7 @@ private:
     NamedStructParser namedStructParser() { return module_.namedStructParser; }
     VariableParser varParser() { return module_.varParser; }
     TypeParser typeParser() { return module_.typeParser; }
+    TypeDetector typeDetector() { return module_.typeDetector; }
     ExpressionParser exprParser() { return module_.exprParser; }
     NodeBuilder builder() { return module_.nodeBuilder; }
 public:
@@ -25,15 +26,6 @@ public:
                 if(parent.isA!Module) {
                     errorBadSyntax(t, "Expressions not allowed at module scope. Did you mean define?");
                 }
-            }
-            bool isAType(int offset) {
-                t.markPosition();
-                t.next(offset);
-
-                bool result = typeParser().isType(t, parent);
-
-                t.resetToMark();
-                return result;
             }
         }
 
@@ -92,12 +84,12 @@ public:
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
             /// Could be a function, a named struct or a binary expression
 
-            if(t.peek(2).type==TT.LCURLY) {
+            if(t.peek(2).value=="struct") {
+                /// name = struct [
+                namedStructParser().parse(t, parent);
+            } else if(t.peek(2).type==TT.LCURLY) {
                 /// name = {
                 parseFunction(t, parent);
-            } else if(t.peek(2).type==TT.LSQBRACKET && isAType(2)) {
-                /// name = [
-                namedStructParser().parse(t, parent);
             } else {
                 /// name = expr
                 noExprAllowedAtModuleScope();
@@ -106,13 +98,17 @@ public:
             return true;
         }
 
-        int eot = typeParser().findEndOffset(t);
+        int eot = typeDetector().endOffset(t, parent);
         if(eot!=-1) {
             /// First token is a type so this could be one of:
-            /// constructor or variable declaration
+            /// constructor, variable declaration or is_expr
+            auto nextTok = t.peek(eot+1);
 
-            if(t.peek(eot+1).type==TT.LBRACKET) {
+            if(nextTok.type==TT.LBRACKET) {
                 /// Constructor
+                noExprAllowedAtModuleScope();
+                exprParser.parse(t, parent);
+            } else if(nextTok.value=="is") {
                 noExprAllowedAtModuleScope();
                 exprParser.parse(t, parent);
             } else {

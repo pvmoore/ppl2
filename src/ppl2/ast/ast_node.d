@@ -28,6 +28,7 @@ enum NodeID {
     DOT,
     IDENTIFIER,
     IF,
+    IS,
     INDEX,
     LITERAL_ARRAY,
     LITERAL_FUNCTION,

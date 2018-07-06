@@ -8,6 +8,7 @@ private:
 
     ExpressionParser exprParser() { return module_.exprParser; }
     TypeParser typeParser() { return module_.typeParser; }
+    TypeDetector typeDetector() { return module_.typeDetector; }
     NodeBuilder builder() { return module_.nodeBuilder; }
 public:
     this(Module module_) {
@@ -33,9 +34,14 @@ public:
             v.isImplicit = true;
         }
 
-        v.type = typeParser().tryParse(t, v);
+        if(typeDetector().isType(t, v)) {
+            v.type = typeParser.parse(t, v);
 
-        if(!v.type) {
+            if(v.type.isFunction) {
+                /// Make this a pointer
+                v.type = PtrType.of(v.type, 1);
+            }
+        } else {
             /// there is no type
             if(requireType) {
                 errorMissingType(t, t.value);

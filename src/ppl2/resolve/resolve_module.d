@@ -345,6 +345,11 @@ public:
     void visit(Initialiser n) {
         n.resolve();
     }
+    void visit(Is n) {
+        assert(false, "implement me");
+
+
+    }
     void visit(LiteralArray n) {
         if(n.type.isUnknown) {
 

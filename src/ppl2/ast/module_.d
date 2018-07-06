@@ -26,6 +26,7 @@ public:
     StatementParser stmtParser;
     ExpressionParser exprParser;
     TypeParser typeParser;
+    TypeDetector typeDetector;
     NamedStructParser namedStructParser;
     VariableParser varParser;
     NodeBuilder nodeBuilder;
@@ -49,6 +50,7 @@ public:
         stmtParser        = new StatementParser(this);
         exprParser        = new ExpressionParser(this);
         typeParser        = new TypeParser(this);
+        typeDetector      = new TypeDetector(this);
         namedStructParser = new NamedStructParser(this);
         varParser         = new VariableParser(this);
         nodeBuilder       = new NodeBuilder(this);

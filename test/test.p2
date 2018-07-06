@@ -1,77 +1,22 @@
 
 
-import core.c
+/* import core.c
 import core.string
 import core.intrinsics
 import core.console
 
 main = {
 
-    int v = 0
 
-    var r = if(v==0) {
-        int g = v
-        '1'
-    } else if(v==1) {
-        '2'
-    } else {
-        '3'
-    }
-    putchar(r+=10)
+    //var s = [1, 2]
+    //var a = [: 1, 2]
 
-    //assert true
-
-    /* var a = true
-    var b = not a
-
-    if(not b) {
-        putchar('y')
-    } */
-
-    /* int a = 1
-
-    if(true) {
-        a += 2
-        a += 2
-
-        int b = 1
-        int c = a
-
-    } else {
-        a -= 3
-
-        int d = 2
-        int e = d
-    }
-
-    int d = 1 */
-
-
-
-/*
-    int* ptr
-
-    int* r2 = if(true) {
-        null
-    } else {
-        ptr
-    }
-
-    var r = if(1>2) {
-        6
-    } else {
-        1
-    }
-    putchar(r) */
-
-
-    //assert true
-}
+} */
 
 
 
 
-/*
+
 import core.c
 import core.string
 //import c = core.c
@@ -95,12 +40,12 @@ define CC = BB
 define DD = CC*
 DD dd           // int**
 
-Gold = []
+Gold = struct []
 
-Silver = [
+Silver = struct [
     Gold* gold
 ]
-Gold = [
+Gold = struct [
     Silver* silver
 ]
 Gold gold
@@ -111,11 +56,11 @@ new = {
     boop += 7
 }
 
-Goal = [
+Goal = struct [
     int scorer
 ]
 
-Animal = [
+Animal = struct [
     int age
     [:int 4] s
     Goal g
@@ -144,7 +89,7 @@ unreferencedFunc = {
     [bool,bool] a
 }
 
-Thingy = [
+Thingy = struct [
     int a
 
     // fixme - This needs to be coerced {void->byte} to {void->int}
@@ -164,6 +109,7 @@ someArrays = {
 }
 
 main = {
+
     int a = 3
     int b = a - 2
 
@@ -219,7 +165,7 @@ main = {
     //puts("Hi there".ptr)
 }
 bool yop
-*/
+
 
 /*
     // inferred return type

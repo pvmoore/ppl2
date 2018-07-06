@@ -171,7 +171,7 @@ private:
 
                 if(t.peek(-1).value=="define") {
                     module_.exportedTypes ~= name;
-                } else if(t.peek(1).type==TT.EQUALS && t.peek(2).type==TT.LSQBRACKET) {
+                } else if(t.peek(1).type==TT.EQUALS && t.peek(2).value=="struct") {
                     module_.exportedTypes ~= name;
                 } else {
                     module_.exportedFunctions ~= name;

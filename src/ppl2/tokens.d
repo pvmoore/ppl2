@@ -75,6 +75,11 @@ public:
                                     "Expecting %s".format(kw));
         next();
     }
+    bool typeIn(TT[] types...) {
+        auto ty = type();
+        foreach(t; types) if(t==ty) return true;
+        return false;
+    }
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
         throw new CompilerError(Err.BAD_SYNTAX, this,
@@ -95,8 +100,7 @@ public:
     /// Find a type in the current scope. If the scope ends by reaching
     /// an unopened close bracket of any type then it will return -1;
     ///
-    int findInScope(TT t) {
-        int offset = 0;
+    int findInCurrentScope(TT t, int offset=0) {
         int cbr = 0, sqbr = 0, br = 0;
         while(pos+offset < tokens.length) {
             auto ty = peek(offset).type;
@@ -155,7 +159,7 @@ public:
                 braces++;
             } else if(type==close) {
                 braces--;
-                if (braces==0) return offset;
+                if(braces==0) return offset;
             }
         }
         return -1;

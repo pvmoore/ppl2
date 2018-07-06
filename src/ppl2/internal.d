@@ -41,6 +41,7 @@ import ppl2.ast.expr_constructor;
 import ppl2.ast.expr_dot;
 import ppl2.ast.expr_identifier;
 import ppl2.ast.expr_if;
+import ppl2.ast.expr_is;
 import ppl2.ast.expr_index;
 import ppl2.ast.expr_initialiser;
 import ppl2.ast.expr_literal_number;
@@ -90,6 +91,7 @@ import ppl2.misc.tasks;
 import ppl2.misc.util;
 import ppl2.misc.writer;
 
+import ppl2.parse.detect_type;
 import ppl2.parse.parse_expression;
 import ppl2.parse.parse_module;
 import ppl2.parse.parse_named_struct;

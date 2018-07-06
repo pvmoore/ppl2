@@ -13,70 +13,6 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-
-    bool isType(TokenNavigator t, ASTNode parent) {
-        //dd("isType");
-        bool res;
-        Type type;
-        int numChildren = parent.numChildren();
-        try{
-            t.markPosition();
-            type = parse(t, parent);
-            res = type !is null;
-        }catch(TypeParserBailout e) {
-            res = false;
-        }finally{
-            t.resetToMark();
-            /// Ensure we remove any nodes that were added
-            while(parent.numChildren > numChildren) parent.removeLast();
-        }
-       // dd("isType end", res);
-        return res;
-    }
-    ///
-    /// Parse type. On success the type is returned and the the token pos adjusted.
-    /// If a type is not found then the token pos is reset and null is returned.
-    ///
-    Type tryParse(TokenNavigator t, ASTNode parent) {
-        //dd("tryParse");
-        Type type;
-        int numChildren = parent.numChildren();
-        try{
-            t.markPosition();
-            type = parse(t, parent);
-            t.discardMark();
-        }catch(TypeParserBailout e) {
-            t.resetToMark();
-            /// Ensure we remove any nodes that were added
-            while(parent.numChildren > numChildren) parent.removeLast();
-        }
-        //dd("tryParse end", type);
-        return type;
-    }
-    ///
-    /// Return the offset of the end of a type.
-    /// Returns -1 if no type is found.
-    /// eg.
-    /// int   // returns 0
-    /// int** // returns 2
-    ///
-    int findEndOffset(TokenNavigator t) {
-        auto fakeNode = makeNode!LiteralNumber(t);
-        t.module_.addToEnd(fakeNode);
-        int start  = t.index;
-        int offset = -1;
-        try{
-            t.markPosition();
-            parse(t, fakeNode);
-            offset = t.index - start - 1;
-        }catch(TypeParserBailout e) {
-            /// ignore
-        }finally{
-            t.resetToMark();
-            t.module_.remove(fakeNode);
-        }
-        return offset;
-    }
     Type parse(TokenNavigator t, ASTNode node) {
         //dd("parseType");
         string value = t.value;
@@ -107,14 +43,6 @@ public:
                     if(type.isA!Define && type.as!Define.isKnown) type = type.as!Define.type;
                 }
             }
-            /// is it a Define?
-            //if(type is null) {
-            //    auto def = findType!Define(value, node);
-            //    if(def) {
-            //        t.next;
-            //        type = def.isKnown ? def.type : def;
-            //    }
-            //}
             // todo - template type
             if(type is null) {
 
@@ -131,8 +59,6 @@ public:
             }
             type = PtrType.of(type, pd);
         }
-
-        //dd("parseType end", type);
         return type;
     }
     ///
@@ -177,9 +103,6 @@ public:
         while(t.type!=TT.RSQBRACKET) {
             stmtParser().parse(t, s);
 
-            /// If this is an expression then bail out
-            if(s.hasChildren && s.last.isExpression) throw new TypeParserBailout();
-
             if(t.type==TT.COMMA) t.next;
         }
         t.skip(TT.RSQBRACKET);
@@ -199,7 +122,7 @@ public:
 
         a.subtype = parse(t, a);
         if(a.subtype is null) {
-            errorMissingType(t, "Type %s not found".format(t.value));
+            errorMissingType(t, t.value);
         }
 
         if(t.type!=TT.RSQBRACKET) {

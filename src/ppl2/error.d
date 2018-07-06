@@ -106,12 +106,6 @@ class CompilerError : Exception {
     }
 }
 //======================================================================
-final class TypeParserBailout : Exception {
-    this() {
-        super("");
-    }
-}
-//======================================================================
 final class UnresolvedSymbols : Exception {
     this() {
         super("");
