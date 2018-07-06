@@ -113,7 +113,7 @@ public:
         if(!n.isResolved) {
 
             /// Wait until we know what the type is
-            Type type = n.first().getType();
+            Type type = n.expr().getType();
             if(type.isUnknown) return;
 
             /// Convert to a call to __assert(bool, string, int)
@@ -124,13 +124,15 @@ public:
             parent.replaceChild(n, c);
 
             /// value
-            Expression zero;
+            Expression value;
             if(type.isPtr) {
-                zero = LiteralNull.makeConst(type);
+                value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNull.makeConst(type));
+            } else if(type.isBool) {
+                value = n.expr();
             } else {
-                zero = LiteralNumber.makeConst(0);
+                value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNumber.makeConst(0));
             }
-            c.addToEnd(b.binary(Operator.BOOL_NE, n.expr(), zero));
+            c.addToEnd(value);
 
             /// string
             c.addToEnd(b.string_(module_.moduleNameLiteral));

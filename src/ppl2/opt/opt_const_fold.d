@@ -36,8 +36,7 @@ public:
         if(lit && n.rightType.isValue) {
 
             lit.value.as(n.rightType);
-            lit.type = n.rightType;
-            lit.str  = lit.value.getString();
+            lit.str = lit.value.getString();
 
             n.parent.replaceChild(n, lit);
             nodesFolded++;
@@ -70,9 +69,7 @@ public:
             auto lit = lft.copy();
 
             lit.value.applyBinary(n.type, n.op, rt.value);
-
-            lit.str  = lit.value.getString();
-            lit.type = n.type;
+            lit.str = lit.value.getString();
 
             nodesFolded++;
             n.parent.replaceChild(n, lit);
@@ -80,7 +77,9 @@ public:
         }
     }
     void visit(Composite n) {
-        if(n.numChildren==1) {
+        if(n.numChildren==0) {
+            n.detach();
+        } else if(n.numChildren==1) {
             auto child = n.first();
             n.parent.replaceChild(n, child);
         }

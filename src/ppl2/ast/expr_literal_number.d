@@ -3,23 +3,28 @@ module ppl2.ast.expr_literal_number;
 import ppl2.internal;
 
 final class LiteralNumber : Expression {
-    Type type;
+private:
+    Type _type;
+public:
     string str;
     Value value;
 
     this() {
-        type = TYPE_UNKNOWN;
+        _type = TYPE_UNKNOWN;
     }
 
+    Type type() {
+        return _type;
+    }
     void setType(Type t) {
-        value.changeType(type, t);
-        type = t;
+        value.changeType(_type, t);
+        _type = t;
     }
 
     static LiteralNumber makeConst(long num, Type t=TYPE_UNKNOWN) {
         auto lit = makeNode!LiteralNumber;
         lit.str  = num.to!string;
-        lit.type = t;
+        lit._type = t;
         if(t.isUnknown) {
             lit.determineType();
         } else {
@@ -32,26 +37,26 @@ final class LiteralNumber : Expression {
         c.line   = line;
         c.column = column;
         c.str    = str;
-        c.type   = type;
+        c._type  = _type;
         c.value  = Value(c);
         return c;
     }
-    override bool isResolved() { return type.isKnown; }
+    override bool isResolved() { return _type.isKnown; }
     override bool isConst() { return true; }
     override int priority() const { return 15; }
-    override Type getType() { return type; }
+    override Type getType() { return _type; }
     override NodeID id() const { return NodeID.LITERAL_NUMBER; }
 
     void determineType() {
         Tuple!(Type,string) r = parseNumberLiteral(str);
-        type   = r[0];
+        _type  = r[0];
         str    = r[1];
         value  = Value(this);
     }
     override string toString() {
         string v = value.getString();
         //string v = value.lit && value.type && value.type.isKnown ? value.getString() : str;
-        return "%s (type=const %s)".format(v, type);
+        return "%s (type=const %s)".format(v, _type);
     }
 }
 //============================================================================================
@@ -78,7 +83,7 @@ struct Value {
             f = cast(double)i;
         }
     }
-    Type type()  { return lit.type; }
+    Type type()  { return lit._type; }
     bool getBool()     { return getLong() != FALSE; }
     int getInt()       { return cast(int)getLong(); }
     long getLong()     { if(type.isReal) return cast(long)f; return i; }
@@ -174,7 +179,8 @@ struct Value {
                 default: assert(false, "How did we get here?");
             }
         }
-        lit.type = t;
+        /// Just set the type because we have handled the cast
+        lit._type = t;
     }
     void as(Type t) {
         switch(t.getEnum) with(Type) {
@@ -189,6 +195,7 @@ struct Value {
             default:
                 assert(false, "How did we get here?");
         }
-        lit.type = t;
+        /// Just set the type because we have handled the cast
+        lit._type = t;
     }
 }

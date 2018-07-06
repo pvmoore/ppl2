@@ -148,9 +148,10 @@ private:
                     /// end of expression
                     return;
                 default:
-                    writefln("BAD RHS %s", t.get);
-                    parent.getModule.dumpToConsole();
-                    throw new CompilerError(Err.BAD_RHS_EXPR, t, "Bad RHS");
+                    //writefln("BAD RHS %s", t.get);
+                    //parent.getModule.dumpToConsole();
+                    //throw new CompilerError(Err.BAD_RHS_EXPR, t, "Bad RHS");
+                    return;
             }
         }
     }
