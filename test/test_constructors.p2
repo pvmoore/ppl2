@@ -1,6 +1,4 @@
 
-export testConstructors
-
 struct S = [
 private
     int a
@@ -27,7 +25,7 @@ struct S2 = [
     // new function created automatically
 ]
 
-testConstructors = {
+public testConstructors = {
     S s         // Set s.a=0, s.b=0, s.flag=false
                 // Call s.new(s#ptr) if exists
                 // s.new() will set b = 1

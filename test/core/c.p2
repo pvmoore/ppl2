@@ -1,8 +1,5 @@
 
-export putchar, puts
-export exit
-export memcmp, memcpy, memset, strlen
-
+public
 
 // Externs are assumed to be C calling convention/mangling
 

@@ -48,10 +48,6 @@ public:
             t.next;
             return true;
         }
-        if(t.isKeyword("export")) {
-            parseExport(t, parent);
-            return true;
-        }
         if(t.isKeyword("extern")) {
             parseExtern(t, parent);
             return true;
@@ -146,22 +142,6 @@ private: //=====================================================================
 
         /// type
         f.externType = typeParser().parse(t, f);
-    }
-    ///
-    /// export_stmt ::= "export" { identifier [ "," identifier ] }
-    ///
-    void parseExport(TokenNavigator t, ASTNode parent) {
-        /// export
-        t.next;
-
-        /// 1st export
-        t.next;
-
-        while(t.type==TT.COMMA) {
-            t.skip(TT.COMMA);
-            /// export
-            t.next;
-        }
     }
     ///
     /// import::= "import" module_name [ "as" identifier ]

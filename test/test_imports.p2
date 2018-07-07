@@ -1,7 +1,5 @@
 
-export
-    Cat, Pig, Dog, Bat, Wolf,
-    AnInt, importedFunc
+public
 
 bool isit = false
 

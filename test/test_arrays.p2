@@ -1,9 +1,17 @@
 
-export testArrays
-
 new = {
 
 }
+
+public
+testArrays = {
+    declarations()
+    indexing()
+    arrayOfArray()
+    inferredCount()
+    sparseElements()
+}
+private
 
 struct Hello = [
     int a
@@ -16,13 +24,7 @@ struct StructWithArray = [
     //Hello hello // implement me
 ]
 
-testArrays = {
-    declarations()
-    indexing()
-    arrayOfArray()
-    inferredCount()
-    sparseElements()
-}
+
 declarations = {
     [:int 2] a    = [: 1, 3]
     var b         = [: 7, 13, 17]

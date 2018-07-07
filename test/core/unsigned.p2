@@ -1,7 +1,7 @@
 /**
  *  Handle unsigned div, mod and comparisons.
  */
- export ucmp, ult, tlte, ugt, ugte, udiv, umod
+public
 
 ucmp = { int a, int b ->
     return 0

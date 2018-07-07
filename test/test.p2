@@ -1,30 +1,21 @@
 
-
+/*
 import core.c
 import core.string
 import core.intrinsics
 import core.console
-
-struct Foo = [
-    struct Bar = [
-        int b
-    ]
-    int a
-
-]
 
 main = {
 
     // fixme - generate closure
     //{void->void} f1 = {}
 
-    Foo foo
+
 
 }
+*/
 
 
-
-/*
 import core.c
 import core.string
 //import c = core.c
@@ -173,7 +164,6 @@ main = {
     //puts("Hi there".ptr)
 }
 bool yop
-*/
 
 /*
     // inferred return type

@@ -2,8 +2,6 @@
  *  Test accessing struct members.
  */
 
-export testStructs
-
 struct Fruit = [
 private
     int a
@@ -60,7 +58,7 @@ struct Colour = [
 
 int global = 99
 
-testStructs = {
+public testStructs = {
     Fruit t
 
     t.a += 2

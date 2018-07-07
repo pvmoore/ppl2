@@ -127,60 +127,36 @@ private:
         functionRequired(module_.canonicalName, "new");
     }
     void doExtractExports() {
-        auto exportKw = new Set!string;
-        auto names    = new Set!string;
-        auto indexes  = new Set!int;
-        auto t        = new TokenNavigator(module_, tokens);
+        auto t = new TokenNavigator(module_, tokens);
 
-        exportKw.add("export");
-
-        /// Find all the exports
-        while(t.hasNext) {
-            auto i = t.findInScope(exportKw);
-            if(i==-1) break;
-
-            t.next(i+1);
-
-            indexes.add(t.index);
-            names.add(t.value);
-            t.next;
-
-            while(t.type==TT.COMMA) {
-                t.next;
-                indexes.add(t.index);
-                names.add(t.value);
-                t.next;
-            }
-        }
-
-        if(names.length==0) return;
-
-        /// Now find out whether they are types or functions
-        t.reset();
-        int numFound = 0;
+        bool public_ = false;
 
         while(t.hasNext) {
-            auto i = t.findInScope(names);
-            if(i==-1) {
-                throw new CompilerError(Err.EXPORT_NOT_FOUND, module_, "Export %s not found".format(names.values));
-            }
-            t.next(i);
+            if(t.isKeyword("public")) {
+                public_ = true;
+            } else if(t.isKeyword("private")) {
+                public_ = false;
+            } else if(t.type==TT.LCURLY) {
+                t.next(t.findEndOfBlock(t.type));
+            } else if(t.type==TT.LSQBRACKET) {
+                t.next(t.findEndOfBlock(t.type));
+            } else if(public_) {
 
-            if(!indexes.contains(t.index)) {
-                auto name = t.value;
-
-                if(t.peek(-1).value=="define") {
-                    module_.exportedTypes ~= name;
-                } else if(t.peek(-1).value=="struct") {
-                    module_.exportedTypes ~= name;
-                } else {
-                    module_.exportedFunctions ~= name;
+                if(t.isKeyword("struct")) {
+                    t.next;
+                    module_.exportedTypes ~= t.value;
+                } else if(t.isKeyword("define")) {
+                    t.next;
+                    module_.exportedTypes ~= t.value;
+                } else if(t.isKeyword("extern")) {
+                    t.next;
+                    module_.exportedFunctions ~= t.value;
+                }else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS && t.peek(2).type==TT.LCURLY) {
+                    module_.exportedFunctions ~= t.value;
                 }
-
-                if(++numFound==names.length) return;
             }
-
             t.next;
         }
+
     }
 }

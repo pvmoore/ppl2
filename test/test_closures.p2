@@ -4,8 +4,6 @@
  *
  */
 
-export testClosures
-
  // Module scope
 
 int g1
@@ -82,7 +80,7 @@ func = {    // {->}
 int g2
 gf2 = {}
 
-testClosures = {
+public testClosures = {
     Struct s
     func()      // ok
     //closure()   // nope
