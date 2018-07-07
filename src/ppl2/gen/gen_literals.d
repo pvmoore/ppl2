@@ -53,7 +53,8 @@ final class LiteralGenerator {
             assert(false, "implement me");
         }
         auto func       = n.getFunction();
-        auto paramTypes = n.type.paramTypes();
+        auto type       = n.type.getFunctionType;
+        auto paramTypes = type.paramTypes();
         auto numParams  = paramTypes.length;
         assert(func.llvmValue, "Function value is null: %s".format(func));
 
@@ -66,7 +67,7 @@ final class LiteralGenerator {
             ch.visit!ModuleGenerator(gen);
         }
 
-        if(n.type.returnType().isVoid) {
+        if(type.returnType().isVoid) {
             if(!n.hasChildren || !n.last().isReturn) {
                 builder.retVoid();
             }

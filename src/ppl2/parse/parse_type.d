@@ -160,6 +160,7 @@ public:
             t.expect(TT.RT_ARROW, TT.COMMA);
             if(t.type==TT.COMMA) t.next;
         }
+
         /// ->
         t.skip(TT.RT_ARROW);
 

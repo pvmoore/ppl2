@@ -406,7 +406,7 @@ private:
 
             auto type   = makeNode!FunctionType(t);
             type.params = params;
-            f.type = type;
+            f.type = PtrType.of(type, 1);
 
             t.skip(TT.LCURLY);
 

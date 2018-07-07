@@ -58,19 +58,38 @@ public:
 
         if(!returnType.exactlyMatches(right.returnType())) return false;
 
-        return .exactlyMatch(paramTypes(), right.paramTypes());
+        /// Turn {->?} into {void->?}
+        auto pt  = paramTypes();
+        auto pt2 = right.paramTypes();
+        if(pt.length==0) {
+            pt = [TYPE_VOID];
+        }
+        if(pt2.length==0) {
+            pt2 = [TYPE_VOID];
+        }
+
+        return .exactlyMatch(pt, pt2);
     }
     bool canImplicitlyCastTo(Type other) {
         /// Do the common checks
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
         /// Now check the base type
         if(!other.isFunction) return false;
-
         auto right = other.getFunctionType;
 
         /// check returnType?
 
-        return .exactlyMatch(paramTypes(), right.paramTypes());
+        /// Turn {->?} into {void->?}
+        auto pt  = paramTypes();
+        auto pt2 = right.paramTypes();
+        if(pt.length==0) {
+            pt = [TYPE_VOID];
+        }
+        if(pt2.length==0) {
+            pt2 = [TYPE_VOID];
+        }
+
+        return .exactlyMatch(pt, pt2);
     }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {

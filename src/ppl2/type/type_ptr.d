@@ -48,17 +48,14 @@ public:
         auto otherPtr = other.as!PtrType;
         assert(otherPtr);
 
-        return (decorated is otherPtr.decorated) ||
-               decorated.exactlyMatches(otherPtr.decorated);
+        return decorated.exactlyMatches(otherPtr.decorated);
     }
     bool canImplicitlyCastTo(Type other) {
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
-
         auto otherPtr = other.as!PtrType;
         assert(otherPtr);
 
-        return (decorated is otherPtr.decorated) ||
-               decorated.canImplicitlyCastTo(otherPtr.decorated);
+        return decorated.canImplicitlyCastTo(otherPtr.decorated);
     }
     LLVMTypeRef getLLVMType() {
         LLVMTypeRef t = decorated.getLLVMType();

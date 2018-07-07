@@ -12,7 +12,7 @@ import ppl2.internal;
 ///     statement (0 - *)
 ///
 class LiteralFunction : Expression, Scope, Container {
-    FunctionType type;
+    Type type;      /// PtrType -> FunctionType
 
     override bool isResolved() { return type.isKnown; }
     override NodeID id() const { return NodeID.LITERAL_FUNCTION; }

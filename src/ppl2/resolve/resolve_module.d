@@ -403,7 +403,7 @@ public:
     }
     void visit(LiteralFunction n) {
         if(n.type.isUnknown) {
-            auto ty = cast(FunctionType)n.type;
+            auto ty = n.type.getFunctionType;
             if(ty.returnType.isUnknown) {
                 ty.returnType = n.determineReturnType();
             }
@@ -603,7 +603,7 @@ public:
 //==========================================================================
 private:
     void recursiveVisit(ASTNode m) {
-        dd("resolve", typeid(m), m.nid);
+        //dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
 
         if(!m.isResolved) {
