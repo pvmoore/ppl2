@@ -18,11 +18,11 @@ public:
     ASTNode[] getUnresolvedNodes() { return unresolved.values; }
 
     this(Module module_) {
-        this.module_ = module_;
-        this.callResolver = new CallResolver(this);
-        this.identifierResolver = new IdentifierResolver(this);
-        this.unresolved = new Set!ASTNode;
-        this.overloadSet = new Array!Callable;
+        this.module_            = module_;
+        this.callResolver       = new CallResolver(module_);
+        this.identifierResolver = new IdentifierResolver(module_);
+        this.unresolved         = new Set!ASTNode;
+        this.overloadSet        = new Array!Callable;
         this.pass = 1;
     }
 
@@ -61,7 +61,7 @@ public:
                 log("\t  Adding root %s", f);
                 module_.activeRoots.add(f);
 
-                /// Don't add local reference here. Add it once we have filtered possible
+                /// Don't add reference here. Add it once we have filtered possible
                 /// overload sets down to the one we are going to use.
             }
         }
@@ -72,8 +72,6 @@ public:
         log("Resolving %s define|struct '%s'", module_, defineName);
 
         collectModuleScopeElements();
-
-
 
         module_.recurse!Define((it) {
             if(it.name==defineName) {
@@ -346,9 +344,7 @@ public:
         n.resolve();
     }
     void visit(Is n) {
-        assert(false, "implement me");
-
-
+        n.resolve();
     }
     void visit(LiteralArray n) {
         if(n.type.isUnknown) {

@@ -119,6 +119,7 @@ public:
     }
 private:
     void addRef() {
+
         if(var) {
             var.numRefs++;
         } else {

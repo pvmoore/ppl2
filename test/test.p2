@@ -1,22 +1,26 @@
 
 
-/* import core.c
+import core.c
 import core.string
 import core.intrinsics
 import core.console
 
 main = {
 
-
-    //var s = [1, 2]
-    //var a = [: 1, 2]
-
-} */
+    // why are these referenced?
+    A = struct [int aarg]
+    B = struct [int b]
 
 
 
 
 
+
+}
+
+
+
+/*
 import core.c
 import core.string
 //import c = core.c
@@ -165,7 +169,7 @@ main = {
     //puts("Hi there".ptr)
 }
 bool yop
-
+*/
 
 /*
     // inferred return type

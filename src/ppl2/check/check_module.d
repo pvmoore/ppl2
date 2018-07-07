@@ -8,9 +8,13 @@ final class ModuleChecker {
 private:
     Module module_;
     StopWatch watch;
+    Set!string stringSet;
+    IdentifierResolver identifierResolver;
 public:
     this(Module module_) {
-        this.module_ = module_;
+        this.module_            = module_;
+        this.stringSet          = new Set!string;
+        this.identifierResolver = new IdentifierResolver(module_);
     }
 
     ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
@@ -31,12 +35,12 @@ public:
     }
     void visit(Parameters n) {
         /// Check that all arg names are unique
-        auto names = new Set!string;
+        stringSet.clear();
         foreach(i, a; n.paramNames) {
-            if(names.contains(a)) {
+            if(stringSet.contains(a)) {
                 throw new CompilerError(Err.DUPLICATE_PARAMETER_NAME, n.getParam(i), "Duplicate parameter name");
             }
-            names.add(a);
+            stringSet.add(a);
         }
     }
 
@@ -164,6 +168,9 @@ public:
     void visit(Initialiser n) {
 
     }
+    void visit(Is n) {
+
+    }
     void visit(LiteralArray n) {
 
     }
@@ -206,13 +213,13 @@ public:
             assert(anon);
 
             /// Check that the names are valid and are not repeated
-            auto uniq = new Set!string;
+            stringSet.clear();
             foreach(i, name; n.names) {
-                if(uniq.contains(name)) {
+                if(stringSet.contains(name)) {
                     throw new CompilerError(Err.STRUCT_LITERAL_DUPLICATE_NAME, n.children[i],
                         "Struct member %s initialised more than once".format(name));
                 }
-                uniq.add(name);
+                stringSet.add(name);
                 auto v = anon.getMemberVariable(name);
                 if(!v) {
                     throw new CompilerError(Err.STRUCT_LITERAL_MEMBER_NOT_FOUND, n.children[i],
@@ -228,10 +235,25 @@ public:
 
     }
     void visit(Module n) {
-
+        /// Ensure all global variables have a unique name
+        stringSet.clear();
+        foreach(v; module_.getVariables()) {
+            if(stringSet.contains(v.name)) {
+                throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, v,
+                    "Global variable %s declared more than once".format(v.name));
+            }
+            stringSet.add(v.name);
+        }
     }
     void visit(NamedStruct n) {
-
+        /// All variables must have a name
+        stringSet.clear();
+        foreach(v; n.type.getMemberVariables()) {
+            if(v.name.length==0) {
+                throw new CompilerError(Err.VAR_MUST_HAVE_A_NAME, v,
+                    "Named struct variable must have a name");
+            }
+        }
     }
     void visit(Parenthesis n) {
 
@@ -259,15 +281,15 @@ public:
 
         if(n.type.isStruct) {
             /// Check that member names are unique
-            Set!string names = new Set!string;
+            stringSet.clear();
             auto struct_ = n.type.getAnonStruct();
             auto vars    = struct_.getMemberVariables();
             foreach(v; vars) {
                 if(v.name) {
-                    if(names.contains(v.name))
+                    if(stringSet.contains(v.name))
                         throw new CompilerError(Err.DUPLICATE_STRUCT_MEMBER_NAME, v,
                             "Struct %s has duplicate member %s".format(n.name, v.name));
-                    names.add(v.name);
+                    stringSet.add(v.name);
                 }
             }
             /// Anon structs must only contain variable declarations
@@ -286,13 +308,21 @@ public:
                 }
             }
         }
-        /// This is a named struct variable
-        if(n.isNamedStructMember) {
-            AnonStruct struct_ = n.parent.as!AnonStruct;
-
-            // todo
-
-            /// All variables must have a name
+        if(n.isLocal) {
+            /// Check for duplicate variable names
+            stringSet.clear();
+            auto node = n.prevSibling();
+            if(!node) node = n.parent;
+            auto var = identifierResolver.findFirstVariable(n.name, node);
+            if(var) {
+                bool sameScope = var.parent==n.parent;
+                if(sameScope) {
+                    throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
+                        "Variable %s declared more than once in this scope".format(n.name));
+                }
+                throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
+                    "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line));
+            }
         }
     }
     //==========================================================================

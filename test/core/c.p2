@@ -1,7 +1,7 @@
 
 export putchar, puts
 export exit
-export memcpy, memset, strlen
+export memcmp, memcpy, memset, strlen
 
 
 // Externs are assumed to be C calling convention/mangling
@@ -14,6 +14,7 @@ extern puts {byte* str -> int}
 extern exit {int status->void}
 
 // string.h
+extern memcmp {void* ptr1,void* ptr2, long numBytes->int}
 extern memcpy {void* destination, void* source, long num -> void*}
 extern memset {void* ptr, int value, long num -> void*}
 extern strlen {byte* str -> long}

@@ -4,7 +4,7 @@
 
 export testStructs
 
-Fruit = [
+Fruit = struct [
 private
     int a
 readonly
@@ -22,7 +22,7 @@ public
 
     }
     bar = { /* Fruit* this, */ int a ->
-        Vegetable = [bool isGreen]
+        Vegetable = struct [bool isGreen]
         isABanana = true
         return a
     }
@@ -46,7 +46,7 @@ public
         return this
     }
 ]
-Colour = [
+Colour = struct [
     // new() function created automatically
 
     new = {}

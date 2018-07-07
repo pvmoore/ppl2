@@ -26,8 +26,10 @@ public:
                 /// If this function contains a call or identifier then deref them. Is that possible?
             }
         }
-        /// Look at module scope defines that are not referenced
-        foreach(d; module_.getDefines()) {
+        /// Look at defines that are not referenced
+        auto defines = new Array!Define;
+        module_.selectDescendents!Define(defines);
+        foreach(d; defines) {
             if(d.isImport ) {
                 log("\t  proxy define %s", d.name);
                 d.detach();
@@ -38,8 +40,10 @@ public:
                 d.detach();
             }
         }
-        /// Look at module scope named structs that are not referenced
-        foreach(ns; module_.getNamedStructs()) {
+        /// Look at named structs that are not referenced
+        auto namedStructs = new Array!NamedStruct;
+        module_.selectDescendents!NamedStruct(namedStructs);
+        foreach(ns; namedStructs) {
             if(ns.numRefs==0) {
                 log("\t  unreferenced named struct %s", ns.name);
                 ns.detach();

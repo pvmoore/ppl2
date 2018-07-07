@@ -5,19 +5,19 @@ export
 
 bool isit = false
 
-Dog = [
+Dog = struct [
     int age
 ]
-Cat = [
+Cat = struct [
     bool isGinger
 ]
-Bat = [
+Bat = struct [
     float size
 ]
-Pig = [
+Pig = struct [
     int weight
 ]
-Wolf = [
+Wolf = struct [
     bool isGrey
 ]
 

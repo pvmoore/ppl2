@@ -5,11 +5,11 @@ new = {
 
 }
 
-Hello = [
+Hello = struct [
     int a
 ]
 
-StructWithArray = [
+StructWithArray = struct [
     [:int 5] array
 
     //[int,bool] struct // implement me

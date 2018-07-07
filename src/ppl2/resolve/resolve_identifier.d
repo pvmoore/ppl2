@@ -8,11 +8,9 @@ import ppl2.internal;
 final class IdentifierResolver {
 private:
     Module module_;
-    ModuleResolver moduleResolver;
 public:
-    this(ModuleResolver moduleResolver) {
-        this.module_        = moduleResolver.module_;
-        this.moduleResolver = moduleResolver;
+    this(Module module_) {
+        this.module_ = module_;
     }
     ///
     /// Find the first variable that matches the given identifier name.

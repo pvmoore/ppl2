@@ -28,17 +28,26 @@ public:
 private:
     void parseLHS(TokenNavigator t, ASTNode parent) {
 
-        /// Is this a type?
         int eot = typeDetector().endOffset(t, parent);
         if(eot!=-1) {
+            /// This is a type
+
             auto nextTok = t.peek(eot+1);
 
-            if(nextTok.value=="is") {
+            if(nextTok.value=="is" || t.peek(-1).value=="is") {
+                parseTypeExpr(t, parent);
+                return;
+            }
+            if(t.peek(-1).value=="as") {
                 parseTypeExpr(t, parent);
                 return;
             }
             if(nextTok.type==TT.LBRACKET) {
                 parseStructConstructor(t, parent);
+                return;
+            }
+            if(t.peek(-2).value=="is" && t.peek(-1).value=="not") {
+                parseTypeExpr(t, parent);
                 return;
             }
         }
@@ -47,8 +56,6 @@ private:
             parseLiteral(t, parent);
         } else if("if"==t.value) {
             parseIf(t, parent);
-        } else if(t.peek(-1).value=="as") {
-            parseTypeExpr(t, parent);
         } else if(t.value=="not") {
             parseUnary(t, parent);
         } else switch(t.type) {

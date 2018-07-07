@@ -8,7 +8,7 @@ export testInnerStructs
 
 int g1
 
-A = [
+A = struct [
     int a
     B = [
         int b

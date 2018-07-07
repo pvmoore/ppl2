@@ -56,7 +56,7 @@ public:
 
         auto right = other.getFunctionType;
 
-        /// check returnType?
+        if(!returnType.exactlyMatches(right.returnType())) return false;
 
         return .exactlyMatch(paramTypes(), right.paramTypes());
     }

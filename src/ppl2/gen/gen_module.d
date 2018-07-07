@@ -211,6 +211,19 @@ public:
         dd("visit Initialiser");
         visitChildren(n);
     }
+    void visit(Is n) {
+        dd("visit Is");
+        n.left.visit!ModuleGenerator(this);
+        auto left = castType(rhs, n.leftType(), n.rightType());
+
+        n.right.visit!ModuleGenerator(this);
+        auto right = rhs;
+
+        auto predicate = n.negate ? LLVMIntPredicate.LLVMIntNE : LLVMIntPredicate.LLVMIntEQ;
+
+        auto cmp = builder.icmp(predicate, left, right);
+        rhs = castI1ToI8(cmp);
+    }
     void visit(LiteralArray n) {
         dd("visit LiteralArray");
         literalGen.generate(n);

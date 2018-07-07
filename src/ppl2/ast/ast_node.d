@@ -86,6 +86,7 @@ bool isLiteralFunction(inout ASTNode n) { return n.id()==NodeID.LITERAL_FUNCTION
 bool isModule(inout ASTNode n) { return n.id()==NodeID.MODULE; }
 bool isNamedStruct(inout ASTNode n) { return n.id()==NodeID.NAMED_STRUCT; }
 bool isReturn(inout ASTNode n) { return n.id()==NodeID.RETURN; }
+bool isTypeExpr(inout ASTNode n) { return n.id()==NodeID.TYPE_EXPR; }
 bool isVariable(inout ASTNode n) { return n.id()==NodeID.VARIABLE; }
 
 bool areAll(NodeID ID)(ASTNode[] n) { return n.all!(it=>it.id==ID); }

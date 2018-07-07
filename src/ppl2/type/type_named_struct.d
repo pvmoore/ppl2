@@ -12,7 +12,7 @@ private:
 public:
     string name;
     AnonStruct type;
-    int numRefs;
+    int numRefs2;
 
     string[] templateArgNames;  /// if isTemplate==true
     Token[] tokens;             /// if isTemplate==true
@@ -33,7 +33,8 @@ public:
         if(!other.isNamedStruct) return false;
 
         auto right = other.getNamedStruct;
-        return .exactlyMatch(type.memberVariableTypes(), right.type.memberVariableTypes);
+
+        return name==right.name;
     }
     bool canImplicitlyCastTo(Type other) {
         /// Do the common checks
@@ -43,8 +44,11 @@ public:
 
         auto right = other.getNamedStruct;
 
+        /// Be strict for now
+        return name==right.name;
+
         /// Types implicitly match
-        return .canImplicitlyCastTo(type.memberVariableTypes(), right.type.memberVariableTypes);
+        //return .canImplicitlyCastTo(type.memberVariableTypes(), right.type.memberVariableTypes);
     }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
@@ -61,22 +65,6 @@ public:
         }
         return _uniqueName;
     }
-
-    //bool hasDefaultConstructor() {
-    //    assert(type.isKnown);
-    //    return getDefaultConstructor() !is null;
-    //}
-    //Function getDefaultConstructor() {
-    //    assert(type.isKnown);
-    //    foreach(f; getConstructors()) {
-    //        if(f.isDefaultConstructor) return f;
-    //    }
-    //    return null;
-    //}
-    //Function[] getConstructors() {
-    //    assert(type.isKnown);
-    //    return type.getMemberFunctions("new");
-    //}
     //========================================================================================
     override string description() {
         return "NamedStruct[refs=%s] %s".format(numRefs, toString());

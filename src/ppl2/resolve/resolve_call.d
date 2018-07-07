@@ -13,13 +13,11 @@ import ppl2.internal;
 final class CallResolver {
 private:
     Module module_;
-    ModuleResolver moduleResolver;
     Array!Callable overloads;
 public:
-    this(ModuleResolver moduleResolver) {
-        this.module_        = moduleResolver.module_;
-        this.moduleResolver = moduleResolver;
-        this.overloads      = new Array!Callable;
+    this(Module module_) {
+        this.module_   = module_;
+        this.overloads = new Array!Callable;
     }
 
     Callable find(string name, Type[] argTypes, ASTNode node) {
