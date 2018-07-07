@@ -1,5 +1,5 @@
 
-
+/*
 import core.c
 import core.string
 import core.intrinsics
@@ -8,8 +8,8 @@ import core.console
 main = {
 
     // why are these referenced?
-    A = struct [int aarg]
-    B = struct [int b]
+    struct A = [int aarg]
+    struct B = [int b]
 
 
 
@@ -17,10 +17,10 @@ main = {
 
 
 }
+*/
 
 
 
-/*
 import core.c
 import core.string
 //import c = core.c
@@ -44,12 +44,12 @@ define CC = BB
 define DD = CC*
 DD dd           // int**
 
-Gold = struct []
+struct Gold = []
 
-Silver = struct [
+struct Silver = [
     Gold* gold
 ]
-Gold = struct [
+struct Gold = [
     Silver* silver
 ]
 Gold gold
@@ -60,11 +60,11 @@ new = {
     boop += 7
 }
 
-Goal = struct [
+struct Goal = [
     int scorer
 ]
 
-Animal = struct [
+struct Animal = [
     int age
     [:int 4] s
     Goal g
@@ -93,7 +93,7 @@ unreferencedFunc = {
     [bool,bool] a
 }
 
-Thingy = struct [
+struct Thingy = [
     int a
 
     // fixme - This needs to be coerced {void->byte} to {void->int}
@@ -114,8 +114,8 @@ someArrays = {
 
 main = {
 
-    int a = 3
-    int b = a - 2
+    int a1 = 3
+    int b1 = a1 - 2
 
     myfunc(true)
 
@@ -161,15 +161,15 @@ main = {
 
     putchar('a')
 
-    Dog* dd = null
-    dd = dog
-    dd = null
+    Dog* dd1 = null
+    dd1 = dog
+    dd1 = null
 
     // broken
     //puts("Hi there".ptr)
 }
 bool yop
-*/
+
 
 /*
     // inferred return type

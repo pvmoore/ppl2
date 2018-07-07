@@ -12,7 +12,7 @@ private:
 public:
     string name;
     AnonStruct type;
-    int numRefs2;
+    int numRefs;
 
     string[] templateArgNames;  /// if isTemplate==true
     Token[] tokens;             /// if isTemplate==true

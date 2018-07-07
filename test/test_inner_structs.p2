@@ -8,9 +8,9 @@ export testInnerStructs
 
 int g1
 
-A = struct [
+struct A = [
     int a
-    B = [
+    struct B = [
         int b
         foo = { /* B* this */
             closure = {

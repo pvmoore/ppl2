@@ -80,14 +80,15 @@ public:
             exprParser.parse(t, parent);
             return true;
         }
+        if(t.isKeyword("struct")) {
+            namedStructParser().parse(t, parent);
+            return true;
+        }
 
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
             /// Could be a function, a named struct or a binary expression
 
-            if(t.peek(2).value=="struct") {
-                /// name = struct [
-                namedStructParser().parse(t, parent);
-            } else if(t.peek(2).type==TT.LCURLY) {
+            if(t.peek(2).type==TT.LCURLY) {
                 /// name = {
                 parseFunction(t, parent);
             } else {

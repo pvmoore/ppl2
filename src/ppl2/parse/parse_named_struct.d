@@ -13,7 +13,7 @@ public:
         this.module_ = module_;
     }
     ///
-    /// name "=" "struct" AnonStruct
+    /// "struct" name "=" AnonStruct
     ///
     void parse(TokenNavigator t, ASTNode parent) {
 
@@ -43,15 +43,15 @@ public:
             }
         }
 
+        /// struct
+        t.skip("struct");
+
         /// name
         n.name = t.value;
         t.next;
 
         /// =
         t.skip(TT.EQUALS);
-
-        /// struct
-        t.skip("struct");
 
         /// anon struct
         n.type = typeParser.parse(t, n).as!AnonStruct;

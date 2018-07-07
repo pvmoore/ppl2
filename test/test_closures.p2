@@ -12,7 +12,7 @@ int g1
 
 gf1 = {}
 
-Struct = struct [
+struct Struct = [
     // Can see struct scope + module scope
     int s1
     f = {

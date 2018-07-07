@@ -1,7 +1,7 @@
 
 export testConstructors
 
-S = struct [
+struct S = [
 private
     int a
 readonly
@@ -23,7 +23,7 @@ public
 
     }
 ]
-S2 = struct [
+struct S2 = [
     // new function created automatically
 ]
 

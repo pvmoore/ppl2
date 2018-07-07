@@ -265,7 +265,6 @@ private:
         return a;
     }
     Expression parseIs(TokenNavigator t) {
-        dd("IS");
         auto i = makeNode!Is(t);
 
         t.skip("is");
@@ -278,7 +277,6 @@ private:
         return i;
     }
     void parseTypeExpr(TokenNavigator t, ASTNode parent) {
-        dd("TYPE");
         auto e = makeNode!TypeExpr(t);
         parent.addToEnd(e);
 
