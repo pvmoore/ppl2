@@ -4,7 +4,8 @@ import ppl2.internal;
 ///
 /// 1) Read file contents
 /// 2) Tokenise
-/// 3) Parse statements
+/// 3) Extract exports
+/// 4) Parse statements
 ///
 final class ModuleParser {
 private:
@@ -35,8 +36,7 @@ public:
         this.nav    = new TokenNavigator(module_, tokens);
     }
     ///
-    /// Look for exports statement and read all export names.
-    /// For each, find out whether it is a type or a function.
+    /// Look for exported functions, defines and structs
     ///
     void extractExports() {
         watch.start();

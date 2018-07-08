@@ -1,9 +1,9 @@
 
-export __assert
-
 import core.c
 import core.string
 import core.console
+
+public
 
 __assert = { bool result, string moduleName, int line ->
     if(not result) {

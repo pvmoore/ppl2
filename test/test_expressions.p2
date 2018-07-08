@@ -1,11 +1,12 @@
 
-export testExpressions
-
+public
 
 testExpressions = {
     testIf()
 
 }
+
+private
 
 testIf = {
 

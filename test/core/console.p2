@@ -1,6 +1,4 @@
 
-export println
-
 import core.c
 import core.string
 

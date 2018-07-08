@@ -1,5 +1,5 @@
 
-export testCasting
+public
 
 testCasting = {
     var a = 1 as int

@@ -8,7 +8,7 @@ final class ValueOf : Expression {
     override bool isResolved() { return expr.isResolved; }
     override bool isConst() { return expr().isConst; }
     override NodeID id() const { return NodeID.VALUE_OF; }
-    override int priority() const { return 1; }
+    override int priority() const { return 2; }
 
     override Type getType() {
         if(!expr().isResolved) return TYPE_UNKNOWN;

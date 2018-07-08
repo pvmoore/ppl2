@@ -22,7 +22,7 @@ final class Index : Expression {
     override int priority() const { return 1; }
 
     override Type getType() {
-        auto t = leftType();
+        auto t     = leftType();
         auto array = t.getArrayType;
         if(array) {
             return array.subtype;
@@ -39,6 +39,7 @@ final class Index : Expression {
             }
         }
         if(t.isPtr) {
+            dd("isPtr");
             return t.getValueType;
         }
         return TYPE_UNKNOWN;

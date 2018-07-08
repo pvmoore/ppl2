@@ -4,8 +4,6 @@ import ppl2.internal;
 ///
 /// Represents a compile-time function that needs to be folded into another Expression.
 ///
-/// #ptr
-/// #val
 /// #size (in bytes)
 /// #isptr
 /// #init

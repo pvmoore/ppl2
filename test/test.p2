@@ -1,21 +1,32 @@
 
-/*
+
 import core.c
 import core.string
 import core.intrinsics
 import core.console
+
+struct A = [
+    int value
+]
 
 main = {
 
     // fixme - generate closure
     //{void->void} f1 = {}
 
+     A a
 
+    int i = 1
 
+    var p = &a.value
+
+    @p = 'u'
+
+    putchar(a.value)
 }
-*/
 
 
+/*
 import core.c
 import core.string
 //import c = core.c
@@ -164,6 +175,7 @@ main = {
     //puts("Hi there".ptr)
 }
 bool yop
+*/
 
 /*
     // inferred return type

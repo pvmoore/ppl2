@@ -92,6 +92,12 @@ private:
             case TT.HASH:
                 parseMetaFunction(t, parent);
                 break;
+            case TT.AMPERSAND:
+                parseAddressOf(t, parent);
+                break;
+            case TT.AT:
+                parseValueOf(t, parent);
+                break;
             default:
                 writefln("BAD LHS %s", t.get);
                 parent.getModule.dumpToConsole();
@@ -118,6 +124,7 @@ private:
                 case TT.NUMBER:
                 case TT.COMMA:
                 case TT.SEMICOLON:
+                case TT.AT:
                     /// end of expression
                     return;
                 case TT.PLUS:
@@ -660,6 +667,24 @@ private:
         /// )
         t.skip(TT.RBRACKET);
     }
+    void parseAddressOf(TokenNavigator t, ASTNode parent) {
+
+        auto a = makeNode!AddressOf(t);
+        parent.addToEnd(a);
+
+        t.skip(TT.AMPERSAND);
+
+        parse(t, a);
+    }
+    void parseValueOf(TokenNavigator t, ASTNode parent) {
+
+        auto v = makeNode!ValueOf(t);
+        parent.addToEnd(v);
+
+        t.skip(TT.AT);
+
+        parse(t, v);
+    }
     ///
     /// #length etc...
     ///
@@ -667,28 +692,31 @@ private:
         /// #
         t.skip(TT.HASH);
 
-        Expression e;
 
-        /// name
-        if(t.value=="ptr") {
-            e = makeNode!AddressOf(t);
-        } else if(t.value=="val") {
-            e = makeNode!ValueOf(t);
-        } else {
-            e = makeNode!MetaFunction(t);
-            e.as!MetaFunction.name = t.value;
-        }
-        parent.addToEnd(e);
-        t.next;
+        assert(false, "implement me");
 
-        /// (
-        t.skip(TT.LBRACKET);
-
-        /// expr
-        parse(t, e);
-
-        /// )
-        t.skip(TT.RBRACKET);
+        //Expression e;
+        //
+        ///// name
+        //if(t.value=="ptr") {
+        //    e = makeNode!AddressOf(t);
+        //} else if(t.value=="val") {
+        //    e = makeNode!ValueOf(t);
+        //} else {
+        //    e = makeNode!MetaFunction(t);
+        //    e.as!MetaFunction.name = t.value;
+        //}
+        //parent.addToEnd(e);
+        //t.next;
+        //
+        ///// (
+        //t.skip(TT.LBRACKET);
+        //
+        ///// expr
+        //parse(t, e);
+        //
+        ///// )
+        //t.skip(TT.RBRACKET);
     }
     ///
     /// if   ::= "if" "(" expression ")" then [ else ]

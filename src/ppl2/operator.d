@@ -12,7 +12,10 @@ Operator parseOperator(TokenNavigator t) {
     }
     throw new CompilerError(Err.INVALID_OPERATOR, t, "Invalid operator");
 }
-
+///
+/// & (AddressOf) = 2
+/// * (ValueOf)   = 2
+///
 struct Op {
     int id;
     int priority;

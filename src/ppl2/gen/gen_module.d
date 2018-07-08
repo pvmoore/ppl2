@@ -308,6 +308,7 @@ public:
     void visit(ValueOf n) {
         n.expr().visit!ModuleGenerator(this);
 
+        lhs = builder.getElementPointer_inBounds(rhs, [constI32(0)]);
         rhs = builder.load(rhs, "valueOf");
     }
     void visit(Variable n) {

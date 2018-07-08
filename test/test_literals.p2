@@ -1,17 +1,17 @@
 
 import core.string  // should be implicit later
 
-export testLiterals
-
 new = {}
 
-testLiterals = {
+public testLiterals = {
     booleans()
     integers()
     realNumbers()
     chars()
     strings()
 }
+private
+
 booleans = {
     bool b
     bool b2 = true
