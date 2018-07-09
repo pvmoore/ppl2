@@ -161,6 +161,14 @@ public:
             if(t.type==TT.COMMA) t.next;
         }
 
+        /// If type is {void->?} then remove the void to make it 0 params
+        if(f.numChildren==1) {
+            auto var = f.first().as!Variable;
+            if(var.type.isVoid && var.type.isValue) {
+                var.detach();
+            }
+        }
+
         /// ->
         t.skip(TT.RT_ARROW);
 

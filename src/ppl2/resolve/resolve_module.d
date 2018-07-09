@@ -230,6 +230,9 @@ public:
             }
         }
     }
+    void visit(Closure n) {
+
+    }
     void visit(Composite n) {
 
     }
@@ -256,31 +259,49 @@ public:
 
             if(n.isStartOfChain()) {
 
-                auto var = identifierResolver.findFirstVariable(n.name, n);
-                if(!var) {
+                auto res = identifierResolver.findFirst(n.name, n);
+                if(!res.found) {
                     throw new CompilerError(Err.IDENTIFIER_NOT_FOUND, n,
-                        "Identifier %s not found".format(n.name));
+                        "%s not found".format(n.name));
                 }
 
-                /// Is it a struct member variable?
-                if(var.isStructMember) {
-                    auto struct_ = n.getContainingStruct();
-                    assert(struct_);
-                    //checkStructMemberAccessIsNotPrivate(struct_, var);
-                    //checkForReadOnlyAssignment(struct_, var);
-                    n.target.set(var, struct_.getMemberIndex(var));
+                if(res.isFunc) {
+                    auto func = res.func;
+
+                    functionRequired(func.moduleName, func.name);
+
+                    if(func.isStructMember) {
+                        auto struct_ = n.getContainingStruct();
+                        assert(struct_);
+                        //checkStructMemberAccessIsNotPrivate(struct_, func);
+                        //checkForReadOnlyAssignment(struct_, func);
+                        n.target.set(func, struct_.getMemberIndex(func));
+                    } else {
+                        /// Global, local or parameter
+                        n.target.set(func);
+                    }
                 } else {
-                    /// Global, local or parameter
-                    n.target.set(var);
-                }
+                    Variable var = res.isVar ? res.var : null;
 
-                /// If var is unknown we need to do some detective work...
-                if(var.type.isUnknown && n.parent.isA!Binary) {
-                    auto bin = n.parent.as!Binary;
-                    if(bin.op == Operator.ASSIGN) {
-                        auto opposite = bin.otherSide(n);
-                        if(opposite && opposite.getType.isKnown) {
-                            var.setType(opposite.getType);
+                    if (var.isStructMember) {
+                        auto struct_ = n.getContainingStruct();
+                        assert(struct_);
+                        //checkStructMemberAccessIsNotPrivate(struct_, var);
+                        //checkForReadOnlyAssignment(struct_, var);
+                        n.target.set(var, struct_.getMemberIndex(var));
+                    } else {
+                        /// Global, local or parameter
+                        n.target.set(var);
+                    }
+
+                    /// If var is unknown we need to do some detective work...
+                    if (var.type.isUnknown && n.parent.isA!Binary) {
+                        auto bin = n.parent.as!Binary;
+                        if (bin.op == Operator.ASSIGN) {
+                            auto opposite = bin.otherSide(n);
+                            if (opposite && opposite.getType.isKnown) {
+                                var.setType(opposite.getType);
+                            }
                         }
                     }
                 }
@@ -468,6 +489,9 @@ public:
         if(n.type.isUnknown) {
             n.determineType();
         }
+        if(n.type.isKnown) {
+
+        }
     }
     void visit(LiteralString n) {
         if(n.type.isUnknown) {
@@ -573,13 +597,7 @@ public:
             //}
         }
         if(n.type.isKnown) {
-            /// Allow a double literal initialiser to be interpreted as a float or half
-            if(n.type.isReal && n.type.isValue && n.hasInitialiser) {
-                auto lit = n.initialiser.literal;
-                if(lit) {
-                    lit.setType(n.type);
-                }
-            }
+
         }
     }
     //==========================================================================
@@ -603,7 +621,7 @@ public:
 //==========================================================================
 private:
     void recursiveVisit(ASTNode m) {
-        //dd("resolve", typeid(m), m.nid);
+        dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
 
         if(!m.isResolved) {

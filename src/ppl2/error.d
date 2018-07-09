@@ -27,12 +27,12 @@ enum Err {
     UNRESOLVED_SYMBOL,
     IDENTIFIER_NOT_FOUND,
     FUNCTION_NOT_FOUND,
-    AMBIGUOUS_CALL,
     IMPORT_NOT_FOUND,
     MISSING_TYPE,
 
     /// Assert
     ASSERT_FAILED,
+
 
 // semantic
     BAD_IMPLICIT_CAST = 4000,
@@ -87,6 +87,8 @@ enum Err {
     /// Function stuff
     CALL_NEW_RESERVED_FOR_CONSTRUCTORS,
     CALL_CONSTRUCTOR_CALLS_DISALLOWED,
+    AMBIGUOUS_CALL,
+    CALL_INCORRECT_NUM_ARGS,
 }
 //======================================================================
 class CompilerError : Exception {

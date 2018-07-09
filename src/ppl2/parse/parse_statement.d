@@ -240,19 +240,38 @@ private: //=====================================================================
     ///
     void parseFunction(TokenNavigator t, ASTNode parent) {
 
-        auto f = makeNode!Function(t);
-        parent.addToEnd(f);
-
-        f.moduleName = module_.canonicalName;
-
         /// name
-        f.name = t.value;
+        string name = t.value;
         t.next;
-
-        if(f.name=="new" && f.isClosure) newReservedForConstructors(f);
 
         /// =
         t.skip(TT.EQUALS);
+
+        if(parent.isA!LiteralFunction || (parent.getContaining!LiteralFunction !is null)) {
+            /// This is a closure.
+            /// Convert this into a function ptr variable
+
+            auto var = makeNode!Variable(t);
+            parent.addToEnd(var);
+
+            if(name=="new") newReservedForConstructors(var);
+
+            var.name = name;
+            var.type = TYPE_UNKNOWN;
+
+            auto ini = makeNode!Initialiser(t);
+            ini.var = var;
+            var.addToEnd(ini);
+
+            exprParser().parse(t, ini);
+            return;
+        }
+
+        auto f = makeNode!Function(t);
+        parent.addToEnd(f);
+
+        f.name       = name;
+        f.moduleName = module_.canonicalName;
 
         /// function literal
         exprParser().parse(t, f);

@@ -80,6 +80,21 @@ public:
         }
     }
     void visit(Call n) {
+        auto paramTypes = n.target.paramTypes();
+        auto argTypes   = n.argTypes();
+
+        if(paramTypes.length != argTypes.length) {
+            throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
+                "Incorrect number of arguments");
+        }
+
+        foreach(i, p; n.target.paramTypes()) {
+            if(!argTypes[i].canImplicitlyCastTo(p)) {
+                errorBadImplicitCast(n, argTypes[i], p);
+            }
+        }
+    }
+    void visit(Closure n) {
 
     }
     void visit(Composite n) {
@@ -313,15 +328,20 @@ public:
             stringSet.clear();
             auto node = n.prevSibling();
             if(!node) node = n.parent;
-            auto var = identifierResolver.findFirstVariable(n.name, node);
-            if(var) {
-                bool sameScope = var.parent==n.parent;
-                if(sameScope) {
-                    throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
+            auto res = identifierResolver.findFirst(n.name, node);
+            if(res.found) {
+                if(res.isVar) {
+                    auto var = res.var;
+                    bool sameScope = var.parent==n.parent;
+                    if (sameScope) {
+                        throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
                         "Variable %s declared more than once in this scope".format(n.name));
-                }
-                throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
+                    }
+                    throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
                     "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line));
+                } else {
+                    /// check function?
+                }
             }
         }
     }

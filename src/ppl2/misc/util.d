@@ -104,10 +104,18 @@ Tuple!(Type,string) parseNumberLiteral(string v) {
         }
     } else if(v.endsWith("h")) {
         string s = v[0..$-1];
-        if(s.count('.')<2 &&
-           s.removeChars('.').isDigits)
+        if (s.count('.')<2 &&
+        s.removeChars('.').isDigits)
         {
             t[0] = new BasicType(Type.HALF);
+            t[1] = s;
+        }
+    } else if(v.endsWith("d")) {
+        string s = v[0..$-1];
+        if(s.count('.')<2 &&
+        s.removeChars('.').isDigits)
+        {
+            t[0] = new BasicType(Type.DOUBLE);
             t[1] = s;
         }
     } else if(v.endsWith("f")) {
@@ -118,9 +126,9 @@ Tuple!(Type,string) parseNumberLiteral(string v) {
             t[0] = new BasicType(Type.FLOAT);
             t[1] = s;
         }
-    } else if(v.count('.')==1) {
+    } else if(v.count('.')==1) {        /// assume float if no type specified
         if(v.removeChars('.').isDigits) {
-            t[0] = new BasicType(Type.DOUBLE);
+            t[0] = new BasicType(Type.FLOAT);
         }
     } else if(isDigits(v)) {
         long l = to!long(t[1]);

@@ -36,6 +36,7 @@ import ppl2.ast.expr_address_of;
 import ppl2.ast.expr_as;
 import ppl2.ast.expr_binary;
 import ppl2.ast.expr_call;
+import ppl2.ast.expr_closure;
 import ppl2.ast.expr_composite;
 import ppl2.ast.expr_constructor;
 import ppl2.ast.expr_dot;

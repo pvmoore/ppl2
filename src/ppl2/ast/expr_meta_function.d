@@ -38,6 +38,8 @@ final class MetaFunction : Expression {
         switch(name) {
             case "length":
                 break;
+            case "llvm":
+                break;
             default:
                 assert(false, "MetaProperty %s".format(name));
         }

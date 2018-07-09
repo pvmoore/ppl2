@@ -14,7 +14,7 @@ public:
     Set!ASTNode activeRoots;  /// Active root nodes
 
     LiteralString[][string] literalStrings;
-    LiteralFunction[] literalFunctions;
+    Closure[] closures;
 
     ModuleParser parser;
     ModuleResolver resolver;
@@ -64,8 +64,8 @@ public:
     void addLiteralString(LiteralString s) {
         literalStrings[s.value] ~= s;
     }
-    void addLiteralFunction(LiteralFunction f) {
-        literalFunctions ~= f;
+    void addClosure(Closure c) {
+        closures ~= c;
     }
 
     NodeBuilder builder(ASTNode n) { return nodeBuilder.forNode(n); }

@@ -7,7 +7,7 @@ import ppl2.internal;
 final class Parameters : ASTNode {
 
     override bool isResolved() { return getParams().as!(ASTNode[]).areResolved; }
-    override NodeID id() const { return NodeID.ARGUMENTS; }
+    override NodeID id() const { return NodeID.PARAMETERS; }
 
     int numParams() const {
         return children.length.as!int;
@@ -28,9 +28,9 @@ final class Parameters : ASTNode {
     Variable[] getParams() {
         return children[].as!(Variable[]);
     }
-    Function getFunction() {
+    LiteralFunction getLiteralFunction() {
         assert(parent.isLiteralFunction);
-        return parent.as!LiteralFunction.getFunction();
+        return parent.as!LiteralFunction;
     }
 
     ///

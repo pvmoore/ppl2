@@ -106,7 +106,7 @@ public:
         assert(getType.isFunction);
         return getType.getFunctionType.returnType();
     }
-    Type[] argTypes() {
+    Type[] paramTypes() {
         assert(isSet);
         assert(getType.isFunction);
         return getType.getFunctionType.paramTypes();

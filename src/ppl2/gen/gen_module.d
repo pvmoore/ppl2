@@ -44,6 +44,8 @@ public:
         generateStandardFunctionDeclarations(module_);
         generateStructMemberFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
+        generateClosureDeclarations(module_);
+        generateClosureBodies(module_, literalGen);
 
         visitChildren(module_);
 
@@ -78,13 +80,13 @@ public:
     }
     void visit(Call n) {
         dd("visit Call");
-        Type returnType     = n.target.returnType;
-        Type[] funcArgTypes	= n.target.argTypes;
+        Type returnType       = n.target.returnType;
+        Type[] funcParamTypes = n.target.paramTypes;
         LLVMValueRef[] argValues;
 
         foreach(i, e; n.children[]) {
             e.visit!ModuleGenerator(this);
-            argValues ~= castType(rhs, e.getType, funcArgTypes[i]);
+            argValues ~= castType(rhs, e.getType, funcParamTypes[i]);
         }
 
         if(n.target.isMemberVariable) {
@@ -122,6 +124,11 @@ public:
         //    lhs = builder.alloca(returnType.tgetLLVMType(), "retValStorage");
         //    builder.store(grhs, lhs);
         //}
+    }
+    void visit(Closure n) {
+        dd("visit Closure");
+
+        rhs = n.llvmValue;
     }
     void visit(Composite n) {
         dd("visit Composite");
@@ -230,7 +237,10 @@ public:
     }
     void visit(LiteralFunction n) {
         dd("visit LiteralFunction");
-        literalGen.generate(n);
+
+        assert(!n.isClosure);
+        Function func = n.getFunction();
+        literalGen.generate(n, func.llvmValue);
     }
     void visit(LiteralNull n) {
         dd("visit LiteralNull");
@@ -257,8 +267,10 @@ public:
     }
     void visit(Parameters n) {
         dd("visit Parameters");
-        auto func   = n.getFunction();
-        auto params = getFunctionParams(func.llvmValue);
+
+        auto litFunc   = n.getLiteralFunction();
+        auto llvmValue = litFunc.getLLVMValue();
+        auto params    = getFunctionParams(llvmValue);
 
         foreach(i, v; n.getParams()) {
             v.visit!ModuleGenerator(this);

@@ -26,7 +26,7 @@ final class Variable : Statement, Callable {
     override Type getType() { return type; }
 
     bool isLocal() const {
-        return parent.isLiteralFunction;
+        return parent.isLiteralFunction || parent.isIf;
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isNamedStructMember() {

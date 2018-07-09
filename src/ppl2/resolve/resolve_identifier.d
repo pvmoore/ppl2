@@ -12,75 +12,99 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
+    struct Result {
+        union {
+            Variable var;
+            Function func;
+        }
+        bool isVar;
+        bool isFunc;
+
+        void set(Variable v) {
+            this.var   = v;
+            this.isVar = true;
+        }
+        void set(Function f) {
+            this.func   = f;
+            this.isFunc = true;
+        }
+
+        bool found() { return isVar || isFunc; }
+    }
     ///
-    /// Find the first variable that matches the given identifier name.
+    /// Find the first variable or function that matches the given identifier name.
     ///
-    Variable findFirstVariable(string name, ASTNode node) {
-        //writefln("findFirstVariable node=%s parent=%s", node, node.parent); flushConsole();
+    Result findFirst(string name, ASTNode node) {
+        Result res;
         auto nid = node.id();
 
         switch(nid) with(NodeID) {
-            case VARIABLE:
-                if(node.as!Variable.name==name) return node.as!Variable;
+            case FUNCTION:
+                if(node.as!Function.name==name) res.set(node.as!Function);
                 break;
+            case VARIABLE:
+                if(node.as!Variable.name==name) res.set(node.as!Variable);
+                break;
+            case MODULE:
+                /// Check all module level variables
+                foreach(n; node.children) {
+                    isThisIt(name, n, res);
+                    if(res.found) return res;
+                }
+                /// We can't find it
+                return res;
+            case ANON_STRUCT:
+                /// Check all struct level variables
+                foreach(n; node.children) {
+                    isThisIt(name, n, res);
+                    if(res.found) return res;
+                }
+
+                /// Skip to module level scope
+                return findFirst(name, node.getModule());
+            case LITERAL_FUNCTION:
+                /// If this is not a closure
+                if(!node.as!LiteralFunction.isClosure) {
+                    /// Go to containing struct if there is one
+                    auto struct_ = node.getContainingStruct();
+                    if(struct_) return findFirst(name, struct_);
+                }
+
+                /// Go to module scope
+                return findFirst(name, node.getModule());
             default:
                 break;
         }
-
-        if(nid==NodeID.MODULE) {
-            /// Check all module level variables
-            foreach(n; node.children) {
-                auto v = isThisTheVar(name, n);
-                if(v) return v;
-            }
-            /// We can't find it
-            return null;
-        }
-
-        if(nid==NodeID.ANON_STRUCT) {
-            /// Check all struct level variables
-            foreach(n; node.children) {
-                auto v = isThisTheVar(name, n);
-                if(v) return v;
-            }
-
-            /// Skip to module level scope
-            return findFirstVariable(name, node.getModule());
-        }
-
-        if(nid==NodeID.LITERAL_FUNCTION) {
-
-            /// If this is not a closure
-            if(!node.as!LiteralFunction.isClosure) {
-                /// Go to containing struct if there is one
-                auto struct_ = node.getContainingStruct();
-                if(struct_) return findFirstVariable(name, struct_);
-            }
-
-            /// Go to module scope
-            return findFirstVariable(name, node.getModule());
-        }
+        if(res.found) return res;
 
         /// Check variables that appear before this in the tree
         foreach(n; node.prevSiblings()) {
-            auto v = isThisTheVar(name, n);
-            if (v) return v;
+            isThisIt(name, n, res);
+            if(res.found) return res;
         }
         /// Recurse up the tree
-        return findFirstVariable(name, node.parent);
-
+        return findFirst(name, node.parent);
     }
 private:
-    Variable isThisTheVar(string name, ASTNode n) {
-        auto v = cast(Variable)n;
-        if(v && v.name==name) {
-            return v;
+    void isThisIt(string name, ASTNode n, ref Result res) {
+        switch(n.id) with(NodeID) {
+            case VARIABLE: {
+                auto v = n.as!Variable;
+                if(v.name==name) res.set(v);
+                break;
+            }
+            case PARAMETERS: {
+                auto v = n.as!Parameters.getParam(name);
+                if(v) res.set(v);
+                break;
+            }
+            case FUNCTION: {
+                auto f = n.as!Function;
+                if(f.name==name) res.set(f);
+                break;
+            }
+            default:
+                break;
         }
-        auto params = n.as!Parameters;
-        if(params) {
-            return params.getParam(name);
-
-        }
-        return null;
     }
 }

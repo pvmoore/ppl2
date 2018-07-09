@@ -21,6 +21,8 @@ interface Type {
     LLVMTypeRef getLLVMType();
     //-------------------------------------
 pragma(inline,true) {
+    final bool isFloat() const { return getEnum()==FLOAT; }
+    final bool isDouble() const { return getEnum()==DOUBLE; }
     final bool isLong() const { return getEnum()==LONG; }
     final bool isPtr() const { return this.isA!PtrType; }
     final bool isValue() const { return !isPtr; }

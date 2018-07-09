@@ -15,9 +15,9 @@ final class Return : Statement {
         return cast(Expression)first();
     }
     Type getReturnType() {
-        auto func = getContaining!Function;
-        assert(func);
-        auto type = func.getType.getFunctionType;
+        auto funcLit = getContaining!LiteralFunction;
+        assert(funcLit);
+        auto type = funcLit.getType.getFunctionType;
         assert(type);
         return type.returnType;
     }

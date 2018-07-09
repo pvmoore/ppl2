@@ -19,12 +19,17 @@ class LiteralFunction : Expression, Scope, Container {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
+    LLVMValueRef getLLVMValue() {
+        if(isClosure) return parent.as!Closure.llvmValue;
+        return getFunction().llvmValue;
+    }
+
     Parameters params() {
         return children[0].as!Parameters;
     }
 
     bool isClosure() const {
-        return getContainer().id()==NodeID.LITERAL_FUNCTION;
+        return parent.isClosure;
     }
 
     bool isTemplate() { return false; }

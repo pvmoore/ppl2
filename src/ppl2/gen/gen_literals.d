@@ -46,20 +46,14 @@ final class LiteralGenerator {
         }
         gen.rhs = builder.load(gen.lhs);
     }
-    void generate(LiteralFunction n) {
-        if(n.isClosure) {
-            /// Generate declaration
+    void generate(LiteralFunction n, LLVMValueRef llvmValue) {
+        assert(llvmValue);
 
-            assert(false, "implement me");
-        }
-        auto func       = n.getFunction();
         auto type       = n.type.getFunctionType;
         auto paramTypes = type.paramTypes();
         auto numParams  = paramTypes.length;
-        assert(func.llvmValue, "Function value is null: %s".format(func));
 
-        //auto args  = getFunctionArgs(func.llvmValue);
-        auto entry = func.llvmValue.appendBasicBlock("entry");
+        auto entry = llvmValue.appendBasicBlock("entry");
         builder.positionAtEndOf(entry);
 
         /// Visit body statements
@@ -72,6 +66,9 @@ final class LiteralGenerator {
                 builder.retVoid();
             }
         }
+
+        gen.rhs = llvmValue;
+
     }
     void generate(LiteralNull n) {
         gen.rhs = constNullPointer(n.type.getLLVMType());

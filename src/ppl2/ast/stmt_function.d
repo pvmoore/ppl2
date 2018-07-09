@@ -9,13 +9,14 @@ private:
     string _uniqueName;
 public:
     string name;
-    Type externType;        /// for extern functions only
     string moduleName;
+
+    Type externType;        /// for extern functions only
     bool isImport;          /// true if this is just a proxy for an imported function
     bool isExtern;
+
     int numRefs;            /// Total calls to this function
     int numExternalRefs;    /// Num calls to this function from outside the module
-
     LLVMValueRef llvmValue;
 
     this() {
@@ -26,7 +27,7 @@ public:
     override NodeID id() const { return NodeID.FUNCTION; }
     override Type getType() {
         if(isExtern) return externType;
-        // Return type of body
+        /// Return type of body
         return getBody().getType;
     }
 ///
@@ -38,9 +39,6 @@ public:
     }
     bool isGlobal() const {
         return parent.isModule;
-    }
-    bool isClosure() {
-        return parent.isLiteralFunction;
     }
     bool isDefaultConstructor() {
         if(isImport || isExtern) return false;

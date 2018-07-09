@@ -21,8 +21,35 @@ void generateStructMemberFunctionDeclarations(Module module_) {
         }
     }
 }
+void generateClosureDeclarations(Module module_) {
+    foreach(c; module_.closures) {
+        generateClosureDeclaration(module_, c);
+    }
+}
+void generateClosureBodies(Module module_, LiteralGenerator literalGen) {
+    foreach(c; module_.closures) {
+        auto litFunc = c.getBody();
+        literalGen.generate(litFunc, c.llvmValue);
+    }
+}
+void generateClosureDeclaration(Module m, Closure c) {
+    auto litFunc = c.getBody();
+    auto type    = litFunc.type.getFunctionType;
+
+    auto func = m.llvmValue.addFunction(
+        c.name,
+        type.returnType.getLLVMType,
+        type.paramTypes.map!(it=>it.getLLVMType).array,
+        LLVMCallConv.LLVMFastCallConv
+    );
+    c.llvmValue = func;
+
+    addFunctionAttribute(func, LLVMAttribute.AlwaysInline);
+    addFunctionAttribute(func, LLVMAttribute.NoUnwind);
+
+    func.setLinkage(LLVMLinkage.LLVMInternalLinkage);
+}
 void generateFunctionDeclaration(Module module_, Function f) {
-    log("Generating func decl ... %s", f.getUniqueName);
     auto type = f.getType.getFunctionType;
     auto func = module_.llvmValue.addFunction(
         f.getUniqueName(),
