@@ -35,8 +35,7 @@ integers = {
 realNumbers = {
     half h
     half h2 = 3.14h
-    half h3 = 3.14
-    half h4 = 3
+    half h3 = 3
 
     float f
     float f2 = 3.14f
@@ -47,6 +46,7 @@ realNumbers = {
     double d2 = 3.14
     double d3 = 3.14f
     double d4 = 3
+    double d5 = 3.14d
 }
 chars = {
     int ch1 = 'a'
