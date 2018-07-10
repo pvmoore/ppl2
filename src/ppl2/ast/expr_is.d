@@ -67,9 +67,9 @@ public:
             /// Type is Expression
             /// Expression is Type
 
-            bool b= leftType.exactlyMatches(rightType);
+            bool b = leftType.exactlyMatches(rightType);
             b ^= negate;
-            parent.replaceChild(this, LiteralNumber.makeConst(b, TYPE_BOOL));
+            parent.replaceChild(this, LiteralNumber.makeConst(b ? TRUE : FALSE, TYPE_BOOL));
         }
     }
 

@@ -199,15 +199,20 @@ public:
         n.left().visit!ModuleGenerator(this);
 
         if(n.isArrayIndex) {
+
             auto indices = [arrayIndex];
             lhs = builder.getElementPointer_inBounds(rhs, indices);
+
         } else if(n.isStructIndex) {
 
             // todo - handle "this"?
 
             lhs = builder.getElementPointer_struct(lhs, n.getIndexAsInt());
         } else if(n.isPtrIndex) {
-            assert(false, "implement me");
+
+            auto indices = [arrayIndex];
+            lhs = builder.getElementPointer_inBounds(rhs, indices);
+
         } else assert(false);
 
         //logln("index lhs is %s", lhs.getType.toString);

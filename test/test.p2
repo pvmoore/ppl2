@@ -9,6 +9,12 @@ import core.console
 
 main = {
 
+
+    var a = "abcde".ptr:0
+
+    assert a is byte
+
+    putchar(a)
 }
 
 
@@ -159,6 +165,11 @@ main = {
 
     // broken
     //puts("Hi there".ptr)
+
+    float2 v2
+    float3 v3
+    float4 v4
+    float8 v8
 }
 bool yop
 */

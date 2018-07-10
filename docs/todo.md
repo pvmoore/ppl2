@@ -9,7 +9,6 @@
 ## Medium Priority
 - Template structs
 - Template functions
-- Generate LLVM
 - LiteralMap
 - Compile time (meta) properties eg. #type, #length etc...
 - If last arg of function is a closure then allow Groovy access
@@ -17,8 +16,10 @@
 - import c = core.c
     - c::memset(..)  // maybe re-use use Dot with a flag
 
+- vectors eg float4, int2 etc...
+- Is half data type worth using? 
+
 ## Think about
-- #ptr #val are not very elegant. Maybe use & and *
 - Maybe don't create new() functions for structs without any var initialisers.
   Define.requiresInitFunction() ?
 - How to do closures (with captures)

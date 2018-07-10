@@ -29,6 +29,8 @@ final class Index : Expression {
         }
         auto struct_ = t.getAnonStruct;
         if(struct_) {
+
+
             if(index().isResolved && index().isA!LiteralNumber) {
                 auto i = index().as!LiteralNumber.value.getInt();
                 if(i < struct_.numMemberVariables()) {
@@ -39,7 +41,6 @@ final class Index : Expression {
             }
         }
         if(t.isPtr) {
-            dd("isPtr");
             return t.getValueType;
         }
         return TYPE_UNKNOWN;
