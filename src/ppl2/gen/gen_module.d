@@ -264,7 +264,11 @@ public:
         dd("visit LiteralString");
         literalGen.generate(n);
     }
-    void visit(NamedStruct n) {
+    void visit(LiteralStruct n) {
+        dd("visit LiteralStruct");
+        literalGen.generate(n);
+    }
+     void visit(NamedStruct n) {
         dd("visit NamedStruct", n.name);
         setTypes(n.getLLVMType(), n.type.getLLVMTypes(), true);
 

@@ -110,6 +110,10 @@ public:
     void visit(Assert n) {
         if(!n.isResolved) {
 
+            /// This should eventually be imported implicitly
+            assert(module_.getFunctions("__assert"), "import core.intrinsics");
+            //assert(module_.getDefine("string") || module_.getNamedStruct("string"), "import core.string");
+
             /// Wait until we know what the type is
             Type type = n.expr().getType();
             if(type.isUnknown) return;
@@ -133,7 +137,8 @@ public:
             c.addToEnd(value);
 
             /// string
-            c.addToEnd(b.string_(module_.moduleNameLiteral));
+            //c.addToEnd(b.string_(module_.moduleNameLiteral));
+            c.addToEnd(module_.moduleNameLiteral.copy());
 
             /// line
             c.addToEnd(LiteralNumber.makeConst(n.line, TYPE_INT));
@@ -166,6 +171,7 @@ public:
         }
     }
     void visit(Call n) {
+
         if(!n.target.isResolved) {
 
             // todo - handle template function call
@@ -185,6 +191,7 @@ public:
                         n.target.set(v);
                     }
                 }
+
             } else {
                 Expression prev = n.prevLink();
                 assert(prev);
@@ -501,14 +508,14 @@ public:
     void visit(LiteralStruct n) {
         if(n.type.isUnknown) {
 
-            if(n.parent.isA!Variable) {
-                /// We are the initialiser of a 'var' Variable
-                auto t = n.getInferredType();
-                if(t) {
-                    n.parent.as!Variable.setType(t);
-                    n.type = t;
-                }
-            }
+            //if(n.parent.isA!Variable) {
+            //    /// We are the initialiser of a 'var' Variable
+            //    auto t = n.getInferredType();
+            //    if(t) {
+            //        n.parent.as!Variable.setType(t);
+            //        n.type = t;
+            //    }
+            //}
 
             if(n.type.isUnknown) {
                 Type parentType;
@@ -621,7 +628,7 @@ public:
 //==========================================================================
 private:
     void recursiveVisit(ASTNode m) {
-        dd("resolve", typeid(m), m.nid);
+        //dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
 
         if(!m.isResolved) {

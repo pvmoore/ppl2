@@ -10,3 +10,6 @@ println = { string s ->
     // have a trailing zero?
     puts(s.ptr)
 }
+print = { int n ->
+    
+}

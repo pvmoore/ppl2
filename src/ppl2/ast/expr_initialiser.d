@@ -37,15 +37,14 @@ public:
         /// Generate initialisation AST for our parent Variable
         assert(numChildren>0);
 
-        if(var.type.isNamedStruct) {
-            convertToAssignment();
-        } else if(var.type.isAnonStruct) {
-            /// nothing to do
-
-            // todo - this might not be working
-        } else {
-            convertToAssignment();
-        }
+        //if(var.type.isNamedStruct) {
+        //    convertToAssignment();
+        //} else if(var.type.isAnonStruct) {
+        //    convertToAssignment();
+        //} else {
+        //    convertToAssignment();
+        //}
+        convertToAssignment();
 
         astGenerated = true;
     }

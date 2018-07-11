@@ -16,7 +16,9 @@ public:
     override int priority() const { return 15; }
     override Type getType() {
         if(!ptrType) {
-            ptrType = PtrType.of(valueType, 1);
+            auto t = PtrType.of(valueType, 1);
+            if(!valueType.isDefine) ptrType = t;
+            return t;
         }
         return ptrType;
     }

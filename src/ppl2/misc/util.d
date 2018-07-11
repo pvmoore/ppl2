@@ -88,6 +88,9 @@ Tuple!(Type,string) parseNumberLiteral(string v) {
         long l = parseCharLiteral(v[1..$-1]);
         t[0] = TYPE_INT;
         t[1] = l.to!string;
+    } else if(v.endsWith("L")) {
+        t[0] = new BasicType(Type.LONG);
+        t[1] = v[0..$-1];
     } else if(v[0..2]=="0x") {
         v = v[2..$];
         if(v.length>0 && isHexDigits(v)) {

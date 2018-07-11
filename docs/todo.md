@@ -1,16 +1,19 @@
 # Todo
 ## High Priority
 - Check that call args match function
-- Ambiguous overloads
-- Literal structs
-- Check access
+- Handle ambiguous overloads
+- Check access when accessing struct members
 - Multi level struct access
-
+- Operator overloading eg.
+    - operator: = { int index-> }
+    - operator+ = { A other -> }
+    
 ## Medium Priority
 - Template structs
 - Template functions
 - LiteralMap
-- Compile time (meta) properties eg. #type, #length etc...
+- name=value constructor values eg S(value=1)
+- Compile time meta properties eg. #type, #length, #size etc...
 - If last arg of function is a closure then allow Groovy access
 - More constant folding and dce (calls and functions)
 - import c = core.c
@@ -22,7 +25,7 @@
 ## Think about
 - Maybe don't create new() functions for structs without any var initialisers.
   Define.requiresInitFunction() ?
-- How to do closures (with captures)
+- How to do closures with captures
 - How to do named structs within named structs (this, super etc...) A.B
 
 ## Low Priority

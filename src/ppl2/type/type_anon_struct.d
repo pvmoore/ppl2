@@ -5,9 +5,9 @@ import ppl2.internal;
 ///
 ///
 final class AnonStruct : ASTNode, Type, Container {
-
-    LLVMTypeRef llvmType;
-
+private:
+    LLVMTypeRef _llvmType;
+public:
 /// ASTNode interface
     override bool isResolved() { return isKnown; }
     override NodeID id() const { return NodeID.ANON_STRUCT; }
@@ -37,7 +37,10 @@ final class AnonStruct : ASTNode, Type, Container {
         return .canImplicitlyCastTo(memberVariableTypes(), right.memberVariableTypes);
     }
     LLVMTypeRef getLLVMType() {
-        return .struct_(getLLVMTypes(), true);
+        if(!_llvmType) {
+            _llvmType = .struct_(getLLVMTypes(), true);
+        }
+        return _llvmType;
     }
     //========================================================================================
     bool isNamed() {

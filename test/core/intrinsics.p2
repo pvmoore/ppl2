@@ -5,10 +5,10 @@ import core.console
 
 public
 
-__assert = { bool result, string moduleName, int line ->
+__assert = { bool result, byte* moduleName, int line ->
     if(not result) {
         println("Assertion failed in module ")
-        println(moduleName)
+        puts(moduleName)
         println("on line (todo)")
         exit(-1)
     }

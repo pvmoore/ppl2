@@ -441,29 +441,18 @@ private:
             /// If this is a closure we need to handle it differently
             if(f.getContainer().id()==NodeID.LITERAL_FUNCTION) {
 
+                string name = module_.makeTemporary("closure");
+                if(parent.isInitialiser) {
+                    name ~= "_" ~ parent.as!Initialiser.var.name;
+                }
+
                 auto closure = makeNode!Closure(t);
-                closure.name = module_.makeTemporary("closure");
+                closure.name = name;
                 closure.addToEnd(f);
 
                 module_.addClosure(closure);
 
                 parent.addToEnd(closure);
-
-                //if(parent.isFunction) {
-                //    /// This is an inner function closure which already has a Function and a name
-                //    /// so just move the function to module scope
-                //    module_.addToEnd(parent);
-                //} else {
-                //    /// This is a standalone closure without a Function or a name
-                //    auto func = makeNode!Function(t);
-                //    module_.addToEnd(func);
-                //
-                //    /// Move this LiteralFunction to be a child of Function
-                //    func.addToEnd(f);
-                //
-                //    func.name       = module_.makeTemporary("closure");
-                //    func.moduleName = module_.canonicalName;
-                //}
             }
         }
     }

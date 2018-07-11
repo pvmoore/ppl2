@@ -1,24 +1,17 @@
 
 
-import core.c
+/* import core.c
 import core.string
 import core.intrinsics
 import core.console
 
-
-
 main = {
 
 
-    var a = "abcde".ptr:0
-
-    assert a is byte
-
-    putchar(a)
-}
+} */
 
 
-/*
+
 import core.c
 import core.string
 //import c = core.c
@@ -128,7 +121,7 @@ main = {
     IntPtr ip
 
     Cat cat
-    Dog* dog
+    Dog* dog = Dog*()
     //dog.age += 1
 
     [int, Bat berty] bertyStruct
@@ -152,8 +145,8 @@ main = {
 
     testStructs()
     //testClosures()
-    //testConstructors()
-    //testLiteralStruct()
+    testConstructors()
+    testLiteralStruct()
 
     dothings(0, cat)
 
@@ -163,16 +156,13 @@ main = {
     dd1 = dog
     dd1 = null
 
-    // broken
-    //puts("Hi there".ptr)
-
-    float2 v2
-    float3 v3
-    float4 v4
-    float8 v8
+    //float2 v2
+    //float3 v3
+    //float4 v4
+    //float8 v8
 }
 bool yop
-*/
+
 
 /*
     // inferred return type

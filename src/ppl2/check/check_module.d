@@ -85,7 +85,7 @@ public:
 
         if(paramTypes.length != argTypes.length) {
             throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
-                "Incorrect number of arguments");
+                "Expecting %s arguments, not %s".format(paramTypes.length, argTypes.length));
         }
 
         foreach(i, p; n.target.paramTypes()) {
@@ -221,11 +221,22 @@ public:
 
     }
     void visit(LiteralStruct n) {
+        AnonStruct struct_ = n.type.getAnonStruct;
+        assert(struct_);
+
+        auto structTypes = struct_.memberVariableTypes();
+
+        /// Check for too many values
+        if(n.numElements > struct_.numMemberVariables) {
+            throw new CompilerError(Err.STRUCT_LITERAL_TOO_MANY_VALUES, n,
+            "Too many values specified");
+        }
+
+        if(n.numElements==0) {
+
+        }
         if(n.names.length > 0) {
             /// This uses name=value to initialise elements
-
-            auto anon = n.type.getAnonStruct;
-            assert(anon);
 
             /// Check that the names are valid and are not repeated
             stringSet.clear();
@@ -235,15 +246,37 @@ public:
                         "Struct member %s initialised more than once".format(name));
                 }
                 stringSet.add(name);
-                auto v = anon.getMemberVariable(name);
+                auto v = struct_.getMemberVariable(name);
                 if(!v) {
                     throw new CompilerError(Err.STRUCT_LITERAL_MEMBER_NOT_FOUND, n.children[i],
                         "Struct does not have member %s".format(name));
                 }
             }
 
+            auto elementTypes = n.elementTypes();
+
+            foreach(i, name; n.names) {
+                auto var   = struct_.getMemberVariable(name);
+
+                auto left  = elementTypes[i];
+                auto right = var.type;
+                if(!left.canImplicitlyCastTo(right)) {
+                    errorBadImplicitCast(n.elements()[i], left, right);
+
+                }
+            }
+
         } else {
             /// This is a list of elements
+
+            /// Check that the element types match the struct members
+            foreach(i, t; n.elementTypes()) {
+                auto left  = t;
+                auto right = structTypes[i];
+                if(!left.canImplicitlyCastTo(right)) {
+                    errorBadImplicitCast(n.elements()[i], left, right);
+                }
+            }
         }
     }
     void visit(Malloc n) {

@@ -62,11 +62,18 @@ final class LiteralStruct : Expression {
         return t;
     }
 
+    int numElements() {
+        return children.length.as!int;
+    }
     Expression[] elements() {
         return cast(Expression[])children[];
     }
     Type[] elementTypes() {
         return elements().map!(it=>it.getType).array;
+    }
+    bool allValuesSpecified() {
+        assert(isResolved);
+        return elements().length == type.getAnonStruct.numMemberVariables;
     }
 
     override string toString() {
