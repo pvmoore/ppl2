@@ -42,6 +42,16 @@ public:
         }
         return _llvmType;
     }
+    string prettyString() {
+        auto buf = new StringBuffer;
+        buf.add("[");
+        foreach(i, t; memberVariableTypes()) {
+            if(i>0) buf.add(", ");
+            buf.add(t.prettyString());
+        }
+        buf.add("]");
+        return buf.toString();
+    }
     //========================================================================================
     bool isNamed() {
         return parent && parent.isNamedStruct;

@@ -376,17 +376,32 @@ public:
     }
     void visit(LiteralArray n) {
         if(n.type.isUnknown) {
-
             Type parentType;
             switch(n.parent.id) with(NodeID) {
-                case VARIABLE:
-                    parentType = n.parent.as!Variable.type;
+                case ADDRESS_OF:
+                    break;
+                case AS:
+                    parentType = n.parent.as!As.getType;
                     break;
                 case BINARY:
                     parentType = n.parent.as!Binary.otherSide(n).getType;
                     break;
+                case CALL: {
+                    auto call = n.parent.as!Call;
+                    if(call.isResolved) {
+                        parentType = call.target.paramTypes()[n.index()];
+                    }
+                    break;
+                }
+                case INDEX:
+                    break;
                 case INITIALISER:
                     parentType = n.parent.as!Initialiser.getType;
+                    break;
+                case LITERAL_FUNCTION:
+                    break;
+                case VARIABLE:
+                    parentType = n.parent.as!Variable.type;
                     break;
                 default:
                     assert(false, "Parent of LiteralArray is %s".format(n.parent.id));
@@ -451,43 +466,45 @@ public:
     }
     void visit(LiteralNull n) {
         if(n.type.isUnknown) {
-            Type t = n.parent.getType();
-            if(t.isUnknown) {
-                /// Determine type from parent
-                switch (n.parent.id()) with(NodeID) {
-                    case BINARY:
-                        t = n.parent.as!Binary.leftType();
-                        break;
-                    case VARIABLE:
-                        t = n.parent.as!Variable.type;
-                        break;
-                    case AS:
-                        t = n.parent.as!As.getType;
-                        break;
-                    case INITIALISER:
-                        t = n.parent.as!Initialiser.getType;
-                        break;
-                    case IF:
-                        auto if_ = n.parent.as!If;
-                        if(if_.hasThen && if_.hasElse) {
-                            if(n.nid==if_.thenStmt().nid) {
-                                t = if_.elseType();
-                            } else {
-                                t = if_.thenType();
-                            }
+            Type type;
+            /// Determine type from parent
+            switch(n.parent.id()) with(NodeID) {
+                case AS:
+                    type = n.parent.as!As.getType;
+                    break;
+                case BINARY:
+                    type = n.parent.as!Binary.leftType();
+                    break;
+                case COMPOSITE:
+                    break;
+                case IF:
+                    auto if_ = n.parent.as!If;
+                    if(if_.hasThen && if_.hasElse) {
+                        if(n.nid==if_.thenStmt().nid) {
+                            type = if_.elseType();
+                        } else {
+                            type = if_.thenType();
                         }
-                        break;
-                    case COMPOSITE:
-                        break;
-                    default:
-                        assert(false, "parent is %s".format(n.parent.id()));
-                }
+                    }
+                    break;
+                case INITIALISER:
+                    type = n.parent.as!Initialiser.getType;
+                    break;
+                case IS:
+                    type = n.parent.as!Is.oppositeSideType(n);
+                    break;
+                case VARIABLE:
+                    type = n.parent.as!Variable.type;
+                    break;
+                default:
+                    assert(false, "parent is %s".format(n.parent.id()));
             }
-            if(t.isKnown) {
-                if(t.isPtr) {
-                    n.type = t;
+
+            if(type && type.isKnown) {
+                if(type.isPtr) {
+                    n.type = type;
                 } else {
-                    errorBadNullCast(n, t);
+                    errorBadNullCast(n, type);
                 }
             }
         }
@@ -507,53 +524,42 @@ public:
     }
     void visit(LiteralStruct n) {
         if(n.type.isUnknown) {
-
-            //if(n.parent.isA!Variable) {
-            //    /// We are the initialiser of a 'var' Variable
-            //    auto t = n.getInferredType();
-            //    if(t) {
-            //        n.parent.as!Variable.setType(t);
-            //        n.type = t;
-            //    }
-            //}
-
-            if(n.type.isUnknown) {
-                Type parentType;
-                switch(n.parent.id) with(NodeID) {
-                    case VARIABLE:
-                        parentType = n.parent.as!Variable.type;
-                        break;
-                    case BINARY:
-                        parentType = n.parent.as!Binary.otherSide(n).getType;
-                        break;
-                    case CALL: {
-                        auto call = n.parent.as!Call;
-                        if(call.isResolved) {
-                            parentType = call.target.paramTypes()[n.index()];
-                        }
-                        break;
+            Type type;
+            /// Determine type from parent
+            switch(n.parent.id) with(NodeID) {
+                case AS:
+                    type = n.parent.as!As.getType;
+                    break;
+                case BINARY:
+                    type = n.parent.as!Binary.otherSide(n).getType;
+                    break;
+                case CALL: {
+                    auto call = n.parent.as!Call;
+                    if(call.isResolved) {
+                        type = call.target.paramTypes()[n.index()];
                     }
-                    case LITERAL_FUNCTION:
-                        parentType = n.getInferredType();
-                        break;
-                    case INITIALISER:
-                        parentType = n.parent.as!Initialiser.getType;
-                        if(parentType.isUnknown) {
-                            parentType = n.getInferredType();
-                        }
-                        break;
-                    case INDEX:
-                        parentType = n.getInferredType();
-                        break;
-                    default:
-                        assert(false, "Parent of LiteralStruct is %s".format(n.parent.id));
+                    break;
                 }
-                if(parentType && parentType.isKnown) {
-                    auto type = parentType.getAnonStruct;
-                    if(type) {
-                        n.type = type;
+                case INITIALISER:
+                    type = n.parent.as!Initialiser.getType;
+                    if(type.isUnknown) {
+                        type = n.getInferredType();
                     }
-                }
+                    break;
+                case INDEX:
+                    type = n.getInferredType();
+                    break;
+                case LITERAL_FUNCTION:
+                    type = n.getInferredType();
+                    break;
+                case VARIABLE:
+                    type = n.parent.as!Variable.type;
+                    break;
+                default:
+                    assert(false, "Parent of LiteralStruct is %s".format(n.parent.id));
+            }
+            if(type && type.isKnown) {
+                n.type = type;
             }
         }
     }

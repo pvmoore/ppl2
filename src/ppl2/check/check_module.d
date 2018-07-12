@@ -187,7 +187,23 @@ public:
 
     }
     void visit(LiteralArray n) {
+        /// Check for too many values
+        if(n.numElements > n.type.countAsInt()) {
+            throw new CompilerError(Err.ARRAY_LITERAL_TOO_MANY_VALUES, n,
+                "Too many values specified");
+        }
 
+        if(n.isIndexBased) {
+
+        } else {
+
+            foreach(i, left; n.elementTypes()) {
+
+                if(!left.canImplicitlyCastTo(n.type.subtype)) {
+                    errorBadImplicitCast(n.elementValues()[i], left, n.type.subtype);
+                }
+            }
+        }
     }
     void visit(LiteralFunction n) {
         assert(n.first().isA!Parameters);
@@ -204,8 +220,8 @@ public:
 
         switch(n.parent.id()) with(NodeID) {
             case VARIABLE:
-            ptr = &n.parent.as!Variable.type;
-            break;
+                ptr = &n.parent.as!Variable.type;
+                break;
             default: break;
         }
 

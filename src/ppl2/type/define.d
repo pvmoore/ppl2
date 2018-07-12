@@ -28,6 +28,7 @@ class Define : Statement, Type {
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
     LLVMTypeRef getLLVMType()            { assert(false); }
+    string prettyString()                { assert(false); }
     //=======================================================================================
 
     string getMangledName() {

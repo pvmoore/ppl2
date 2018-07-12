@@ -18,7 +18,7 @@ public:
 
     override bool isResolved() { return resolved; }
     override bool isConst() { return left().isConst && right().isConst; }
-    override NodeID id() const { return NodeID.AS; }
+    override NodeID id() const { return NodeID.IS; }
     override int priority() const { return 7; }
     override Type getType() { return TYPE_BOOL; }
 
@@ -27,6 +27,15 @@ public:
 
     Type leftType() { return left().getType; }
     Type rightType() { return right().getType; }
+
+    Type oppositeSideType(Expression node) {
+        if(left().nid==node.nid) {
+            return rightType();
+        } else if(right().nid==node.nid) {
+            return leftType();
+        }
+        assert(false);
+    }
 
     void resolve() {
         if(resolved) return;

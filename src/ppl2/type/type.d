@@ -19,6 +19,7 @@ interface Type {
     bool exactlyMatches(Type other);
     bool canImplicitlyCastTo(Type other);
     LLVMTypeRef getLLVMType();
+    string prettyString();
     //-------------------------------------
 pragma(inline,true) {
     final bool isFloat() const { return getEnum()==FLOAT; }

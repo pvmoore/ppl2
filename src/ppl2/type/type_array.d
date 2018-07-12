@@ -54,6 +54,15 @@ public:
         }
         return _llvmType;
     }
+    string prettyString() {
+        string c;
+        if(isResolved) {
+            c = countAsInt().to!string;
+        } else {
+            c = countExpr().toString;
+        }
+        return "[:%s %s]".format(subtype.prettyString(), c);
+    }
     //============================================================
     bool hasCountExpr() {
         return numChildren > 0;

@@ -60,7 +60,7 @@ shared static this() {
     g_builtinTypes["double"] = Type.DOUBLE;
     g_builtinTypes["void"]   = Type.VOID;
 
-    g_typeToString[Type.UNKNOWN]      = "?";
+    g_typeToString[Type.UNKNOWN]      = "?type";
     g_typeToString[Type.BOOL]         = "bool";
     g_typeToString[Type.BYTE]         = "byte";
     g_typeToString[Type.SHORT]        = "short";

@@ -27,6 +27,7 @@ import test_consts
 import test_constructors
 import test_meta
 import test_literal_struct
+import test_literal_array
 import test_unreferenced_module
 
 define AA = int
@@ -147,6 +148,7 @@ main = {
     //testClosures()
     testConstructors()
     testLiteralStruct()
+    testLiteralArray()
 
     dothings(0, cat)
 

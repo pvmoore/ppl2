@@ -1,0 +1,98 @@
+
+import core.intrinsics
+
+public
+
+testLiteralArray = {
+    test1 = {
+        // zero initialised
+        [:int 2] array
+        assert array:0 == 0
+        assert array:1 == 0
+        int n = 0
+        assert array:n == 0
+
+        [:int 2]* ptr
+        assert ptr is null
+
+        ptr = &[: 3 as int, 7]
+
+        assert ptr:0 is [:int 2]
+        assert ptr:0:0 == 3
+        assert ptr:0:1 == 7
+    }
+    test2 = {
+        // initialised
+        [:int 2] array = [: 5, 10]
+
+        assert array:0 == 5
+        assert array:1 == 10
+        assert array:0 is int
+        assert array:1 is int
+
+        var b = [:3, 7]
+        assert b is [:byte 2]
+        assert b:0 == 3
+        assert b:1 == 7
+    }
+    test3 = {
+        // sparse initialised
+        [:int 5] a = [: 2=1, 4=2]
+        assert a:0==0
+        assert a:1==0
+        assert a:2==1
+        assert a:3==0
+        assert a:4==2
+    }
+    test4 = { [:int 2] a ->
+        assert a:0 == 77
+        assert a:1 == 88
+    }
+    test5 = {
+        [:99,100]
+        var a = [:101,102]:0
+        assert a==101
+    }
+    test6 = {
+        // empty array literal
+        [:int 1] a = [:]
+        assert a:0 == 0
+
+        // too few values
+        [:float 3] b = [: 7]
+        assert b:0 == 7
+        assert b:1 == 0
+        assert b:2 == 0
+
+        b = [:8,3]
+        assert b:0 == 8
+        assert b:1 == 3
+        assert b:2 == 0
+
+        b = [:]
+        assert b:0 == 0
+        assert b:1 == 0
+        assert b:2 == 0
+    }
+    test7 = {
+
+    }
+    shouldNotCompile = {
+        //[:int 1] a
+        //var b = a:1 // out of bounds
+
+        //var a = [:] // cannot infer
+
+        //[:int 2] a = [: 1,2,3] // too many values
+
+        //[:int 2] a = [: 1, 1f] // bad cast
+    }
+    test1()
+    test2()
+    test3()
+    test4([: 77 as int, 88] as [:int 2])
+    test5()
+    test6()
+    test7()
+    shouldNotCompile()
+}

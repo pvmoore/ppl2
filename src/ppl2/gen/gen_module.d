@@ -179,9 +179,12 @@ public:
             lhs = builder.getElementPointer_struct(lhs, index);
             rhs = builder.load(lhs);
         } else if(n.target.isFunction) {
+            assert(n.target.llvmValue);
+
             rhs = n.target.llvmValue;
         } else if(n.target.isVariable) {
             assert(n.target.llvmValue);
+
             lhs = n.target.llvmValue;
             rhs = builder.load(lhs);
         }
@@ -194,20 +197,22 @@ public:
         dd("visit Index", n.getType);
 
         n.index().visit!ModuleGenerator(this);
+        rhs = castType(rhs, n.index().getType, TYPE_INT, "cast");
         LLVMValueRef arrayIndex = rhs;
 
         n.left().visit!ModuleGenerator(this);
 
         if(n.isArrayIndex) {
 
-            auto indices = [arrayIndex];
-            lhs = builder.getElementPointer_inBounds(rhs, indices);
+            auto indices = [constI32(0), arrayIndex];
+            lhs = builder.getElementPointer(lhs, indices);
 
         } else if(n.isStructIndex) {
 
             // todo - handle "this"?
 
             lhs = builder.getElementPointer_struct(lhs, n.getIndexAsInt());
+
         } else if(n.isPtrIndex) {
 
             auto indices = [arrayIndex];
@@ -215,9 +220,8 @@ public:
 
         } else assert(false);
 
-        //logln("index lhs is %s", lhs.getType.toString);
         rhs = builder.load(lhs);
-        //logln("index rhs is %s", rhs.getType.toString);
+        //dd("rhs=", rhs.toString);
     }
     void visit(Initialiser n) {
         dd("visit Initialiser");

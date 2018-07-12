@@ -20,8 +20,7 @@ enum Err {
     BAD_LHS_EXPR,
     BAD_RHS_EXPR,
     INVALID_OPERATOR,
-    ARRAY_LITERAL_MIXING_INDEX_AND_NON_INDEX,
-    STRUCT_LITERAL_MIXING_NAMED_AND_UNNAMED,
+
 // resolution
     RETURN_TYPE_MISMATCH = 3000,
     UNRESOLVED_SYMBOL,
@@ -42,6 +41,11 @@ enum Err {
     MULTIPLE_ENTRY_POINTS,
     MULTIPLE_MODULE_INITS,
 
+    /// Array
+    ARRAY_LITERAL_MIXING_INDEX_AND_NON_INDEX,
+    ARRAY_LITERAL_CANNOT_INFER_TYPE,
+    ARRAY_LITERAL_TOO_MANY_VALUES,
+
     /// Index
     INDEX_STRUCT_INDEX_MUST_BE_CONST,
 
@@ -60,6 +64,7 @@ enum Err {
     STRUCT_LITERAL_MEMBER_NOT_FOUND,
     STRUCT_LITERAL_DUPLICATE_NAME,
     STRUCT_LITERAL_TOO_MANY_VALUES,
+    STRUCT_LITERAL_MIXING_NAMED_AND_UNNAMED,
 
 
     /// Variable stuff
@@ -185,15 +190,15 @@ void errorBadSyntax(TokenNavigator t, string msg) {
 }
 void errorBadImplicitCast(ASTNode n, Type from, Type to) {
     throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
-        "Cannot implicitly cast %s to %s".format(from, to));
+        "Cannot implicitly cast %s to %s".format(from.prettyString(), to.prettyString()));
 }
 void errorBadNullCast(ASTNode n, Type to) {
     throw new CompilerError(Err.BAD_NULL_CAST, n,
-    "Cannot implicitly cast null to %s".format(to));
+    "Cannot implicitly cast null to %s".format(to.prettyString()));
 }
 void errorBadExplicitCast(ASTNode n, Type from, Type to) {
     throw new CompilerError(Err.BAD_EXPLICIT_CAST, n,
-        "Cannot cast %s to %s".format(from, to));
+        "Cannot cast %s to %s".format(from.prettyString(), to.prettyString()));
 }
 void errorModifyingConst(ASTNode n, Identifier i) {
     throw new CompilerError(Err.MODIFYING_CONST, n,

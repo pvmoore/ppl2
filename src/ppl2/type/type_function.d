@@ -98,6 +98,18 @@ public:
         }
         return _llvmType;
     }
+    string prettyString() {
+        auto buf = new StringBuffer;
+        buf.add("{");
+        foreach(i, t; paramTypes()) {
+            if(i>0) buf.add(", ");
+            buf.add(t.prettyString());
+        }
+        buf.add("->");
+        buf.add(returnType.prettyString());
+        buf.add("}");
+        return buf.toString;
+    }
     //============================================================
     override string description() {
         return "FunctionType:%s".format(toString());

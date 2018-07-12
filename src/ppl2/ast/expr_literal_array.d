@@ -28,6 +28,10 @@ final class LiteralArray : Expression {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
+    int numElements() {
+        return children.length.as!int;
+    }
+
     string generateName() {
         string name = "literal_array";
         ASTNode node = parent;
@@ -51,6 +55,16 @@ final class LiteralArray : Expression {
     ///
     void inferTypeFromElements() {
         if(!elementTypes().areKnown) return;
+
+        if(numElements==0) {
+            if(parent.parent.isVariable) {
+                auto var = parent.parent.as!Variable;
+                if(var.isImplicit) {
+                    throw new CompilerError(Err.ARRAY_LITERAL_CANNOT_INFER_TYPE, this,
+                        "Cannot infer type if no array values are specified");
+                }
+            }
+        }
 
         Type t = calculateCommonElementType();
         type.subtype = t;

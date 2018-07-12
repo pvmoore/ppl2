@@ -56,6 +56,9 @@ public:
         }
         return _llvmType;
     }
+    string prettyString() {
+        return getUniqueName();
+    }
     //========================================================================================
     bool isTemplate() const { return templateArgNames.length > 0; }
 

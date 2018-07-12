@@ -36,6 +36,11 @@ final class LiteralGenerator {
             }
         } else {
 
+            if(n.numElements != n.type.countAsInt()) {
+                /// Set to all zeroes
+                builder.store(constAllZeroes(n.type.getLLVMType()), ptr);
+            }
+
             /// Set the values
             foreach(int i, ch; n.elementValues()) {
                 ch.visit!ModuleGenerator(gen);

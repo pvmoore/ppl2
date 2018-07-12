@@ -109,6 +109,9 @@ testLiteralStruct = {
         assert s is byte
         assert s==10
     }
+    test9 = { [int] a ->
+        assert(a:0==66)
+    }
     shouldNotCompile = {
         // error mixing initialisation
         //[int a,int b] ss = [a=4, 3]
@@ -128,5 +131,6 @@ testLiteralStruct = {
     test6()
     test7()
     test8()
+    test9([66])
     shouldNotCompile()
 }

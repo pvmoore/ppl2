@@ -52,6 +52,9 @@ final class BasicType : Type {
                 assert(false, "type is %s".format(type));
         }
     }
+    string prettyString() {
+        return g_typeToString[getEnum];
+    }
     //===============================================================
     override string toString() {
         return "%s".format(g_typeToString[type]);
