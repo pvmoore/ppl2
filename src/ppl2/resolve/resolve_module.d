@@ -526,6 +526,13 @@ public:
                     case BINARY:
                         parentType = n.parent.as!Binary.otherSide(n).getType;
                         break;
+                    case CALL: {
+                        auto call = n.parent.as!Call;
+                        if(call.isResolved) {
+                            parentType = call.target.paramTypes()[n.index()];
+                        }
+                        break;
+                    }
                     case LITERAL_FUNCTION:
                         parentType = n.getInferredType();
                         break;
