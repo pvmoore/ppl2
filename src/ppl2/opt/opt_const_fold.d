@@ -105,6 +105,9 @@ public:
     void visit(Initialiser n) {
 
     }
+    void visit(Is n) {
+
+    }
     void visit(LiteralNumber n) {
 
     }

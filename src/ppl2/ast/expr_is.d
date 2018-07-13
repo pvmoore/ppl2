@@ -43,12 +43,11 @@ public:
         auto leftType  = leftType();
         auto rightType = rightType();
 
-        if(leftType.isUnknown || rightType.isUnknown) return;
-
-        resolved = true;
-
         if(!left().isTypeExpr && !right().isTypeExpr) {
             /// Identifier is Identifier
+
+            /// Both sides must be resolved
+            if(leftType.isUnknown || rightType.isUnknown) return;
 
             if(leftType.isValue && rightType.isValue) {
                 /// value is value
@@ -81,10 +80,32 @@ public:
             /// Type is Expression
             /// Expression is Type
 
-            bool b = leftType.exactlyMatches(rightType);
-            b ^= negate;
-            parent.replaceChild(this, LiteralNumber.makeConst(b ? TRUE : FALSE, TYPE_BOOL));
+
+            /// Special case - array subtype check.
+            /// eg. expr is [:int]
+            ///     [:bool] is expr
+            ///
+            ArrayType leftArray  = leftType.getArrayType;
+            ArrayType rightArray = rightType.getArrayType;
+            if(leftArray && rightArray) {
+                bool r  = (left.isTypeExpr && leftArray.subtype.isKnown && !leftArray.hasCountExpr);
+                     r |= (right.isTypeExpr && rightArray.subtype.isKnown && !rightArray.hasCountExpr);
+
+                if(r) {
+                    /// Do array subtype check only
+                    bool result = (leftType.getPtrDepth==rightType.getPtrDepth) &&
+                                  leftArray.subtype.exactlyMatches(rightArray.subtype);
+                    rewriteToConstBool(result);
+                    return;
+                }
+            }
+
+            /// Both sides must be resolved
+            if(leftType.isUnknown || rightType.isUnknown) return;
+
+            rewriteToConstBool(leftType.exactlyMatches(rightType));
         }
+        resolved = true;
     }
 
     override string toString() {
@@ -92,6 +113,10 @@ public:
         return "Is%s (%s)".format(neg, getType());
     }
 private:
+    void rewriteToConstBool(bool result) {
+        result ^= negate;
+        parent.replaceChild(this, LiteralNumber.makeConst(result ? TRUE : FALSE, TYPE_BOOL));
+    }
     ///
     /// Binary (EQ)
     ///     call memcmp
@@ -112,7 +137,8 @@ private:
         call.addToEnd(b.addressOf(right()));
         call.addToEnd(LiteralNumber.makeConst(leftType.size, TYPE_INT));
 
-        auto ne = b.binary(Operator.BOOL_EQ, call, LiteralNumber.makeConst(0, TYPE_INT));
+        auto op = negate ? Operator.BOOL_NE : Operator.BOOL_EQ;
+        auto ne = b.binary(op, call, LiteralNumber.makeConst(0, TYPE_INT));
 
         parent.replaceChild(this, ne);
     }
