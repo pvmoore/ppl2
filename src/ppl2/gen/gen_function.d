@@ -12,12 +12,18 @@ void generateImportedFunctionDeclarations(Module module_) {
         generateFunctionDeclaration(module_, f);
     }
 }
-void generateStructMemberFunctionDeclarations(Module module_) {
-    foreach(s; module_.getNamedStructs()) {
+void generateLocalStructMemberFunctionDeclarations(Module module_) {
+    foreach(s; module_.getAllNamedStructs()) {
         foreach(f; s.type.getMemberFunctions()) {
-            //dd("member function", f.getUniqueName);
-
             generateFunctionDeclaration(module_, f);
+        }
+    }
+}
+void generateLocalStructMemberFunctionBodies(Module module_, LiteralGenerator literalGen) {
+    foreach(s; module_.getAllNamedStructs()) {
+        foreach(f; s.type.getMemberFunctions()) {
+            auto litFunc = f.getBody();
+            literalGen.generate(litFunc, f.llvmValue);
         }
     }
 }
@@ -60,7 +66,7 @@ void generateFunctionDeclaration(Module module_, Function f) {
     f.llvmValue = func;
 
     //// inline
-    bool isInline   = f.isClosure; //f.isOperatorOverload;
+    bool isInline   = false;//f.isClosure; //f.isOperatorOverload;
     bool isNoInline = false;
 
     //// check if user has set a preference

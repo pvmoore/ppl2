@@ -29,7 +29,7 @@ class LiteralFunction : Expression, Scope, Container {
     }
 
     bool isClosure() const {
-        return parent.isClosure;
+        return parent.isA!Closure;
     }
 
     bool isTemplate() { return false; }

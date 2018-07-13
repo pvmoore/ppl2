@@ -12,7 +12,6 @@ private:
     LLVMTypeRef _llvmType;
 public:
     Type subtype;
-    bool inferCount;
 
     override bool isResolved() { return isKnown; }
     override NodeID id() const { return NodeID.ARRAY; }
@@ -81,7 +80,12 @@ public:
         return countExpr().as!LiteralNumber.value.getInt();
     }
     override string toString() {
-        string c = inferCount ? "infer" : hasCountExpr() ? "%s".format(countExpr()) : "?";
+        string c;
+        if(isResolved) {
+            c = countAsInt().to!string;
+        } else {
+            c = !hasCountExpr() ? "infer" : hasCountExpr() ? "%s".format(countExpr()) : "?";
+        }
         return "ArrayType:[nid=%s, subtype=%s, count=%s]".format(nid, subtype, c);
     }
 }

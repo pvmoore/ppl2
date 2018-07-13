@@ -28,7 +28,13 @@ final class LiteralArray : Expression {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
-    int numElements() {
+    int length() {
+        assert(isResolved);
+
+        if(isIndexBased) {
+            import std.algorithm.searching : maxElement;
+            return 1 + elementIndexes.map!(it=>it.as!LiteralNumber.value.getInt()).maxElement();
+        }
         return children.length.as!int;
     }
 
@@ -56,7 +62,7 @@ final class LiteralArray : Expression {
     void inferTypeFromElements() {
         if(!elementTypes().areKnown) return;
 
-        if(numElements==0) {
+        if(children.length==0) {
             if(parent.parent.isVariable) {
                 auto var = parent.parent.as!Variable;
                 if(var.isImplicit) {

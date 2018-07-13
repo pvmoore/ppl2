@@ -102,12 +102,16 @@ Type[] types(Expression[] e) {
 bool areKnown(Type[] t) {
 	return t.all!(it=>it !is null && it.isKnown);
 }
+bool areCompatible(Type a, Type b) {
+    if(a.canImplicitlyCastTo(b)) return true;
+    return b.canImplicitlyCastTo(a);
+}
 ///
 /// Return the largest type of a or b.
 /// Return null if they are not compatible.
 ///
 Type getBestFit(Type a, Type b) {
-    if(a==b) return a;
+    if(a.exactlyMatches(b)) return a;
     if(a.isPtr || b.isPtr) {
         return null;
     }

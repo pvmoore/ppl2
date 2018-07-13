@@ -63,8 +63,12 @@ public:
     }
     void visit(Binary n) {
 
+        /// Check the types
+        if(!areCompatible(n.rightType, n.leftType)) {
+            errorIncompatibleTypes(n, n.rightType, n.leftType);
+        }
+
         if(n.op.isAssign) {
-            /// Check the types
 
             if(!n.rightType.canImplicitlyCastTo(n.leftType)) {
                 errorBadImplicitCast(n, n.rightType, n.leftType);
@@ -158,6 +162,7 @@ public:
                     errorArrayBounds(n, lit.value.getInt(), count.value.getInt());
                 }
             } else if(n.isStructIndex) {
+
                 AnonStruct struct_ = n.left().getType.getAnonStruct;
                 assert(struct_);
 
@@ -188,9 +193,9 @@ public:
     }
     void visit(LiteralArray n) {
         /// Check for too many values
-        if(n.numElements > n.type.countAsInt()) {
+        if(n.length() > n.type.countAsInt()) {
             throw new CompilerError(Err.ARRAY_LITERAL_TOO_MANY_VALUES, n,
-                "Too many values specified");
+                "Too many values specified (%s > %s)".format(n.length(), n.type.countAsInt()));
         }
 
         if(n.isIndexBased) {

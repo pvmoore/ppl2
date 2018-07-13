@@ -55,6 +55,9 @@ public:
         auto otherPtr = other.as!PtrType;
         assert(otherPtr);
 
+        /// Can implicitly cast all pointers to void*
+        if(other.isVoid) return true;
+
         return decorated.canImplicitlyCastTo(otherPtr.decorated);
     }
     LLVMTypeRef getLLVMType() {

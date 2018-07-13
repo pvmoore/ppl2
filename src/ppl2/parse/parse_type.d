@@ -127,14 +127,7 @@ public:
 
         if(t.type!=TT.RSQBRACKET) {
             /// count
-
-            if(t.type==TT.QMARK) {
-                /// get the count from the initialiser
-                a.inferCount = true;
-                t.next;
-            } else {
-                exprParser().parse(t, a);
-            }
+            exprParser().parse(t, a);
         }
 
         t.skip(TT.RSQBRACKET);

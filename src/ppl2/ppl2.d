@@ -82,6 +82,7 @@ public:
             writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
             writefln("Constant folder time ... %.2f ms", modules.values.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6);
             writefln("Semantic checker time .. %.2f ms", modules.values.map!(it=>it.checker.getElapsedNanos).sum() * 1e-6);
+            writefln("IR generation time ..... %.2f ms", modules.values.map!(it=>it.gen.getElapsedNanos).sum() * 1e-6);
             writefln("Optimise time .......... %.2f ms", optimiser.getElapsedNanos * 1e-6);
             writefln("Link time .............. %.2f ms", linker.getElapsedNanos * 1e-6);
             writefln("Total time.............. %.2f ms", time * 1e-6);

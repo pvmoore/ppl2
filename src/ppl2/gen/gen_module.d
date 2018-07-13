@@ -5,6 +5,7 @@ import ppl2.internal;
 final class ModuleGenerator {
 public:
     Module module_;
+    StopWatch watch;
     BinaryGenerator binaryGen;
     LiteralGenerator literalGen;
     IfGenerator ifGen;
@@ -20,6 +21,8 @@ public:
 
     LLVMValueRef[string] structMemberThis;  /// key = struct.getUniqueName
 
+    ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
+
     this(Module module_, LLVMWrapper llvm) {
         this.module_    = module_;
         this.llvm       = llvm;
@@ -29,6 +32,7 @@ public:
         this.ifGen      = new IfGenerator(this);
     }
     bool generate() {
+        watch.start();
         log("Generating IR for module %s", module_.canonicalName);
 
         this.lhs = null;
@@ -39,11 +43,15 @@ public:
         generateGlobalStrings();
         generateGlobalVariables();
         generateImportedStructDeclarations(module_);
+        generateLocalStructDeclarations(module_);
 
         generateIntrinsicFuncDeclarations();
         generateStandardFunctionDeclarations(module_);
-        generateStructMemberFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
+
+        generateLocalStructMemberFunctionDeclarations(module_);
+        generateLocalStructMemberFunctionBodies(module_, literalGen);
+
         generateClosureDeclarations(module_);
         generateClosureBodies(module_, literalGen);
 
@@ -51,7 +59,9 @@ public:
 
         writeLL(module_, "ir/");
 
-        return verify();
+        bool result = verify();
+        watch.stop();
+        return result;
     }
     //======================================================================================
     void visit(AddressOf n) {
@@ -79,7 +89,7 @@ public:
         binaryGen.generate(n);
     }
     void visit(Call n) {
-        dd("visit Call");
+        dd("visit Call", n.name);
         Type returnType       = n.target.returnType;
         Type[] funcParamTypes = n.target.paramTypes;
         LLVMValueRef[] argValues;
@@ -135,7 +145,7 @@ public:
         visitChildren(n);
     }
     void visit(Constructor n) {
-        dd("visit Constructor");
+        dd("visit Constructor", n.type.getNamedStruct.name);
         visitChildren(n);
     }
     void visit(Dot n) {
@@ -184,7 +194,6 @@ public:
             rhs = n.target.llvmValue;
         } else if(n.target.isVariable) {
             assert(n.target.llvmValue);
-
             lhs = n.target.llvmValue;
             rhs = builder.load(lhs);
         }
@@ -196,19 +205,20 @@ public:
     void visit(Index n) {
         dd("visit Index", n.getType);
 
+        dd("  index index");
         n.index().visit!ModuleGenerator(this);
         rhs = castType(rhs, n.index().getType, TYPE_INT, "cast");
         LLVMValueRef arrayIndex = rhs;
 
+        dd("  index left");
         n.left().visit!ModuleGenerator(this);
 
         if(n.isArrayIndex) {
 
             auto indices = [constI32(0), arrayIndex];
-            lhs = builder.getElementPointer(lhs, indices);
+            lhs = builder.getElementPointer_inBounds(lhs, indices);
 
         } else if(n.isStructIndex) {
-
             // todo - handle "this"?
 
             lhs = builder.getElementPointer_struct(lhs, n.getIndexAsInt());
@@ -272,11 +282,8 @@ public:
         dd("visit LiteralStruct");
         literalGen.generate(n);
     }
-     void visit(NamedStruct n) {
-        dd("visit NamedStruct", n.name);
-        setTypes(n.getLLVMType(), n.type.getLLVMTypes(), true);
-
-        visitChildren(n);
+    void visit(NamedStruct n) {
+        /// Nothing to do
     }
     void visit(Parameters n) {
         dd("visit Parameters");
@@ -346,7 +353,11 @@ public:
             //// it must be a local/parameter
 
             lhs = builder.alloca(n.type.getLLVMType(), n.name);
+
+            // todo - can we remove this?
             n.llvmValue = lhs;
+
+            //setAlignment(lhs, 4);
 
             if(n.hasInitialiser) {
                 n.initialiser.visit!ModuleGenerator(this);
@@ -461,8 +472,8 @@ public:
         return v;
     }*/
     LLVMValueRef castType(LLVMValueRef v, Type from, Type to, string name=null) {
+        if(from.exactlyMatches(to)) return v;
         dd("cast", from, to);
-        if(from==to) return v;
         /// cast to different pointer type
         if(from.isPtr && to.isPtr) {
             rhs = builder.bitcast(v, to.getLLVMType, name);

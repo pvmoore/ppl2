@@ -110,8 +110,10 @@ public:
         }
         return null;
     }
-    NamedStruct[] getNamedStructs() {
-        return children[].filter!(it=>it.isNamedStruct).array.to!(NamedStruct[]);
+    NamedStruct[] getAllNamedStructs() {
+        auto array = new Array!NamedStruct;
+        selectDescendents!NamedStruct(array);
+        return array[];
     }
     ///
     /// Find all functions with given name at module scope.
@@ -220,7 +222,7 @@ public:
         writefln("\tExported functions ........ %s", exportedFunctions);
 
         writefln("\tLocal anon structs ........ %s", getAnonStructs());
-        writefln("\tLocal named structs ....... %s", getNamedStructs().map!(it=>it.name));
+        writefln("\tLocal named structs ....... %s", getAllNamedStructs().map!(it=>it.name));
         writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
 
         writefln("\tLocal functions ........... %s", getFunctions().map!(it=>it.getUniqueName));

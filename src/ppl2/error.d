@@ -19,6 +19,7 @@ enum Err {
     BAD_SYNTAX,
     BAD_LHS_EXPR,
     BAD_RHS_EXPR,
+    TYPE_INCOMPATIBLE,
     INVALID_OPERATOR,
 
 // resolution
@@ -182,6 +183,10 @@ void displayUnresolved(Module[] modules) {
 }
 //==============================================================================================
 
+void errorIncompatibleTypes(ASTNode n, Type a, Type b) {
+    throw new CompilerError(Err.TYPE_INCOMPATIBLE, n,
+        "Types are incompatible: %s and %s".format(a.prettyString, b.prettyString));
+}
 void errorBadSyntax(ASTNode n, string msg) {
     throw new CompilerError(Err.BAD_SYNTAX, n, msg);
 }

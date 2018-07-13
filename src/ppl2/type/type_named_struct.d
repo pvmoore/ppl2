@@ -62,6 +62,9 @@ public:
     //========================================================================================
     bool isTemplate() const { return templateArgNames.length > 0; }
 
+    bool isAtModuleScope() {
+        return parent.isModule;
+    }
     string getUniqueName() {
         if(!_uniqueName) {
             _uniqueName = mangle(this);

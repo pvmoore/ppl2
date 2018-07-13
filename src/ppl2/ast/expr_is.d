@@ -58,11 +58,16 @@ public:
 
                 if(leftType.size != rightType.size) {
                     throw new CompilerError(Err.IS_BOTH_SIDES_MUST_BE_SAME_SIZE, this,
-                    "Both sides of value 'is' value expression should be the same size");
+                        "Both sides of value 'is' value expression should be the same size "~
+                        "(%s -> %s)".format(leftType.size, rightType.size));
                 }
 
                 /// Structs need to use memcmp
                 if(leftType.isStruct && rightType.isStruct) {
+                    rewriteToMemcmp();
+                    return;
+                }
+                if(leftType.isArray && rightType.isArray) {
                     rewriteToMemcmp();
                     return;
                 }

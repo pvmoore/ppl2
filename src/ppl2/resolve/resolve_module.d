@@ -398,6 +398,9 @@ public:
                 case INITIALISER:
                     parentType = n.parent.as!Initialiser.getType;
                     break;
+                case IS:
+
+                    break;
                 case LITERAL_FUNCTION:
                     break;
                 case VARIABLE:
@@ -409,6 +412,10 @@ public:
             if(parentType && parentType.isKnown) {
                 auto type = parentType.getArrayType;
                 if(type) {
+                    if(!type.isArray) {
+                        throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
+                            "Cannot cast array literal to %s".format(type.prettyString));
+                    }
                     n.type = type;
                 }
             }
@@ -559,6 +566,10 @@ public:
                     assert(false, "Parent of LiteralStruct is %s".format(n.parent.id));
             }
             if(type && type.isKnown) {
+                if(!type.isAnonStruct) {
+                    throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
+                        "Cannot cast struct literal to %s".format(type.prettyString));
+                }
                 n.type = type;
             }
         }
@@ -603,7 +614,7 @@ public:
                 }
             } else {
                 /// No initialiser
-                if(n.type.isArray && n.type.getArrayType.inferCount) {
+                if(n.type.isArray && !n.type.getArrayType.hasCountExpr()) {
                     throw new CompilerError(Err.INFER_ARRAY_WITHOUT_INITIALISER, n,
                         "Array with inferred count must have an initialiser");
                 }

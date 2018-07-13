@@ -24,21 +24,28 @@ final class Index : Expression {
     override Type getType() {
         auto t = leftType();
         if(t.isPtr) {
-            return t.getValueType;
+            return PtrType.of(t, -1);
         }
         auto array = t.getArrayType;
         if(array) {
+            /// Check for bounds error
+            if(array.isResolved && index().isResolved && index().isA!LiteralNumber) {
+                auto i = getIndexAsInt();
+                if(i >= array.countAsInt()) {
+                    errorArrayBounds(index(), i, array.countAsInt());
+                }
+            }
             return array.subtype;
         }
         auto struct_ = t.getAnonStruct;
         if(struct_) {
             if(index().isResolved && index().isA!LiteralNumber) {
-                auto i = index().as!LiteralNumber.value.getInt();
-                if(i < struct_.numMemberVariables()) {
-                    return struct_.getMemberVariable(i).type;
+                auto i = getIndexAsInt();
+                /// Check for bounds error
+                if(i >= struct_.numMemberVariables()) {
+                    errorArrayBounds(index(), i, struct_.numMemberVariables());
                 }
-                /// An array bounds error will be generated in the semantic checks
-                return TYPE_INT;
+                return struct_.getMemberVariable(i).type;
             }
         }
         return TYPE_UNKNOWN;
@@ -59,6 +66,12 @@ final class Index : Expression {
     }
 
     override string toString() {
-        return "Index (%s) :%s".format(getType(), index());
+        /// Catch and ignore the exception that might be thrown by calling getType() here
+        Type t = TYPE_UNKNOWN;
+        try{
+            t = getType();
+        }catch(Exception e) {}
+
+        return "Index (type=%s) [%s]".format(t, index());
     }
 }

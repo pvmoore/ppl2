@@ -36,7 +36,7 @@ final class LiteralGenerator {
             }
         } else {
 
-            if(n.numElements != n.type.countAsInt()) {
+            if(n.length() != n.type.countAsInt()) {
                 /// Set to all zeroes
                 builder.store(constAllZeroes(n.type.getLLVMType()), ptr);
             }
@@ -49,6 +49,8 @@ final class LiteralGenerator {
                 gen.setArrayValue(ptr, gen.rhs, i, "[%s]".format(i));
             }
         }
+        /// Set literal array ptr as the lhs
+        gen.lhs = ptr;
         gen.rhs = builder.load(gen.lhs);
     }
     void generate(LiteralFunction n, LLVMValueRef llvmValue) {

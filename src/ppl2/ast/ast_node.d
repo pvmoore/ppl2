@@ -73,7 +73,6 @@ bool isAnonStruct(inout ASTNode n) { return n.id()==NodeID.ANON_STRUCT; }
 bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
-bool isClosure(inout ASTNode n) { return n.id()==NodeID.CLOSURE; }
 bool isComposite(inout ASTNode n) { return n.id()==NodeID.COMPOSITE; }
 bool isDefine(inout ASTNode n) { return n.id()==NodeID.DEFINE; }
 bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }

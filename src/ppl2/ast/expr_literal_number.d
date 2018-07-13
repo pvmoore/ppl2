@@ -17,6 +17,7 @@ public:
         return _type;
     }
     void setType(Type t) {
+        dd("!!! set type to", t);
         value.changeType(_type, t);
         _type = t;
     }
