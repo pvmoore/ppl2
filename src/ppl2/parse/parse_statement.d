@@ -108,6 +108,9 @@ public:
             } else if(nextTok.value=="is") {
                 noExprAllowedAtModuleScope();
                 exprParser.parse(t, parent);
+            } else if(nextTok.type==TT.DOT) {
+                noExprAllowedAtModuleScope();
+                exprParser.parse(t, parent);
             } else {
                 /// Variable decl
                 varParser().parse(t, parent);

@@ -318,8 +318,23 @@ public:
                 Type prevType   = prev.getType;
 
                 if(prevType.isKnown) {
-                    if(!prevType.isStruct) throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
-                    "Left of identifier must be a struct type not a %s".format(prevType));
+
+                    /// Special case - Array length
+                    /// array.length
+                    if(n.name=="length" && prevType.isArray) {
+
+                        int len = prevType.getArrayType.countAsInt();
+
+                        auto dot = n.parent.as!Dot;
+                        assert(dot);
+                        dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                        return;
+                    }
+
+                    if(!prevType.isStruct) {
+                        throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
+                            "Left of identifier must be a struct type not a %s".format(prevType));
+                    }
 
                     AnonStruct struct_ = prevType.getAnonStruct();
                     assert(struct_);
@@ -393,6 +408,9 @@ public:
                     }
                     break;
                 }
+                case DOT:
+
+                    break;
                 case INDEX:
                     break;
                 case INITIALISER:

@@ -50,6 +50,10 @@ private:
                 parseTypeExpr(t, parent);
                 return;
             }
+            if(nextTok.type==TT.DOT) {
+                parseTypeExpr(t, parent);
+                return;
+            }
         }
 
         if(t.type==TT.NUMBER || t.type==TT.CHAR || "true"==t.value || "false"==t.value || "null"==t.value) {
