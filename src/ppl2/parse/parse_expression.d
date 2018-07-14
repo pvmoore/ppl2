@@ -93,9 +93,6 @@ private:
             case TT.TILDE:
                 parseUnary(t, parent);
                 break;
-            case TT.HASH:
-                parseMetaFunction(t, parent);
-                break;
             case TT.AMPERSAND:
                 parseAddressOf(t, parent);
                 break;
@@ -703,39 +700,6 @@ private:
         t.skip(TT.AT);
 
         parse(t, v);
-    }
-    ///
-    /// #length etc...
-    ///
-    void parseMetaFunction(TokenNavigator t, ASTNode parent) {
-        /// #
-        t.skip(TT.HASH);
-
-
-        assert(false, "implement me");
-
-        //Expression e;
-        //
-        ///// name
-        //if(t.value=="ptr") {
-        //    e = makeNode!AddressOf(t);
-        //} else if(t.value=="val") {
-        //    e = makeNode!ValueOf(t);
-        //} else {
-        //    e = makeNode!MetaFunction(t);
-        //    e.as!MetaFunction.name = t.value;
-        //}
-        //parent.addToEnd(e);
-        //t.next;
-        //
-        ///// (
-        //t.skip(TT.LBRACKET);
-        //
-        ///// expr
-        //parse(t, e);
-        //
-        ///// )
-        //t.skip(TT.RBRACKET);
     }
     ///
     /// if   ::= "if" "(" expression ")" then [ else ]

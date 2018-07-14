@@ -319,25 +319,55 @@ public:
 
                 if(prevType.isKnown) {
 
+                    /// Current structure:
+                    ///
+                    /// Dot
+                    ///    prev
+                    ///    ptr
+                    ///
+                    auto dot = n.parent.as!Dot;
+                    assert(dot);
+
                     /// Properties:
+                    switch(n.name) {
+                        case "length":
+                            if(prevType.isArray) {
+                                int len = prevType.getArrayType.countAsInt();
+                                dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                                return;
+                            }
+                            break;
+                        case "subtype":
+                            if(prevType.isArray) {
+                                dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
+                                return;
+                            }
+                            break;
+                        case "ptr":
+                            if(prevType.isArray) {
+                                if(prevType.isPtr) {
+                                    assert(false, "array is a pointer. handle this");
+                                }
 
-                    /// array.length
-                    if(n.name=="length" && prevType.isArray) {
-
-                        int len = prevType.getArrayType.countAsInt();
-
-                        auto dot = n.parent.as!Dot;
-                        assert(dot);
-                        dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
-                        return;
+                                auto b = module_.builder(n);
+                                auto as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
+                                /// As
+                                ///   AddressOf
+                                ///      prev
+                                /// subtype*
+                                dot.parent.replaceChild(dot, as);
+                                return;
+                            }
+                            break;
+                        case "#size": {
+                            int size = prevType.size();
+                            dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
+                            return;
+                        }
+                        default:
+                            break;
                     }
-                    if(n.name=="subtype" && prevType.isArray) {
-                        auto dot = n.parent.as!Dot;
-                        assert(dot);
 
-                        dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
-                        return;
-                    }
 
                     if(!prevType.isStruct) {
                         throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,

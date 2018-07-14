@@ -53,7 +53,6 @@ import ppl2.ast.expr_literal_null;
 import ppl2.ast.expr_literal_string;
 import ppl2.ast.expr_literal_struct;
 import ppl2.ast.expr_malloc;
-import ppl2.ast.expr_meta_function;
 import ppl2.ast.expr_parenthesis;
 import ppl2.ast.expr_type;
 import ppl2.ast.expr_unary;

@@ -114,10 +114,6 @@ public:
     void visit(LiteralNull n) {
 
     }
-    void visit(MetaFunction n) {
-        n.rewrite();
-        nodesFolded++;
-    }
     void visit(Parenthesis n) {
         if(n.expr().isA!Parenthesis) {
             /// Remove unnecessary parens ((expr))

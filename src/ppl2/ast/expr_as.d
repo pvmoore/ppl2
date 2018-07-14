@@ -1,7 +1,11 @@
 module ppl2.ast.expr_as;
 
 import ppl2.internal;
-
+///
+/// As
+///    expr
+///    type
+///
 final class As : Expression {
 
     override bool isResolved() { return getType.isKnown; }
