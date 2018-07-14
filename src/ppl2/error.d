@@ -128,6 +128,13 @@ final class UnresolvedSymbols : Exception {
         super("");
     }
 }
+final class AmbiguousCall : CompilerError {
+    Array!Callable overloadSet;
+    this(ASTNode node, Array!Callable overloadSet) {
+        super(Err.AMBIGUOUS_CALL, node, "Ambiguous call");
+        this.overloadSet = overloadSet;
+    }
+}
 //======================================================================
 void warn(TokenNavigator n, string msg) {
     writefln("Warn: %s", msg);
@@ -135,6 +142,25 @@ void warn(TokenNavigator n, string msg) {
 //======================================================================
 void prettyErrorMsg(CompilerError e) {
     prettyErrorMsg(e.module_, e.line, e.column, cast(int)e.err, e.msg);
+
+    auto ambiguous = e.as!AmbiguousCall;
+    if(ambiguous) {
+        writefln("\n%s matching overloads:\n", ambiguous.overloadSet.length);
+
+        foreach(o; ambiguous.overloadSet) {
+            auto params = o.getType().getFunctionType.paramTypes();
+            string name;
+            auto f = o.as!Function;
+            if(f) {
+                name = f.name;
+            }
+            auto v = o.as!Variable;
+            if(v) {
+                name = v.name;
+            }
+            writefln("\t%s(%s)", name, prettyString(params));
+        }
+    }
 }
 void prettyErrorMsg(Module m, int line, int col, int errNum, string msg) {
     string filename = m.getPath();

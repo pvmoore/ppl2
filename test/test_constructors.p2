@@ -25,7 +25,8 @@ struct S2 = [
     // new function created automatically
 ]
 
-public testConstructors = {
+public
+testConstructors = {
     S s         // zero initialise
 
     S s2 = S()  // zero initialise
@@ -35,11 +36,13 @@ public testConstructors = {
     S* sp2 = null
 
     var s3 = S(1)
-    //var s4 = S(value=1) // todo
+    //var s4 = S(value=1)
     //var s5 = S(sh=3, flag=true)   // todo
 
     var s6 = S*()
     var s7 = S*(1)
     //var s6 = S*(sh=3, flag=true) // todo
+
+
 
 }

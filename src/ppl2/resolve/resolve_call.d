@@ -32,8 +32,7 @@ public:
                     "Function %s not found".format(name));
             }
             if(overloads.length > 1) {
-                throw new CompilerError(Err.AMBIGUOUS_CALL, node,
-                    "Ambiguous call");
+                throw new AmbiguousCall(node, overloads);
             }
 
             return overloads[0];
@@ -113,9 +112,17 @@ public:
                 type = o.as!Function.getType().getFunctionType;
                 assert(type);
 
+                /// Check the number of params
                 Type[] params = type.paramTypes();
                 if(params.length != argTypes.length) {
                     overloadSet.remove(o);
+                    continue;
+                }
+
+                /// Check that args can be implicitly converted to params
+                if(!canImplicitlyCastTo(argTypes, params)) {
+                    overloadSet.remove(o);
+                    continue;
                 }
 
             } else if(o.isA!Variable) {

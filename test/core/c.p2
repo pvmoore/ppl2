@@ -9,6 +9,7 @@ extern puts {byte* str -> int}
 
 // stdlib
 extern exit {int status->void}
+extern _itoa {int value,byte* str,int base->byte*}
 
 // string.h
 extern memcmp {void* ptr1,void* ptr2, long numBytes->int}

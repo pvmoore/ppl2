@@ -197,7 +197,7 @@ public:
                 assert(prev);
                 Type prevType   = prev.getType;
 
-                if(prevType.isKnown) {
+                if(prevType.isKnown && n.argTypes().areKnown) {
                     if(!prevType.isStruct) throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
                         "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
 
@@ -214,10 +214,9 @@ public:
 
                     if(overloadSet.length==0) {
                         throw new CompilerError(Err.FUNCTION_NOT_FOUND, n,
-                            "Struct %s does not have function %s".format(struct_, n.name));
+                            "Struct %s does not have function %s(%s)".format(struct_, n.name, n.argTypes()));
                     } else if(overloadSet.length > 1) {
-                        throw new CompilerError(Err.AMBIGUOUS_CALL, n,
-                            "Ambiguous call");
+                        throw new AmbiguousCall(n, overloadSet);
                     }
 
                     /// If we get here then we have 1 good match

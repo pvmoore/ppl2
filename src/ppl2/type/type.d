@@ -225,3 +225,11 @@ LLVMValueRef zero(Type t) {
     }
     assert(false);
 }
+string prettyString(Type[] types) {
+    auto buf = new StringBuffer;
+    foreach(i, t; types) {
+        if(i>0) buf.add(", ");
+        buf.add(t.prettyString);
+    }
+    return buf.toString;
+}

@@ -50,7 +50,7 @@ void generateClosureDeclaration(Module m, Closure c) {
     );
     c.llvmValue = func;
 
-    addFunctionAttribute(func, LLVMAttribute.AlwaysInline);
+    addFunctionAttribute(func, LLVMAttribute.InlineHint);
     addFunctionAttribute(func, LLVMAttribute.NoUnwind);
 
     func.setLinkage(LLVMLinkage.LLVMInternalLinkage);
@@ -66,7 +66,7 @@ void generateFunctionDeclaration(Module module_, Function f) {
     f.llvmValue = func;
 
     //// inline
-    bool isInline   = false;//f.isClosure; //f.isOperatorOverload;
+    bool isInline   = false;//f.isOperatorOverload;
     bool isNoInline = false;
 
     //// check if user has set a preference
