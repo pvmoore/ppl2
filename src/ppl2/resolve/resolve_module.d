@@ -319,7 +319,8 @@ public:
 
                 if(prevType.isKnown) {
 
-                    /// Special case - Array length
+                    /// Properties:
+
                     /// array.length
                     if(n.name=="length" && prevType.isArray) {
 
@@ -328,6 +329,13 @@ public:
                         auto dot = n.parent.as!Dot;
                         assert(dot);
                         dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                        return;
+                    }
+                    if(n.name=="subtype" && prevType.isArray) {
+                        auto dot = n.parent.as!Dot;
+                        assert(dot);
+
+                        dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
                         return;
                     }
 
@@ -409,7 +417,6 @@ public:
                     break;
                 }
                 case DOT:
-
                     break;
                 case INDEX:
                     break;

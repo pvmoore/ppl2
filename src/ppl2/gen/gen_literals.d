@@ -141,6 +141,7 @@ final class LiteralGenerator {
             }
         }
 
+        gen.lhs = structPtr;
         gen.rhs = builder.load(structPtr);
     }
 }
