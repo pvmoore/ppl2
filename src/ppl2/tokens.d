@@ -7,18 +7,21 @@ private:
     Token[] tokens;
     int pos = 0;
     Stack!int marks;
+    Stack!NamedStruct namedStructs;
 public:
     Module module_;
     Access access = Access.PRIVATE;
 
     this(Module module_, Token[] tokens) {
-        this.module_ = module_;
-        this.tokens  = tokens;
-        this.marks   = new Stack!int;
+        this.module_      = module_;
+        this.tokens       = tokens;
+        this.marks        = new Stack!int;
+        this.namedStructs = new Stack!NamedStruct;
     }
     void reset() {
         pos = 0;
         marks.clear();
+        namedStructs.clear();
         access = Access.PRIVATE;
     }
     //=======================================
@@ -30,6 +33,16 @@ public:
     }
     void discardMark() {
         marks.pop();
+    }
+    //=======================================
+    void push(NamedStruct ns) {
+        namedStructs.push(ns);
+    }
+    void popNamedStruct() {
+        namedStructs.pop();
+    }
+    NamedStruct namedStruct() {
+        return namedStructs.peek();
     }
     //=======================================
     int index() {

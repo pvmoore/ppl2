@@ -4,7 +4,7 @@ import ppl2.internal;
 ///
 ///  function::= identifier "=" function_literal
 ///
-final class Function : Statement, Callable {
+final class Function : Statement {
 private:
     string _uniqueName;
 public:
@@ -46,7 +46,6 @@ public:
         return params().numParams==0 || (params().numParams==1 && params().paramNames[0]=="this");
     }
 
-    string getName() { return name; }
     Parameters params() { return isExtern ? null : getBody().params(); }
     AnonStruct getStruct() {
         assert(isStructMember());

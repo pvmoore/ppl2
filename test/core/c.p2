@@ -8,8 +8,11 @@ extern putchar {int char -> int}
 extern puts {byte* str -> int}
 
 // stdlib
-extern exit {int status->void}
 extern _itoa {int value,byte* str,int base->byte*}
+extern calloc {long numElements, long elementSize->void*}
+extern exit {int status->void}
+extern free {void* ptr->void}
+extern malloc {long size->void*}
 
 // string.h
 extern memcmp {void* ptr1,void* ptr2, long numBytes->int}

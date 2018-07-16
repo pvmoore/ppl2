@@ -96,6 +96,10 @@ enum Err {
     CALL_CONSTRUCTOR_CALLS_DISALLOWED,
     AMBIGUOUS_CALL,
     CALL_INCORRECT_NUM_ARGS,
+    CALL_MIXING_NAMED_AND_UNNAMED,
+    CALL_INVALID_PARAM_NAME,
+    CALL_INCORRECT_NUM_PARAM_NAMES,
+    CALL_DUPLICATE_PARAM_NAME,
 }
 //======================================================================
 class CompilerError : Exception {
@@ -129,9 +133,13 @@ final class UnresolvedSymbols : Exception {
     }
 }
 final class AmbiguousCall : CompilerError {
+    string name;
+    Type[] argTypes;
     Array!Callable overloadSet;
-    this(ASTNode node, Array!Callable overloadSet) {
+    this(ASTNode node, string name, Type[] argTypes, Array!Callable overloadSet) {
         super(Err.AMBIGUOUS_CALL, node, "Ambiguous call");
+        this.name        = name;
+        this.argTypes    = argTypes;
         this.overloadSet = overloadSet;
     }
 }
@@ -145,20 +153,16 @@ void prettyErrorMsg(CompilerError e) {
 
     auto ambiguous = e.as!AmbiguousCall;
     if(ambiguous) {
-        writefln("\n%s matching overloads:\n", ambiguous.overloadSet.length);
+        writefln("\nLooking for:");
+        writefln("\n\t%s(%s)", ambiguous.name, ambiguous.argTypes.prettyString);
 
-        foreach(o; ambiguous.overloadSet) {
-            auto params = o.getType().getFunctionType.paramTypes();
-            string name;
-            auto f = o.as!Function;
-            if(f) {
-                name = f.name;
-            }
-            auto v = o.as!Variable;
-            if(v) {
-                name = v.name;
-            }
-            writefln("\t%s(%s)", name, prettyString(params));
+        writefln("\n%s matches found:\n", ambiguous.overloadSet.length);
+
+        foreach(callable; ambiguous.overloadSet) {
+            auto params       = callable.getType().getFunctionType.paramTypes();
+            string moduleName = callable.getModule.canonicalName;
+            int line          = callable.getNode.line;
+            writefln("\t%s(%s) \t:: %s:%s", ambiguous.name, prettyString(params), moduleName, line);
         }
     }
 }

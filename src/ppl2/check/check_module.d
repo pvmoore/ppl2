@@ -87,16 +87,21 @@ public:
         auto paramTypes = n.target.paramTypes();
         auto argTypes   = n.argTypes();
 
+        /// Ensure we have the correct number of arguments
         if(paramTypes.length != argTypes.length) {
             throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
                 "Expecting %s arguments, not %s".format(paramTypes.length, argTypes.length));
         }
 
-        foreach(i, p; n.target.paramTypes()) {
+        /// Ensure the arguments can implicitly cast to the parameters
+        foreach(int i, p; n.target.paramTypes()) {
             if(!argTypes[i].canImplicitlyCastTo(p)) {
-                errorBadImplicitCast(n, argTypes[i], p);
+                errorBadImplicitCast(n.arg(i), argTypes[i], p);
             }
         }
+    }
+    void visit(Calloc n) {
+
     }
     void visit(Closure n) {
 
@@ -299,9 +304,6 @@ public:
                 }
             }
         }
-    }
-    void visit(Malloc n) {
-
     }
     void visit(Module n) {
         /// Ensure all global variables have a unique name

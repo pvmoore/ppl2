@@ -36,47 +36,7 @@ public:
 
             /// Arguments should always be the 1st child of body
             entry.getBody().insertAt(1, call);
-
-
-            /// Rewrite calls to member functions
-            calls.clear();
-            mod.selectDescendents!Call(calls);
-            foreach(c; calls) {
-                rewriteCallToMemberFunction(c);
-            }
         }
     }
-
 private:
-    /// Add implicit this* arg to call to struct member function.
-    ///
-    /// Move ID to first call argument
-    /// Put TypeExpr node into its original position
-    ///
-    /// Dot
-    ///    ID ------    (replace with TypeExpr)
-    ///    Call    |
-    ///       ID <--
-    ///
-    void rewriteCallToMemberFunction(Call n) {
-
-        if(n.target.isMemberFunction && n.name!="new") {
-
-            auto dot   = n.parent.as!Dot;
-            auto id    = n.prevSibling();
-            auto dummy = TypeExpr.make(id.getType);
-            assert(dot);
-            assert(id);
-
-            dot.replaceChild(id, dummy);
-
-            if(id.getType.isValue) {
-                auto ptr = makeNode!AddressOf;
-                ptr.addToEnd(id);
-                n.insertAt(0, ptr);
-            } else {
-                n.insertAt(0, id);
-            }
-        }
-    }
 }

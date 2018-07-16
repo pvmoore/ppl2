@@ -52,7 +52,7 @@ import ppl2.ast.expr_literal_map;
 import ppl2.ast.expr_literal_null;
 import ppl2.ast.expr_literal_string;
 import ppl2.ast.expr_literal_struct;
-import ppl2.ast.expr_malloc;
+import ppl2.ast.expr_calloc;
 import ppl2.ast.expr_parenthesis;
 import ppl2.ast.expr_type;
 import ppl2.ast.expr_unary;
@@ -77,7 +77,6 @@ import ppl2.gen.gen_struct;
 import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;
 
-import ppl2.interfaces.callable;
 import ppl2.interfaces.container;
 
 import ppl2.misc.lexer;

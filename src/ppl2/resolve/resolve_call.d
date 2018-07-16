@@ -4,12 +4,48 @@ import ppl2.internal;
 ///
 /// Resolve a call.                                                                    
 ///                                                                                    
-/// - The target may be either a Function or a Variable (of function ptr type).        
-/// - The target may not be in the same module.                                        
+/// - The target may be either a Function or a Variable (of function ptr type)
+/// - The target may be in any module, not just the current one
 ///                                                                                    
 /// - If we find a Function match that is a proxy for one or more external functions of
-///   a given name then we need to pull in the external module.                        
+///   a given name then we need to pull in the external module
 ///
+struct Callable {
+    uint id;
+    Function func;
+    Variable var;
+
+    this(Variable v) {
+        this.id   = g_callableID++;
+        this.var  = v;
+    }
+    this(Function f) {
+        this.id   = g_callableID++;
+        this.func = f;
+    }
+
+    bool isVariable()     { return var !is null; }
+    bool isFunction()     { return func !is null; }
+    string getName()      { return func ? func.name : var.name; }
+    Type getType()        { return func ? func.getType : var.type; }
+    string[] paramNames() { return getType.getFunctionType.paramNames; }
+    Type[] paramTypes()   { return getType.getFunctionType.paramTypes; }
+    Module getModule()    { return func ? func.getModule : var.getModule; }
+    ASTNode getNode()     { return func ? func : var; }
+    bool resultReady()    { return getNode() !is null; }
+    bool isStructMember() { return func ? func.isStructMember : var.isStructMember; }
+
+    size_t toHash() const @safe pure nothrow {
+        assert(id!=0);
+        return id;
+    }
+    /// Every node is unique
+    bool opEquals(ref const Callable o) const @safe  pure nothrow {
+        assert(id!=0 && o.id!=0);
+        return o.id==id;
+    }
+}
+
 final class CallResolver {
 private:
     Module module_;
@@ -19,32 +55,96 @@ public:
         this.module_   = module_;
         this.overloads = new Array!Callable;
     }
-
-    Callable find(string name, Type[] argTypes, ASTNode node) {
+    /// Assume:
+    ///     call.argTypes may not yet be known
+    ///
+    Callable standardFind(Call call) {
         overloads.clear();
 
-        if(find(name, node, overloads)) {
+        if(collectOverloadSet(call.name, call, overloads)) {
 
-            filterOverloads(argTypes, overloads);
+            if(overloads.length==1) {
+                /// Return this result as it's the only one and check it later
+                /// to make sure the types match
+                return overloads[0];
+            }
+
+            /// From this point onwards we need the resolved types
+            if(!call.argTypes.areKnown) return CALLABLE_NOT_READY;
+
+            filter(call, overloads);
 
             if(overloads.length==0) {
-                throw new CompilerError(Err.FUNCTION_NOT_FOUND, node,
-                    "Function %s not found".format(name));
+                string msg;
+                if(call.paramNames.length>0) {
+                    auto buf = new StringBuffer;
+                    foreach(i, n; call.paramNames) {
+                        if(i>0) buf.add(", ");
+                        buf.add(n).add("=").add(call.argTypes[i].prettyString);
+                    }
+                    msg = "Function %s(%s) not found".format(call.name, buf.toString);
+                } else {
+                    msg = "Function %s(%s) not found".format(call.name, call.argTypes.prettyString);
+                }
+                throw new CompilerError(Err.FUNCTION_NOT_FOUND, call, msg);
             }
             if(overloads.length > 1) {
-                throw new AmbiguousCall(node, overloads);
+                throw new AmbiguousCall(call, call.name, call.argTypes, overloads);
             }
 
             return overloads[0];
         }
-        return null;
+        return CALLABLE_NOT_READY;
     }
+    /// Assume:
+    ///     NamedStruct is known
+    ///     call.argTypes are known
     ///
-    /// Find any function or variable that matches the given function name.
+    Callable structFind(Call call, NamedStruct ns) {
+        AnonStruct struct_ = ns.type;
+        assert(ns);
+        assert(struct_);
+
+        auto fns      = struct_.getMemberFunctions(call.name);
+        auto var      = struct_.getMemberVariable(call.name);
+        auto thisType = PtrType.of(ns, 1);
+
+        /// Filter
+        overloads.clear();
+        foreach(f; fns) overloads.add(Callable(f));
+        if(var && var.isFunctionPtr) overloads.add(Callable(var));
+
+        filter(call, overloads);
+
+        if(overloads.length==0) {
+            string msg;
+            if(call.paramNames.length>0) {
+                auto buf = new StringBuffer;
+                foreach(i, n; call.paramNames) {
+                    if(i>0) buf.add(", ");
+                    buf.add(n).add("=").add(call.argTypes[i].prettyString);
+                }
+                msg = "Strict %s does not have function %s(%s)"
+                    .format(ns.getUniqueName, call.name, buf.toString);
+            } else {
+                msg = "Struct %s does not have function %s(%s)"
+                    .format(ns.getUniqueName, call.name, call.argTypes.prettyString);
+            }
+            throw new CompilerError(Err.FUNCTION_NOT_FOUND, call, msg);
+
+        } else if(overloads.length > 1) {
+            throw new AmbiguousCall(call, call.name, call.argTypes(), overloads);
+        }
+
+        return overloads[0];
+    }
+private:
+    ///
+    /// Find any function or variable that matches the given call name.
     /// Return true - if results contains the full overload set and all types are known,
     ///       false - if we are waiting for imports or some types are waiting to be known.
     ///
-    bool find(string name, ASTNode node, Array!Callable results, bool ready = true) {
+    bool collectOverloadSet(string name, ASTNode node, Array!Callable results, bool ready = true) {
         auto nid = node.id();
 
         if(nid==NodeID.MODULE) {
@@ -64,7 +164,7 @@ public:
             }
 
             /// Skip to module level scope
-            return find(name, node.getModule(), results, ready);
+            return collectOverloadSet(name, node.getModule(), results, ready);
         }
 
         if(nid==NodeID.LITERAL_FUNCTION) {
@@ -73,11 +173,11 @@ public:
             if(!node.as!LiteralFunction.isClosure) {
                 /// Go to containing struct if there is one
                 auto struct_ = node.getContainingStruct();
-                if(struct_) return find(name, struct_, results, ready);
+                if(struct_) return collectOverloadSet(name, struct_, results, ready);
             }
 
             /// Go to module scope
-            return find(name, node.getModule(), results, ready);
+            return collectOverloadSet(name, node.getModule(), results, ready);
         }
 
         /// Check variables that appear before this in the tree
@@ -86,73 +186,19 @@ public:
             checkForVariable(name, n, results, ready);
         }
         /// Recurse up the tree
-        return find(name, node.parent, results, ready);
+        return collectOverloadSet(name, node.parent, results, ready);
     }
-    ///
-    /// Filter out all but 1 function/funcptr from the overload set.
-    /// Assume all names are the same.
-    /// Assume all types are known.
-    ///
-    void filterOverloads(Type[] argTypes, Array!Callable overloadSet) {
-        if(overloadSet.length < 2) return;
-
-        /// More than 1 overload. Filter some out until we have 1 remaining
-
-        log("Selecting from overloadSet:");
-        //dd("Unfiltered results:");
-        foreach(i, o; overloadSet[]) {
-            log("\t[%s] %s", i, o);
-            //dd(call, " -> ", o);
-        }
-
-        FunctionType type;
-
-        foreach(o; overloadSet[].dup) {
-            if(o.isA!Function) {
-                type = o.as!Function.getType().getFunctionType;
-                assert(type);
-
-                /// Check the number of params
-                Type[] params = type.paramTypes();
-                if(params.length != argTypes.length) {
-                    overloadSet.remove(o);
-                    continue;
-                }
-
-                /// Check that args can be implicitly converted to params
-                if(!canImplicitlyCastTo(argTypes, params)) {
-                    overloadSet.remove(o);
-                    continue;
-                }
-
-            } else if(o.isA!Variable) {
-                type = o.as!Variable.type.getFunctionType();
-                if(type is null) {
-                    /// This var is not a function ptr so remove it from the overload set
-                    overloadSet.remove(o);
-                } else {
-
-                }
-            } else assert(false, "What am I?");
-        }
-
-        //dd("Filtered results:");
-        //foreach(i, o; overloadSet[]) {
-        //    dd(call, " -> ", o);
-        //}
-    }
-private:
     bool checkForVariable(string name, ASTNode n, Array!Callable results, ref bool ready) {
-        auto v = cast(Variable)n;
+        auto v = n.as!Variable;
         if(v && v.name==name) {
             if(v.type.isUnknown) ready = false;
-            results.add(v);
+            results.add(Callable(v));
             return true;
         }
         return false;
     }
     bool checkForFunction(string name, ASTNode n, Array!Callable results, ref bool ready) {
-        auto f = cast(Function)n;
+        auto f = n.as!Function;
         if(f && f.name==name) {
             if(f.isImport) {
                 auto m = PPL2.getModule(f.moduleName);
@@ -160,10 +206,10 @@ private:
                     auto fns = m.getFunctions(name);
                     if(fns.length==0) {
                         throw new CompilerError(Err.IMPORT_NOT_FOUND, n,
-                            "Import %s not found in module %s".format(name, f.moduleName));
+                        "Import %s not found in module %s".format(name, f.moduleName));
                     }
                     foreach(fn; fns) {
-                        results.add(fn);
+                        results.add(Callable(fn));
 
                         if(fn.getType.isUnknown) ready = false;
 
@@ -176,11 +222,123 @@ private:
                 }
             } else {
                 if(f.getType.isUnknown) ready = false;
-                results.add(f);
+                results.add(Callable(f));
                 functionRequired(module_.canonicalName, name);
             }
             return true;
         }
         return false;
+    }
+    ///
+    /// Filter out any overloads that do not have the correct param names
+    ///
+    /// Assume:
+    ///     Assume all function names are the same
+    ///     Assume all types are known
+    ///     paramNames must match actual param names
+    ///     paramNames are unique
+    void filter(Call call, Array!Callable overloads) {
+        import common : indexOf;
+
+        bool isPossibleImplicitThisCall =
+            call.name!="new" &&
+            call.isStartOfChain &&
+            call.hasAncestor!NamedStruct;
+
+        lp:foreach(callable; overloads[].dup) {
+
+            if(!callable.getType.isFunction) {
+                overloads.remove(callable);
+                continue;
+            }
+
+            Type[] params  = callable.paramTypes();
+            Type[] args    = call.argTypes;
+
+            if(isPossibleImplicitThisCall) {
+                /// There may be an implied "this." in front of this call
+                if(callable.isStructMember) {
+                    auto callerStruct = call.getAncestor!NamedStruct;
+                    auto funcStruct   = callable.getNode.getAncestor!NamedStruct;
+                    if(callerStruct.nid==funcStruct.nid) {
+                        /// This is a call within the same struct
+                        args = params[0] ~ args;
+                    }
+                }
+            }
+
+            /// Check the number of params
+            if(params.length != args.length) {
+                overloads.remove(callable);
+                continue;
+            }
+
+            if(call.paramNames.length > 0) {
+                int count = 0;
+                string[] names = callable.paramNames();
+                foreach(i, name; call.paramNames) {
+                    int index = names.indexOf(name);
+                    if(index==-1) {
+                        overloads.remove(callable);
+                        continue lp;
+                    }
+                    count++;
+                    auto arg   = args[i];
+                    auto param = params[index];
+
+                    if(!arg.canImplicitlyCastTo(param)) {
+                        overloads.remove(callable);
+                        continue lp;
+                    }
+                }
+
+            } else {
+                if(!canImplicitlyCastTo(args, params)) {
+                    overloads.remove(callable);
+                    continue;
+                }
+            }
+        }
+        if(overloads.length > 1) {
+            selectExactMatch(call, overloads);
+        }
+    }
+    ///
+    /// Select 1 match if it matches the args exactly.
+    ///
+    /// Assume:
+    ///     All types are known
+    ///     overloads.length > 1
+    ///     all overloads match the call implicitly
+    ///
+    void selectExactMatch(Call call, Array!Callable overloads) {
+        import common : indexOf;
+
+        lp:foreach(callable; overloads[]) {
+            Type[] params = callable.paramTypes();
+
+            if(call.paramNames.length > 0) {
+                string[] names = callable.paramNames();
+                foreach(i, name; call.paramNames) {
+                    int index = names.indexOf(name);
+                    assert(index != -1);
+
+                    auto arg   = call.argTypes[i];
+                    auto param = params[index];
+
+                    if(!arg.exactlyMatches(param)) continue lp;
+                }
+            } else {
+                foreach(i, a; call.argTypes) {
+                    if(!a.exactlyMatches(params[i])) continue lp;
+                }
+            }
+
+            /// Exact match found
+            foreach(o; overloads[].dup) {
+                if(o.id != callable.id) overloads.remove(o);
+            }
+            assert(overloads.length==1);
+        }
     }
 }

@@ -50,6 +50,8 @@ public:
         n.name = t.value;
         t.next;
 
+        t.push(n);
+
         /// =
         t.skip(TT.EQUALS);
 
@@ -60,10 +62,12 @@ public:
         auto anonStruct = n.type;
 
         addDefaultConstructor(t, anonStruct);
-        addImplicitThisArg(n, anonStruct);
+        addImplicitThisParam(n, anonStruct);
         addImplicitReturnThis(anonStruct);
         addCallToDefaultConstructor(anonStruct);
         moveInitCodeInsideDefaultConstructor(anonStruct);
+
+        t.popNamedStruct();
     }
 private:
     /// If there is no default constructor 'new()' then create one
@@ -104,7 +108,7 @@ private:
         }
     }
     /// Add the implicit this* to all member functions including constructors (at root level only)
-    void addImplicitThisArg(NamedStruct ns, AnonStruct anonStruct) {
+    void addImplicitThisParam(NamedStruct ns, AnonStruct anonStruct) {
         foreach(f; anonStruct.getMemberFunctions()) {
             if(!f.isExtern && !f.isImport) {
 

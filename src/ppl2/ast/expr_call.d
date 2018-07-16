@@ -5,6 +5,9 @@ import ppl2.internal;
 final class Call : Expression {
     string name;
     Target target;
+    string[] paramNames;        /// optional. eg name=value
+
+    bool implicitThisArgAdded;  /// true if 1st arg thisptr has been added
 
     int numArgs() {
         return numChildren();

@@ -11,6 +11,7 @@ private:
     bool addedModuleScopeElements;
     Set!ASTNode unresolved;
     Array!Callable overloadSet;
+    bool rewriteOccurred;
 public:
     Module module_;
 
@@ -32,6 +33,7 @@ public:
     ///
     int resolve() {
         watch.start();
+        rewriteOccurred = false;
 
         collectModuleScopeElements();
 
@@ -42,7 +44,7 @@ public:
         }
 
         //int numUnresolved = (addedModuleScopeElements ? 0 : 1) + unresolved.length;
-        int numUnresolved = unresolved.length;
+        int numUnresolved = unresolved.length + (rewriteOccurred ? 1 : 0);
 
         pass++;
         watch.stop();
@@ -142,6 +144,8 @@ public:
 
             /// line
             c.addToEnd(LiteralNumber.makeConst(n.line, TYPE_INT));
+
+            rewriteOccurred = true;
         }
     }
     void visit(Binary n) {
@@ -171,70 +175,126 @@ public:
         }
     }
     void visit(Call n) {
-
         if(!n.target.isResolved) {
 
             // todo - handle template function call
 
             if(n.isStartOfChain()) {
 
-                auto callable = callResolver.find(n.name, n.argTypes(), n);
-                if(callable) {
+                auto callable = callResolver.standardFind(n);
+                if(callable.resultReady) {
                     /// If we get here then we have 1 good match
-                    auto o = callable;
-                    auto f = o.as!Function;
-                    if(f) {
-                        n.target.set(f);
+                    if(callable.isFunction) {
+                        n.target.set(callable.func);
                     }
-                    auto v = o.as!Variable;
-                    if(v) {
-                        n.target.set(v);
+                    if(callable.isVariable) {
+                        n.target.set(callable.var);
                     }
                 }
 
             } else {
                 Expression prev = n.prevLink();
                 assert(prev);
-                Type prevType   = prev.getType;
+                Type prevType = prev.getType;
 
                 if(prevType.isKnown && n.argTypes().areKnown) {
                     if(!prevType.isStruct) throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
                         "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
 
-                    AnonStruct struct_ = prevType.getAnonStruct();
+                    if(n.name!="new" && !n.implicitThisArgAdded) {
+                        /// Rewrite this call so that prev becomes the 1st argument (thisptr)
 
-                    auto fns   = struct_.getMemberFunctions(n.name);
-                    auto var   = struct_.getMemberVariable(n.name);
+                        auto dot   = n.parent.as!Dot;
+                        auto dummy = TypeExpr.make(prevType);
+                        assert(dot);
 
-                    /// Filter
-                    overloadSet.clear();
-                    foreach(f; fns) overloadSet.add(f);
-                    if(var) overloadSet.add(var);
-                    callResolver.filterOverloads(n.argTypes(), overloadSet);
+                        dot.replaceChild(prev, dummy);
 
-                    if(overloadSet.length==0) {
-                        throw new CompilerError(Err.FUNCTION_NOT_FOUND, n,
-                            "Struct %s does not have function %s(%s)".format(struct_, n.name, n.argTypes()));
-                    } else if(overloadSet.length > 1) {
-                        throw new AmbiguousCall(n, overloadSet);
+                        if(prevType.isValue) {
+                            auto ptr = makeNode!AddressOf;
+                            ptr.addToEnd(prev);
+                            n.insertAt(0, ptr);
+                        } else {
+                            n.insertAt(0, prev);
+                        }
+
+                        if(n.paramNames.length>0) n.paramNames ~= "this";
+
+                        n.implicitThisArgAdded = true;
+                        rewriteOccurred = true;
                     }
 
-                    /// If we get here then we have 1 good match
+                    AnonStruct struct_ = prevType.getAnonStruct();
 
                     //checkStructMemberAccessIsNotPrivate(struct_, var);
 
-                    auto o = overloadSet[0];
-                    auto f = o.as!Function;
-                    if(f) {
-                        n.target.set(f, struct_.getMemberIndex(f));
-                    }
-                    auto v = o.as!Variable;
-                    if(v) {
-                        n.target.set(v, struct_.getMemberIndex(v));
+                    auto callable = callResolver.structFind(n, prevType.getNamedStruct);
+                    if(callable.resultReady) {
+                        /// If we get here then we have 1 good match
+
+                        if(callable.isFunction) {
+                            n.target.set(callable.func, struct_.getMemberIndex(callable.func));
+                        }
+                        if(callable.isVariable) {
+                            n.target.set(callable.var, struct_.getMemberIndex(callable.var));
+                        }
                     }
                 }
             }
         }
+        if(n.target.isResolved && n.argTypes.areKnown) {
+            /// We have a target and all args are known
+
+            /// Check to see whether we need to add an implicit "this." prefix
+            if(n.isStartOfChain() && n.argTypes.length == n.target.paramTypes.length-1) {
+                auto ns = n.getAncestor!NamedStruct;
+                if(ns) {
+                    rewriteOccurred = true;
+                    auto b = module_.builder(n);
+                    n.insertAt(0, b.identifier("this"));
+
+                    if(n.paramNames.length>0) n.paramNames ~= "this";
+                }
+            }
+
+            if(n.paramNames.length>0) {
+
+                //dd("!!!", n.target, n.paramNames, n.target.paramNames());
+
+                if(n.paramNames.length != n.target.paramNames().length) {
+                    throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
+                        "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length));
+                }
+
+                /// Rearrange the args to match the parameter order
+                import common : indexOf;
+                auto targetNames = n.target.paramNames();
+                auto args        = new Expression[n.numArgs];
+
+                foreach(int i, name; n.paramNames) {
+                    auto index = targetNames.indexOf(name);
+                    if(index==-1) {
+                        throw new CompilerError(Err.CALL_INVALID_PARAM_NAME, n,
+                            "Parameter name %s not found".format(name));
+                    }
+                    args[index] = n.arg(i);
+                }
+                assert(args.length==n.numArgs);
+
+                foreach(a; args) {
+                    a.detach();
+                }
+                foreach(a; args) {
+                    n.addToEnd(a);
+                }
+
+                /// We don't need the param names any more
+                n.paramNames = null;
+            }
+        }
+    }
+    void visit(Calloc n) {
+        resolveType(n.valueType);
     }
     void visit(Closure n) {
 
@@ -333,12 +393,14 @@ public:
                             if(prevType.isArray) {
                                 int len = prevType.getArrayType.countAsInt();
                                 dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                                rewriteOccurred = true;
                                 return;
                             }
                             break;
                         case "subtype":
                             if(prevType.isArray) {
                                 dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
+                                rewriteOccurred = true;
                                 return;
                             }
                             break;
@@ -355,12 +417,14 @@ public:
                                 ///      prev
                                 /// subtype*
                                 dot.parent.replaceChild(dot, as);
+                                rewriteOccurred = true;
                                 return;
                             }
                             break;
                         case "#size": {
                             int size = prevType.size();
                             dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
+                            rewriteOccurred = true;
                             return;
                         }
                         default:
@@ -627,9 +691,6 @@ public:
                 n.type = type;
             }
         }
-    }
-    void visit(Malloc n) {
-        resolveType(n.valueType);
     }
     void visit(Module n) {
 

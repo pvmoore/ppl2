@@ -87,10 +87,7 @@ public:
     int structMemberIndex() const { return memberIndex; }
     Variable getVariable() { return var; }
     Function getFunction() { return func; }
-    Callable getCallable() {
-        if(var) return var;
-        return func;
-    }
+
     bool isFunction() const { return func !is null; }
     bool isVariable() const { return var !is null; }
     bool isMemberVariable() const { return ttype==TargetType.STRUCTVAR; }
@@ -105,6 +102,11 @@ public:
         assert(isSet);
         assert(getType.isFunction);
         return getType.getFunctionType.returnType();
+    }
+    string[] paramNames() {
+        assert(isSet);
+        assert(getType.isFunction);
+        return getType.getFunctionType.paramNames();
     }
     Type[] paramTypes() {
         assert(isSet);

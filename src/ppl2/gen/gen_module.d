@@ -135,6 +135,12 @@ public:
         //    builder.store(grhs, lhs);
         //}
     }
+    void visit(Calloc n) {
+        dd("visit Calloc");
+
+        rhs = builder.malloc(n.valueType.getLLVMType(), "calloc");
+        memsetZero(rhs, n.valueType.size);
+    }
     void visit(Closure n) {
         dd("visit Closure");
 
@@ -268,11 +274,6 @@ public:
     void visit(LiteralNumber n) {
         dd("visit LiteralNumber", n);
         literalGen.generate(n);
-    }
-    void visit(Malloc n) {
-        dd("visit Malloc");
-
-        rhs = builder.malloc(n.valueType.getLLVMType(), "malloc");
     }
     void visit(LiteralString n) {
         dd("visit LiteralString");
@@ -423,11 +424,12 @@ public:
         //            LLVMCallConv.LLVMCCallConv
         //		);
     }
-    void memsetZero(LLVMValueRef structPtr, int len) {
-        auto i8Ptr = builder.bitcast(structPtr, bytePointerType());
+    void memsetZero(LLVMValueRef ptr, int len) {
+        auto i8Ptr = builder.bitcast(ptr, bytePointerType());
         auto args = [
             i8Ptr, constI8(0), constI32(len), constI32(0),  constI1(0)
         ];
+
         builder.ccall(memsetFunc, args);
     }
     LLVMValueRef expect(LLVMValueRef value, LLVMValueRef expectedValue) {

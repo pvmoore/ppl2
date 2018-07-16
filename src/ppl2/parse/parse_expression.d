@@ -339,12 +339,32 @@ private:
 
         t.skip(TT.LBRACKET);
 
+        import common : contains;
+
         while(t.type!=TT.RBRACKET) {
 
             if(t.peek(1).type==TT.EQUALS) {
                 /// paramname = expr
-                assert(false, "call paramname = expr");
+                if(c.numArgs>1 && c.paramNames.length==0) {
+                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
+                        "Mixing named and un-named constructor arguments");
+                }
+                if(c.paramNames.contains(t.value)) {
+                    throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
+                }
+                c.paramNames ~= t.value;
+                t.next;
+
+                t.skip(TT.EQUALS);
+
+                parse(t, c);
+
             } else {
+                if(c.paramNames.length>0) {
+                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
+                        "Mixing named and un-named constructor arguments");
+                }
+
                 parse(t, c);
             }
 
@@ -644,11 +664,11 @@ private:
         Expression thisPtr;
         /// allocate memory
         if(con.type.isPtr) {
-            /// Heap malloc
-            auto malloc  = makeNode!Malloc(t);
-            malloc.valueType = con.type.getValueType;
+            /// Heap calloc
+            auto calloc  = makeNode!Calloc(t);
+            calloc.valueType = con.type.getValueType;
 
-            thisPtr = malloc;
+            thisPtr = calloc;
 
             expr = b.dot(b.typeExpr(con.type), call);
         } else {
@@ -668,12 +688,39 @@ private:
         /// (
         t.skip(TT.LBRACKET);
 
+        import common : contains;
+
         while(t.type!=TT.RBRACKET) {
 
             if(t.peek(1).type==TT.EQUALS) {
                 /// paramname = expr
-                assert(false, "constructor paramname = expr");
+
+                if(call.numArgs>1 && call.paramNames.length==0) {
+                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, con,
+                        "Mixing named and un-named constructor arguments");
+                }
+
+                /// Add the implicit 'this' param
+                if(call.numArgs==1) {
+                    call.paramNames ~= "this";
+                }
+
+                if(call.paramNames.contains(t.value)) {
+                    throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
+                }
+
+                call.paramNames ~= t.value;
+                t.next;
+
+                t.skip(TT.EQUALS);
+
+                parse(t, call);
+
             } else {
+                if(call.paramNames.length>0) {
+                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, con,
+                        "Mixing named and un-named constructor arguments");
+                }
                 parse(t, call);
             }
 

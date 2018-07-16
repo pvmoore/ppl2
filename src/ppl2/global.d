@@ -12,6 +12,7 @@ const string VERSION = "2.0.0";
 __gshared Config g_config;
 
 __gshared int g_nodeid = 1;
+__gshared int g_callableID = 1;
 
 __gshared string g_mainModuleCanonicalName;
 __gshared int g_mainModuleNID;
@@ -38,6 +39,8 @@ __gshared Type TYPE_BYTE    = new BasicType(Type.BYTE);
 __gshared Type TYPE_INT     = new BasicType(Type.INT);
 __gshared Type TYPE_LONG    = new BasicType(Type.LONG);
 __gshared Type TYPE_VOID    = new BasicType(Type.VOID);
+
+__gshared Callable CALLABLE_NOT_READY;
 
 __gshared const TRUE  = -1;
 __gshared const FALSE = 0;

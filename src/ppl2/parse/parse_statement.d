@@ -250,7 +250,7 @@ private: //=====================================================================
         /// =
         t.skip(TT.EQUALS);
 
-        if(parent.isA!LiteralFunction || (parent.getContaining!LiteralFunction !is null)) {
+        if(parent.isA!LiteralFunction || (parent.getAncestor!LiteralFunction !is null)) {
             /// This is a closure.
             /// Convert this into a function ptr variable
 

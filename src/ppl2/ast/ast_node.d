@@ -22,6 +22,7 @@ enum NodeID {
     ASSERT,
     BINARY,
     CALL,
+    CALLOC,
     CLOSURE,
     COMPOSITE,
     CONSTRUCTOR,
@@ -38,7 +39,6 @@ enum NodeID {
     LITERAL_NUMBER,
     LITERAL_STRING,
     LITERAL_STRUCT,
-    MALLOC,
     META_FUNCTION,
     PARENTHESIS,
     STRUCT_CONSTRUCTOR,
@@ -200,10 +200,10 @@ abstract class ASTNode {
         if(parent) return parent.getContainer();
         throw new Exception("We are not inside a container!!");
     }
-    T getContaining(T)() {
+    T getAncestor(T)() {
         if(parent is null) return null;
         if(parent.isA!T) return parent.as!T;
-        return parent.getContaining!T;
+        return parent.getAncestor!T;
     }
     /// This may return null if we are not in a struct
     AnonStruct getContainingStruct() {
@@ -233,6 +233,11 @@ abstract class ASTNode {
         }
     }
     //=================================================================================
+    bool hasAncestor(T)() {
+        if(parent is null) return false;
+        if(parent.isA!T) return true;
+        return parent.hasAncestor!T;
+    }
     ///
     /// Return a list of all descendents that are of type T.
     ///

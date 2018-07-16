@@ -17,7 +17,7 @@ public
         b += 3
     }
     foo = { /* Fruit* this */
-
+        boo(1)
     }
     bar = { /* Fruit* this, */ int a ->
         struct Vegetable = [bool isGreen]
@@ -31,8 +31,6 @@ public
         }
 
         z += 1
-
-        boo()
     }
     int z
     boo = { /* Fruit* this, */ float inc ->
@@ -64,7 +62,7 @@ public testStructs = {
     t.a += 2
 
     t.foo()
-    t.boo(3.1)
+    //t.boo(3.1)
 
     t.retThis().foo()
 

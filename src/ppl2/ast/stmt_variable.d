@@ -10,7 +10,7 @@ import ppl2.internal;
 /// Variable
 ///     Initialiser
 ///
-final class Variable : Statement, Callable {
+final class Variable : Statement {
     Type type;
     string name;
     bool isConst;
@@ -18,8 +18,6 @@ final class Variable : Statement, Callable {
     int numRefs;
 
     LLVMValueRef llvmValue;
-
-    string getName() { return name; }
 
     override bool isResolved() { return type.isKnown; }
     override NodeID id() const { return NodeID.VARIABLE; }
@@ -43,6 +41,9 @@ final class Variable : Statement, Callable {
     }
     bool isParameter() {
         return parent.isA!Parameters;
+    }
+    bool isFunctionPtr() {
+        return type.isKnown && type.isFunction;
     }
     bool hasInitialiser() {
         return children[].any!(it=>it.isInitialiser);

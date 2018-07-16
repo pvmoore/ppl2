@@ -14,7 +14,7 @@ import ppl2.internal;
 ///       Dot
 ///          TypeExpr (S*)
 ///          Call new
-///             malloc
+///             calloc
 ///
 final class Constructor : Expression {
     Type type;      /// Define (later resolved to NamedStruct) or NamedStruct
@@ -26,7 +26,7 @@ final class Constructor : Expression {
     override Type getType() { return type; }
 
     string getName() { return type.isDefine ? type.getDefine.name : type.getNamedStruct.name; }
-    bool isPtr() { return type.isPtr; }
+    bool isPtr()     { return type.isPtr; }
 
     Expression expr() {
         if(type.isPtr) {

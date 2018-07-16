@@ -15,7 +15,7 @@ final class Return : Statement {
         return cast(Expression)first();
     }
     Type getReturnType() {
-        auto funcLit = getContaining!LiteralFunction;
+        auto funcLit = getAncestor!LiteralFunction;
         assert(funcLit);
         auto type = funcLit.getType.getFunctionType;
         assert(type);

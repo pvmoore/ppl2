@@ -1,10 +1,10 @@
-module ppl2.ast.expr_malloc;
+module ppl2.ast.expr_calloc;
 
 import ppl2.internal;
 ///
 /// Allocate a type on the heap
 ///
-final class Malloc : Expression {
+final class Calloc : Expression {
 private:
     Type ptrType;
 public:
@@ -12,7 +12,7 @@ public:
 
     override bool isResolved() { return valueType.isKnown; }
     override bool isConst() { return false; }
-    override NodeID id() const { return NodeID.MALLOC; }
+    override NodeID id() const { return NodeID.CALLOC; }
     override int priority() const { return 15; }
     override Type getType() {
         if(!ptrType) {
@@ -24,6 +24,6 @@ public:
     }
 
     override string toString() {
-        return "Malloc (%s)".format(getType());
+        return "Calloc (%s)".format(getType());
     }
 }

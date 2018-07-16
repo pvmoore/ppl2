@@ -1,4 +1,6 @@
 
+import core.intrinsics
+
 struct S = [
 private
     int a
@@ -12,12 +14,22 @@ public
         // This will be called before properties are set manually during initialisation
 
         b += 3
+        flag = true
     }
     // rename me
     new = { /*S* this,*/ int value ->
-
+        this.a = value
     }
     new = { /*S* this,*/ bool flag, short sh ->
+        this.b    = sh
+        this.flag = flag
+    }
+    new = { float a, double b, int c ->
+        this.a    = a as int
+        this.b    = b as int
+        this.flag = c as bool
+    }
+    new = { float a, int b ->
 
     }
 ]
@@ -28,21 +40,53 @@ struct S2 = [
 public
 testConstructors = {
     S s         // zero initialise
+    assert s.a==0
+    assert s.b==0
+    assert s.flag==false
 
     S s2 = S()  // zero initialise
                 // call new()
+    assert s2.a==0
+    assert s2.b==4
+    assert s2.flag==true
 
     S* sp   // null
     S* sp2 = null
+    assert sp is null
 
-    var s3 = S(1)
-    //var s4 = S(value=1)
-    //var s5 = S(sh=3, flag=true)   // todo
+    var s3 = S(7)
+    assert s3.a==7
+    assert s3.b==4
+    assert s3.flag==true
 
-    var s6 = S*()
-    var s7 = S*(1)
-    //var s6 = S*(sh=3, flag=true) // todo
+    var s4 = S(value=90)
+    assert s4.a == 90
+    assert s4.b == 4
+    assert s4.flag == true
 
+    var s5 = S(sh=3, flag=false)
+    assert s5.a == 0
+    assert s5.b == 3
+    assert s5.flag == false
 
+    var s6 = S(b=4.2, c=0, a=9.5)
+    assert s6.a == 9
+    assert s6.b == 4
+    assert s6.flag == false
+
+    var s7 = S*()
+    assert s7.a==0
+    assert s7.b==4
+    assert s7.flag==true
+
+    var s8 = S*(8)
+    assert s8.a==8
+    assert s8.b==4
+    assert s8.flag==true
+
+    var s9 = S*(sh=3, flag=true)
+    assert s9.a == 0
+    assert s9.b == 3
+    assert s9.flag == true
 
 }
