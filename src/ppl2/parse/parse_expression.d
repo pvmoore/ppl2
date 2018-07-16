@@ -352,6 +352,10 @@ private:
                 if(c.paramNames.contains(t.value)) {
                     throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
                 }
+                if(t.value=="this") {
+                    throw new CompilerError(Err.CALL_PARAM_CAN_NOT_BE_CALLED_THIS, t,
+                        "'this' cannot be used as a parameter name");
+                }
                 c.paramNames ~= t.value;
                 t.next;
 
@@ -707,6 +711,10 @@ private:
 
                 if(call.paramNames.contains(t.value)) {
                     throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
+                }
+                if(t.value=="this") {
+                    throw new CompilerError(Err.CALL_PARAM_CAN_NOT_BE_CALLED_THIS, t,
+                        "'this' cannot be used as a parameter name");
                 }
 
                 call.paramNames ~= t.value;

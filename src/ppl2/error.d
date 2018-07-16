@@ -100,6 +100,7 @@ enum Err {
     CALL_INVALID_PARAM_NAME,
     CALL_INCORRECT_NUM_PARAM_NAMES,
     CALL_DUPLICATE_PARAM_NAME,
+    CALL_PARAM_CAN_NOT_BE_CALLED_THIS,
 }
 //======================================================================
 class CompilerError : Exception {

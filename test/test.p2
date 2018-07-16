@@ -28,6 +28,7 @@ import test_constructors
 import test_meta
 import test_literal_struct
 import test_unreferenced_module
+import test_calls
 
 define AA = int
 define BB = AA*
@@ -147,6 +148,7 @@ main = {
     //testClosures()
     testConstructors()
     testLiteralStruct()
+    testCalls()
 
     dothings(0, cat)
 

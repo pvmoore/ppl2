@@ -249,11 +249,15 @@ public:
             if(n.isStartOfChain() && n.argTypes.length == n.target.paramTypes.length-1) {
                 auto ns = n.getAncestor!NamedStruct;
                 if(ns) {
+                    import std.array : insertInPlace;
+
                     rewriteOccurred = true;
                     auto b = module_.builder(n);
                     n.insertAt(0, b.identifier("this"));
 
-                    if(n.paramNames.length>0) n.paramNames ~= "this";
+                    if(n.paramNames.length>0) {
+                        n.paramNames.insertInPlace(0, "this");
+                    }
                 }
             }
 
@@ -265,6 +269,8 @@ public:
                     throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
                         "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length));
                 }
+
+
 
                 /// Rearrange the args to match the parameter order
                 import common : indexOf;
