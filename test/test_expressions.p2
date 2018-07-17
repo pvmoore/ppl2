@@ -2,20 +2,11 @@
 public
 
 testExpressions = {
-    testIf()
+
 
 }
 
 private
-
-testIf = {
-
-    testIf2()
-}
-
-testIf2 = {
-
-}
 
 int a
 define A = int

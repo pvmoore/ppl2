@@ -20,6 +20,11 @@ final class IfGenerator {
             result = builder.alloca(n.type.getLLVMType, "if_result");
         }
 
+        /// init (optional)
+        if(n.hasInitExpr) {
+            n.initExpr().visit!ModuleGenerator(gen);
+        }
+
         /// condition
         n.condition.visit!ModuleGenerator(gen);
 

@@ -757,7 +757,7 @@ private:
         parse(t, v);
     }
     ///
-    /// if   ::= "if" "(" expression ")" then [ else ]
+    /// if   ::= "if" "(" [ var  ";" ] expression ")" then [ else ]
     /// then ::= [ "{" ] {statement} [ "}" ]
     /// else ::= "else" [ "{" ] {statement}  [ "}" ]
     ///
@@ -770,6 +770,18 @@ private:
 
         /// (
         t.skip(TT.LBRACKET);
+
+        /// possible variable expression and initialiser
+        auto end = t.findInCurrentScope(TT.RBRACKET);
+        auto sc  = t.findInCurrentScope(TT.SEMICOLON);
+        if(sc!=-1 && end!=-1 && sc < end) {
+            varParser.parse(t, i, true);
+            i.hasInitExpr = true;
+
+            t.skip(TT.SEMICOLON);
+        } else {
+            i.addToEnd(TypeExpr.make(TYPE_VOID));
+        }
 
         /// condition
         parse(t, i);

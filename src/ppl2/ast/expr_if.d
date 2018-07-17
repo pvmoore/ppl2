@@ -13,10 +13,14 @@ import ppl2.internal;
 /// int a = if(b > c) { callSomeone(); 3 } else if(c > d) 4 else 5
 ///
 /// If
-///    condition expression
+///    variable | dummy
+///    condition
+///    thenStmt
+///    elseStmt // optional
 ///
 final class If : Expression {
     Type type;
+    bool hasInitExpr;
 
     this() {
         type = TYPE_UNKNOWN;
@@ -27,14 +31,15 @@ final class If : Expression {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
-    Expression condition() { assert(numChildren>0); return children[0].as!Expression; }
-    ASTNode thenStmt() { assert(hasThen); return children[1]; }
-    ASTNode elseStmt() { assert(hasElse); return children[2]; }
+    Variable initExpr() { assert(numChildren>0); return hasInitExpr ? children[0].as!Variable : null; }
+    Expression condition() { assert(numChildren>1); return children[1].as!Expression; }
+    ASTNode thenStmt() { assert(hasThen); return children[2]; }
+    ASTNode elseStmt() { assert(hasElse); return children[3]; }
     Type thenType() { assert(hasThen); return thenStmt().getType(); }
     Type elseType() { assert(hasElse); return elseStmt().getType(); }
 
-    bool hasThen() { return numChildren > 1; }
-    bool hasElse() { return numChildren > 2; }
+    bool hasThen() { return numChildren > 2; }
+    bool hasElse() { return numChildren > 3; }
 
     bool isUsedAsExpr() {
         return !parent.isLiteralFunction;

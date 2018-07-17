@@ -29,6 +29,7 @@ import test_meta
 import test_literal_struct
 import test_unreferenced_module
 import test_calls
+import test_if
 
 define AA = int
 define BB = AA*
@@ -149,6 +150,7 @@ main = {
     testConstructors()
     testLiteralStruct()
     testCalls()
+    testIf()
 
     dothings(0, cat)
 

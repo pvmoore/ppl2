@@ -17,7 +17,6 @@ public:
         return _type;
     }
     void setType(Type t) {
-        dd("!!! set type to", t);
         value.changeType(_type, t);
         _type = t;
     }
@@ -71,14 +70,18 @@ struct Value {
     this(LiteralNumber lit) {
         assert(lit);
         this.lit = lit;
-        if(type().isInteger || type().isBool) {
+        if(type().isBool) {
+            i = lit.str.to!long == 0 ? FALSE : TRUE;
+        } else if(type().isInteger) {
             i = lit.str.to!long;
         } else if(type().isReal) {
             f = lit.str.to!double;
         } else assert(false, "How did we get here? type is %s".format(type()));
     }
     void changeType(Type from, Type to) {
-        if(from.isReal && to.isInteger) {
+        if(to.isBool) {
+            i = getLong() == 0 ? FALSE : TRUE;
+        } else if(from.isReal && to.isInteger) {
             i = cast(long)f;
         } else if(from.isInteger && to.isReal) {
             f = cast(double)i;
@@ -106,37 +109,41 @@ struct Value {
         }
     }
 
-    void applyBinary(Type t, Operator op, Value right) {
-        if(t.isInteger || t.isBool) {
-            switch(op.id) with(Operator) {
-                case DIV.id: i = i / right.getLong(); break;
-                case MUL.id: i = i * right.getLong(); break;
-                case MOD.id: i = i % right.getLong(); break;
-                case ADD.id: i = i + right.getLong(); break;
-                case SUB.id: i = i - right.getLong(); break;
+    void applyBinary(Type resultType, Operator op, Value right) {
 
-                case SHL.id:  i  = cast(long)i << right.getLong(); break;
+        Type calcType = getBestFit(type, right.type);
+        lit.setType(calcType);
+
+        if(calcType.isInteger || calcType.isBool) {
+            switch(op.id) with(Operator) {
+                case DIV.id: i = getLong() / right.getLong(); break;
+                case MUL.id: i = getLong() * right.getLong(); break;
+                case MOD.id: i = getLong() % right.getLong(); break;
+                case ADD.id: i = getLong() + right.getLong(); break;
+                case SUB.id: i = getLong() - right.getLong(); break;
+
+                case SHL.id: i  = getLong() << right.getLong(); break;
                 case SHR.id:
                     /// special case
                     switch(type.getEnum) with(Type) {
-                        case BYTE:  i = cast(byte) (i|0xffffffff_ffffff00) >> right.getInt(); break;
-                        case SHORT: i = cast(short)(i|0xffffffff_ffff0000) >> right.getInt(); break;
-                        case INT:   i = cast(long) (i|0xffffffff_00000000) >> right.getInt(); break;
-                        default:    i = cast(long)i >> right.getInt(); break;
+                        case BYTE:  i = cast(byte) (getLong()|0xffffffff_ffffff00) >> right.getInt(); break;
+                        case SHORT: i = cast(short)(getLong()|0xffffffff_ffff0000) >> right.getInt(); break;
+                        case INT:   i = cast(long) (getLong()|0xffffffff_00000000) >> right.getInt(); break;
+                        default:    i = getLong() >> right.getInt(); break;
                     }
                     break;
-                case USHR.id: i = cast(ulong)i >>> right.getLong(); break;
+                case USHR.id: i = cast(ulong)getLong() >>> right.getLong(); break;
 
-                case LT.id:      i = (i < right.getLong())  ? TRUE : FALSE; break;
-                case GT.id:      i = (i > right.getLong())  ? TRUE : FALSE; break;
-                case LTE.id:     i = (i <= right.getLong()) ? TRUE : FALSE; break;
-                case GTE.id:     i = (i >= right.getLong()) ? TRUE : FALSE; break;
-                case BOOL_EQ.id: i = (i == right.getLong()) ? TRUE : FALSE; break;
-                case BOOL_NE.id: i = (i != right.getLong()) ? TRUE : FALSE; break;
+                case LT.id:      i = (getLong() < right.getLong())  ? TRUE : FALSE; break;
+                case GT.id:      i = (getLong() > right.getLong())  ? TRUE : FALSE; break;
+                case LTE.id:     i = (getLong() <= right.getLong()) ? TRUE : FALSE; break;
+                case GTE.id:     i = (getLong() >= right.getLong()) ? TRUE : FALSE; break;
+                case BOOL_EQ.id: i = (getLong() == right.getLong()) ? TRUE : FALSE; break;
+                case BOOL_NE.id: i = (getLong() != right.getLong()) ? TRUE : FALSE; break;
 
-                case BIT_AND.id: i = i & right.getLong(); break;
-                case BIT_XOR.id: i = i ^ right.getLong(); break;
-                case BIT_OR.id:  i = i | right.getLong(); break;
+                case BIT_AND.id: i = getLong() & right.getLong(); break;
+                case BIT_XOR.id: i = getLong() ^ right.getLong(); break;
+                case BIT_OR.id:  i = getLong() | right.getLong(); break;
 
                 case BOOL_AND.id: i = getBool() && right.getBool(); break;
                 case BOOL_OR.id:  i = getBool() || right.getBool(); break;
@@ -145,11 +152,11 @@ struct Value {
             }
         } else {
             switch (op.id) with(Operator) {
-                case DIV.id: f = f / right.getDouble(); break;
-                case MUL.id: f = f * right.getDouble(); break;
-                case MOD.id: f = f % right.getDouble(); break;
-                case ADD.id: f = f + right.getDouble(); break;
-                case SUB.id: f = f - right.getDouble(); break;
+                case DIV.id: f = getDouble() / right.getDouble(); break;
+                case MUL.id: f = getDouble() * right.getDouble(); break;
+                case MOD.id: f = getDouble() % right.getDouble(); break;
+                case ADD.id: f = getDouble() + right.getDouble(); break;
+                case SUB.id: f = getDouble() - right.getDouble(); break;
 
                 case SHL.id:  f = getLong() << right.getLong(); break;
                 case SHR.id:
@@ -163,33 +170,32 @@ struct Value {
                     break;
                 case USHR.id: f = cast(ulong)getLong() >>> right.getLong(); break;
 
-                case LT.id:      f = (f < right.getDouble())  ? TRUE : FALSE; break;
-                case GT.id:      f = (f > right.getDouble())  ? TRUE : FALSE; break;
-                case LTE.id:     f = (f <= right.getDouble()) ? TRUE : FALSE; break;
-                case GTE.id:     f = (f >= right.getDouble()) ? TRUE : FALSE; break;
-                case BOOL_EQ.id: f = (f == right.getDouble()) ? TRUE : FALSE; break;
-                case BOOL_NE.id: f = (f != right.getDouble()) ? TRUE : FALSE; break;
+                case LT.id:      f = (getDouble() < right.getDouble())  ? TRUE : FALSE; break;
+                case GT.id:      f = (getDouble() > right.getDouble())  ? TRUE : FALSE; break;
+                case LTE.id:     f = (getDouble() <= right.getDouble()) ? TRUE : FALSE; break;
+                case GTE.id:     f = (getDouble() >= right.getDouble()) ? TRUE : FALSE; break;
+                case BOOL_EQ.id: f = (getDouble() == right.getDouble()) ? TRUE : FALSE; break;
+                case BOOL_NE.id: f = (getDouble() != right.getDouble()) ? TRUE : FALSE; break;
 
                 case BIT_AND.id: f = (cast(ulong)getLong() & right.getLong()); break;
                 case BIT_XOR.id: f = (cast(ulong)getLong() ^ right.getLong()); break;
                 case BIT_OR.id:  f = (cast(ulong)getLong() | right.getLong()); break;
 
-                case BOOL_AND.id: i = getBool() && right.getBool(); break;
-                case BOOL_OR.id:  i = getBool() || right.getBool(); break;
+                case BOOL_AND.id: f = getBool() && right.getBool(); break;
+                case BOOL_OR.id:  f = getBool() || right.getBool(); break;
 
                 default: assert(false, "How did we get here?");
             }
         }
-        /// Just set the type because we have handled the cast
-        lit._type = t;
+        lit.setType(resultType);
     }
     void as(Type t) {
         switch(t.getEnum) with(Type) {
-            case BOOL:  i = cast(uint)getLong() == 0 ? FALSE : TRUE; break;
-            case BYTE:  i = cast(ubyte)getLong(); break;
-            case SHORT: i = cast(ushort)getLong(); break;
-            case INT:   i = cast(uint)getLong(); break;
-            case LONG:  i = cast(ulong)getLong(); break;
+            case BOOL:  i = getLong() == 0 ? FALSE : TRUE; break;
+            case BYTE:  i = cast(byte)getLong(); break;
+            case SHORT: i = cast(short)getLong(); break;
+            case INT:   i = cast(int)getLong(); break;
+            case LONG:  i = cast(long)getLong(); break;
             case HALF:
             case FLOAT:
             case DOUBLE: f = getDouble(); break;

@@ -450,7 +450,7 @@ public:
     LLVMBasicBlockRef createBlock(ASTNode n, string name) {
         auto body_ = n.getContainingFunctionBody();
         assert(body_);
-        return body_.getFunction().llvmValue.appendBasicBlock(name);
+        return body_.getLLVMValue().appendBasicBlock(name);
     }
     ///
 	/// Force a possibly non bool value into a proper bool which
