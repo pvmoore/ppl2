@@ -44,17 +44,16 @@ public:
 
         generateGlobalStrings();
         generateGlobalVariables();
+
         generateImportedStructDeclarations(module_);
         generateLocalStructDeclarations(module_);
-
         generateIntrinsicFuncDeclarations();
         generateStandardFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
-
-        generateLocalStructMemberFunctionDeclarations(module_);
-        generateLocalStructMemberFunctionBodies(module_, literalGen);
-
         generateClosureDeclarations(module_);
+        generateLocalStructMemberFunctionDeclarations(module_);
+
+        generateLocalStructMemberFunctionBodies(module_, literalGen);
         generateClosureBodies(module_, literalGen);
 
         visitChildren(module_);
@@ -150,6 +149,7 @@ public:
     void visit(Closure n) {
         dd("visit Closure");
 
+        assert(n.llvmValue);
         rhs = n.llvmValue;
     }
     void visit(Composite n) {
@@ -274,8 +274,7 @@ public:
         dd("visit LiteralFunction");
 
         assert(!n.isClosure);
-        Function func = n.getFunction();
-        literalGen.generate(n, func.llvmValue);
+        literalGen.generate(n, n.getLLVMValue);
     }
     void visit(LiteralNull n) {
         dd("visit LiteralNull");

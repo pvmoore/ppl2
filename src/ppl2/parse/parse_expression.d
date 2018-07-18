@@ -464,7 +464,8 @@ private:
             t.skip(TT.RCURLY);
 
             /// If this is a closure we need to handle it differently
-            if(f.getContainer().id()==NodeID.LITERAL_FUNCTION) {
+            if(!parent.isFunction) {
+            //if(f.getContainer().id()==NodeID.LITERAL_FUNCTION) {
 
                 string name = module_.makeTemporary("closure");
                 if(parent.isInitialiser) {

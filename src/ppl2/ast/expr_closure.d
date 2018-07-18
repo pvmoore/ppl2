@@ -21,6 +21,6 @@ final class Closure : Expression {
     }
 
     override string toString() {
-        return "Closure";
+        return "Closure %s".format(nid);
     }
 }

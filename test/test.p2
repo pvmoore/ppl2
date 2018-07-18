@@ -89,11 +89,9 @@ unreferencedFunc = {
 
 struct Thingy = [
     int a
+    {void->int} b = { return 1 }
 
-    // fixme - This needs to be coerced {void->byte} to {void->int}
-    //{void->int} b = { return 1 }
-
-    //new = { Thingy* This }    // implicit
+    //new = { Thingy* this }    // implicit
 ]
 
 myfunc = { bool flag ->
@@ -115,8 +113,6 @@ main = {
 
     [int, float] anon
 
-    //assert true
-
     GreyWolf wolf
     Animal* animal
     Animal** animal2
@@ -125,14 +121,14 @@ main = {
 
     Cat cat
     Dog* dog = Dog*()
-    //dog.age += 1
+    dog.age += 1
 
     [int, Bat berty] bertyStruct
 
     int a = 1
     var b = 2
 
-    Thingy thingy
+    Thingy thingy = Thingy()
     thingy.a = 9
 
     someArrays()
@@ -147,7 +143,7 @@ main = {
     testArrays()
 
     testStructs()
-    //testClosures()
+    testClosures()
     testConstructors()
     testLiteralStruct()
     testCalls()
@@ -166,6 +162,11 @@ main = {
     //float3 v3
     //float4 v4
     //float8 v8
+
+    test1 = {
+        {void->int} b = { return 1 }
+    }
+    test1()
 }
 bool yop
 
@@ -277,11 +278,6 @@ main = {
 */
 
 /*
-//----------------------------------------- imports
-import core
-    thing1,
-    thing2
-//----------------------------------------- defines
 public
 
 K = int
