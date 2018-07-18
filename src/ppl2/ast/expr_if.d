@@ -13,14 +13,13 @@ import ppl2.internal;
 /// int a = if(b > c) { callSomeone(); 3 } else if(c > d) 4 else 5
 ///
 /// If
-///    variable | dummy
+///    composite initExprs
 ///    condition
 ///    thenStmt
 ///    elseStmt // optional
 ///
 final class If : Expression {
     Type type;
-    bool hasInitExpr;
 
     this() {
         type = TYPE_UNKNOWN;
@@ -31,39 +30,47 @@ final class If : Expression {
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
-    Variable initExpr() { assert(numChildren>0); return hasInitExpr ? children[0].as!Variable : null; }
-    Expression condition() { assert(numChildren>1); return children[1].as!Expression; }
-    ASTNode thenStmt() { assert(hasThen); return children[2]; }
-    ASTNode elseStmt() { assert(hasElse); return children[3]; }
-    Type thenType() { assert(hasThen); return thenStmt().getType(); }
+    Composite initExprs()  { return children[0].as!Composite; }
+    Expression condition() { return children[1].as!Expression; }
+    Composite thenStmt()   { return children[2].as!Composite; }
+    Composite elseStmt()   { return children[3].as!Composite; }
+
+    Type thenType() { return thenStmt().getType(); }
     Type elseType() { assert(hasElse); return elseStmt().getType(); }
 
-    bool hasThen() { return numChildren > 2; }
-    bool hasElse() { return numChildren > 3; }
+    bool hasInitExpr() { return first().hasChildren; }
+    bool hasThen()     { return thenStmt().hasChildren; }
+    bool hasElse()     { return numChildren > 3 && elseStmt().hasChildren; }
 
-    bool isUsedAsExpr() {
-        return !parent.isLiteralFunction;
+    bool isExpr() {
+        auto p = parent;
+        while(p.id==NodeID.COMPOSITE) p = p.parent;
+
+        if(p.id==NodeID.LITERAL_FUNCTION ||
+           p.id==NodeID.LOOP)
+        {
+            return false;
+        }
+        if(p.id==NodeID.BINARY ||
+           p.id==NodeID.INITIALISER ||
+           p.id==NodeID.RETURN)
+        {
+            return true;
+        }
+        if(p.id==NodeID.IF) return p.as!If.isExpr();
+
+        assert(false, "dunno parent=%s".format(p));
     }
     bool thenBlockEndsWithReturn() {
-        assert(hasThen);
-        auto stmt = thenStmt();
-        if(stmt.isReturn) return true;
-        if(stmt.isComposite) {
-            return stmt.last().isReturn;
-        }
-        return false;
+        return thenStmt().last().isReturn;
     }
     bool elseBlockEndsWithReturn() {
         assert(hasElse);
-        auto stmt = elseStmt();
-        if(stmt.isReturn) return true;
-        if(stmt.isComposite) {
-            return stmt.last().isReturn;
-        }
-        return false;
+        return elseStmt().last().isReturn;
     }
 
     override string toString(){
-        return "If (type=%s)".format(getType());
+        string e = isExpr ? "EXPR" : "STMT";
+        return "If %s (type=%s)".format(e, getType());
     }
 }

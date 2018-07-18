@@ -77,7 +77,9 @@ public:
         }
     }
     void visit(Composite n) {
-        if(n.numChildren==0) {
+        if(n.required) {
+            /// Can't be removed
+        } else if(n.numChildren==0) {
             n.detach();
         } else if(n.numChildren==1) {
             auto child = n.first();

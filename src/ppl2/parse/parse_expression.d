@@ -771,66 +771,65 @@ private:
         /// (
         t.skip(TT.LBRACKET);
 
-        /// possible variable expression and initialiser
-        auto end = t.findInCurrentScope(TT.RBRACKET);
-        auto sc  = t.findInCurrentScope(TT.SEMICOLON);
-        if(sc!=-1 && end!=-1 && sc < end) {
-            varParser.parse(t, i, true);
-            i.hasInitExpr = true;
+        /// possible init expressions
+        auto inits = Composite.make(t, true);
+        i.addToEnd(inits);
 
-            t.skip(TT.SEMICOLON);
-        } else {
-            i.addToEnd(TypeExpr.make(TYPE_VOID));
+        bool hasInits() {
+            auto end = t.findInCurrentScope(TT.RBRACKET);
+            auto sc  = t.findInCurrentScope(TT.SEMICOLON);
+            return sc!=-1 && end!=-1 && sc < end;
         }
 
+        if(hasInits()) {
+            while(t.type!=TT.SEMICOLON) {
+
+                stmtParser().parse(t, inits);
+
+                t.expect(TT.COMMA, TT.SEMICOLON);
+                if(t.type==TT.COMMA) t.next;
+            }
+            t.skip(TT.SEMICOLON);
+        }
         /// condition
         parse(t, i);
 
         /// )
         t.skip(TT.RBRACKET);
 
+        auto then = Composite.make(t, true);
+        i.addToEnd(then);
+
         /// then block
         if(t.type==TT.LCURLY) {
             t.skip(TT.LCURLY);
-
-            auto then = makeNode!Composite(t);
-            i.addToEnd(then);
 
             while(t.type!=TT.RCURLY) {
                 stmtParser().parse(t, then);
             }
             t.skip(TT.RCURLY);
 
-            if(!then.hasChildren) {
-                /// empty then block
-                i.remove(then);
-            }
         } else {
-            stmtParser().parse(t, i);
+            stmtParser().parse(t, then);
         }
 
         /// else block
         if(t.isKeyword("else")) {
             t.skip("else");
 
+            auto else_ = Composite.make(t, true);
+            i.addToEnd(else_);
+
             if(t.type==TT.LCURLY) {
                 t.skip(TT.LCURLY);
-
-                auto else_ = makeNode!Composite(t);
-                i.addToEnd(else_);
 
                 while(t.type!=TT.RCURLY) {
                     stmtParser().parse(t, else_);
                 }
                 t.skip(TT.RCURLY);
 
-                if(!else_.hasChildren) {
-                    /// empty else block
-                    i.remove(else_);
-                }
-
             } else {
-                stmtParser().parse(t, i);
+                stmtParser().parse(t, else_);
             }
         }
     }

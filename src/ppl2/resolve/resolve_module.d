@@ -174,6 +174,15 @@ public:
             }
         }
     }
+    void visit(Break n) {
+        if(!n.isResolved) {
+            n.loop = n.getAncestor!Loop;
+            if(n.loop is null) {
+                throw new CompilerError(Err.BREAK_MUST_BE_INSIDE_A_LOOP, n,
+                    "Break statement must be inside a loop");
+            }
+        }
+    }
     void visit(Call n) {
         if(!n.target.isResolved) {
 
@@ -307,6 +316,15 @@ public:
     }
     void visit(Composite n) {
 
+    }
+    void visit(Continue n) {
+        if(!n.isResolved) {
+            n.loop = n.getAncestor!Loop;
+            if(n.loop is null) {
+                throw new CompilerError(Err.CONTINUE_MUST_BE_INSIDE_A_LOOP, n,
+                    "Continue statement must be inside a loop");
+            }
+        }
     }
     void visit(Constructor n) {
         resolveType(n.type);
@@ -458,7 +476,7 @@ public:
     }
     void visit(If n) {
         if(!n.isResolved) {
-            if(!n.isUsedAsExpr) {
+            if(!n.isExpr) {
                 n.type = TYPE_VOID;
                 return;
             }
@@ -697,6 +715,9 @@ public:
                 n.type = type;
             }
         }
+    }
+    void visit(Loop n) {
+
     }
     void visit(Module n) {
 

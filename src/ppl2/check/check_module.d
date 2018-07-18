@@ -83,6 +83,9 @@ public:
             }
         }
     }
+    void visit(Break n) {
+
+    }
     void visit(Call n) {
         auto paramTypes = n.target.paramTypes();
         auto argTypes   = n.argTypes();
@@ -112,6 +115,9 @@ public:
     void visit(Constructor n) {
 
     }
+    void visit(Continue n) {
+
+    }
     void visit(Define n) {
         if(n.type.isAnonStruct) {
 
@@ -130,7 +136,7 @@ public:
 
     }
     void visit(If n) {
-        if(n.isUsedAsExpr) {
+        if(n.isExpr) {
             /// Type must not be void
             if(n.type.isVoid && n.type.isValue) {
                 throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_NOT_BE_VOID, n,
@@ -304,6 +310,9 @@ public:
                 }
             }
         }
+    }
+    void visit(Loop n ) {
+
     }
     void visit(Module n) {
         /// Ensure all global variables have a unique name

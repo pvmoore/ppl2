@@ -33,8 +33,10 @@ enum Err {
     /// Assert
     ASSERT_FAILED,
 
+    BREAK_MUST_BE_INSIDE_A_LOOP,
+    CONTINUE_MUST_BE_INSIDE_A_LOOP,
 
-// semantic
+
     BAD_IMPLICIT_CAST = 4000,
     BAD_EXPLICIT_CAST,
     BAD_NULL_CAST,

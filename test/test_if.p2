@@ -50,11 +50,23 @@ testIf = {
 
         var x = if(var a = false; a) 1 else
                 if(bool b = true; b) {
-                    2 + a
+                    2
                 } else 3
         assert x == 2
+    }
+    multipleInitExpr = {
+        int a = 0
+        var r = false
+        if(var b = 0, a = 1; a==1) {
+            r = true
+        }
+        assert r
+
+        var c = if(var b=0, float f = 3; b==0 and f==3) 1 else 2
+        assert c == 1
     }
     ifStatements()
     ifExpressions()
     initExpression()
+    multipleInitExpr()
 }

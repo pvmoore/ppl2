@@ -29,55 +29,58 @@ public:
             }
         }
 
+        switch(t.value) {
+            case "assert":
+                parseAssert(t, parent);
+                return true;
+            case "break":
+                parseBreak(t, parent);
+                return true;
+            case "const":
+                varParser().parse(t, parent);
+                return true;
+            case "continue":
+                parseContinue(t, parent);
+                return true;
+            case "define":
+                parseDefine(t, parent);
+                return true;
+            case "extern":
+                parseExtern(t, parent);
+                return true;
+            case "if":
+                noExprAllowedAtModuleScope();
+                exprParser.parse(t, parent);
+                return true;
+            case "import":
+                return parseImport(t, parent);
+            case "loop":
+                parseLoop(t, parent);
+                return true;
+            case "private":
+                t.access = Access.PRIVATE;
+                t.next;
+                return true;
+            case "public":
+                t.access = Access.PUBLIC;
+                t.next;
+                return true;
+            case "readonly":
+                t.access = Access.READONLY;
+                t.next;
+                return true;
+            case "return":
+                parseReturn(t, parent);
+                return true;
+            case "struct":
+                namedStructParser().parse(t, parent);
+                return true;
+            default:
+                break;
+        }
+
         if(t.type==TT.SEMICOLON) {
             t.next;
-            return true;
-        }
-        if(t.isKeyword("public")) {
-            t.access = Access.PUBLIC;
-            t.next;
-            return true;
-        }
-        if(t.isKeyword("private")) {
-            t.access = Access.PRIVATE;
-            t.next;
-            return true;
-        }
-        if(t.isKeyword("readonly")) {
-            t.access = Access.READONLY;
-            t.next;
-            return true;
-        }
-        if(t.isKeyword("extern")) {
-            parseExtern(t, parent);
-            return true;
-        }
-        if(t.isKeyword("import")) {
-            return parseImport(t, parent);
-        }
-        if(t.isKeyword("return")) {
-            parseReturn(t, parent);
-            return true;
-        }
-        if(t.isKeyword("const")) {
-            varParser().parse(t, parent);
-            return true;
-        }
-        if(t.isKeyword("define")) {
-            parseDefine(t, parent);
-            return true;
-        }
-        if(t.isKeyword("assert")) {
-            parseAssert(t, parent);
-            return true;
-        }
-        if(t.isKeyword("if")) {
-            noExprAllowedAtModuleScope();
-            exprParser.parse(t, parent);
-            return true;
-        }
-        if(t.isKeyword("struct")) {
-            namedStructParser().parse(t, parent);
             return true;
         }
 
@@ -311,6 +314,80 @@ private: //=====================================================================
         }
 
         parse(t, a);
+    }
+    void parseBreak(TokenNavigator t, ASTNode parent) {
+
+        auto b = makeNode!Break(t);
+        parent.addToEnd(b);
+
+        t.skip("break");
+    }
+    void parseContinue(TokenNavigator t, ASTNode parent) {
+        auto c = makeNode!Continue(t);
+        parent.addToEnd(c);
+
+        t.skip("continue");
+    }
+    void parseLoop(TokenNavigator t, ASTNode parent) {
+
+        auto loop = makeNode!Loop(t);
+        parent.addToEnd(loop);
+
+        t.skip("loop");
+
+        t.skip(TT.LBRACKET);
+
+        /// Init statements (must be Variables or Binary)
+        auto inits = Composite.make(t, true);
+        loop.addToEnd(inits);
+
+        if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop initialiser");
+
+        while(t.type!=TT.SEMICOLON) {
+
+            parse(t, inits);
+
+            t.expect(TT.COMMA, TT.SEMICOLON);
+            if(t.type==TT.COMMA) t.next;
+        }
+
+        t.skip(TT.SEMICOLON);
+
+        if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop condition");
+
+        /// Condition
+        auto cond = Composite.make(t, true);
+        loop.addToEnd(cond);
+        if(t.type!=TT.SEMICOLON) {
+            exprParser().parse(t, cond);
+        } else {
+
+        }
+
+        t.skip(TT.SEMICOLON);
+
+        /// Post loop expressions
+        auto post = Composite.make(t, true);
+        loop.addToEnd(post);
+        while(t.type!=TT.RBRACKET) {
+
+            exprParser().parse(t, post);
+
+            t.expect(TT.COMMA, TT.RBRACKET);
+            if(t.type==TT.COMMA) t.next;
+        }
+        t.skip(TT.RBRACKET);
+
+        t.skip(TT.LCURLY);
+
+        /// Body statements
+        auto body_ = Composite.make(t, true);
+        loop.addToEnd(body_);
+
+        while(t.type!=TT.RCURLY) {
+            parse(t, body_);
+        }
+        t.skip(TT.RCURLY);
     }
 }
 

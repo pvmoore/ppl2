@@ -9,6 +9,7 @@ public:
     BinaryGenerator binaryGen;
     LiteralGenerator literalGen;
     IfGenerator ifGen;
+    LoopGenerator loopGen;
 
     LLVMWrapper llvm;
     LLVMBuilder builder;
@@ -30,6 +31,7 @@ public:
         this.binaryGen  = new BinaryGenerator(this);
         this.literalGen = new LiteralGenerator(this);
         this.ifGen      = new IfGenerator(this);
+        this.loopGen    = new LoopGenerator(this);
     }
     bool generate() {
         watch.start();
@@ -87,6 +89,10 @@ public:
     void visit(Binary n) {
         dd("visit Binary", n.op);
         binaryGen.generate(n);
+    }
+    void visit(Break n) {
+        dd("visit Break");
+        loopGen.generate(n);
     }
     void visit(Call n) {
         dd("visit Call", n.name);
@@ -149,6 +155,10 @@ public:
     void visit(Composite n) {
         dd("visit Composite");
         visitChildren(n);
+    }
+    void visit(Continue n) {
+        dd("visit Continue");
+        loopGen.generate(n);
     }
     void visit(Constructor n) {
         dd("visit Constructor", n.type.getNamedStruct.name);
@@ -282,6 +292,10 @@ public:
     void visit(LiteralStruct n) {
         dd("visit LiteralStruct");
         literalGen.generate(n);
+    }
+    void visit(Loop n) {
+        dd("visit Loop");
+        loopGen.generate(n);
     }
     void visit(NamedStruct n) {
         /// Nothing to do

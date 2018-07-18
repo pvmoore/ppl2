@@ -88,6 +88,12 @@ public:
 private:
     void isThisIt(string name, ASTNode n, ref Result res) {
         switch(n.id) with(NodeID) {
+            case COMPOSITE:
+                foreach(n2; n.children) {
+                    isThisIt(name, n2, res);
+                    if(res.found) break;
+                }
+                break;
             case VARIABLE: {
                 auto v = n.as!Variable;
                 if(v.name==name) res.set(v);

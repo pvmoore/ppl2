@@ -6,6 +6,13 @@ import ppl2.internal;
 /// Wrap one or more nodes to appear as one single node.
 ///
 final class Composite : Expression {
+    bool required;  /// Set to true to ensure this node cannot be removed even if it is empty
+
+    static Composite make(TokenNavigator t, bool required = false) {
+        auto c = makeNode!Composite(t);
+        c.required = required;
+        return c;
+    }
 
     override bool isResolved() { return areResolved(children[]); }
     override NodeID id() const { return NodeID.COMPOSITE; }

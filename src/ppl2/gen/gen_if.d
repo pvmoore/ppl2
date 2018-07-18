@@ -16,13 +16,13 @@ final class IfGenerator {
         auto endLabel  = gen.createBlock(n, "endif");
 
         LLVMValueRef result;
-        if(n.isUsedAsExpr) {
+        if(n.isExpr) {
             result = builder.alloca(n.type.getLLVMType, "if_result");
         }
 
-        /// init (optional)
+        /// inits
         if(n.hasInitExpr) {
-            n.initExpr().visit!ModuleGenerator(gen);
+            n.initExprs().visit!ModuleGenerator(gen);
         }
 
         /// condition
@@ -38,11 +38,11 @@ final class IfGenerator {
 
         /// then
         builder.positionAtEndOf(thenLabel);
-        if(n.hasThen) {
+        //if(n.hasThen) {
 
             n.thenStmt().visit!ModuleGenerator(gen);
 
-            if(n.isUsedAsExpr) {
+            if(n.isExpr) {
                 gen.castType(gen.rhs, n.thenType(), n.type);
                 builder.store(gen.rhs, result);
             }
@@ -50,16 +50,16 @@ final class IfGenerator {
             if(!n.thenBlockEndsWithReturn) {
                 builder.br(endLabel);
             }
-        } else {
-            builder.br(endLabel);
-        }
+        //} else {
+        //    builder.br(endLabel);
+        //}
 
         /// else
         builder.positionAtEndOf(elseLabel);
         if(n.hasElse) {
             n.elseStmt().visit!ModuleGenerator(gen);
 
-            if(n.isUsedAsExpr) {
+            if(n.isExpr) {
                 gen.castType(gen.rhs, n.elseType(), n.type);
                 builder.store(gen.rhs, result);
             }
@@ -70,7 +70,7 @@ final class IfGenerator {
         }
 
         builder.positionAtEndOf(endLabel);
-        if(n.isUsedAsExpr) {
+        if(n.isExpr) {
             gen.rhs = builder.load(result);
         }
     }
