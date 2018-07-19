@@ -521,13 +521,17 @@ public:
             } else {
                 rhs = builder.sext(v, to.getLLVMType, name);
             }
-        } else {
+        } else if(from.size > to.size) {
             /// truncate
             if(from.isReal) {
                 rhs = builder.fptrunc(v, to.getLLVMType, name);
             } else {
                 rhs = builder.trunc(v, to.getLLVMType, name);
             }
+        } else {
+            assert(from.isAnonStruct);
+            assert(to.isAnonStruct);
+            assert(false, "we shouldn't get here");
         }
         return rhs;
     }

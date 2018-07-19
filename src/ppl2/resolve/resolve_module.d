@@ -107,7 +107,45 @@ public:
         resolveType(n.subtype);
     }
     void visit(As n) {
+        auto lt = n.leftType();
+        auto rt = n.rightType();
+        if(lt.isKnown && rt.isKnown) {
+            if(lt.isAnonStruct && rt.isAnonStruct && lt.isValue && rt.isValue) {
+                if(!lt.exactlyMatches(rt)) {
+                    /// AnonStruct value -> AnonStruct value
 
+                    /// This is a reinterpret cast. It may not be what we want ??
+
+                    /// Rewrite:
+                    ///------------
+                    /// As
+                    ///    left
+                    ///    right
+                    ///------------
+                    /// ValueOf type=rightType
+                    ///    As
+                    ///       AddressOf
+                    ///          left
+                    ///       AddressOf
+                    ///          right
+
+                    auto b = module_.builder(n);
+                    auto p = n.parent;
+
+                    auto value = makeNode!ValueOf(n);
+                    p.replaceChild(n, value);
+
+                    auto left  = b.addressOf(n.left);
+                    auto right = b.addressOf(n.right);
+                    n.addToEnd(left);
+                    n.addToEnd(right);
+
+                    value.addToEnd(n);
+
+                    rewriteOccurred = true;
+                }
+            }
+        }
     }
     void visit(Assert n) {
         if(!n.isResolved) {

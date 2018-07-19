@@ -13,5 +13,6 @@ println = { string s ->
 print = { int n ->
     [:byte 20] bytes
     _itoa(n, bytes.ptr, 10)
+
     puts(bytes.ptr)
 }

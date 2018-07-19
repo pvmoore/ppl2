@@ -33,8 +33,10 @@ public:
 
         auto right = other.getAnonStruct;
 
-        /// Types implicitly match
-        return .canImplicitlyCastTo(memberVariableTypes(), right.memberVariableTypes);
+        if(this.size != right.size) return false;
+
+        /// Types match exactly
+        return .exactlyMatch(memberVariableTypes(), right.memberVariableTypes);
     }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {

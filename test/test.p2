@@ -14,6 +14,7 @@ main = {
 
 import core.c
 import core.string
+import core.intrinsics
 //import c = core.c
 
 import test_imports
@@ -166,7 +167,26 @@ main = {
     test1 = {
         {void->int} b = { return 1 }
     }
+    test2 = {
+        {void->[int a,int b]} f = {
+            return [1,2]
+        }
+
+        var r = f()
+        [int a, float b] r2 = r as [int,float]
+
+        var a = r.a
+        var b = r.b
+        assert a==1
+        assert b==2
+
+        assert r2.a==1
+
+        // reinterpret cast won't be 2
+        //assert r2.b==2
+    }
     test1()
+    test2()
 }
 bool yop
 

@@ -32,6 +32,14 @@ public:
     void visit(As n) {
         if(!n.isResolved) return;
 
+        /// If cast is unnecessary then just remove the As
+        if(n.leftType.exactlyMatches(n.rightType)) {
+            n.parent.replaceChild(n, n.left());
+            nodesFolded++;
+            return;
+        }
+
+        /// If left is a literal number then do the cast now
         auto lit = n.left().as!LiteralNumber;
         if(lit && n.rightType.isValue) {
 
