@@ -189,33 +189,6 @@ abstract class ASTNode {
     ASTNode[] allSiblings() {
         return parent.children[].filter!(it=>it !is this).array;
     }
-    Module getModule() {
-        if(this.isA!Module) return this.as!Module;
-        if(parent) return parent.getModule();
-        throw new Exception("We are not attached to a module!!");
-    }
-    inout Container getContainer() {
-        auto c = cast(Container)parent;
-        if(c) return c;
-        if(parent) return parent.getContainer();
-        throw new Exception("We are not inside a container!!");
-    }
-    T getAncestor(T)() {
-        if(parent is null) return null;
-        if(parent.isA!T) return parent.as!T;
-        return parent.getAncestor!T;
-    }
-    /// This may return null if we are not in a struct
-    AnonStruct getContainingStruct() {
-        if(parent is null) return null;
-        if(parent.isAnonStruct) return parent.as!AnonStruct;
-        return parent.getContainingStruct();
-    }
-    LiteralFunction getContainingFunctionBody() {
-        if(parent is null) return null;
-        if(parent.isLiteralFunction) return parent.as!LiteralFunction;
-        return parent.getContainingFunctionBody();
-    }
     //================================================================================= Dump
     void dumpToConsole(string indent="") {
         //dd(this.id);
@@ -233,10 +206,54 @@ abstract class ASTNode {
         }
     }
     //=================================================================================
+    Module getModule() {
+        if(this.isA!Module) return this.as!Module;
+        if(parent) return parent.getModule();
+        throw new Exception("We are not attached to a module!!");
+    }
+    inout Container getContainer() {
+        auto c = cast(Container)parent;
+        if(c) return c;
+        if(parent) return parent.getContainer();
+        throw new Exception("We are not inside a container!!");
+    }
+    /// This may return null if we are not in a struct
+    AnonStruct getContainingStruct() {
+        if(parent is null) return null;
+        if(parent.isAnonStruct) return parent.as!AnonStruct;
+        return parent.getContainingStruct();
+    }
+    LiteralFunction getContainingFunctionBody() {
+        if(parent is null) return null;
+        if(parent.isLiteralFunction) return parent.as!LiteralFunction;
+        return parent.getContainingFunctionBody();
+    }
     bool hasAncestor(T)() {
         if(parent is null) return false;
         if(parent.isA!T) return true;
         return parent.hasAncestor!T;
+    }
+    T getAncestor(T)() {
+        if(parent is null) return null;
+        if(parent.isA!T) return parent.as!T;
+        return parent.getAncestor!T;
+    }
+    bool hasDescendent(T)() {
+        auto d = cast(T)this;
+        if(d) return true;
+        foreach(ch; children) {
+            if(ch.hasDescendent!T) return true;
+        }
+        return false;
+    }
+    T getDescendent(T)() {
+        auto d = cast(T)this;
+        if(d) return d;
+        foreach(ch; children) {
+            d = ch.getDescendent!T;
+            if(d) return d;
+        }
+        return null;
     }
     ///
     /// Return a list of all descendents that are of type T.

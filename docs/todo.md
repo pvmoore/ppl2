@@ -1,18 +1,15 @@
 # Todo
 ## High Priority
-- Check that call args match function
-- Handle ambiguous overloads
 - Check access when accessing struct members
 - Multi level struct access
 - Operator overloading eg.
     - operator: = { int index-> }
     - operator+ = { A other -> }
-    
+
 ## Medium Priority
 - Template structs
 - Template functions
 - LiteralMap
-- name=value constructor values eg S(value=1)
 - Compile time meta properties eg. #type, #length, #size etc...
 - If last arg of function is a closure then allow Groovy access
 - More constant folding and dce (calls and functions)
@@ -20,11 +17,9 @@
     - c::memset(..)  // maybe re-use use Dot with a flag
 
 - vectors eg float4, int2 etc...
-- Is half data type worth using? 
+- Is half data type worth using?
 
 ## Think about
-- Maybe don't create new() functions for structs without any var initialisers.
-  Define.requiresInitFunction() ?
 - How to do closures with captures
 - How to do named structs within named structs (this, super etc...) A.B
 

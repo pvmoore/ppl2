@@ -701,6 +701,14 @@ public:
                 case LITERAL_FUNCTION:
                     type = n.getInferredType();
                     break;
+                case RETURN: {
+                    auto ret = n.parent.as!Return;
+                    auto lf  = ret.getLiteralFunction();
+                    if(lf.getType.isKnown) {
+                        type = lf.getType.getFunctionType.returnType;
+                    }
+                    break;
+                }
                 case VARIABLE:
                     type = n.parent.as!Variable.type;
                     break;
@@ -732,7 +740,15 @@ public:
 
     }
     void visit(Return n) {
-
+        //if(n.hasExpr) {
+        //    auto p = n.getLiteralFunction().parent;
+        //    if(p.getType.isKnown) {
+        //        auto f = p.as!Function;
+        //        if(module_.canonicalName=="test") {
+        //            dd("!!!", p.getType.getFunctionType.returnType, n.getType);
+        //        }
+        //    }
+        //}
     }
     void visit(TypeExpr n) {
         resolveType(n.type);
@@ -770,7 +786,13 @@ public:
             //}
         }
         if(n.type.isKnown) {
+            /// Set the closure type matches the function ptr
+            if(n.isFunctionPtr && n.hasInitialiser) {
+                auto lf = n.getDescendent!LiteralFunction;
+                assert(lf);
 
+                lf.type = n.type;
+            }
         }
     }
     //==========================================================================

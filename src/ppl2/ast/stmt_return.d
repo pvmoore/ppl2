@@ -21,6 +21,9 @@ final class Return : Statement {
         assert(type);
         return type.returnType;
     }
+    LiteralFunction getLiteralFunction() {
+        return getAncestor!LiteralFunction;
+    }
 
     override string toString() {
         return "return";
