@@ -29,7 +29,7 @@ public:
 
         if(t.type==TT.LSQBRACKET && t.peek(1).type==TT.COLON) {
             found = possibleArrayType(t, node);
-        } else if(t.type==TT.LSQBRACKET || t.type==TT.LANGLE) {
+        } else if(t.type==TT.LSQBRACKET) {
             found = possibleAnonStruct(t, node);
         } else if(t.type==TT.LCURLY) {
             found = possibleFunctionType(t, node);
@@ -48,9 +48,11 @@ public:
                     found = true;
                 }
             }
-            // todo - template type
             if(!found) {
-
+                if(t.get.templateType) {
+                    t.next;
+                    found = true;
+                }
             }
         }
 

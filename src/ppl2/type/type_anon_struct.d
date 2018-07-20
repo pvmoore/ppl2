@@ -65,11 +65,6 @@ public:
         return null;
     }
 
-    /// Extract this template
-    AnonStruct extract(Type[] types) {
-        assert(false, "extract struct template");
-    }
-
     Variable[] getMemberVariables() {
         return cast(Variable[])
             children[].filter!(it=>cast(Variable)it !is null)

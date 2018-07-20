@@ -1,17 +1,4 @@
 
-
-/* import core.c
-import core.string
-import core.intrinsics
-import core.console
-
-main = {
-
-
-} */
-
-
-
 import core.c
 import core.string
 import core.intrinsics
@@ -37,7 +24,7 @@ define AA = int
 define BB = AA*
 define CC = BB
 define DD = CC*
-DD dd           // int**
+DD dd // int**
 
 struct Gold = []
 
@@ -51,7 +38,8 @@ Gold gold
 
 // Module init function
 new = {
-    // All module variable initialisation code will be put in here
+    // All module variable initialisation
+    // code will be put in here
     boop += 7
 }
 
@@ -106,36 +94,6 @@ someArrays = {
 }
 
 main = {
-
-    int a1 = 3
-    int b1 = a1 - 2
-
-    myfunc(true)
-
-    [int, float] anon
-
-    GreyWolf wolf
-    Animal* animal
-    Animal** animal2
-    AnimalPtr animalPtr
-    IntPtr ip
-
-    Cat cat
-    Dog* dog = Dog*()
-    dog.age += 1
-
-    [int, Bat berty] bertyStruct
-
-    int a = 1
-    var b = 2
-
-    Thingy thingy = Thingy()
-    thingy.a = 9
-
-    someArrays()
-
-    importedFunc()
-
     testLiterals()
     testExpressions()
     testCasting()
@@ -151,19 +109,44 @@ main = {
     testIf()
     testLoop()
 
-    dothings(0, cat)
+    test0 = {
+        int a1 = 3
+        int b1 = a1 - 2
 
-    putchar('a')
+        myfunc(true)
 
-    Dog* dd1 = null
-    dd1 = dog
-    dd1 = null
+        [int, float] anon
 
-    //float2 v2
-    //float3 v3
-    //float4 v4
-    //float8 v8
+        GreyWolf wolf
+        Animal* animal
+        Animal** animal2
+        AnimalPtr animalPtr
+        IntPtr ip
 
+        Cat cat
+        Dog* dog = Dog*()
+        dog.age += 1
+
+        [int, Bat berty] bertyStruct
+
+        int a = 1
+        var b = 2
+
+        Thingy thingy = Thingy()
+        thingy.a = 9
+
+        someArrays()
+
+        importedFunc()
+
+        dothings(0, cat)
+
+        putchar('a')
+
+        Dog* dd1 = null
+        dd1 = dog
+        dd1 = null
+    }
     test1 = {
         {void->int} b = { return 1 }
     }
@@ -182,11 +165,27 @@ main = {
 
         assert r2.a==1
 
-        // reinterpret cast won't be 2
+        // reinterpret cast int to float won't be 2
         //assert r2.b==2
     }
+    test3 = {
+        struct List = <T> [
+            T length
+        ]
+
+        List<int> list
+    }
+    test4 = {
+        //float2 v2
+        //float3 v3
+        //float4 v4
+        //float8 v8
+    }
+    test0()
     test1()
     test2()
+    test3()
+    test4()
 }
 bool yop
 

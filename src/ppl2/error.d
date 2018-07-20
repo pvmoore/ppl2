@@ -103,6 +103,8 @@ enum Err {
     CALL_INCORRECT_NUM_PARAM_NAMES,
     CALL_DUPLICATE_PARAM_NAME,
     CALL_PARAM_CAN_NOT_BE_CALLED_THIS,
+
+    TEMPLATE_INCORRECT_NUM_PARAMS,
 }
 //======================================================================
 class CompilerError : Exception {
@@ -265,8 +267,11 @@ void errorStructLiteralMixedInitialisation(TokenNavigator t) {
 void errorMissingType(ASTNode n, string name) {
     throw new CompilerError(Err.MISSING_TYPE, n, "Type %s not found".format(name));
 }
-void errorMissingType(TokenNavigator t, string name) {
-    throw new CompilerError(Err.MISSING_TYPE, t, "Type %s not found".format(name));
+void errorMissingType(TokenNavigator t, string name=null) {
+    if(name) {
+        throw new CompilerError(Err.MISSING_TYPE, t, "Type %s not found".format(name));
+    }
+    throw new CompilerError(Err.MISSING_TYPE, t, "Type not found");
 }
 void errorAmbiguousExpr(ASTNode n) {
     throw new CompilerError(Err.AMBIGUOUS_BINARY_EXPR_PRIORITY, n,

@@ -89,6 +89,7 @@ private:
     void isThisIt(string name, ASTNode n, ref Result res) {
         switch(n.id) with(NodeID) {
             case COMPOSITE:
+                /// Treat children of Composite as if they were in scope
                 foreach(n2; n.children) {
                     isThisIt(name, n2, res);
                     if(res.found) break;

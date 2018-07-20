@@ -18,6 +18,9 @@ public:
         this.marks        = new Stack!int;
         this.namedStructs = new Stack!NamedStruct;
     }
+    void appendTokens(Token[] tokens) {
+        this.tokens ~= tokens;
+    }
     void reset() {
         pos = 0;
         marks.clear();
@@ -48,20 +51,20 @@ public:
     int index() {
         return pos;
     }
-    int line() const { return get().line; }
-    int column() const { return get().column; }
-    Token get() const {
+    int line() { return get().line; }
+    int column() { return get().column; }
+    Token get() {
         if(pos >= tokens.length) return NO_TOKEN;
         return tokens[pos];
     }
-    // Inclusive range
+    /// Inclusive range
     Token[] get(int start, int end) {
         return tokens[start..end+1];
     }
-    TT type() const {
+    TT type() {
         return get().type;
     }
-    string value() const {
+    string value() {
         return get().value;
     }
     Token peek(int offset) {
@@ -186,6 +189,18 @@ struct Token {
     int endIndex;
     int line;
     int column;
+    Type templateType;
+}
+Token copyToken(Token t) {
+    return Token(
+        t.type,
+        t.value,
+        t.startIndex,
+        t.endIndex,
+        t.line,
+        t.column,
+        t.templateType
+    );
 }
 
 enum TT {

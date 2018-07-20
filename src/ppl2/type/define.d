@@ -7,12 +7,18 @@ class Define : Statement, Type {
     string moduleName;
     bool isImport;
     int numRefs;
-
     Type type;
+
+    /// template proxy
+    NamedStruct templateProxyStruct;
+    Type[] templateProxyParams;
+    bool templateProxyIsExtracted;
 
     this() {
         type = TYPE_UNKNOWN;
     }
+
+    bool isTemplateProxy() { return templateProxyStruct !is null; }
 
 /// ASTNode
     override bool isResolved() {
@@ -44,6 +50,6 @@ class Define : Statement, Type {
     override string toString() {
         string val = "%s".format(getType);
         string imp = isImport ? " (IMPORT)" : "";
-        return "Define[refs=%s] %s = %s%s".format(numRefs, name, val, imp);
+        return "Define[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
     }
 }

@@ -14,8 +14,11 @@ public:
     AnonStruct type;
     int numRefs;
 
-    string[] templateArgNames;  /// if isTemplate==true
-    Token[] tokens;             /// if isTemplate==true
+/// Template stuff
+    string[] templateParamNames;  /// if isTemplate==true
+    Token[] tokens;               /// if isTemplate==true
+
+    bool isTemplate() const { return templateParamNames.length > 0; }
 
 /// ASTNode interface
     override bool isResolved() { return isKnown; }
@@ -44,11 +47,7 @@ public:
 
         auto right = other.getNamedStruct;
 
-        /// Be strict for now
         return name==right.name;
-
-        /// Types implicitly match
-        //return .canImplicitlyCastTo(type.memberVariableTypes(), right.type.memberVariableTypes);
     }
     LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
@@ -60,8 +59,6 @@ public:
         return getUniqueName();
     }
     //========================================================================================
-    bool isTemplate() const { return templateArgNames.length > 0; }
-
     bool isAtModuleScope() {
         return parent.isModule;
     }
@@ -71,6 +68,42 @@ public:
         }
         return _uniqueName;
     }
+    Token[] extract(string name, Type[] templateArgs) {
+        Token stringToken(string value) {
+            auto t  = copyToken(tokens[0]);
+            t.type  = TT.IDENTIFIER;
+            t.value = value;
+            return t;
+        }
+        Token typeToken(TT e) {
+            auto t  = copyToken(tokens[0]);
+            t.type  = e;
+            t.value = "";
+            return t;
+        }
+        int templateParamIndex(string param) {
+            foreach(int i, n; templateParamNames) {
+                if(n==param) return i;
+            }
+            return -1;
+        }
+
+        Token[] tokens = [
+            stringToken("struct"),
+            stringToken(name),
+            typeToken(TT.EQUALS)
+        ] ~ this.tokens.dup;
+
+        foreach(ref tok; tokens) {
+            if(tok.type==TT.IDENTIFIER) {
+                int i = templateParamIndex(tok.value);
+                if(i!=-1) {
+                    tok.templateType = templateArgs[i];
+                }
+            }
+        }
+        return tokens;
+    }
     //========================================================================================
     override string description() {
         return "NamedStruct[refs=%s] %s".format(numRefs, toString());
@@ -78,8 +111,8 @@ public:
     override string toString() {
         string s;
         if(isTemplate()) {
-            s ~= "<" ~ templateArgNames.join(",") ~ "> ";
+            s ~= "<" ~ templateParamNames.join(",") ~ "> ";
         }
-        return "%s%s%s".format(s, name, isKnown ? "":"?");
+        return "%s%s:%s%s".format(s, name, getUniqueName, isKnown ? "":"?");
     }
 }

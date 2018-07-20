@@ -11,7 +11,8 @@ private:
     bool addedModuleScopeElements;
     Set!ASTNode unresolved;
     Array!Callable overloadSet;
-    bool rewriteOccurred;
+    int rewrites;
+    int typesWaiting;
 public:
     Module module_;
 
@@ -33,7 +34,8 @@ public:
     ///
     int resolve() {
         watch.start();
-        rewriteOccurred = false;
+        rewrites = 0;
+        typesWaiting = 0;
 
         collectModuleScopeElements();
 
@@ -43,14 +45,13 @@ public:
             recursiveVisit(r);
         }
 
-        //int numUnresolved = (addedModuleScopeElements ? 0 : 1) + unresolved.length;
-        int numUnresolved = unresolved.length + (rewriteOccurred ? 1 : 0);
+        int numUnresolved = unresolved.length + rewrites + typesWaiting;
 
         pass++;
         watch.stop();
         return numUnresolved;
     }
-    void resolveFunction(string funcName) {
+    void resolveFunction(string funcName, Type[] templateParams) {
         watch.start();
         log("Resolving %s func '%s'", module_, funcName);
 
@@ -60,7 +61,7 @@ public:
         foreach(n; module_.children) {
             auto f = cast(Function)n;
             if(f && f.name==funcName) {
-                log("\t  Adding root %s", f);
+                log("\t  Adding Function root %s", f);
                 module_.activeRoots.add(f);
 
                 /// Don't add reference here. Add it once we have filtered possible
@@ -69,7 +70,7 @@ public:
         }
         watch.stop();
     }
-    void resolveDefine(string defineName) {
+    void resolveDefine(string defineName, Type[] templateParams) {
         watch.start();
         log("Resolving %s define|struct '%s'", module_, defineName);
 
@@ -78,16 +79,21 @@ public:
         module_.recurse!Define((it) {
             if(it.name==defineName) {
                 if(it.parent.isModule) {
-                    log("\t  Adding root %s", it);
+                    log("\t  Adding Define root %s", it);
                     module_.activeRoots.add(it);
                 }
                 it.numRefs++;
+
+                /// Could be a chain of defines in different modules
+                if(it.isImport) {
+                    defineRequired(it.moduleName, it.name, templateParams);
+                }
             }
         });
         module_.recurse!NamedStruct((it) {
             if(it.name==defineName) {
                 if(it.parent.isModule) {
-                    log("\t  Adding root %s", it);
+                    log("\t  Adding NamedStruct root %s", it);
                     module_.activeRoots.add(it);
                 }
                 it.numRefs++;
@@ -142,7 +148,7 @@ public:
 
                     value.addToEnd(n);
 
-                    rewriteOccurred = true;
+                    rewrites++;
                 }
             }
         }
@@ -183,7 +189,7 @@ public:
             /// line
             c.addToEnd(LiteralNumber.makeConst(n.line, TYPE_INT));
 
-            rewriteOccurred = true;
+            rewrites++;
         }
     }
     void visit(Binary n) {
@@ -268,7 +274,7 @@ public:
                         if(n.paramNames.length>0) n.paramNames ~= "this";
 
                         n.implicitThisArgAdded = true;
-                        rewriteOccurred = true;
+                        rewrites++;
                     }
 
                     AnonStruct struct_ = prevType.getAnonStruct();
@@ -298,7 +304,7 @@ public:
                 if(ns) {
                     import std.array : insertInPlace;
 
-                    rewriteOccurred = true;
+                    rewrites++;
                     auto b = module_.builder(n);
                     n.insertAt(0, b.identifier("this"));
 
@@ -369,8 +375,8 @@ public:
     }
     void visit(Define n) {
         resolveType(n.type);
-        if(n.type.isAnonStruct) {
-
+        foreach(t; n.templateProxyParams) {
+            resolveType(t);
         }
     }
     void visit(Dot n) {
@@ -455,14 +461,14 @@ public:
                             if(prevType.isArray) {
                                 int len = prevType.getArrayType.countAsInt();
                                 dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
-                                rewriteOccurred = true;
+                                rewrites++;
                                 return;
                             }
                             break;
                         case "subtype":
                             if(prevType.isArray) {
                                 dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
-                                rewriteOccurred = true;
+                                rewrites++;
                                 return;
                             }
                             break;
@@ -479,14 +485,14 @@ public:
                                 ///      prev
                                 /// subtype*
                                 dot.parent.replaceChild(dot, as);
-                                rewriteOccurred = true;
+                                rewrites++;
                                 return;
                             }
                             break;
                         case "#size": {
                             int size = prevType.size();
                             dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
-                            rewriteOccurred = true;
+                            rewrites++;
                             return;
                         }
                         default:
@@ -854,6 +860,9 @@ public:
 //==========================================================================
 private:
     void recursiveVisit(ASTNode m) {
+
+        if(m.isNamedStruct && m.as!NamedStruct.isTemplate) return;
+
         //dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
 
@@ -879,43 +888,70 @@ private:
         }
     }
     ///
-    /// If type is a Define then we need to resolve it and import it if it is
-    /// not within the same module.
+    /// If type is a Define then we need to resolve it
     ///
     void resolveType(ref Type type) {
+        if(!type.isDefine) return;
 
-        if(type.isDefine) {
+        auto def = type.getDefine;
 
-            auto def = type.getDefine;
-            defineRequired(def.moduleName, def.name);
+        /// Handle template proxy Define
+        if(def.isTemplateProxy) {
+            assert(module_.canonicalName==def.moduleName);
 
-            if(!def.isImport) {
-                /// Convert this Define to it's proper type
-                if(def.isKnown) type = PtrType.of(def.getRootType, type.getPtrDepth);
-                return;
-            }
-            if(type.isKnown) return;
+            if(def.templateProxyParams.areKnown) {
+                auto ns     = def.templateProxyStruct;
+                string name = ns.name ~ "<" ~ mangle(def.templateProxyParams) ~ ">";
 
-            auto m = PPL2.getModule(def.moduleName);
-            if(m && m.isParsed) {
-                /// Swap the define to the one in the imported module
-                auto externDef = m.getDefine(def.name);
-                if(externDef) {
-                    type = PtrType.of(externDef.getRootType, type.getPtrDepth);
-                    //externDef.numRefs++;
+                auto t = findType(name, def.templateProxyStruct);
+                if(t) {
+                    assert(t.isNamedStruct);
+                    type = t;
+                    t.getNamedStruct.numRefs++;
+                } else if(def.templateProxyIsExtracted) {
+                    typesWaiting++;
                 } else {
-                    auto ns = m.getNamedStruct(def.name);
-                    if(ns) {
-                        type = PtrType.of(ns, type.getPtrDepth);
-                    } else {
-                        throw new CompilerError(Err.IMPORT_NOT_FOUND, module_,
-                            "Import %s not found in module %s".format(def.name, def.moduleName));
-                    }
+                    /// Extract the template
+                    Token[] tokens = ns.extract(name, def.templateProxyParams);
+                    //dd("tokens=", tokens);
+
+                    module_.parser.appendTokens(ns, tokens);
+
+                    def.templateProxyIsExtracted = true;
+
+                    defineRequired(module_.canonicalName, ns.name, def.templateProxyParams);
+                    typesWaiting++;
                 }
             }
-        } else if(type.isNamedStruct) {
-            auto ns = type.getNamedStruct;
-            defineRequired(module_.canonicalName, ns.name);
+            return;
+        }
+
+        if(!def.isImport) {
+            /// Convert this Define to it's proper type
+            if(def.isKnown) type = PtrType.of(def.getRootType, type.getPtrDepth);
+            return;
+        }
+        if(type.isKnown) return;
+
+        /// Handle import Define
+        auto m = PPL2.getModule(def.moduleName);
+        if(m && m.isParsed) {
+            /// Swap the define to the one in the imported module
+            auto externDef = m.getDefine(def.name);
+            if(externDef) {
+                type = PtrType.of(externDef.getRootType, type.getPtrDepth);
+                //externDef.numRefs++;
+            } else {
+                auto ns = m.getNamedStruct(def.name);
+                if(ns) {
+
+
+                    type = PtrType.of(ns, type.getPtrDepth);
+                } else {
+                    throw new CompilerError(Err.IMPORT_NOT_FOUND, module_,
+                        "Import %s not found in module %s".format(def.name, def.moduleName));
+                }
+            }
         }
     }
 }

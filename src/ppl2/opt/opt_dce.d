@@ -30,7 +30,10 @@ public:
         auto defines = new Array!Define;
         module_.selectDescendents!Define(defines);
         foreach(d; defines) {
-            if(d.isImport ) {
+            if(d.isTemplateProxy) {
+                log("\t  template proxy define %s", d.name);
+                d.detach();
+            } else if(d.isImport ) {
                 log("\t  proxy define %s", d.name);
                 d.detach();
             } else if(d.numRefs==0) {
@@ -40,11 +43,14 @@ public:
                 d.detach();
             }
         }
-        /// Look at named structs that are not referenced
+        /// Look at named structs that are not referenced or are template blueprints
         auto namedStructs = new Array!NamedStruct;
         module_.selectDescendents!NamedStruct(namedStructs);
         foreach(ns; namedStructs) {
-            if(ns.numRefs==0) {
+            if(ns.isTemplate) {
+                log("\t  template blueprint named struct %s", ns.name);
+                ns.detach();
+            } else if(ns.numRefs==0) {
                 log("\t  unreferenced named struct %s", ns.name);
                 ns.detach();
             } else {

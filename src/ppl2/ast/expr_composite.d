@@ -25,6 +25,6 @@ final class Composite : Expression {
     }
 
     override string toString() {
-        return "Composite (type=%s)".format(getType);
+        return "Composite %s(type=%s)".format(nid, getType);
     }
 }

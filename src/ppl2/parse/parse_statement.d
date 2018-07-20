@@ -18,7 +18,7 @@ public:
     }
 
     bool parse(TokenNavigator t, ASTNode parent) {
-        //dd(module_.canonicalName, "statement line=", t.line," parent", parent);
+        //dd(module_.canonicalName, "statement line=", t.line, " parent", parent, t.get);
         //scope(exit) dd("end statement line", t.line);
 
         pragma(inline,true) {
@@ -184,7 +184,7 @@ private: //=====================================================================
         auto mod = PPL2.getModule(moduleName);
         if(!mod) {
             log("Statement: Requesting exports for module %s", moduleName);
-            exportsRequired(moduleName);
+            moduleRequired(moduleName);
             t.resetToMark();
             return false;
         } else {

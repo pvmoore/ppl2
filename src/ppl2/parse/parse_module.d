@@ -12,9 +12,9 @@ private:
     Module module_;
     StopWatch watch;
     Lexer lexer;
-    TokenNavigator nav;
+    TokenNavigator[] navs;
+    ASTNode[] startNodes;
     string contents;
-    Token[] tokens;
 
     StatementParser stmtParser() { return module_.stmtParser; }
 public:
@@ -32,17 +32,17 @@ public:
         watch.stop();
     }
     void tokenise() {
-        this.tokens = lexer.tokenise(contents);
-        this.nav    = new TokenNavigator(module_, tokens);
+        auto tokens      = lexer.tokenise(contents);
+        this.navs       ~= new TokenNavigator(module_, tokens);
+        this.startNodes ~= module_;
+        extractExports(tokens);
     }
-    ///
-    /// Look for exported functions, defines and structs
-    ///
-    void extractExports() {
-        watch.start();
-        log("Parser: Extracting exports");
-        doExtractExports();
-        watch.stop();
+    void appendTokens(ASTNode afterNode, Token[] tokens) {
+        this.navs ~= new TokenNavigator(module_, tokens);
+        auto composite = Composite.make(navs[$-1], true);
+        afterNode.parent.insertAt(afterNode.index, composite);
+        this.startNodes ~= composite;
+        module_.isParsed = false;
     }
     ///
     /// Tokenise the contents and then start to parse the statements.
@@ -51,17 +51,22 @@ public:
     ///
     void parse() {
         watch.start();
-        log("[%s] Parsing from line %s", module_.canonicalName, nav.line);
 
-        while(nav.hasNext()) {
-            auto cont = stmtParser().parse(nav, module_);
-            if(!cont) {
-                log("[%s] Parser pausing at line %s", module_.canonicalName, nav.line);
-                break;
+        bool paused = false;
+    outer:
+        foreach(i, nav; navs) {
+            log("[%s] Parsing from line %s", module_.canonicalName, nav.line);
+            while(nav.hasNext()) {
+                auto cont = stmtParser().parse(nav, startNodes[i]);
+                if(!cont) {
+                    log("[%s] Parser pausing at line %s", module_.canonicalName, nav.line);
+                    paused = true;
+                    break outer;
+                }
             }
         }
 
-        if(!nav.hasNext()) {
+        if(!paused) {
             log("[%s] Parser finished", module_.canonicalName);
             moduleFullyParsed();
             module_.isParsed = true;
@@ -126,7 +131,12 @@ private:
         /// Request init function resolution
         functionRequired(module_.canonicalName, "new");
     }
-    void doExtractExports() {
+    ///
+    /// Look for exported functions, defines and structs
+    ///
+    void extractExports(Token[] tokens) {
+        watch.start();
+        log("Parser: Extracting exports");
         auto t = new TokenNavigator(module_, tokens);
 
         bool public_ = false;
@@ -157,6 +167,6 @@ private:
             }
             t.next;
         }
-
+        watch.stop();
     }
 }

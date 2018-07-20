@@ -11,11 +11,20 @@ import ppl2.internal;
 /// wouldn't normally be necessary if we started from the node itself (which we may not have).
 ///
 Type findType(string name, ASTNode node) {
+
     pragma(inline,true) Type find(ASTNode n) {
         auto def = n.as!Define;
         if(def && def.name==name) return def;
         auto ns = n.as!NamedStruct;
         if(ns && ns.name==name) return ns;
+        auto comp = n.as!Composite;
+        if(comp) {
+            /// Treat children of Composite as if they were in scope
+            foreach(ch; comp.children[]) {
+                auto t = find(ch);
+                if(t) return t;
+            }
+        }
         return null;
     }
 

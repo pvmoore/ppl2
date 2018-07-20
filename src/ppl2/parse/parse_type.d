@@ -21,7 +21,7 @@ public:
         if(t.type==TT.LSQBRACKET && t.peek(1).type==TT.COLON) {
             /// array "[:" type count_expr "]"
             type = parseArrayType(t, node);
-        } else if(t.type==TT.LSQBRACKET || t.type==TT.LANGLE) {
+        } else if(t.type==TT.LSQBRACKET) {
             /// [ <T> ] "[" struct
             type = parseAnonStruct(t, node);
         } else if(t.type==TT.LCURLY) {
@@ -36,19 +36,13 @@ public:
             }
             /// Is it a NamedStruct or Define?
             if(type is null) {
-                auto ty = findType(value, node);
-                if(ty) {
-                    t.next;
-                    type = ty;
-                    if(type.isA!Define && type.as!Define.isKnown) type = type.as!Define.type;
-                }
+                type = parseDefine(t, node);
             }
-            // todo - template type
             if(type is null) {
-
+                type = t.get.templateType;
+                if(type) t.next;
             }
         }
-        // todo - template init < ... >
 
         /// ptr depth
         if(type !is null) {
@@ -61,37 +55,84 @@ public:
         }
         return type;
     }
-    ///
-    /// struct_type   ::= [ template_args ] "[" statement { statement } "]"
-    /// template_args ::= "<" name { "," name } ">"
-    ///
-    Type parseAnonStruct(TokenNavigator t, ASTNode node) {
+    Type parseDefine(TokenNavigator t, ASTNode node) {
+        auto type = findType(t.value, node);
+        if(!type) return null;
 
+        t.next;
+
+        Type[] templateParams;
+
+        /// Check for template params
         if(t.type==TT.LANGLE) {
-            /// template struct
-            assert(node.isA!NamedStruct);
-            auto ns = node.as!NamedStruct;
+            t.next;
 
-            /// < .. >
-            t.skip(TT.LANGLE);
             while(t.type!=TT.RANGLE) {
-                ns.templateArgNames ~= t.value;
-                t.next;
-                t.expect(TT.RANGLE, TT.COMMA);
-                if (t.type==TT.COMMA) t.next;
+
+                t.markPosition();
+
+                auto tt = parse(t, node);
+                if(!tt) {
+                    t.resetToMark();
+                    errorMissingType(t);
+                }
+                t.discardMark();
+
+                templateParams ~= tt;
+
+                t.expect(TT.COMMA, TT.RANGLE);
+                if(t.type==TT.COMMA) t.next;
             }
             t.skip(TT.RANGLE);
-
-            /// [
-            t.expect(TT.LSQBRACKET);
-
-            int start = t.index;
-            int end   = t.findEndOfBlock(TT.LSQBRACKET);
-            ns.tokens = t.get(start, start+end).dup;
-            t.next(end+1);
-            return makeNode!AnonStruct(t);
         }
-        /// Struct
+
+        if(type.isDefine) {
+            auto def = type.getDefine;
+            if(def.isKnown) type = def.type;
+            defineRequired(def.moduleName, def.name, templateParams);
+        } else {
+            auto ns = type.getNamedStruct;
+            defineRequired(module_.canonicalName, ns.name, templateParams);
+
+            if(ns.isTemplate) {
+                if(templateParams.length != ns.templateParamNames.length) {
+                    throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, t,
+                        "Expecting %s template parameters".format(ns.templateParamNames.length));
+                }
+
+                /// Look for a concrete impl
+                Type concreteType;
+                string name = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
+                if(templateParams.areKnown) {
+                    concreteType = findType(name, node);
+                }
+
+                if(concreteType) {
+                    /// We found the concrete impl
+                    type = concreteType;
+                } else {
+                    /// Create a template proxy Define which can
+                    /// be replaced later by the concrete NamedStruct
+                    auto def                = makeNode!Define(t);
+                    def.name                = module_.makeTemporary("templateProxy");
+                    def.type                = TYPE_UNKNOWN;
+                    def.moduleName          = module_.canonicalName;
+                    def.isImport            = false;
+                    def.templateProxyStruct = ns;
+                    def.templateProxyParams = templateParams;
+                    module_.addToEnd(def);
+
+                    type = def;
+                    dd("!!! def=", def.name);
+                }
+            }
+        }
+        return type;
+    }
+    ///
+    /// struct_type ::= "[" statement { statement } "]"
+    ///
+    Type parseAnonStruct(TokenNavigator t, ASTNode node) {
 
         /// [
         auto s = makeNode!AnonStruct(t);
@@ -101,6 +142,7 @@ public:
 
         /// Statements
         while(t.type!=TT.RSQBRACKET) {
+
             stmtParser().parse(t, s);
 
             if(t.type==TT.COMMA) t.next;
@@ -135,7 +177,7 @@ public:
         return a;
     }
     ///
-    /// "{" [ type { "," type } ] "->" [ type ] "}"
+    /// function_type ::= "{" [ type { "," type } ] "->" [ type ] "}"
     ///
     Type parseFunctionType(TokenNavigator t, ASTNode node) {
         //dd("function type");

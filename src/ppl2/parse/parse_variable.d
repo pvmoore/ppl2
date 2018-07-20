@@ -35,6 +35,7 @@ public:
         }
 
         if(typeDetector().isType(t, v)) {
+
             v.type = typeParser.parse(t, v);
 
             if(v.type.isFunction) {

@@ -129,7 +129,6 @@ private:
                     /// Get to the point where we know what the exports are
                     mod.parser.readContents();
                     mod.parser.tokenise();
-                    mod.parser.extractExports();
                 }
 
                 /// Try to parse this module if we haven't done so already
@@ -146,14 +145,14 @@ private:
                     }
                 }
 
-                final switch (t.type) with(Task.Type) {
+                final switch(t.type) with(Task.Enum) {
                     case FUNC:
-                        mod.resolver.resolveFunction(t.elementName);
+                        mod.resolver.resolveFunction(t.elementName, t.templateParams);
                         break;
                     case DEFINE:
-                        mod.resolver.resolveDefine(t.elementName);
+                        mod.resolver.resolveDefine(t.elementName, t.templateParams);
                         break;
-                    case EXPORTS:
+                    case MODULE:
                         break;
                 }
             }

@@ -13,19 +13,29 @@ public:
         this.module_ = module_;
     }
     ///
-    /// "struct" name "=" AnonStruct
+    /// "struct" name "=" [ <> ] AnonStruct
     ///
     void parse(TokenNavigator t, ASTNode parent) {
+
+        /// struct
+        t.skip("struct");
 
         NamedStruct n = makeNode!NamedStruct(t);
         parent.addToEnd(n);
 
         /// Is this type already defined?
         auto type = findType(t.value, parent);
+
+        //dd("parseNamedStruct", t.value);
         if(type) {
+            dd("redefinition", type);
             if(type.isDefine) {
-                throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
-                    "Type %s already defined".format(t.value));
+                if(type.getDefine.isTemplateProxy) {
+                    /// Allow template proxy as this is what we are replacing
+                } else {
+                    throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
+                        "Type %s already defined".format(t.value));
+                }
             } else if(type.isNamedStruct) {
                 auto ns = type.getNamedStruct;
                 if(ns.type.numMemberVariables==0) {
@@ -43,9 +53,6 @@ public:
             }
         }
 
-        /// struct
-        t.skip("struct");
-
         /// name
         n.name = t.value;
         t.next;
@@ -55,17 +62,47 @@ public:
         /// =
         t.skip(TT.EQUALS);
 
-        /// anon struct
-        n.type = typeParser.parse(t, n).as!AnonStruct;
+        if(t.type==TT.LANGLE) {
+            /// This is a template
 
-        /// Do some house-keeping
-        auto anonStruct = n.type;
+            t.skip(TT.LANGLE);
 
-        addDefaultConstructor(t, anonStruct);
-        addImplicitThisParam(n, anonStruct);
-        addImplicitReturnThis(anonStruct);
-        addCallToDefaultConstructor(anonStruct);
-        moveInitCodeInsideDefaultConstructor(anonStruct);
+            /// template params < A,B,C >
+            while(t.type!=TT.RANGLE) {
+                n.templateParamNames ~= t.value;
+                t.next;
+
+                t.expect(TT.RANGLE, TT.COMMA);
+                if(t.type==TT.COMMA) t.next;
+            }
+            t.skip(TT.RANGLE);
+
+            dd("Template", n.name, n.templateParamNames);
+
+            /// [
+            t.expect(TT.LSQBRACKET);
+
+            int start = t.index;
+            int end   = t.findEndOfBlock(TT.LSQBRACKET);
+            n.tokens = t.get(start, start+end).dup;
+            t.next(end+1);
+
+        } else {
+            /// This is a concrete struct
+
+            /// anon struct
+            n.type = typeParser.parse(t, n).as!AnonStruct;
+
+            /// Do some house-keeping
+            auto anonStruct = n.type;
+
+            addDefaultConstructor(t, anonStruct);
+            addImplicitThisParam(n, anonStruct);
+            addImplicitReturnThis(anonStruct);
+            addCallToDefaultConstructor(anonStruct);
+            moveInitCodeInsideDefaultConstructor(anonStruct);
+
+        }
 
         t.popNamedStruct();
     }
