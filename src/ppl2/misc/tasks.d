@@ -14,9 +14,8 @@ void moduleRequired(string moduleName) {
     };
     pushPriorityTask(t);
 }
-void defineRequired(string moduleName, string defineName, Type[] templateParams=null) {
+void defineRequired(string moduleName, string defineName) {
     string key = "%s|%s".format(moduleName, defineName);
-    if(templateParams) key ~= "<" ~ mangle(templateParams) ~ ">";
 
     if(g_definesRequested.contains(key)) return;
     g_definesRequested.add(key);
@@ -24,14 +23,12 @@ void defineRequired(string moduleName, string defineName, Type[] templateParams=
     Task t = {
         Task.Enum.DEFINE,
         moduleName,
-        defineName,
-        templateParams
+        defineName
     };
     pushTask(t);
 }
-void functionRequired(string moduleName, string funcName, Type[] templateParams=null) {
+void functionRequired(string moduleName, string funcName) {
     string key = "%s|%s".format(moduleName, funcName);
-    if(templateParams) key ~= "<" ~ mangle(templateParams) ~ ">";
 
     if(g_functionsRequested.contains(key)) return;
     g_functionsRequested.add(key);
@@ -39,8 +36,7 @@ void functionRequired(string moduleName, string funcName, Type[] templateParams=
     Task t = {
         Task.Enum.FUNC,
         moduleName,
-        funcName,
-        templateParams
+        funcName
     };
     pushTask(t);
 }
@@ -51,7 +47,6 @@ struct Task {
 
     string moduleName;
     string elementName;
-    Type[] templateParams;
 }
 int countTasks() {
     return g_taskQueue.length;

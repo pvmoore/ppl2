@@ -103,10 +103,11 @@ public:
     }
 private:
     void parseAndResolve() {
+        int numModulesParsed = 0;
         int numUnresolvedModules = 0;
         int nodesFolded = 0;
 
-        for(int loop=1; loop<10 && (numUnresolvedModules>0 || tasksAvailable() || nodesFolded>0); loop++) {
+        for(int loop=1; loop<10 && (numUnresolvedModules>0 || tasksAvailable() || nodesFolded>0 || numModulesParsed>0); loop++) {
             log("===================================================== Loop %s", loop);
             /// Process all pending tasks
             while(tasksAvailable()) {
@@ -147,10 +148,10 @@ private:
 
                 final switch(t.type) with(Task.Enum) {
                     case FUNC:
-                        mod.resolver.resolveFunction(t.elementName, t.templateParams);
+                        mod.resolver.resolveFunction(t.elementName);
                         break;
                     case DEFINE:
-                        mod.resolver.resolveDefine(t.elementName, t.templateParams);
+                        mod.resolver.resolveDefine(t.elementName);
                         break;
                     case MODULE:
                         break;
@@ -158,6 +159,7 @@ private:
             }
             log("All current tasks completed");
 
+            numModulesParsed     = parseModules();
             numUnresolvedModules = runResolvePass();
             nodesFolded          = runConstFoldPass();
         }
@@ -180,6 +182,16 @@ private:
         foreach(m; modules) {
             m.resolver.writeAST();
         }
+    }
+    int parseModules() {
+        int numModulesParsed = 0;
+        foreach(m; modules.values) {
+            if(!m.isParsed) {
+                m.parser.parse();
+                numModulesParsed++;
+            }
+        }
+        return numModulesParsed;
     }
     int runResolvePass() {
         log("Running resolvers...");

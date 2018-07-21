@@ -11,14 +11,16 @@ private:
     LLVMTypeRef _llvmType;
 public:
     string name;
+    string moduleName;
     AnonStruct type;
     int numRefs;
 
 /// Template stuff
-    string[] templateParamNames;  /// if isTemplate==true
-    Token[] tokens;               /// if isTemplate==true
-
+    string[] templateParamNames;
+    Token[] tokens;
+    Set!string extractedTemplates;
     bool isTemplate() const { return templateParamNames.length > 0; }
+/// end of template stuff
 
 /// ASTNode interface
     override bool isResolved() { return isKnown; }
@@ -68,7 +70,21 @@ public:
         }
         return _uniqueName;
     }
-    Token[] extract(string name, Type[] templateArgs) {
+    bool requiresExtraction(string name) {
+        if(extractedTemplates is null) {
+            extractedTemplates = new Set!string;
+        }
+        return !extractedTemplates.contains(name);
+    }
+    Token[] extract(ASTNode node, string name, Type[] templateArgs) {
+        assert(extractedTemplates);
+        extractedTemplates.add(name);
+
+        if(templateArgs.length != templateParamNames.length) {
+            throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, node,
+                "Expecting %s template parameters".format(templateParamNames.length));
+        }
+
         Token stringToken(string value) {
             auto t  = copyToken(tokens[0]);
             t.type  = TT.IDENTIFIER;

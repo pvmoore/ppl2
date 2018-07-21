@@ -26,22 +26,23 @@ public:
                 /// If this function contains a call or identifier then deref them. Is that possible?
             }
         }
-        /// Look at defines that are not referenced
+        /// Remove all Defines
         auto defines = new Array!Define;
         module_.selectDescendents!Define(defines);
         foreach(d; defines) {
-            if(d.isTemplateProxy) {
-                log("\t  template proxy define %s", d.name);
+            //if(d.isTemplateProxy) {
+            //    log("\t  template proxy define %s", d.name);
+            //    d.detach();
+            //} else if(d.isImport ) {
+            //    log("\t  proxy define %s", d.name);
+            //    d.detach();
+            //} else if(d.numRefs==0) {
+            //    log("\t  unreferenced define %s", d.name);
+            //    d.detach();
+            //} else {
+                log("\t define %s", d.name);
                 d.detach();
-            } else if(d.isImport ) {
-                log("\t  proxy define %s", d.name);
-                d.detach();
-            } else if(d.numRefs==0) {
-                log("\t  unreferenced define %s", d.name);
-                d.detach();
-            } else {
-                d.detach();
-            }
+            //}
         }
         /// Look at named structs that are not referenced or are template blueprints
         auto namedStructs = new Array!NamedStruct;

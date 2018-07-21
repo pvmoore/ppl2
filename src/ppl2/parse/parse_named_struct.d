@@ -23,6 +23,8 @@ public:
         NamedStruct n = makeNode!NamedStruct(t);
         parent.addToEnd(n);
 
+        n.moduleName = module_.canonicalName;
+
         /// Is this type already defined?
         auto type = findType(t.value, parent);
 

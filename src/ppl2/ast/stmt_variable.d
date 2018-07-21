@@ -88,8 +88,8 @@ final class Variable : Statement {
                      isGlobal ? "GLOBAL" : "STRUCT";
         string c = isConst ? "const ":"";
         if(name) {
-            return "Variable[refs=%s] '%s' %s%s (%s)".format(numRefs, name, c, type, loc);
+            return "Variable[refs=%s] '%s' (type=%s%s) (%s)".format(numRefs, name, c, type, loc);
         }
-        return "Variable[refs=%s] %s%s (%s)".format(numRefs, c, type, loc);
+        return "Variable[refs=%s] (type=%s%s) (%s)".format(numRefs, c, type, loc);
     }
 }

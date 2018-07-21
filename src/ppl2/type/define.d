@@ -10,26 +10,36 @@ class Define : Statement, Type {
     Type type;
 
     /// template proxy
-    NamedStruct templateProxyStruct;
+    Type templateProxyType;     /// Define or NamedStruct
     Type[] templateProxyParams;
-    bool templateProxyIsExtracted;
 
     this() {
         type = TYPE_UNKNOWN;
     }
 
-    bool isTemplateProxy() { return templateProxyStruct !is null; }
+    bool isTemplateProxy() { return templateProxyType !is null; }
 
 /// ASTNode
     override bool isResolved() {
-        if(isImport) return true;
-        return type.isKnown;
+        if(isKnown) return true;
+
+        auto ns = type.getNamedStruct;
+        return ns && ns.isTemplate;
+
+        //if(isImport) return true;
+        //return type.isKnown;
     }
     final override NodeID id() const { return NodeID.DEFINE; }
     override Type getType() { return type; }
 /// Type
     final int getEnum() const { return type.getEnum(); }
-    final bool isKnown() { return !isImport && type.isKnown(); }
+    final bool isKnown() {
+        return !type.isDefine && type.isKnown;
+        //if(type.isDefine) return false;
+        //if(type.isKnown) return true;
+        //auto ns = type.getNamedStruct;
+        //return ns && ns.isTemplate;
+    }
 
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
@@ -41,10 +51,10 @@ class Define : Statement, Type {
         return .mangle(this);
     }
     /// Get to the defined type. This might not be type if the rhs is also a Define
-    Type getRootType() {
-        if(type.isA!Define) return type.as!Define.getRootType;
-        return type;
-    }
+    //Type getRootType() {
+    //    if(type.isA!Define) return type.as!Define.getRootType;
+    //    return type;
+    //}
 
     //=======================================================================================
     override string toString() {

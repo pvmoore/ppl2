@@ -44,6 +44,10 @@ public:
             }
         }
 
+        if(t.type==TT.LANGLE) {
+            errorBadSyntax(t, "Cannot parameterise this type");
+        }
+
         /// ptr depth
         if(type !is null) {
             int pd = 0;
@@ -58,6 +62,8 @@ public:
     Type parseDefine(TokenNavigator t, ASTNode node) {
         auto type = findType(t.value, node);
         if(!type) return null;
+
+        assert(type.isDefine || type.isNamedStruct);
 
         t.next;
 
@@ -86,47 +92,45 @@ public:
             t.skip(TT.RANGLE);
         }
 
-        if(type.isDefine) {
-            auto def = type.getDefine;
-            if(def.isKnown) type = def.type;
-            defineRequired(def.moduleName, def.name, templateParams);
+        auto def = type.getDefine;
+        auto ns  = type.getNamedStruct;
+
+        if(def) {
+            defineRequired(def.moduleName, def.name);
         } else {
-            auto ns = type.getNamedStruct;
-            defineRequired(module_.canonicalName, ns.name, templateParams);
+            defineRequired(module_.canonicalName, ns.name);
+        }
 
-            if(ns.isTemplate) {
-                if(templateParams.length != ns.templateParamNames.length) {
-                    throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, t,
-                        "Expecting %s template parameters".format(ns.templateParamNames.length));
-                }
+        /// This is a template
+        if(templateParams.length>0) {
+            assert(def !is null || ns !is null);
 
-                /// Look for a concrete impl
-                Type concreteType;
-                string name = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
-                if(templateParams.areKnown) {
-                    concreteType = findType(name, node);
-                }
-
+            if(ns && templateParams.areKnown) {
+                string name       = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
+                auto concreteType = findType(name, node);
                 if(concreteType) {
                     /// We found the concrete impl
                     type = concreteType;
-                } else {
-                    /// Create a template proxy Define which can
-                    /// be replaced later by the concrete NamedStruct
-                    auto def                = makeNode!Define(t);
-                    def.name                = module_.makeTemporary("templateProxy");
-                    def.type                = TYPE_UNKNOWN;
-                    def.moduleName          = module_.canonicalName;
-                    def.isImport            = false;
-                    def.templateProxyStruct = ns;
-                    def.templateProxyParams = templateParams;
-                    module_.addToEnd(def);
-
-                    type = def;
-                    dd("!!! def=", def.name);
+                    return type;
                 }
             }
+            /// Create a template proxy Define which can
+            /// be replaced later by the concrete NamedStruct
+            auto proxy                = makeNode!Define(t);
+            proxy.name                = module_.makeTemporary("templateProxy");
+            proxy.type                = TYPE_UNKNOWN;
+            proxy.moduleName          = module_.canonicalName;
+            proxy.isImport            = false;
+            proxy.templateProxyType   = (ns ? ns : def).as!Type;
+            proxy.templateProxyParams = templateParams;
+
+            //module_.addToEnd(proxy);
+
+            dd("!!template proxy =", ns ? "NS:" ~ ns.name : "Def:" ~ def.name, templateParams);
+
+            type = proxy;
         }
+
         return type;
     }
     ///

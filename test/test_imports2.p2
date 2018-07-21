@@ -1,0 +1,8 @@
+
+public
+
+struct RedRose = <T> [
+    T a
+]
+
+define OrangeRose = RedRose<double>

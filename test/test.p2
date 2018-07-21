@@ -93,6 +93,11 @@ someArrays = {
     var a3 = [: 3=999]
 }
 
+struct Array = <A,B> [
+    A a
+    B b
+]
+
 main = {
     testLiterals()
     testExpressions()
@@ -174,6 +179,9 @@ main = {
         ]
 
         List<int> list
+        Array<int,float> array
+        Rose<int> rose
+        ANiceRose anicerose
     }
     test4 = {
         //float2 v2
@@ -188,6 +196,8 @@ main = {
     test4()
 }
 bool yop
+
+
 
 
 /*

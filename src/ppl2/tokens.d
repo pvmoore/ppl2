@@ -98,8 +98,9 @@ public:
     }
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
-        throw new CompilerError(Err.BAD_SYNTAX, this,
-                    "Expecting one of %s".format(types));
+        throw new Error("!!");
+        //throw new CompilerError(Err.BAD_SYNTAX, this,
+        //            "Expecting one of %s".format(types));
     }
     bool hasNext() {
         return pos < cast(int)tokens.length - 1;

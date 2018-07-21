@@ -1,4 +1,6 @@
 
+import test_imports2
+
 public
 
 bool isit = false
@@ -18,8 +20,13 @@ struct Pig = [
 struct Wolf = [
     bool isGrey
 ]
+struct Rose = <T> [
+    T a
+]
 
 define AnInt = int
+
+define ANiceRose = OrangeRose
 
 importedFunc = {
 

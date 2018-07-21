@@ -51,11 +51,9 @@ public:
         watch.stop();
         return numUnresolved;
     }
-    void resolveFunction(string funcName, Type[] templateParams) {
+    void resolveFunction(string funcName) {
         watch.start();
         log("Resolving %s func '%s'", module_, funcName);
-
-        collectModuleScopeElements();
 
         /// Visit all functions at module scope with the right name
         foreach(n; module_.children) {
@@ -70,11 +68,9 @@ public:
         }
         watch.stop();
     }
-    void resolveDefine(string defineName, Type[] templateParams) {
+    void resolveDefine(string defineName) {
         watch.start();
         log("Resolving %s define|struct '%s'", module_, defineName);
-
-        collectModuleScopeElements();
 
         module_.recurse!Define((it) {
             if(it.name==defineName) {
@@ -86,7 +82,8 @@ public:
 
                 /// Could be a chain of defines in different modules
                 if(it.isImport) {
-                    defineRequired(it.moduleName, it.name, templateParams);
+                    dd("chain", defineName);
+                    defineRequired(it.moduleName, it.name);
                 }
             }
         });
@@ -110,7 +107,7 @@ public:
 
     }
     void visit(ArrayType n) {
-        resolveType(n.subtype);
+        resolveType(n, n.subtype);
     }
     void visit(As n) {
         auto lt = n.leftType();
@@ -353,7 +350,7 @@ public:
         }
     }
     void visit(Calloc n) {
-        resolveType(n.valueType);
+        resolveType(n, n.valueType);
     }
     void visit(Closure n) {
 
@@ -371,13 +368,10 @@ public:
         }
     }
     void visit(Constructor n) {
-        resolveType(n.type);
+        resolveType(n, n.type);
     }
     void visit(Define n) {
-        resolveType(n.type);
-        foreach(t; n.templateProxyParams) {
-            resolveType(t);
-        }
+        resolveType(n, n.type);
     }
     void visit(Dot n) {
 
@@ -712,7 +706,7 @@ public:
     }
     void visit(LiteralString n) {
         if(n.type.isUnknown) {
-            resolveType(n.type);
+            resolveType(n, n.type);
         }
     }
     void visit(LiteralStruct n) {
@@ -795,7 +789,7 @@ public:
         //}
     }
     void visit(TypeExpr n) {
-        resolveType(n.type);
+        resolveType(n, n.type);
     }
     void visit(Unary n) {
 
@@ -805,7 +799,7 @@ public:
     }
     void visit(Variable n) {
 
-        resolveType(n.type);
+        resolveType(n, n.type);
 
         if(n.type.isUnknown) {
 
@@ -890,68 +884,84 @@ private:
     ///
     /// If type is a Define then we need to resolve it
     ///
-    void resolveType(ref Type type) {
+    void resolveType(ASTNode node, ref Type type) {
         if(!type.isDefine) return;
 
         auto def = type.getDefine;
 
-        /// Handle template proxy Define
-        if(def.isTemplateProxy) {
-            assert(module_.canonicalName==def.moduleName);
-
-            if(def.templateProxyParams.areKnown) {
-                auto ns     = def.templateProxyStruct;
-                string name = ns.name ~ "<" ~ mangle(def.templateProxyParams) ~ ">";
-
-                auto t = findType(name, def.templateProxyStruct);
-                if(t) {
-                    assert(t.isNamedStruct);
-                    type = t;
-                    t.getNamedStruct.numRefs++;
-                } else if(def.templateProxyIsExtracted) {
-                    typesWaiting++;
+        /// Handle import
+        if(def.isImport) {
+            auto m = PPL2.getModule(def.moduleName);
+            if(m && m.isParsed) {
+                auto externDef = m.getDefine(def.name);
+                if(externDef) {
+                    /// Switch to the external Define
+                    def  = externDef;
+                    type = PtrType.of(externDef, type.getPtrDepth);
                 } else {
-                    /// Extract the template
-                    Token[] tokens = ns.extract(name, def.templateProxyParams);
-                    //dd("tokens=", tokens);
-
-                    module_.parser.appendTokens(ns, tokens);
-
-                    def.templateProxyIsExtracted = true;
-
-                    defineRequired(module_.canonicalName, ns.name, def.templateProxyParams);
-                    typesWaiting++;
-                }
-            }
-            return;
-        }
-
-        if(!def.isImport) {
-            /// Convert this Define to it's proper type
-            if(def.isKnown) type = PtrType.of(def.getRootType, type.getPtrDepth);
-            return;
-        }
-        if(type.isKnown) return;
-
-        /// Handle import Define
-        auto m = PPL2.getModule(def.moduleName);
-        if(m && m.isParsed) {
-            /// Swap the define to the one in the imported module
-            auto externDef = m.getDefine(def.name);
-            if(externDef) {
-                type = PtrType.of(externDef.getRootType, type.getPtrDepth);
-                //externDef.numRefs++;
-            } else {
-                auto ns = m.getNamedStruct(def.name);
-                if(ns) {
-
-
-                    type = PtrType.of(ns, type.getPtrDepth);
-                } else {
+                    auto ns = m.getNamedStruct(def.name);
+                    if(ns) {
+                        /// Define is resolved
+                        type = PtrType.of(ns, type.getPtrDepth);
+                        return;
+                    }
                     throw new CompilerError(Err.IMPORT_NOT_FOUND, module_,
                         "Import %s not found in module %s".format(def.name, def.moduleName));
                 }
+            } else {
+                /// Come back when m is parsed
+                return;
             }
+        }
+
+        /// Handle template proxy Define
+        if(def.isTemplateProxy) {
+
+            /// Ensure template params are resolved
+            foreach(t; def.templateProxyParams) {
+                resolveType(node, t);
+            }
+
+            /// Resolve until we have the NamedStruct
+            if(def.templateProxyType.isDefine) {
+                resolveType(node, def.templateProxyType);
+            }
+            if(!def.templateProxyType.isNamedStruct) {
+                typesWaiting++;
+                return;
+            }
+
+            /// We now have a NamedStruct to work with
+            if(def.templateProxyParams.areKnown) {
+                auto ns     = def.templateProxyType.getNamedStruct;
+                string name = ns.name ~ "<" ~ mangle(def.templateProxyParams) ~ ">";
+
+                auto t = findType(name, ns);
+                if(t) {
+                    assert(t.isNamedStruct);
+                    type = PtrType.of(t, type.getPtrDepth);
+                    t.getNamedStruct.numRefs++;
+                } else if(ns.requiresExtraction(name)) {
+                    /// Extract the template
+                    Token[] tokens = ns.extract(node, name, def.templateProxyParams);
+
+                    module_.parser.appendTokens(ns, tokens);
+
+                    defineRequired(ns.moduleName, ns.name);
+
+                    typesWaiting++;
+                } else {
+                    typesWaiting++;
+                }
+            }
+            return;
+        }
+
+        if(def.type.isKnown || def.type.isDefine) {
+            /// Switch to the defined type
+            type = PtrType.of(def.type, type.getPtrDepth);
+        } else {
+            typesWaiting++;
         }
     }
 }
