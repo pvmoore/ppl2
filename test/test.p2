@@ -178,10 +178,12 @@ main = {
             T length
         ]
 
-        List<int> list
+        List<int> list = List<int>()
         Array<int,float> array
         Rose<int> rose
         ANiceRose anicerose
+        List<BlueRose> blueList
+        List<List<int>> listoflist
     }
     test4 = {
         //float2 v2

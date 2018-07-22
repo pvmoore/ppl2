@@ -47,6 +47,13 @@ public:
                     t.next;
                     found = true;
                 }
+
+                /// Read possible template parameters
+                if(t.type==TT.LANGLE) {
+                    int eob = t.findEndOfBlock(TT.LANGLE);
+                    t.next(eob + 1);
+                }
+
             }
             if(!found) {
                 if(t.get.templateType) {

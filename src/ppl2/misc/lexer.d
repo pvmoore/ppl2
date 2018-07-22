@@ -74,7 +74,6 @@ public:
             }
 
             buf.add(peek());
-            //logImportant("char literal:%s:".format(buf.data));
             addToken();
         }
         void addStringLiteral() {
@@ -98,7 +97,6 @@ public:
                 index++;
             }
             buf.add(peek());
-            //logImportant("string:%s".format(buf.data));
             addToken();
         }
 
@@ -215,13 +213,18 @@ public:
                     } else if(peek(1)=='>' && peek(2)=='>' && peek(3)=='=') {
                         addToken(TT.USHR_ASSIGN, 4);
                         index+=3;
-                    } else if(peek(1)=='>' && peek(2)=='>' ) {
-                        addToken(TT.USHR, 3);
-                        index+=2;
-                    } else if(peek(1)=='>') {
-                        addToken(TT.SHR, 2);
-                        index++;
                     } else {
+                        /// Keep '>' tokens separate so that we can parse
+                        /// List<List<int>> correctly/
+                        /// We will need to merge tokens when determining >> and >>> operators.
+                        ///
+                    //} else if(peek(1)=='>' && peek(2)=='>' ) {
+                    //    addToken(TT.USHR, 3);
+                    //    index+=2;
+                    //} else if(peek(1)=='>') {
+                    //    addToken(TT.SHR, 2);
+                    //    index++;
+                    //} else {
                         addToken(TT.RANGLE);
                     }
                     break;

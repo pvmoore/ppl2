@@ -918,7 +918,7 @@ private:
         if(def.isTemplateProxy) {
 
             /// Ensure template params are resolved
-            foreach(t; def.templateProxyParams) {
+            foreach(ref t; def.templateProxyParams) {
                 resolveType(node, t);
             }
 

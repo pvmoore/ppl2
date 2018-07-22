@@ -160,7 +160,7 @@ public:
         return -1;
     }
     ///
-    /// Returns the pos of the closing bracket.
+    /// Returns the offset of the closing bracket.
     /// Assumes we are currently at the opening bracket or before it.
     /// Returns -1 if the end bracket is not found.
     ///
@@ -168,7 +168,9 @@ public:
         auto open  = brtype;
         auto close = open==TT.LBRACKET   ? TT.RBRACKET   :
                      open==TT.LSQBRACKET ? TT.RSQBRACKET :
-                     open==TT.LCURLY     ? TT.RCURLY     : TT.NONE;
+                     open==TT.LCURLY     ? TT.RCURLY     :
+                     open==TT.LANGLE     ? TT.RANGLE     : TT.NONE;
+        assert(close!=TT.NONE);
         int braces = 0;
         for(int offset=startOffset; pos+offset < tokens.length; offset++) {
             auto type = peek(offset).type;

@@ -27,6 +27,7 @@ struct Rose = <T> [
 define AnInt = int
 
 define ANiceRose = OrangeRose
+define BlueRose = RedRose<bool>
 
 importedFunc = {
 

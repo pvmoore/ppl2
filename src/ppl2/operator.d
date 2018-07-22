@@ -3,6 +3,18 @@ module ppl2.operator;
 import ppl2.internal;
 
 Operator parseOperator(TokenNavigator t) {
+    /// '>' is tokenised to separate tokens to ease parsing of nested parameterised templates.
+    /// Account for this here:
+    if(t.type==TT.RANGLE) {
+        if(t.peek(1).type==TT.RANGLE) {
+            if(t.peek(2).type==TT.RANGLE) {
+                t.next(2);
+                return Operator.USHR;
+            }
+            t.next;
+            return Operator.SHR;
+        }
+    }
     auto p = t.type in g_ttToOperator;
     if(p) return *p;
     switch(t.value) {
@@ -14,7 +26,7 @@ Operator parseOperator(TokenNavigator t) {
 }
 ///
 /// & (AddressOf) = 2
-/// * (ValueOf)   = 2
+/// @ (ValueOf)   = 2
 ///
 struct Op {
     int id;
