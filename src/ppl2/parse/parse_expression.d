@@ -28,10 +28,9 @@ public:
 private:
     void parseLHS(TokenNavigator t, ASTNode parent) {
 
+        /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);
         if(eot!=-1) {
-            /// This is a type
-
             auto nextTok = t.peek(eot+1);
 
             if(nextTok.value=="is" || t.peek(-1).value=="is") {
@@ -56,22 +55,39 @@ private:
             }
         }
 
+        /// Simple literals
         if(t.type==TT.NUMBER || t.type==TT.CHAR || "true"==t.value || "false"==t.value || "null"==t.value) {
             parseLiteral(t, parent);
+            return;
         } else if("if"==t.value) {
             parseIf(t, parent);
+            return;
         } else if(t.value=="not") {
             parseUnary(t, parent);
-        } else switch(t.type) {
+            return;
+        }
+
+        /// Call
+        if(t.type==TT.IDENTIFIER) {
+            if(t.peek(1).type==TT.LBRACKET) {
+                parseCall(t, parent);
+                return;
+            }
+            if(t.peek(1).type==TT.LANGLE) {
+                /// Could be a call or a Binary name < expr
+                if(isTemplateParams(t, 1)) {
+                    parseCall(t, parent);
+                    return;
+                }
+            }
+            parseIdentifier(t, parent);
+            return;
+        }
+
+        /// Everything else
+        switch(t.type) {
             case TT.STRING:
                 parseLiteralString(t, parent);
-                break;
-            case TT.IDENTIFIER:
-                if(t.peek(1).type==TT.LBRACKET) {
-                    parseCall(t, parent);
-                } else {
-                    parseIdentifier(t, parent);
-                }
                 break;
             case TT.LBRACKET:
                 parseParenthesis(t, parent);
@@ -85,7 +101,6 @@ private:
                     parseLiteralStruct(t, parent);
                 }
                 break;
-            case TT.LANGLE:
             case TT.LCURLY:
                 parseLiteralFunction(t, parent);
                 break;
@@ -318,7 +333,7 @@ private:
         }
     }
     ///
-    /// call_expression::= identifier "(" [ expression ] { "," expression } ")"
+    /// call_expression::= identifier [template args] "(" [ expression ] { "," expression } ")"
     ///
     void parseCall(TokenNavigator t, ASTNode parent) {
 
@@ -335,6 +350,31 @@ private:
             ///
             throw new CompilerError(Err.CALL_CONSTRUCTOR_CALLS_DISALLOWED, c,
                 "Explicit constructor calls not allowed");
+        }
+
+        /// template args
+        if(t.type==TT.LANGLE) {
+            t.next;
+
+            while(t.type!=TT.RANGLE) {
+
+                t.markPosition();
+
+                auto tt = typeParser().parse(t, c);
+                if(!tt) {
+                    t.resetToMark();
+                    errorMissingType(t);
+                }
+                t.discardMark();
+
+                c.templateTypes ~= tt;
+
+                t.expect(TT.COMMA, TT.RANGLE);
+                if(t.type==TT.COMMA) t.next;
+            }
+            t.skip(TT.RANGLE);
+
+            dd("Function template call", c.name, c.templateTypes);
         }
 
         t.skip(TT.LBRACKET);
@@ -403,83 +443,59 @@ private:
         t.skip(TT.RBRACKET);
     }
     ///
-    /// literal_function ::= [template_args] "{" [ arguments "->" ] { statement } "}"
+    /// literal_function ::= "{" [ arguments "->" ] { statement } "}"
     ///
     void parseLiteralFunction(TokenNavigator t, ASTNode parent) {
-        if(t.type==TT.LANGLE) {
-            /// Template function - just gather the args and tokens
-            auto f = makeNode!LiteralFunctionTemplate(t);
-            f.type = makeNode!FunctionType(t);
-            parent.addToEnd(f);
 
-            /// < .. >
-            t.skip(TT.LANGLE);
-            while(t.type!=TT.RANGLE) {
-                f.templateArgNames ~= t.value;
-                t.next;
-                t.expect(TT.RANGLE, TT.COMMA);
+        LiteralFunction f = makeNode!LiteralFunction(t);
+        parent.addToEnd(f);
+
+        auto params = makeNode!Parameters(t);
+        f.addToEnd(params);
+
+        auto type   = makeNode!FunctionType(t);
+        type.params = params;
+        f.type = PtrType.of(type, 1);
+
+        t.skip(TT.LCURLY);
+
+        int arrow = t.findInCurrentScope(TT.RT_ARROW);
+        if(arrow!=-1) {
+            /// collect the args
+            while(t.type!=TT.RT_ARROW) {
+
+                varParser().parse(t, params);
+
+                t.expect(TT.RT_ARROW, TT.COMMA);
                 if(t.type==TT.COMMA) t.next;
             }
-            t.skip(TT.RANGLE);
-
-            t.expect(TT.LCURLY);
-            int start = t.index;
-            int end   = t.findEndOfBlock(TT.LCURLY);
-            f.tokens = t.get(start, start+end).dup;
-
-            t.next(end+1);
+            t.skip(TT.RT_ARROW);
         } else {
-            /// This is a concrete LiteralFunction
-            LiteralFunction f = makeNode!LiteralFunction(t);
-            parent.addToEnd(f);
+            /// no args
+        }
 
-            auto params = makeNode!Parameters(t);
-            f.addToEnd(params);
+        /// statements
+        while(t.type != TT.RCURLY) {
+            stmtParser().parse(t, f);
+        }
+        t.skip(TT.RCURLY);
 
-            auto type   = makeNode!FunctionType(t);
-            type.params = params;
-            f.type = PtrType.of(type, 1);
+        /// If this is a closure we need to handle it differently
+        if(!parent.isFunction) {
+        //if(f.getContainer().id()==NodeID.LITERAL_FUNCTION) {
 
-            t.skip(TT.LCURLY);
-
-            int arrow = t.findInCurrentScope(TT.RT_ARROW);
-            if(arrow!=-1) {
-                /// collect the args
-                while(t.type!=TT.RT_ARROW) {
-
-                    varParser().parse(t, params);
-
-                    t.expect(TT.RT_ARROW, TT.COMMA);
-                    if(t.type==TT.COMMA) t.next;
-                }
-                t.skip(TT.RT_ARROW);
-            } else {
-                /// no args
+            string name = module_.makeTemporary("closure");
+            if(parent.isInitialiser) {
+                name ~= "_" ~ parent.as!Initialiser.var.name;
             }
 
-            /// statements
-            while(t.type != TT.RCURLY) {
-                stmtParser().parse(t, f);
-            }
-            t.skip(TT.RCURLY);
+            auto closure = makeNode!Closure(t);
+            closure.name = name;
+            closure.addToEnd(f);
 
-            /// If this is a closure we need to handle it differently
-            if(!parent.isFunction) {
-            //if(f.getContainer().id()==NodeID.LITERAL_FUNCTION) {
+            module_.addClosure(closure);
 
-                string name = module_.makeTemporary("closure");
-                if(parent.isInitialiser) {
-                    name ~= "_" ~ parent.as!Initialiser.var.name;
-                }
-
-                auto closure = makeNode!Closure(t);
-                closure.name = name;
-                closure.addToEnd(f);
-
-                module_.addClosure(closure);
-
-                parent.addToEnd(closure);
-            }
+            parent.addToEnd(closure);
         }
     }
     ///
@@ -773,7 +789,7 @@ private:
         t.skip(TT.LBRACKET);
 
         /// possible init expressions
-        auto inits = Composite.make(t, true);
+        auto inits = Composite.make(t, Composite.Usage.PERMANENT);
         i.addToEnd(inits);
 
         bool hasInits() {
@@ -798,7 +814,7 @@ private:
         /// )
         t.skip(TT.RBRACKET);
 
-        auto then = Composite.make(t, true);
+        auto then = Composite.make(t, Composite.Usage.PERMANENT);
         i.addToEnd(then);
 
         /// then block
@@ -818,7 +834,7 @@ private:
         if(t.isKeyword("else")) {
             t.skip("else");
 
-            auto else_ = Composite.make(t, true);
+            auto else_ = Composite.make(t, Composite.Usage.PERMANENT);
             i.addToEnd(else_);
 
             if(t.type==TT.LCURLY) {

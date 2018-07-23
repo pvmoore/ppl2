@@ -22,6 +22,7 @@ public:
     ModuleConstantFolder constFolder;
     OptimisationDCE dce;
     ModuleGenerator gen;
+    Templates templates;
 
     StatementParser stmtParser;
     ExpressionParser exprParser;
@@ -46,6 +47,7 @@ public:
         constFolder       = new ModuleConstantFolder(this);
         dce               = new OptimisationDCE(this);
         gen               = new ModuleGenerator(this, llvm);
+        templates         = new Templates(this);
 
         stmtParser        = new StatementParser(this);
         exprParser        = new ExpressionParser(this);
@@ -66,6 +68,9 @@ public:
     }
     void addClosure(Closure c) {
         closures ~= c;
+    }
+    void addActiveRoot(ASTNode node) {
+        activeRoots.add(node.getRoot);
     }
 
     NodeBuilder builder(ASTNode n) { return nodeBuilder.forNode(n); }
@@ -217,18 +222,18 @@ public:
     ///
     ///  Dump module info to the log.
     ///
-    void dumpInfo() {
-        writefln("\tExported types ............ %s", exportedTypes);
-        writefln("\tExported functions ........ %s", exportedFunctions);
-
-        writefln("\tLocal anon structs ........ %s", getAnonStructs());
-        writefln("\tLocal named structs ....... %s", getAllNamedStructs().map!(it=>it.name));
-        writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
-
-        writefln("\tLocal functions ........... %s", getFunctions().map!(it=>it.getUniqueName));
-        writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getUniqueName));
-        writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
-    }
+    //void dumpInfo() {
+    //    writefln("\tExported types ............ %s", exportedTypes);
+    //    writefln("\tExported functions ........ %s", exportedFunctions);
+    //
+    //    writefln("\tLocal anon structs ........ %s", getAnonStructs());
+    //    writefln("\tLocal named structs ....... %s", getAllNamedStructs().map!(it=>it.name));
+    //    writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
+    //
+    //    writefln("\tLocal functions ........... %s", getFunctions().map!(it=>it.getUniqueName));
+    //    writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getUniqueName));
+    //    writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
+    //}
 
     override string toString() const {
         return "Module[refs=%s] %s".format(numRefs, canonicalName);

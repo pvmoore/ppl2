@@ -1,0 +1,12 @@
+
+public
+
+testTemplateFunctions = {
+
+    func<int>(3)
+    func<float>(3.1)
+}
+
+func = <T> { T a ->
+
+}

@@ -87,8 +87,9 @@ public:
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
             /// Could be a function, a named struct or a binary expression
 
-            if(t.peek(2).type==TT.LCURLY) {
+            if(t.peek(2).type==TT.LCURLY || t.peek(2).type==TT.LANGLE) {
                 /// name = {
+                /// name = <
                 parseFunction(t, parent);
             } else {
                 /// name = expr
@@ -242,7 +243,7 @@ private: //=====================================================================
         def.moduleName = module_.canonicalName;
     }
     ///
-    /// function::= identifier "=" expr_function_literal
+    /// function::= identifier "=" [ template params] expr_function_literal
     ///
     void parseFunction(TokenNavigator t, ASTNode parent) {
 
@@ -256,6 +257,8 @@ private: //=====================================================================
         if(parent.isA!LiteralFunction || (parent.getAncestor!LiteralFunction !is null)) {
             /// This is a closure.
             /// Convert this into a function ptr variable
+
+            assert(t.type!=TT.LANGLE, "closure function template not implemented");
 
             auto var = makeNode!Variable(t);
             parent.addToEnd(var);
@@ -279,8 +282,35 @@ private: //=====================================================================
         f.name       = name;
         f.moduleName = module_.canonicalName;
 
-        /// function literal
-        exprParser().parse(t, f);
+        /// Function template
+        if(t.type==TT.LANGLE) {
+            /// Template function - just gather the args and tokens
+            t.skip(TT.LANGLE);
+
+            /// < .. >
+            while(t.type!=TT.RANGLE) {
+                f.templateParamNames ~= t.value;
+                t.next;
+                t.expect(TT.RANGLE, TT.COMMA);
+                if(t.type==TT.COMMA) t.next;
+            }
+            t.skip(TT.RANGLE);
+
+            /// {
+            t.expect(TT.LCURLY);
+
+            int start = t.index;
+            int end   = t.findEndOfBlock(TT.LCURLY);
+            f.tokens = t.get(start, start+end).dup;
+            t.next(end+1);
+
+            dd("Function template decl", f.name, f.templateParamNames, f.tokens.toString);
+
+        } else {
+            /// function literal
+            t.expect(TT.LCURLY);
+            exprParser().parse(t, f);
+        }
     }
     ///
     /// return_statement ::= "return" [ expression ]
@@ -338,7 +368,7 @@ private: //=====================================================================
         t.skip(TT.LBRACKET);
 
         /// Init statements (must be Variables or Binary)
-        auto inits = Composite.make(t, true);
+        auto inits = Composite.make(t, Composite.Usage.PERMANENT);
         loop.addToEnd(inits);
 
         if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop initialiser");
@@ -356,7 +386,7 @@ private: //=====================================================================
         if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop condition");
 
         /// Condition
-        auto cond = Composite.make(t, true);
+        auto cond = Composite.make(t, Composite.Usage.PERMANENT);
         loop.addToEnd(cond);
         if(t.type!=TT.SEMICOLON) {
             exprParser().parse(t, cond);
@@ -367,7 +397,7 @@ private: //=====================================================================
         t.skip(TT.SEMICOLON);
 
         /// Post loop expressions
-        auto post = Composite.make(t, true);
+        auto post = Composite.make(t, Composite.Usage.PERMANENT);
         loop.addToEnd(post);
         while(t.type!=TT.RBRACKET) {
 
@@ -381,7 +411,7 @@ private: //=====================================================================
         t.skip(TT.LCURLY);
 
         /// Body statements
-        auto body_ = Composite.make(t, true);
+        auto body_ = Composite.make(t, Composite.Usage.PERMANENT);
         loop.addToEnd(body_);
 
         while(t.type!=TT.RCURLY) {

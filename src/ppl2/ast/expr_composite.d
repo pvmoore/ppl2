@@ -6,11 +6,17 @@ import ppl2.internal;
 /// Wrap one or more nodes to appear as one single node.
 ///
 final class Composite : Expression {
-    bool required;  /// Set to true to ensure this node cannot be removed even if it is empty
+    enum Usage {
+        STANDARD,      /// Can be removed. Can be replaced if contains single child
+        PERMANENT,     /// Never remove or replace even if empty
+        PLACEHOLDER    /// Never remove. Can be replaced if contains single child
+    }
 
-    static Composite make(TokenNavigator t, bool required = false) {
-        auto c = makeNode!Composite(t);
-        c.required = required;
+    Usage usage = Usage.STANDARD;
+
+    static Composite make(TokenNavigator t, Usage usage) {
+        auto c  = makeNode!Composite(t);
+        c.usage = usage;
         return c;
     }
 
@@ -25,6 +31,6 @@ final class Composite : Expression {
     }
 
     override string toString() {
-        return "Composite %s(type=%s)".format(nid, getType);
+        return "Composite %s %s(type=%s)".format(usage, nid, getType);
     }
 }

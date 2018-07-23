@@ -18,7 +18,6 @@ public:
 /// Template stuff
     string[] templateParamNames;
     Token[] tokens;
-    Set!string extractedTemplates;
     bool isTemplate() const { return templateParamNames.length > 0; }
 /// end of template stuff
 
@@ -69,56 +68,6 @@ public:
             _uniqueName = mangle(this);
         }
         return _uniqueName;
-    }
-    bool requiresExtraction(string name) {
-        if(extractedTemplates is null) {
-            extractedTemplates = new Set!string;
-        }
-        return !extractedTemplates.contains(name);
-    }
-    Token[] extract(ASTNode node, string name, Type[] templateArgs) {
-        assert(extractedTemplates);
-        extractedTemplates.add(name);
-
-        if(templateArgs.length != templateParamNames.length) {
-            throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, node,
-                "Expecting %s template parameters".format(templateParamNames.length));
-        }
-
-        Token stringToken(string value) {
-            auto t  = copyToken(tokens[0]);
-            t.type  = TT.IDENTIFIER;
-            t.value = value;
-            return t;
-        }
-        Token typeToken(TT e) {
-            auto t  = copyToken(tokens[0]);
-            t.type  = e;
-            t.value = "";
-            return t;
-        }
-        int templateParamIndex(string param) {
-            foreach(int i, n; templateParamNames) {
-                if(n==param) return i;
-            }
-            return -1;
-        }
-
-        Token[] tokens = [
-            stringToken("struct"),
-            stringToken(name),
-            typeToken(TT.EQUALS)
-        ] ~ this.tokens.dup;
-
-        foreach(ref tok; tokens) {
-            if(tok.type==TT.IDENTIFIER) {
-                int i = templateParamIndex(tok.value);
-                if(i!=-1) {
-                    tok.templateType = templateArgs[i];
-                }
-            }
-        }
-        return tokens;
     }
     //========================================================================================
     override string description() {

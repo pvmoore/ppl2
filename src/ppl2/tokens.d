@@ -265,6 +265,9 @@ enum TT {
     BOOL_EQ,        // ==
     BOOL_NE,        // !=
 }
+string toString(Token[] tokens) {
+    return tokens.map!(it=>it.type==TT.IDENTIFIER ? it.value : it.type.toString).join(" ");
+}
 string toString(TT t) {
     __gshared static string[TT] map;
     if(map.length==0) with(TT) {

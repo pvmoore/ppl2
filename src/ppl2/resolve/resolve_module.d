@@ -60,7 +60,7 @@ public:
             auto f = cast(Function)n;
             if(f && f.name==funcName) {
                 log("\t  Adding Function root %s", f);
-                module_.activeRoots.add(f);
+                module_.addActiveRoot(f);
 
                 /// Don't add reference here. Add it once we have filtered possible
                 /// overload sets down to the one we are going to use.
@@ -76,8 +76,9 @@ public:
             if(it.name==defineName) {
                 if(it.parent.isModule) {
                     log("\t  Adding Define root %s", it);
-                    module_.activeRoots.add(it);
+                    //module_.addActiveRoot(it);
                 }
+                module_.addActiveRoot(it);
                 it.numRefs++;
 
                 /// Could be a chain of defines in different modules
@@ -91,8 +92,9 @@ public:
             if(it.name==defineName) {
                 if(it.parent.isModule) {
                     log("\t  Adding NamedStruct root %s", it);
-                    module_.activeRoots.add(it);
+                    //module_.addActiveRoot(it);
                 }
+                module_.addActiveRoot(it);
                 it.numRefs++;
             }
         });
@@ -856,6 +858,7 @@ private:
     void recursiveVisit(ASTNode m) {
 
         if(m.isNamedStruct && m.as!NamedStruct.isTemplate) return;
+        if(m.isFunction && m.as!Function.isTemplate) return;
 
         //dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
@@ -933,24 +936,20 @@ private:
 
             /// We now have a NamedStruct to work with
             if(def.templateProxyParams.areKnown) {
-                auto ns     = def.templateProxyType.getNamedStruct;
-                string name = ns.name ~ "<" ~ mangle(def.templateProxyParams) ~ ">";
+                auto ns            = def.templateProxyType.getNamedStruct;
+                string mangledName = ns.getUniqueName ~ "<" ~ mangle(def.templateProxyParams) ~ ">";
 
-                auto t = findType(name, ns);
+                auto t = findType(mangledName, ns);
                 if(t) {
                     assert(t.isNamedStruct);
                     type = PtrType.of(t, type.getPtrDepth);
                     t.getNamedStruct.numRefs++;
-                } else if(ns.requiresExtraction(name)) {
-                    /// Extract the template
-                    Token[] tokens = ns.extract(node, name, def.templateProxyParams);
-
-                    module_.parser.appendTokens(ns, tokens);
-
-                    defineRequired(ns.moduleName, ns.name);
-
-                    typesWaiting++;
                 } else {
+                    /// Extract the template
+                    auto structModule = PPL2.getModule(ns.moduleName);
+                    assert(structModule);
+                    structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
+
                     typesWaiting++;
                 }
             }

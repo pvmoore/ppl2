@@ -15,10 +15,16 @@ public:
     void opt() {
         log("Removing dead nodes from module %s", module_.canonicalName);
 
-        /// Look at module scope functions that are not referenced
-        foreach(f; module_.getFunctions()) {
+        /// Remove functions that are not referenced or are template blueprints
+        auto functions = new Array!Function;
+        module_.selectDescendents!Function(functions);
+        foreach(f; functions) {
+        //foreach(f; module_.getFunctions()) {
             if(f.isImport) {
                 log("\t  proxy func %s", f.name);
+                f.detach();
+            } else if(f.isTemplate) {
+                log("\t  template func %s", f.name);
                 f.detach();
             } else if(f.numRefs==0 && f.name!="new") {
                 log("\t  unreferenced func %s", f);
@@ -26,25 +32,14 @@ public:
                 /// If this function contains a call or identifier then deref them. Is that possible?
             }
         }
-        /// Remove all Defines
+        /// Remove ALL Defines
         auto defines = new Array!Define;
         module_.selectDescendents!Define(defines);
         foreach(d; defines) {
-            //if(d.isTemplateProxy) {
-            //    log("\t  template proxy define %s", d.name);
-            //    d.detach();
-            //} else if(d.isImport ) {
-            //    log("\t  proxy define %s", d.name);
-            //    d.detach();
-            //} else if(d.numRefs==0) {
-            //    log("\t  unreferenced define %s", d.name);
-            //    d.detach();
-            //} else {
-                log("\t define %s", d.name);
-                d.detach();
-            //}
+            log("\t define %s", d.name);
+            d.detach();
         }
-        /// Look at named structs that are not referenced or are template blueprints
+        /// Remove named structs that are not referenced or are template blueprints
         auto namedStructs = new Array!NamedStruct;
         module_.selectDescendents!NamedStruct(namedStructs);
         foreach(ns; namedStructs) {

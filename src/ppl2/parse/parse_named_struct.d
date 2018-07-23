@@ -79,8 +79,6 @@ public:
             }
             t.skip(TT.RANGLE);
 
-            dd("Template", n.name, n.templateParamNames);
-
             /// [
             t.expect(TT.LSQBRACKET);
 
@@ -88,6 +86,8 @@ public:
             int end   = t.findEndOfBlock(TT.LSQBRACKET);
             n.tokens = t.get(start, start+end).dup;
             t.next(end+1);
+
+            dd("Struct template decl", n.name, n.templateParamNames, n.tokens.toString);
 
         } else {
             /// This is a concrete struct

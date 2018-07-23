@@ -2,7 +2,7 @@ module ppl2.ast.stmt_function;
 
 import ppl2.internal;
 ///
-///  function::= identifier "=" function_literal
+///  function::= identifier "=" [template params] function_literal
 ///
 final class Function : Statement {
 private:
@@ -19,6 +19,12 @@ public:
     int numExternalRefs;    /// Num calls to this function from outside the module
     LLVMValueRef llvmValue;
 
+/// Template stuff
+    string[] templateParamNames;
+    Token[] tokens;
+    bool isTemplate() const { return templateParamNames.length > 0; }
+/// end of template stuff
+
     this() {
         this.externType = TYPE_UNKNOWN;
     }
@@ -27,6 +33,8 @@ public:
     override NodeID id() const { return NodeID.FUNCTION; }
     override Type getType() {
         if(isExtern) return externType;
+        if(isTemplate) return TYPE_UNKNOWN;
+
         /// Return type of body
         return getBody().getType;
     }
@@ -38,7 +46,7 @@ public:
         return parent.id()==NodeID.ANON_STRUCT;
     }
     bool isGlobal() const {
-        return parent.isModule;
+        return getContainer().id()==NodeID.MODULE;
     }
     bool isDefaultConstructor() {
         if(isImport || isExtern) return false;
@@ -78,9 +86,13 @@ public:
 
     override string toString() {
         string loc = isExtern ? "EXTERN" :
-        isImport ? "IMPORT" :
-        isLocal ? "LOCAL" :
-        isGlobal ? "GLOBAL" : "STRUCT";
-        return "'%s' Function[refs=%s,%s] (%s)".format(name, numRefs, numExternalRefs, loc);
+                     isImport ? "IMPORT" :
+                     isLocal ? "LOCAL" :
+                     isGlobal ? "GLOBAL" : "STRUCT";
+        string s;
+        if(isTemplate()) {
+            s ~= "<" ~ templateParamNames.join(",") ~ "> ";
+        }
+        return "'%s' %s Function[refs=%s,%s] (%s)".format(name, s, numRefs, numExternalRefs, loc);
     }
 }

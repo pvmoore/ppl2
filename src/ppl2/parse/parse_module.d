@@ -39,10 +39,11 @@ public:
     }
     void appendTokens(ASTNode afterNode, Token[] tokens) {
         this.navs ~= new TokenNavigator(module_, tokens);
-        auto composite = Composite.make(navs[$-1], true);
+        auto composite = Composite.make(navs[$-1], Composite.Usage.PLACEHOLDER);
         afterNode.parent.insertAt(afterNode.index, composite);
         this.startNodes ~= composite;
         module_.isParsed = false;
+        module_.addActiveRoot(composite);
     }
     ///
     /// Tokenise the contents and then start to parse the statements.

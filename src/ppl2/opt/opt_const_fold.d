@@ -85,13 +85,36 @@ public:
         }
     }
     void visit(Composite n) {
-        if(n.required) {
-            /// Can't be removed
-        } else if(n.numChildren==0) {
-            n.detach();
-        } else if(n.numChildren==1) {
-            auto child = n.first();
-            n.parent.replaceChild(n, child);
+        if(module_.canonicalName=="test_template_functions") {
+            dd("FOLD", n);
+        }
+
+        final switch(n.usage) with(Composite.Usage) {
+            case STANDARD:
+                /// Can be removed if empty
+                /// Can be replaced if contains single child
+                if(n.numChildren==0) {
+                    n.detach();
+                    nodesFolded++;
+                } else if(n.numChildren==1) {
+                    auto child = n.first();
+                    n.parent.replaceChild(n, child);
+                    nodesFolded++;
+                }
+                break;
+            case PERMANENT:
+                /// Never remove or replace
+                break;
+            case PLACEHOLDER:
+                dd("placeholder", module_.canonicalName);
+                /// Never remove
+                /// Can be replaced if contains single child
+                if(n.numChildren==1) {
+                    auto child = n.first();
+                    n.parent.replaceChild(n, child);
+                    nodesFolded++;
+                }
+                break;
         }
     }
     void visit(Identifier n) {

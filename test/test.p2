@@ -19,6 +19,7 @@ import test_unreferenced_module
 import test_calls
 import test_if
 import test_loop
+import test_template_functions
 
 define AA = int
 define BB = AA*     // int*
@@ -115,6 +116,7 @@ main = {
     testCalls()
     testIf()
     testLoop()
+    testTemplateFunctions()
 
     testGlobals = {
         assert dd is int**

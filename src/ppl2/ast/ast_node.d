@@ -189,6 +189,14 @@ abstract class ASTNode {
     ASTNode[] allSiblings() {
         return parent.children[].filter!(it=>it !is this).array;
     }
+    ///
+    /// Return the root node ie. the node whose parent is Module
+    ///
+    ASTNode getRoot() {
+        assert(this.id!=NodeID.MODULE);
+        if(this.parent.id==NodeID.MODULE) return this;
+        return parent.getRoot();
+    }
     //================================================================================= Dump
     void dumpToConsole(string indent="") {
         //dd(this.id);

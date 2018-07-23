@@ -55,13 +55,48 @@ public:
         this.module_   = module_;
         this.overloads = new Array!Callable;
     }
+
     /// Assume:
     ///     call.argTypes may not yet be known
     ///
     Callable standardFind(Call call) {
         overloads.clear();
 
+        import common : contains;
+
+        if(call.isTemplated && !call.name.contains("<")) {
+            /// We can't do anything until the template types are known
+            if(!call.templateTypes.areKnown) {
+                dd("not ready - template types are not known");
+                return CALLABLE_NOT_READY;
+            }
+            string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
+
+            dd("looking for", mangledName);
+
+            /// Look for a function with this mangled name even if the params are not resolved yet
+            collectOverloadSet(mangledName, call, overloads);
+            if(overloads.length==0) {
+
+                extractTemplate(call, mangledName);
+
+                call.name = mangledName;
+
+                dd("not ready");
+
+                return CALLABLE_NOT_READY;
+            } else {
+                /// It must have been extracted already.
+                /// Update the call name and continue
+                overloads.clear();
+                call.name = mangledName;
+            }
+        }
+
+        dd("looking for", call.name);
+
         if(collectOverloadSet(call.name, call, overloads)) {
+            dd("ready");
 
             if(overloads.length==1) {
                 /// Return this result as it's the only one and check it later
@@ -94,6 +129,7 @@ public:
 
             return overloads[0];
         }
+        dd("not ready: ", overloads[]);
         return CALLABLE_NOT_READY;
     }
     /// Assume:
@@ -150,8 +186,7 @@ private:
         if(nid==NodeID.MODULE) {
             /// Check all module level variables/functions
             foreach(n; node.children) {
-                checkForFunction(name, n, results, ready) ||
-                checkForVariable(name, n, results, ready);
+                check(name, n, results, ready);
             }
             return ready;
         }
@@ -159,8 +194,7 @@ private:
         if(nid==NodeID.ANON_STRUCT) {
             /// Check all struct level variables
             foreach(n; node.children) {
-                checkForFunction(name, n, results, ready) ||
-                checkForVariable(name, n, results, ready);
+                check(name, n, results, ready);
             }
 
             /// Skip to module level scope
@@ -182,24 +216,20 @@ private:
 
         /// Check variables that appear before this in the tree
         foreach(n; node.prevSiblings()) {
-            checkForFunction(name, n, results, ready) ||
-            checkForVariable(name, n, results, ready);
+            check(name, n, results, ready);
         }
         /// Recurse up the tree
         return collectOverloadSet(name, node.parent, results, ready);
     }
-    bool checkForVariable(string name, ASTNode n, Array!Callable results, ref bool ready) {
-        auto v = n.as!Variable;
+    void check(string name, ASTNode n, Array!Callable results, ref bool ready) {
+        auto v    = n.as!Variable;
+        auto f    = n.as!Function;
+        auto comp = n.as!Composite;
+
         if(v && v.name==name) {
             if(v.type.isUnknown) ready = false;
             results.add(Callable(v));
-            return true;
-        }
-        return false;
-    }
-    bool checkForFunction(string name, ASTNode n, Array!Callable results, ref bool ready) {
-        auto f = n.as!Function;
-        if(f && f.name==name) {
+        } else if(f && f.name==name) {
             if(f.isImport) {
                 auto m = PPL2.getModule(f.moduleName);
                 if(m && m.isParsed) {
@@ -221,13 +251,15 @@ private:
                     ready = false;
                 }
             } else {
-                if(f.getType.isUnknown) ready = false;
+                if(f.isTemplate || f.getType.isUnknown) ready = false;
                 results.add(Callable(f));
                 functionRequired(module_.canonicalName, name);
             }
-            return true;
+        } else if(comp) {
+            foreach(ch; comp.children[]) {
+                check(name, ch, results, ready);
+            }
         }
-        return false;
     }
     ///
     /// Filter out any overloads that do not have the correct param names
@@ -339,6 +371,40 @@ private:
                 if(o.id != callable.id) overloads.remove(o);
             }
             assert(overloads.length==1);
+        }
+    }
+    /// Extract one or more function templates
+    ///
+    /// If the template is in this module:
+    ///     - Extract the tokens and add them to the module
+    ///
+    ///
+    /// If the template is in another module:
+    ///     - Create one proxy Function within this module using the mangled name
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    void extractTemplate(Call call, string mangledName) {
+        /// Find the template(s)
+        overloads.clear();
+        collectOverloadSet(call.name, call, overloads);
+        if(overloads.length==0) {
+            throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
+                "Function template %s not found".format(call.name));
+        }
+        foreach(ft; overloads[]) {
+            if(ft.isFunction) {
+                auto f = ft.func;
+                if(f.isTemplate) {
+                    /// Function template within this module
+                    module_.templates.extract(f, call, mangledName);
+                } else if(f.isImport) {
+                    assert(false, "implement me");
+                }
+            } else assert(false, "Handle funcptr template");
         }
     }
 }

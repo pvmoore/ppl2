@@ -11,7 +11,7 @@ import ppl2.internal;
 ///         Variable (0 - *)
 ///     statement (0 - *)
 ///
-class LiteralFunction : Expression, Scope, Container {
+final class LiteralFunction : Expression, Scope, Container {
     Type type;      /// PtrType -> FunctionType
 
     override bool isResolved() { return type.isKnown; }
@@ -89,23 +89,5 @@ class LiteralFunction : Expression, Scope, Container {
 
     override string toString() {
         return "{} (type=%s)".format(type);
-    }
-}
-//=========================================================================================
-final class LiteralFunctionTemplate : LiteralFunction {
-    string[] templateArgNames;
-    Token[] tokens;
-
-    override bool isTemplate() { return true; }
-
-
-    /// Extract this template
-    LiteralFunction extract(Type[] types) {
-        assert(false, "extract literal func template");
-    }
-
-    override string toString() {
-        string s = " <" ~ templateArgNames.join(",") ~ ">";
-        return "%s {}".format(s);
     }
 }

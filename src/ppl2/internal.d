@@ -90,9 +90,11 @@ import ppl2.misc.mangle;
 import ppl2.misc.node_builder;
 import ppl2.misc.optimiser;
 import ppl2.misc.tasks;
+import ppl2.misc.templates;
 import ppl2.misc.util;
 import ppl2.misc.writer;
 
+import ppl2.parse.detect_template_params;
 import ppl2.parse.detect_type;
 import ppl2.parse.parse_expression;
 import ppl2.parse.parse_module;
