@@ -124,8 +124,6 @@ public:
             proxy.templateProxyType   = (ns ? ns : def).as!Type;
             proxy.templateProxyParams = templateParams;
 
-            //module_.addToEnd(proxy);
-
             dd("!!template proxy =", ns ? "NS:" ~ ns.name : "Def:" ~ def.name, templateParams);
 
             type = proxy;

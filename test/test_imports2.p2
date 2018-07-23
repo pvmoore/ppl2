@@ -6,3 +6,4 @@ struct RedRose = <T> [
 ]
 
 define OrangeRose = RedRose<double>
+define IntPtr = int*

@@ -21,10 +21,12 @@ import test_if
 import test_loop
 
 define AA = int
-define BB = AA*
-define CC = BB
-define DD = CC*
-DD dd // int**
+define BB = AA*     // int*
+define CC = BB      // int*
+define DD = CC*     // int**
+DD dd               // int**
+define EE = IntPtrPtr*
+EE ee               // int***
 
 struct Gold = []
 
@@ -114,6 +116,10 @@ main = {
     testIf()
     testLoop()
 
+    testGlobals = {
+        assert dd is int**
+        assert ee is int***
+    }
     test0 = {
         int a1 = 3
         int b1 = a1 - 2
@@ -191,6 +197,7 @@ main = {
         //float4 v4
         //float8 v8
     }
+    testGlobals()
     test0()
     test1()
     test2()
