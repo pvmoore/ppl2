@@ -317,7 +317,7 @@ private:
                 auto f = ft.func;
                 assert(!f.isImport);
 
-                if(f.isTemplate) {
+                if(f.isTemplate && f.templateParamNames.length==call.templateTypes.length) {
                     /// Extract the tokens
                     auto m = PPL2.getModule(f.moduleName);
                     m.templates.extract(f, call, mangledName);

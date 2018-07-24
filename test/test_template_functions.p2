@@ -15,15 +15,16 @@ struct M1 = [
 
 testTemplateFunctions = {
     globals = {
-        // templated global functions
+        // templated function
         assert 1 == func<int>(3)
         assert 1 == func<float>(3.1)
-        // untemplated global function
+        assert 3 == func<int,double>(1,2.2)
+        // untemplated function
         assert 2 == func(3.2)
 
-        // imported templated global functions
+        // imported templated function
         assert 10 == tfunc<bool>(true)
-        // imported untemplated global fucntion
+        // imported untemplated fucntion
         assert 20 == tfunc(3.1)
     }
     closures = {
@@ -41,6 +42,9 @@ testTemplateFunctions = {
 
 func = <T> { T a ->
     return 1
+}
+func = <A,B> { A a, B b ->
+    return 3
 }
 func = { float a ->
     return 2
