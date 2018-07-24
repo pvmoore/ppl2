@@ -37,7 +37,7 @@ final class Parameters : ASTNode {
     /// This function is not global so requires the this* of the enclosing struct.
     ///
     void addThisParameter(NamedStruct ns) {
-        // Poke the this* ptr into the start of the parameter list
+        /// Poke the this* ptr into the start of the parameter list
 
         auto a = makeNode!Variable(ns);
         a.name = "this";

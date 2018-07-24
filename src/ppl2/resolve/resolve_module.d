@@ -859,6 +859,7 @@ private:
 
         if(m.isNamedStruct && m.as!NamedStruct.isTemplate) return;
         if(m.isFunction && m.as!Function.isTemplate) return;
+        if(m.isDefine && m.as!Define.type.isKnown) return;
 
         //dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);

@@ -1,12 +1,37 @@
 
+import core.intrinsics
+import test_imports
+
 public
+
+struct M1 = [
+    //foo = {
+    //    return 3
+    //}
+    foo = <T> { T a ->
+        return 4
+    }
+]
 
 testTemplateFunctions = {
 
-    func<int>(3)
-    func<float>(3.1)
+    // templated global functions
+    assert 1 == func<int>(3)
+    assert 1 == func<float>(3.1)
+
+    // imported global functions
+    assert 10 == tfunc<bool>(true)
+
+    // untemplated global function with same name
+    // as templated functions
+    assert 2 == func(3.2)
+
+    //M1 m
 }
 
 func = <T> { T a ->
-
+    return 1
+}
+func = { float a ->
+    return 2
 }

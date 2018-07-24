@@ -149,8 +149,10 @@ private:
     /// Add the implicit this* to all member functions including constructors (at root level only)
     void addImplicitThisParam(NamedStruct ns, AnonStruct anonStruct) {
         foreach(f; anonStruct.getMemberFunctions()) {
-            if(!f.isExtern && !f.isImport) {
-
+            assert(!f.isExtern && !f.isImport);
+            if(f.isTemplate) {
+                // todo -  should we add it here or later?
+            } else {
                 f.params().addThisParameter(ns);
             }
         }

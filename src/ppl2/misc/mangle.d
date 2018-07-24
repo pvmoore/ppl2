@@ -57,7 +57,7 @@ string mangle(Type t) {
     string s;
     final switch (t.getEnum) with(Type) {
         case UNKNOWN: assert(false, "type must be known");
-        case BOOL:   s = "B"; break;
+        case BOOL:   s = "o"; break;
         case BYTE:   s = "b"; break;
         case SHORT:  s = "s"; break;
         case INT:    s = "i"; break;
@@ -72,7 +72,7 @@ string mangle(Type t) {
             break;
         case ANON_STRUCT:
             auto st = t.getAnonStruct;
-            s = "n[%s]".format(mangle(st.memberVariableTypes()));
+            s = "[%s]".format(mangle(st.memberVariableTypes()));
             break;
         case FUNCTION:
             auto f = t.getFunctionType;

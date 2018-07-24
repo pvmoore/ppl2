@@ -29,8 +29,11 @@ define IntPtrPtr = IntPtr*
 define ANiceRose = OrangeRose
 define BlueRose = RedRose<bool>
 
-
-
 importedFunc = {
 
+}
+
+// global function templates
+tfunc = <T> { T a ->
+    return 10
 }

@@ -24,7 +24,7 @@ public:
                 "Expecting %s template parameters".format(ns.templateParamNames.length));
         }
 
-        dd("Extracting struct template", ns.name, mangledName);
+        dd("Extracting struct template", ns.name, mangledName, module_.canonicalName);
 
         /// struct mangledName =
         Token[] tokens = [
@@ -57,7 +57,7 @@ public:
                 "Expecting %s template parameters".format(f.templateParamNames.length));
         }
 
-        dd("Extracting function template", f.name, mangledName);
+        dd("Extracting function template", f.name, mangledName, module_.canonicalName);
 
         /// mangledName = {
         Token[] tokens = [

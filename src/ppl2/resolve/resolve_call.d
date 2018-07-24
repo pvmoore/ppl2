@@ -50,10 +50,12 @@ final class CallResolver {
 private:
     Module module_;
     Array!Callable overloads;
+    OverloadCollector collector;
 public:
     this(Module module_) {
         this.module_   = module_;
         this.overloads = new Array!Callable;
+        this.collector = new OverloadCollector;
     }
 
     /// Assume:
@@ -67,7 +69,6 @@ public:
         if(call.isTemplated && !call.name.contains("<")) {
             /// We can't do anything until the template types are known
             if(!call.templateTypes.areKnown) {
-                dd("not ready - template types are not known");
                 return CALLABLE_NOT_READY;
             }
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
@@ -75,14 +76,13 @@ public:
             dd("looking for", mangledName);
 
             /// Look for a function with this mangled name even if the params are not resolved yet
-            collectOverloadSet(mangledName, call, overloads);
+            collector.collect(mangledName, call, overloads, true);
+
             if(overloads.length==0) {
 
                 extractTemplate(call, mangledName);
 
                 call.name = mangledName;
-
-                dd("not ready");
 
                 return CALLABLE_NOT_READY;
             } else {
@@ -95,8 +95,9 @@ public:
 
         dd("looking for", call.name);
 
-        if(collectOverloadSet(call.name, call, overloads)) {
-            dd("ready");
+        /// From this point on we don't include any template blueprints
+
+        if(collector.collect(call.name, call, overloads, false)) {
 
             if(overloads.length==1) {
                 /// Return this result as it's the only one and check it later
@@ -129,7 +130,7 @@ public:
 
             return overloads[0];
         }
-        dd("not ready: ", overloads[]);
+        dd("not ready", overloads[]);
         return CALLABLE_NOT_READY;
     }
     /// Assume:
@@ -175,92 +176,6 @@ public:
         return overloads[0];
     }
 private:
-    ///
-    /// Find any function or variable that matches the given call name.
-    /// Return true - if results contains the full overload set and all types are known,
-    ///       false - if we are waiting for imports or some types are waiting to be known.
-    ///
-    bool collectOverloadSet(string name, ASTNode node, Array!Callable results, bool ready = true) {
-        auto nid = node.id();
-
-        if(nid==NodeID.MODULE) {
-            /// Check all module level variables/functions
-            foreach(n; node.children) {
-                check(name, n, results, ready);
-            }
-            return ready;
-        }
-
-        if(nid==NodeID.ANON_STRUCT) {
-            /// Check all struct level variables
-            foreach(n; node.children) {
-                check(name, n, results, ready);
-            }
-
-            /// Skip to module level scope
-            return collectOverloadSet(name, node.getModule(), results, ready);
-        }
-
-        if(nid==NodeID.LITERAL_FUNCTION) {
-
-            /// If this is not a closure
-            if(!node.as!LiteralFunction.isClosure) {
-                /// Go to containing struct if there is one
-                auto struct_ = node.getContainingStruct();
-                if(struct_) return collectOverloadSet(name, struct_, results, ready);
-            }
-
-            /// Go to module scope
-            return collectOverloadSet(name, node.getModule(), results, ready);
-        }
-
-        /// Check variables that appear before this in the tree
-        foreach(n; node.prevSiblings()) {
-            check(name, n, results, ready);
-        }
-        /// Recurse up the tree
-        return collectOverloadSet(name, node.parent, results, ready);
-    }
-    void check(string name, ASTNode n, Array!Callable results, ref bool ready) {
-        auto v    = n.as!Variable;
-        auto f    = n.as!Function;
-        auto comp = n.as!Composite;
-
-        if(v && v.name==name) {
-            if(v.type.isUnknown) ready = false;
-            results.add(Callable(v));
-        } else if(f && f.name==name) {
-            if(f.isImport) {
-                auto m = PPL2.getModule(f.moduleName);
-                if(m && m.isParsed) {
-                    auto fns = m.getFunctions(name);
-                    if(fns.length==0) {
-                        throw new CompilerError(Err.IMPORT_NOT_FOUND, n,
-                        "Import %s not found in module %s".format(name, f.moduleName));
-                    }
-                    foreach(fn; fns) {
-                        results.add(Callable(fn));
-
-                        if(fn.getType.isUnknown) ready = false;
-
-                        functionRequired(fn.moduleName, name);
-                    }
-                } else {
-                    /// Bring the import in and start parsing it
-                    functionRequired(f.moduleName, name);
-                    ready = false;
-                }
-            } else {
-                if(f.isTemplate || f.getType.isUnknown) ready = false;
-                results.add(Callable(f));
-                functionRequired(module_.canonicalName, name);
-            }
-        } else if(comp) {
-            foreach(ch; comp.children[]) {
-                check(name, ch, results, ready);
-            }
-        }
-    }
     ///
     /// Filter out any overloads that do not have the correct param names
     ///
@@ -378,31 +293,40 @@ private:
     /// If the template is in this module:
     ///     - Extract the tokens and add them to the module
     ///
-    ///
     /// If the template is in another module:
     ///     - Create one proxy Function within this module using the mangled name
-    ///
-    ///
-    ///
-    ///
-    ///
+    ///     - Extract the tokens in the other module
     ///
     void extractTemplate(Call call, string mangledName) {
+        dd("extractTemplate", call.name, mangledName);
         /// Find the template(s)
-        overloads.clear();
-        collectOverloadSet(call.name, call, overloads);
+        collector.collect(call.name, call, overloads, true);
+
         if(overloads.length==0) {
             throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
                 "Function template %s not found".format(call.name));
         }
+
+        dd("found", overloads[]);
+
         foreach(ft; overloads[]) {
             if(ft.isFunction) {
                 auto f = ft.func;
+                assert(!f.isImport);
+
                 if(f.isTemplate) {
-                    /// Function template within this module
-                    module_.templates.extract(f, call, mangledName);
-                } else if(f.isImport) {
-                    assert(false, "implement me");
+                    /// Extract the tokens
+                    auto m = PPL2.getModule(f.moduleName);
+                    m.templates.extract(f, call, mangledName);
+
+                    if(m.nid!=module_.nid) {
+                        /// Create the proxy
+                        auto proxy       = makeNode!Function;
+                        proxy.name       = mangledName;
+                        proxy.moduleName = m.canonicalName;
+                        proxy.isImport   = true;
+                        module_.addToEnd(proxy);
+                    }
                 }
             } else assert(false, "Handle funcptr template");
         }
