@@ -8,8 +8,8 @@ private:
 public:
     string canonicalName;
     int numRefs;
-    string[] exportedTypes;     /// name of each exported types
-    string[] exportedFunctions; /// name of each exported functions
+    Set!string exportedTypes;     /// name of each exported types
+    Set!string exportedFunctions; /// name of each exported functions
     bool isParsed;
     Set!ASTNode activeRoots;  /// Active root nodes
 
@@ -36,8 +36,10 @@ public:
     LiteralString moduleNameLiteral;
 
     this(string canonicalName, LLVMWrapper llvm) {
-        this.nid           = g_nodeid++;
-        this.canonicalName = canonicalName;
+        this.nid               = g_nodeid++;
+        this.canonicalName     = canonicalName;
+        this.exportedTypes     = new Set!string;
+        this.exportedFunctions = new Set!string;
 
         log("Creating new Module(%s)", canonicalName);
 

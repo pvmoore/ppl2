@@ -294,6 +294,7 @@ public:
                 }
             }
         }
+
         if(n.target.isResolved && n.argTypes.areKnown) {
             /// We have a target and all args are known
 

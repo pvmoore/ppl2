@@ -62,7 +62,6 @@ public:
     ///     call.argTypes may not yet be known
     ///
     Callable standardFind(Call call) {
-        overloads.clear();
 
         import common : contains;
 
@@ -88,7 +87,6 @@ public:
             } else {
                 /// It must have been extracted already.
                 /// Update the call name and continue
-                overloads.clear();
                 call.name = mangledName;
             }
         }
@@ -98,6 +96,8 @@ public:
         /// From this point on we don't include any template blueprints
 
         if(collector.collect(call.name, call, overloads, false)) {
+
+            dd("  overloads=", overloads[]);
 
             if(overloads.length==1) {
                 /// Return this result as it's the only one and check it later
@@ -130,7 +130,6 @@ public:
 
             return overloads[0];
         }
-        dd("not ready", overloads[]);
         return CALLABLE_NOT_READY;
     }
     /// Assume:
@@ -265,6 +264,7 @@ private:
             Type[] params = callable.paramTypes();
 
             if(call.paramNames.length > 0) {
+                /// name=value arg list
                 string[] names = callable.paramNames();
                 foreach(i, name; call.paramNames) {
                     int index = names.indexOf(name);
@@ -276,10 +276,13 @@ private:
                     if(!arg.exactlyMatches(param)) continue lp;
                 }
             } else {
+                /// standard arg list
                 foreach(i, a; call.argTypes) {
                     if(!a.exactlyMatches(params[i])) continue lp;
                 }
             }
+
+            dd("  exact match", callable.id, overloads[]);
 
             /// Exact match found
             foreach(o; overloads[].dup) {

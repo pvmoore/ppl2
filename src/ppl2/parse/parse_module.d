@@ -155,17 +155,17 @@ private:
 
                 if(t.isKeyword("struct")) {
                     t.next;
-                    module_.exportedTypes ~= t.value;
+                    module_.exportedTypes.add(t.value);
                 } else if(t.isKeyword("define")) {
                     t.next;
-                    module_.exportedTypes ~= t.value;
+                    module_.exportedTypes.add(t.value);
                 } else if(t.isKeyword("extern")) {
                     t.next;
-                    module_.exportedFunctions ~= t.value;
+                    module_.exportedFunctions.add(t.value);
                 } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS && t.peek(2).type==TT.LCURLY) {
-                    module_.exportedFunctions ~= t.value;
+                    module_.exportedFunctions.add(t.value);
                 } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS && t.peek(2).type==TT.LANGLE) {
-                    module_.exportedFunctions ~= t.value;
+                    module_.exportedFunctions.add(t.value);
                 }
             }
             t.next;

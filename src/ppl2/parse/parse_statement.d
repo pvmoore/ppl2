@@ -197,14 +197,14 @@ private: //=====================================================================
         }
 
         /// For each exported function and type, add proxies to this module
-        foreach(f; mod.exportedFunctions) {
+        foreach(f; mod.exportedFunctions.values) {
             auto fn       = makeNode!Function(t);
             fn.name       = f;
             fn.moduleName = moduleName;
             fn.isImport   = true;
             parent.addToEnd(fn);
         }
-        foreach(d; mod.exportedTypes) {
+        foreach(d; mod.exportedTypes.values) {
             auto def        = makeNode!Define(t);
             def.name        = d;
             def.type        = TYPE_UNKNOWN;

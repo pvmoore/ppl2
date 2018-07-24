@@ -14,17 +14,27 @@ struct M1 = [
 ]
 
 testTemplateFunctions = {
+    globals = {
+        // templated global functions
+        assert 1 == func<int>(3)
+        assert 1 == func<float>(3.1)
+        // untemplated global function
+        assert 2 == func(3.2)
 
-    // templated global functions
-    assert 1 == func<int>(3)
-    assert 1 == func<float>(3.1)
+        // imported templated global functions
+        assert 10 == tfunc<bool>(true)
+        // imported untemplated global fucntion
+        assert 20 == tfunc(3.1)
+    }
+    closures = {
 
-    // imported global functions
-    assert 10 == tfunc<bool>(true)
+    }
+    structs = {
 
-    // untemplated global function with same name
-    // as templated functions
-    assert 2 == func(3.2)
+    }
+    globals()
+    closures()
+    structs()
 
     //M1 m
 }
