@@ -75,16 +75,18 @@ public:
             dd("looking for", mangledName);
 
             /// Look for a function with this mangled name even if the params are not resolved yet
-            collector.collect(mangledName, call, overloads, true);
-
-            if(overloads.length==0) {
-
-                extractTemplate(call, mangledName);
-
-                call.name = mangledName;
-
+            bool ready = collector.collect(mangledName, call, overloads, true);
+            if(!ready) {
+                dd("  not ready");
+                return CALLABLE_NOT_READY;
+            } else if(overloads.length==0) {
+                dd("  ready length==0");
+                if(extractTemplate(call, mangledName)) {
+                    call.name = mangledName;
+                }
                 return CALLABLE_NOT_READY;
             } else {
+                dd("  already extracted");
                 /// It must have been extracted already.
                 /// Update the call name and continue
                 call.name = mangledName;
@@ -97,7 +99,7 @@ public:
 
         if(collector.collect(call.name, call, overloads, false)) {
 
-            dd("  overloads=", overloads[]);
+            dd("  ready overloads=", overloads[]);
 
             if(overloads.length==1) {
                 /// Return this result as it's the only one and check it later
@@ -130,6 +132,7 @@ public:
 
             return overloads[0];
         }
+        dd("  not ready");
         return CALLABLE_NOT_READY;
     }
     /// Assume:
@@ -300,17 +303,22 @@ private:
     ///     - Create one proxy Function within this module using the mangled name
     ///     - Extract the tokens in the other module
     ///
-    void extractTemplate(Call call, string mangledName) {
+    bool extractTemplate(Call call, string mangledName) {
         dd("extractTemplate", call.name, mangledName);
         /// Find the template(s)
-        collector.collect(call.name, call, overloads, true);
+        bool ready = collector.collect(call.name, call, overloads, true);
+        if(!ready) {
+            dd("    template not ready");
+            return false;
+        }
+        dd("    template ready");
 
         if(overloads.length==0) {
             throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
                 "Function template %s not found".format(call.name));
         }
 
-        dd("found", overloads[]);
+        dd("    templates found", overloads[]);
 
         foreach(ft; overloads[]) {
             if(ft.isFunction) {
@@ -333,5 +341,6 @@ private:
                 }
             } else assert(false, "Handle funcptr template");
         }
+        return true;
     }
 }

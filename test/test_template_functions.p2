@@ -24,6 +24,7 @@ testTemplateFunctions = {
 
         // imported templated function
         assert 10 == tfunc<bool>(true)
+        assert 30 == tfunc<double,float>(1,2)
         // imported untemplated fucntion
         assert 20 == tfunc(3.1)
     }

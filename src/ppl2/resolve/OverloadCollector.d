@@ -106,7 +106,6 @@ final class OverloadCollector {
     void addFunction(Function f) {
         if(f.isTemplate) {
             if(includeTemplates) {
-                ready = false;
                 results.add(Callable(f));
             }
         } else {

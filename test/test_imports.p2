@@ -37,6 +37,9 @@ importedFunc = {
 tfunc = <T> { T a ->
     return 10
 }
+tfunc = <A,B> { A a, B b ->
+    return 30
+}
 tfunc = { float f ->
     return 20
 }

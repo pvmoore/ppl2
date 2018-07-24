@@ -107,7 +107,7 @@ private:
         int numUnresolvedModules = 0;
         int nodesFolded = 0;
 
-        for(int loop=1; loop<10 && (numUnresolvedModules>0 || tasksAvailable() || nodesFolded>0 || numModulesParsed>0); loop++) {
+        for(int loop=1; loop<20 && (numUnresolvedModules>0 || tasksAvailable() || nodesFolded>0 || numModulesParsed>0); loop++) {
             log("===================================================== Loop %s", loop);
             /// Process all pending tasks
             while(tasksAvailable()) {
