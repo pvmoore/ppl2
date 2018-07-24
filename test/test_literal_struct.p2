@@ -83,13 +83,13 @@ testLiteralStruct = {
     test6 = {
         // implicit [byte,byte]
         var s = [7,8]
-        assert s:0 is byte
-        assert s:1 is byte
+        assert s:0 is int
+        assert s:1 is int
 
         // implicit [int,byte]
-        var s2 = [7 as int, 8]
-        assert s2:0 is int
-        assert s2:1 is byte
+        var s2 = [7 as byte, 8]
+        assert s2:0 is byte
+        assert s2:1 is int
     }
     test7 = {
         // s is [bool, float, long]
@@ -106,7 +106,7 @@ testLiteralStruct = {
 
         // index standalone
         var s = [9,10]:1
-        assert s is byte
+        assert s is int
         assert s==10
     }
     test9 = { [int] a ->

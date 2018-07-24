@@ -124,7 +124,7 @@ testLiteralArrays = {
         assert array:1 is int
 
         var b = [:3, 7]
-        assert b is [:byte 2]
+        assert b is [:int 2]
         assert b:0 == 3
         assert b:1 == 7
     }

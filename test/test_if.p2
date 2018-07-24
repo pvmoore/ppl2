@@ -26,7 +26,7 @@ testIf = {
     ifExpressions = {
         var r = if(true) 3 else 4
         assert r == 3
-        assert r is byte
+        assert r is int
 
         r = if(2>=3) 5 else if(4<3) 6 else 8
         assert r == 8
