@@ -53,7 +53,7 @@ T makeNode(T)() {
     assert(n.children);
     return n;
 }
-T makeNode(T)(TokenNavigator t) {
+T makeNode(T)(Tokens t) {
     T n      = new T;
     n.nid    = g_nodeid++;
     n.line   = t.line;

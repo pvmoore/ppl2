@@ -16,7 +16,7 @@ public:
         this.module_ = module_;
     }
 
-    void parse(TokenNavigator t, ASTNode parent) {
+    void parse(Tokens t, ASTNode parent) {
         //log("Expression: parse---------------------------- START");
         //dd("expression");
 
@@ -26,7 +26,7 @@ public:
         //log("Expression: parse---------------------------- END");
     }
 private:
-    void parseLHS(TokenNavigator t, ASTNode parent) {
+    void parseLHS(Tokens t, ASTNode parent) {
 
         /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);
@@ -120,7 +120,7 @@ private:
                 throw new CompilerError(Err.BAD_LHS_EXPR, t, "Bad LHS");
         }
     }
-    void parseRHS(TokenNavigator t, ASTNode parent) {
+    void parseRHS(Tokens t, ASTNode parent) {
 
         while(true) {
             if("is"==t.value) {
@@ -194,7 +194,7 @@ private:
             }
         }
     }
-    Expression attachAndRead(TokenNavigator t, ASTNode parent, Expression newExpr) {
+    Expression attachAndRead(Tokens t, ASTNode parent, Expression newExpr) {
         ASTNode prev = parent;
 
         ///
@@ -241,7 +241,7 @@ private:
     /// operator ::= "=" | "+" | "-" etc...
     ///
     ///
-    Expression parseBinary(TokenNavigator t) {
+    Expression parseBinary(Tokens t) {
 
         auto b = makeNode!Binary(t);
 
@@ -260,7 +260,7 @@ private:
     ///
     /// dot_expr ::= expression "." expression
     ///
-    Expression parseDot(TokenNavigator t) {
+    Expression parseDot(Tokens t) {
 
         auto d = makeNode!Dot(t);
 
@@ -268,7 +268,7 @@ private:
 
         return d;
     }
-    Expression parseIndex(TokenNavigator t) {
+    Expression parseIndex(Tokens t) {
 
         auto i = makeNode!Index(t);
 
@@ -279,7 +279,7 @@ private:
     ///
     /// expression "as" type
     ///
-    Expression parseAs(TokenNavigator t) {
+    Expression parseAs(Tokens t) {
 
         auto a = makeNode!As(t);
 
@@ -287,7 +287,7 @@ private:
 
         return a;
     }
-    Expression parseIs(TokenNavigator t) {
+    Expression parseIs(Tokens t) {
         auto i = makeNode!Is(t);
 
         t.skip("is");
@@ -299,7 +299,7 @@ private:
 
         return i;
     }
-    void parseTypeExpr(TokenNavigator t, ASTNode parent) {
+    void parseTypeExpr(Tokens t, ASTNode parent) {
         auto e = makeNode!TypeExpr(t);
         parent.addToEnd(e);
 
@@ -314,7 +314,7 @@ private:
     /// literal_string |
     /// literal_char
     ///
-    void parseLiteral(TokenNavigator t, ASTNode parent) {
+    void parseLiteral(Tokens t, ASTNode parent) {
         Expression e;
 
         if(t.type==TT.NUMBER || t.type==TT.CHAR || t.value=="true" || t.value=="false") {
@@ -335,7 +335,7 @@ private:
     ///
     /// call_expression::= identifier [template args] "(" [ expression ] { "," expression } ")"
     ///
-    void parseCall(TokenNavigator t, ASTNode parent) {
+    void parseCall(Tokens t, ASTNode parent) {
 
         auto c = makeNode!Call(t);
         parent.addToEnd(c);
@@ -417,7 +417,7 @@ private:
         }
         t.skip(TT.RBRACKET);
     }
-    void parseIdentifier(TokenNavigator t, ASTNode parent) {
+    void parseIdentifier(Tokens t, ASTNode parent) {
 
         auto id = makeNode!Identifier(t);
         parent.addToEnd(id);
@@ -432,7 +432,7 @@ private:
         id.name = t.value;
         t.next;
     }
-    void parseParenthesis(TokenNavigator t, ASTNode parent) {
+    void parseParenthesis(Tokens t, ASTNode parent) {
         auto p = makeNode!Parenthesis(t);
         parent.addToEnd(p);
 
@@ -445,7 +445,7 @@ private:
     ///
     /// literal_function ::= "{" [ arguments "->" ] { statement } "}"
     ///
-    void parseLiteralFunction(TokenNavigator t, ASTNode parent) {
+    void parseLiteralFunction(Tokens t, ASTNode parent) {
 
         LiteralFunction f = makeNode!LiteralFunction(t);
         parent.addToEnd(f);
@@ -501,7 +501,7 @@ private:
     ///
     /// literal_struct ::= "[" { [name "="] expression } [ "," [name "="] expression ] "]"
     ///
-    void parseLiteralStruct(TokenNavigator t, ASTNode parent) {
+    void parseLiteralStruct(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralStruct(t);
         parent.addToEnd(e);
 
@@ -534,7 +534,7 @@ private:
     ///
     /// literal_array ::= "[:" [digits"="] expression { "," [digits"="] expression } "]"
     ///
-    void parseLiteralArray(TokenNavigator t, ASTNode parent) {
+    void parseLiteralArray(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralArray(t);
         parent.addToEnd(e);
 
@@ -572,7 +572,7 @@ private:
         }
         t.skip(TT.RSQBRACKET);
     }
-    void parseUnary(TokenNavigator t, ASTNode parent) {
+    void parseUnary(Tokens t, ASTNode parent) {
 
         auto u = makeNode!Unary(t);
         parent.addToEnd(u);
@@ -594,7 +594,7 @@ private:
     /// literal_string ::= prefix '"' { char } '"'
     /// prefix ::= nothing | "r" | "u8"
     ///
-    void parseLiteralString(TokenNavigator t, ASTNode parent) {
+    void parseLiteralString(Tokens t, ASTNode parent) {
 
         auto composite = makeNode!Composite(t);
         parent.addToEnd(composite);
@@ -649,7 +649,7 @@ private:
     /// constructor ::= identifier "(" { cexpr [ "," cexpr ] } ")"
     /// cexpr :: expression | paramname "=" expression
     ///
-    void parseStructConstructor(TokenNavigator t, ASTNode parent) {
+    void parseStructConstructor(Tokens t, ASTNode parent) {
         /// S(...)
         ///    Variable _temp
         ///    ValueOf
@@ -755,7 +755,7 @@ private:
         /// )
         t.skip(TT.RBRACKET);
     }
-    void parseAddressOf(TokenNavigator t, ASTNode parent) {
+    void parseAddressOf(Tokens t, ASTNode parent) {
 
         auto a = makeNode!AddressOf(t);
         parent.addToEnd(a);
@@ -764,7 +764,7 @@ private:
 
         parse(t, a);
     }
-    void parseValueOf(TokenNavigator t, ASTNode parent) {
+    void parseValueOf(Tokens t, ASTNode parent) {
 
         auto v = makeNode!ValueOf(t);
         parent.addToEnd(v);
@@ -778,7 +778,7 @@ private:
     /// then ::= [ "{" ] {statement} [ "}" ]
     /// else ::= "else" [ "{" ] {statement}  [ "}" ]
     ///
-    void parseIf(TokenNavigator t, ASTNode parent) {
+    void parseIf(Tokens t, ASTNode parent) {
         auto i = makeNode!If(t);
         parent.addToEnd(i);
 

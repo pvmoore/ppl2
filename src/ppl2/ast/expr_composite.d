@@ -14,7 +14,7 @@ final class Composite : Expression {
 
     Usage usage = Usage.STANDARD;
 
-    static Composite make(TokenNavigator t, Usage usage) {
+    static Composite make(Tokens t, Usage usage) {
         auto c  = makeNode!Composite(t);
         c.usage = usage;
         return c;

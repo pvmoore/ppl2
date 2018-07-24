@@ -15,7 +15,7 @@ public:
     ///
     /// "struct" name "=" [ <> ] AnonStruct
     ///
-    void parse(TokenNavigator t, ASTNode parent) {
+    void parse(Tokens t, ASTNode parent) {
 
         /// struct
         t.skip("struct");
@@ -110,7 +110,7 @@ public:
     }
 private:
     /// If there is no default constructor 'new()' then create one
-    void addDefaultConstructor(TokenNavigator t, AnonStruct anonStruct) {
+    void addDefaultConstructor(Tokens t, AnonStruct anonStruct) {
         auto defCons = anonStruct.getDefaultConstructor();
         if(!defCons) {
 

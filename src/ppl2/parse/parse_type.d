@@ -13,7 +13,7 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    Type parse(TokenNavigator t, ASTNode node) {
+    Type parse(Tokens t, ASTNode node) {
         //dd("parseType");
         string value = t.value;
         Type type    = null;
@@ -59,7 +59,7 @@ public:
         }
         return type;
     }
-    Type parseDefine(TokenNavigator t, ASTNode node) {
+    Type parseDefine(Tokens t, ASTNode node) {
         auto type = findType(t.value, node);
         if(!type) return null;
 
@@ -134,7 +134,7 @@ public:
     ///
     /// struct_type ::= "[" statement { statement } "]"
     ///
-    Type parseAnonStruct(TokenNavigator t, ASTNode node) {
+    Type parseAnonStruct(Tokens t, ASTNode node) {
 
         /// [
         auto s = makeNode!AnonStruct(t);
@@ -156,7 +156,7 @@ public:
     ///
     /// array_type ::= "[:" type count_expr "]"
     ///
-    Type parseArrayType(TokenNavigator t, ASTNode node) {
+    Type parseArrayType(Tokens t, ASTNode node) {
         auto a = makeNode!ArrayType(t);
         node.addToEnd(a);
 
@@ -181,7 +181,7 @@ public:
     ///
     /// function_type ::= "{" [ type { "," type } ] "->" [ type ] "}"
     ///
-    Type parseFunctionType(TokenNavigator t, ASTNode node) {
+    Type parseFunctionType(Tokens t, ASTNode node) {
         //dd("function type");
 
         t.skip(TT.LCURLY);

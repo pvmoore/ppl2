@@ -2,7 +2,7 @@ module ppl2.operator;
 
 import ppl2.internal;
 
-Operator parseOperator(TokenNavigator t) {
+Operator parseOperator(Tokens t) {
     /// '>' is tokenised to separate tokens to ease parsing of nested parameterised templates.
     /// Account for this here:
     if(t.type==TT.RANGLE) {

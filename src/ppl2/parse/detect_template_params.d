@@ -5,7 +5,7 @@ import ppl2.internal;
 ///
 /// "<" param { "," param } ">"
 ///
-bool isTemplateParams(TokenNavigator t, int offset) {
+bool isTemplateParams(Tokens t, int offset) {
     bool result = false;
     t.markPosition();
     t.next(offset);

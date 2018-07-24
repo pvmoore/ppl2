@@ -20,7 +20,7 @@ public:
     /// type id
     /// type id "=" expression
     ///
-    void parse(TokenNavigator t, ASTNode parent, bool requireType=false) {
+    void parse(Tokens t, ASTNode parent, bool requireType=false) {
         //dd("variable");
         auto v = makeNode!Variable(t);
         parent.addToEnd(v);

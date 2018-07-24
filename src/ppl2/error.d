@@ -119,7 +119,7 @@ class CompilerError : Exception {
         this.line    = line;
         this.column  = column;
     }
-    this(Err err, TokenNavigator t, string msg) {
+    this(Err err, Tokens t, string msg) {
         this(err, t.module_, t.line, t.column, msg);
     }
     this(Err err, ASTNode n, string msg) {
@@ -149,7 +149,7 @@ final class AmbiguousCall : CompilerError {
     }
 }
 //======================================================================
-void warn(TokenNavigator n, string msg) {
+void warn(Tokens n, string msg) {
     writefln("Warn: %s", msg);
 }
 //======================================================================
@@ -225,7 +225,7 @@ void errorIncompatibleTypes(ASTNode n, Type a, Type b) {
 void errorBadSyntax(ASTNode n, string msg) {
     throw new CompilerError(Err.BAD_SYNTAX, n, msg);
 }
-void errorBadSyntax(TokenNavigator t, string msg) {
+void errorBadSyntax(Tokens t, string msg) {
     throw new CompilerError(Err.BAD_SYNTAX, t, msg);
 }
 void errorBadImplicitCast(ASTNode n, Type from, Type to) {
@@ -256,18 +256,18 @@ void errorArrayIndexMustBeConst(ASTNode n) {
     throw new CompilerError(Err.ARRAY_INDEX_MUST_BE_CONST, n,
         "Array index expression must be a const");
 }
-void errorArrayLiteralMixedInitialisation(TokenNavigator t) {
+void errorArrayLiteralMixedInitialisation(Tokens t) {
     throw new CompilerError(Err.ARRAY_LITERAL_MIXING_INDEX_AND_NON_INDEX, t,
         "Array literals must be either all indexes or all non-indexes");
 }
-void errorStructLiteralMixedInitialisation(TokenNavigator t) {
+void errorStructLiteralMixedInitialisation(Tokens t) {
     throw new CompilerError(Err.STRUCT_LITERAL_MIXING_NAMED_AND_UNNAMED, t,
         "Struct literals must be either all named or all unnamed");
 }
 void errorMissingType(ASTNode n, string name) {
     throw new CompilerError(Err.MISSING_TYPE, n, "Type %s not found".format(name));
 }
-void errorMissingType(TokenNavigator t, string name=null) {
+void errorMissingType(Tokens t, string name=null) {
     if(name) {
         throw new CompilerError(Err.MISSING_TYPE, t, "Type %s not found".format(name));
     }

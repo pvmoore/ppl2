@@ -12,7 +12,7 @@ private:
     Module module_;
     StopWatch watch;
     Lexer lexer;
-    TokenNavigator[] navs;
+    Tokens[] navs;
     ASTNode[] startNodes;
     string contents;
 
@@ -33,12 +33,12 @@ public:
     }
     void tokenise() {
         auto tokens      = lexer.tokenise(contents);
-        this.navs       ~= new TokenNavigator(module_, tokens);
+        this.navs       ~= new Tokens(module_, tokens);
         this.startNodes ~= module_;
         extractExports(tokens);
     }
     void appendTokens(ASTNode afterNode, Token[] tokens) {
-        this.navs ~= new TokenNavigator(module_, tokens);
+        this.navs ~= new Tokens(module_, tokens);
         auto composite = Composite.make(navs[$-1], Composite.Usage.PLACEHOLDER);
         afterNode.parent.insertAt(afterNode.index, composite);
         this.startNodes ~= composite;
@@ -138,7 +138,7 @@ private:
     void extractExports(Token[] tokens) {
         watch.start();
         log("Parser: Extracting exports");
-        auto t = new TokenNavigator(module_, tokens);
+        auto t = new Tokens(module_, tokens);
 
         bool public_ = false;
 

@@ -2,7 +2,7 @@ module ppl2.tokens;
 
 import ppl2.internal;
 
-final class TokenNavigator {
+final class Tokens {
 private:
     Token[] tokens;
     int pos = 0;

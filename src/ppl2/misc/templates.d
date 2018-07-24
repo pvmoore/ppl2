@@ -7,13 +7,13 @@ private:
     Module module_;
     Set!string extractedStructs;
     Set!string extractedFunctions;
-    TokenNavigator nav;
+    Tokens nav;
 public:
     this(Module module_) {
         this.module_            = module_;
         this.extractedStructs   = new Set!string;
         this.extractedFunctions = new Set!string;
-        this.nav                = new TokenNavigator(module_, null);
+        this.nav                = new Tokens(module_, null);
     }
     void extract(NamedStruct ns, ASTNode requestingNode, string mangledName, Type[] templateTypes) {
         assert(ns.moduleName==module_.canonicalName);

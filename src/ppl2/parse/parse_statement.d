@@ -17,7 +17,7 @@ public:
         this.module_ = module_;
     }
 
-    bool parse(TokenNavigator t, ASTNode parent) {
+    bool parse(Tokens t, ASTNode parent) {
         //dd(module_.canonicalName, "statement line=", t.line, " parent", parent, t.get);
         //scope(exit) dd("end statement line", t.line);
 
@@ -134,7 +134,7 @@ public:
     }
 private: //=============================================================================== private
     /// extern putchar {int->int}
-    void parseExtern(TokenNavigator t, ASTNode parent) {
+    void parseExtern(Tokens t, ASTNode parent) {
         /// "extern"
         t.next;
 
@@ -153,7 +153,7 @@ private: //=====================================================================
     ///
     /// import::= "import" module_name [ "as" identifier ]
     ///
-    bool parseImport(TokenNavigator t, ASTNode parent) {
+    bool parseImport(Tokens t, ASTNode parent) {
 
         t.markPosition();
 
@@ -220,7 +220,7 @@ private: //=====================================================================
     /// define_non_struct ::= "define" identifier "=" type
     /// template_args     ::= "<" identifier { "," identifier } ">"
     ///
-    void parseDefine(TokenNavigator t, ASTNode parent) {
+    void parseDefine(Tokens t, ASTNode parent) {
 
         auto def = makeNode!Define(t);
         parent.addToEnd(def);
@@ -245,7 +245,7 @@ private: //=====================================================================
     ///
     /// function::= identifier "=" [ template params] expr_function_literal
     ///
-    void parseFunction(TokenNavigator t, ASTNode parent) {
+    void parseFunction(Tokens t, ASTNode parent) {
 
         /// name
         string name = t.value;
@@ -323,7 +323,7 @@ private: //=====================================================================
     ///
     /// return_statement ::= "return" [ expression ]
     ///
-    void parseReturn(TokenNavigator t, ASTNode parent) {
+    void parseReturn(Tokens t, ASTNode parent) {
 
         auto r = makeNode!Return(t);
         parent.addToEnd(r);
@@ -341,7 +341,7 @@ private: //=====================================================================
             exprParser().parse(t, r);
         }
     }
-    void parseAssert(TokenNavigator t, ASTNode parent) {
+    void parseAssert(Tokens t, ASTNode parent) {
         t.skip("assert");
 
         auto a = makeNode!Assert(t);
@@ -353,20 +353,20 @@ private: //=====================================================================
 
         parse(t, a);
     }
-    void parseBreak(TokenNavigator t, ASTNode parent) {
+    void parseBreak(Tokens t, ASTNode parent) {
 
         auto b = makeNode!Break(t);
         parent.addToEnd(b);
 
         t.skip("break");
     }
-    void parseContinue(TokenNavigator t, ASTNode parent) {
+    void parseContinue(Tokens t, ASTNode parent) {
         auto c = makeNode!Continue(t);
         parent.addToEnd(c);
 
         t.skip("continue");
     }
-    void parseLoop(TokenNavigator t, ASTNode parent) {
+    void parseLoop(Tokens t, ASTNode parent) {
 
         auto loop = makeNode!Loop(t);
         parent.addToEnd(loop);

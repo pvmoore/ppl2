@@ -12,7 +12,7 @@ public:
         this.module_ = module_;
     }
 
-    bool isType(TokenNavigator t, ASTNode node) {
+    bool isType(Tokens t, ASTNode node) {
         return endOffset(t, node) != -1;
     }
     ///
@@ -22,7 +22,7 @@ public:
     /// int   // returns 0
     /// int** // returns 2
     ///
-    int endOffset(TokenNavigator t, ASTNode node) {
+    int endOffset(Tokens t, ASTNode node) {
         t.markPosition();
         int startOffset = t.index();
         bool found      = false;
@@ -78,7 +78,7 @@ public:
 private:
     /// Starts with [:
     /// Could be an array type or array literal
-    bool possibleArrayType(TokenNavigator t, ASTNode node) {
+    bool possibleArrayType(Tokens t, ASTNode node) {
         assert(t.type==TT.LSQBRACKET);
         assert(t.peek(1).type==TT.COLON);
 
@@ -100,7 +100,7 @@ private:
     /// [int, int]
     /// [int id, int id]
     ///
-    bool possibleAnonStruct(TokenNavigator t, ASTNode node) {
+    bool possibleAnonStruct(Tokens t, ASTNode node) {
         assert(t.type==TT.LSQBRACKET);
 
         int end = t.findEndOfBlock(TT.LSQBRACKET);
@@ -122,7 +122,7 @@ private:
     /// {type,type->type}
     /// {type id, type id->type}
     ///
-    bool possibleFunctionType(TokenNavigator t, ASTNode node) {
+    bool possibleFunctionType(Tokens t, ASTNode node) {
         assert(t.type==TT.LCURLY);
 
         int end = t.findEndOfBlock(TT.LCURLY);
