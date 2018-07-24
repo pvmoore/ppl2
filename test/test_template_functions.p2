@@ -54,14 +54,14 @@ testTemplateFunctions = {
         M1 m = M1()
         // templated function
         assert 2 == m.foo<float>(3.1)
-        assert 2 == m.foo<byte>(4)
+        assert 2 == m.foo<byte>(4 as byte)
         assert 3 == m.foo<double,int>(2.1, 4)
         // untemplated function
         assert 1 == m.foo(1)
 
         // templated struct
         M2<double> m2 = M2<double>()
-        assert 90 == m2.foo<short>(18)
+        assert 90 == m2.foo<short>(18 as short)
         assert 91 == m2.foo<bool,int>(false,2)
         assert 92 == m2.foo(4.3)
 

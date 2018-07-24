@@ -184,7 +184,7 @@ public:
                     if(i>0) buf.add(", ");
                     buf.add(n).add("=").add(call.argTypes[i].prettyString);
                 }
-                msg = "Strict %s does not have function %s(%s)"
+                msg = "Struct %s does not have function %s(%s)"
                     .format(ns.getUniqueName, call.name, buf.toString);
             } else {
                 msg = "Struct %s does not have function %s(%s)"

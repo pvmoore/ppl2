@@ -21,10 +21,10 @@ booleans = {
 }
 integers = {
     byte by
-    byte by2 = 100
+    byte by2 = 100 as byte
 
     short s
-    short s2 = 1
+    short s2 = 1 as short
 
     int i
     int i2 = 3

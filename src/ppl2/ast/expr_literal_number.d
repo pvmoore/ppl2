@@ -22,13 +22,13 @@ public:
     }
 
     static LiteralNumber makeConst(long num, Type t=TYPE_UNKNOWN) {
-        auto lit = makeNode!LiteralNumber;
-        lit.str  = num.to!string;
+        auto lit  = makeNode!LiteralNumber;
+        lit.str   = num.to!string;
         lit._type = t;
         if(t.isUnknown) {
             lit.determineType();
         } else {
-           lit. value = Value(lit);
+            lit. value = Value(lit);
         }
         return lit;
     }

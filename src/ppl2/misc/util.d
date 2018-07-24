@@ -72,12 +72,13 @@ int parseCharLiteral(string s) {
 }
 Tuple!(Type,string) parseNumberLiteral(string v) {
     auto t = tuple(TYPE_UNKNOWN, v);
+    assert(v.length>0);
 
     bool neg = (v[0]=='-');
     if(neg) v = v[1..$];
 
     if(v.length==1) {
-        if(v[0].isDigit) t[0] = new BasicType(Type.BYTE);
+        if(v[0].isDigit) t[0] = new BasicType(Type.INT);
     } else if(v=="true") {
         t[0] = TYPE_BOOL;
         t[1] = TRUE.to!string;
@@ -142,17 +143,17 @@ Tuple!(Type,string) parseNumberLiteral(string v) {
     return t;
 }
 int getTypeOfLong(long l) {
-    if(isByte(l)) return Type.BYTE;
-    if(isShort(l)) return Type.SHORT;
+    //if(isByte(l)) return Type.BYTE;
+    //if(isShort(l)) return Type.SHORT;
     if(isInt(l)) return Type.INT;
     return Type.LONG;
 }
-bool isByte(long l) {
-    return l >= byte.min && l <= byte.max;
-}
-bool isShort(long l) {
-    return l >= short.min && l <= short.max;
-}
+//bool isByte(long l) {
+//    return l >= byte.min && l <= byte.max;
+//}
+//bool isShort(long l) {
+//    return l >= short.min && l <= short.max;
+//}
 bool isInt(long l) {
     return l >= int.min && l <= int.max;
 }
