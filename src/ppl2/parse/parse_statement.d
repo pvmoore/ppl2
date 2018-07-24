@@ -310,6 +310,14 @@ private: //=====================================================================
             /// function literal
             t.expect(TT.LCURLY);
             exprParser().parse(t, f);
+
+            if(f.isTemplateInstance) {
+                auto ns = f.getAncestor!NamedStruct;
+                if(ns) {
+                    /// Add the implicit this* as 1st parameter
+                    f.params.addThisParameter(ns);
+                }
+            }
         }
     }
     ///

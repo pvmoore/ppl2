@@ -150,8 +150,8 @@ private:
     void addImplicitThisParam(NamedStruct ns, AnonStruct anonStruct) {
         foreach(f; anonStruct.getMemberFunctions()) {
             assert(!f.isExtern && !f.isImport);
-            if(f.isTemplate) {
-                // todo -  should we add it here or later?
+            if(f.isTemplateBlueprint) {
+
             } else {
                 f.params().addThisParameter(ns);
             }

@@ -1,6 +1,7 @@
 module ppl2.resolve.resolve_call;
 
 import ppl2.internal;
+import common : contains;
 ///
 /// Resolve a call.                                                                    
 ///                                                                                    
@@ -62,8 +63,6 @@ public:
     ///     call.argTypes may not yet be known
     ///
     Callable standardFind(Call call) {
-
-        import common : contains;
 
         if(call.isTemplated && !call.name.contains("<")) {
             /// We can't do anything until the template types are known
@@ -143,6 +142,28 @@ public:
         AnonStruct struct_ = ns.type;
         assert(ns);
         assert(struct_);
+
+        /// Come back when all root level Composites have been removed
+        if(struct_.containsComposites) {
+            dd("bail");
+            return CALLABLE_NOT_READY;
+        }
+
+        if(call.isTemplated && !call.name.contains("<")) {
+            string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
+
+            dd("structFind looking for", mangledName);
+
+            if(struct_.getMemberFunctions(mangledName)) {
+                dd("  already extracted");
+                /// It must have been extracted already.
+                /// Update the call name and continue
+                call.name = mangledName;
+            } else {
+                extractTemplate(ns, call, mangledName);
+                return CALLABLE_NOT_READY;
+            }
+        }
 
         auto fns      = struct_.getMemberFunctions(call.name);
         auto var      = struct_.getMemberVariable(call.name);
@@ -305,9 +326,9 @@ private:
     ///
     bool extractTemplate(Call call, string mangledName) {
         dd("extractTemplate", call.name, mangledName);
+
         /// Find the template(s)
-        bool ready = collector.collect(call.name, call, overloads, true);
-        if(!ready) {
+        if(!collector.collect(call.name, call, overloads, true)) {
             dd("    template not ready");
             return false;
         }
@@ -325,7 +346,7 @@ private:
                 auto f = ft.func;
                 assert(!f.isImport);
 
-                if(f.isTemplate && f.templateParamNames.length==call.templateTypes.length) {
+                if(f.isTemplateBlueprint && f.templateParamNames.length==call.templateTypes.length) {
                     /// Extract the tokens
                     auto m = PPL2.getModule(f.moduleName);
                     m.templates.extract(f, call, mangledName);
@@ -342,5 +363,26 @@ private:
             } else assert(false, "Handle funcptr template");
         }
         return true;
+    }
+    ///
+    ///
+    ///
+    void extractTemplate(NamedStruct ns, Call call, string mangledName) {
+        dd("extractTemplate", ns.name, call.name, mangledName);
+
+        AnonStruct struct_ = ns.type;
+        auto fns = struct_.getMemberFunctions(call.name);
+        auto var = struct_.getMemberVariable(call.name);
+
+        foreach(f; fns) {
+            if(f.isTemplateBlueprint && f.templateParamNames.length==call.templateTypes.length) {
+                /// Extract the tokens
+                auto m = PPL2.getModule(f.moduleName);
+                m.templates.extract(f, call, mangledName);
+            }
+        }
+        if(var) {
+            assert(false, "Handle struct funcptr template");
+        }
     }
 }

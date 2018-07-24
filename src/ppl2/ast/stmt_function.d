@@ -1,6 +1,7 @@
 module ppl2.ast.stmt_function;
 
 import ppl2.internal;
+import common : contains;
 ///
 ///  function::= identifier "=" [template params] function_literal
 ///
@@ -22,7 +23,8 @@ public:
 /// Template stuff
     string[] templateParamNames;
     Token[] tokens;
-    bool isTemplate() const { return templateParamNames.length > 0; }
+    bool isTemplateBlueprint() { return templateParamNames.length > 0; }
+    bool isTemplateInstance()  { return name.contains('<'); }
 /// end of template stuff
 
     this() {
@@ -33,7 +35,7 @@ public:
     override NodeID id() const { return NodeID.FUNCTION; }
     override Type getType() {
         if(isExtern) return externType;
-        if(isTemplate) return TYPE_UNKNOWN;
+        if(isTemplateBlueprint) return TYPE_UNKNOWN;
 
         /// Return type of body
         return getBody().getType;
@@ -90,7 +92,7 @@ public:
                      isLocal ? "LOCAL" :
                      isGlobal ? "GLOBAL" : "STRUCT";
         string s;
-        if(isTemplate()) {
+        if(isTemplateBlueprint()) {
             s ~= "<" ~ templateParamNames.join(",") ~ "> ";
         }
         return "'%s' %s Function[refs=%s,%s] (%s)".format(name, s, numRefs, numExternalRefs, loc);

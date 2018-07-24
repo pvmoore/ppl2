@@ -23,7 +23,7 @@ public:
             if(f.isImport) {
                 log("\t  proxy func %s", f.name);
                 f.detach();
-            } else if(f.isTemplate) {
+            } else if(f.isTemplateBlueprint) {
                 log("\t  template func %s", f.name);
                 f.detach();
             } else if(f.numRefs==0 && f.name!="new") {
@@ -43,7 +43,7 @@ public:
         auto namedStructs = new Array!NamedStruct;
         module_.selectDescendents!NamedStruct(namedStructs);
         foreach(ns; namedStructs) {
-            if(ns.isTemplate) {
+            if(ns.isTemplateBlueprint) {
                 log("\t  template blueprint named struct %s", ns.name);
                 ns.detach();
             } else if(ns.numRefs==0) {

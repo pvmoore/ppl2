@@ -214,8 +214,6 @@ private:
         return numUnresolvedModules;
     }
     int runConstFoldPass() {
-        if(!getConfig().foldConstants) return 0;
-
         log("Folding constants");
 
         int nodesFolded;

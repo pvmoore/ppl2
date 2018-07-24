@@ -7,11 +7,13 @@ private:
     Module module_;
     Set!string extractedStructs;
     Set!string extractedFunctions;
+    TokenNavigator nav;
 public:
     this(Module module_) {
         this.module_            = module_;
         this.extractedStructs   = new Set!string;
         this.extractedFunctions = new Set!string;
+        this.nav                = new TokenNavigator(module_, null);
     }
     void extract(NamedStruct ns, ASTNode requestingNode, string mangledName, Type[] templateTypes) {
         assert(ns.moduleName==module_.canonicalName);
@@ -30,7 +32,7 @@ public:
         Token[] tokens = [
             stringToken(ns.tokens, "struct"),
             stringToken(ns.tokens, mangledName),
-            typeToken(ns.tokens, TT.EQUALS)
+            ttToken(ns.tokens, TT.EQUALS)
         ] ~ ns.tokens.dup;
 
         foreach(ref tok; tokens) {
@@ -46,11 +48,21 @@ public:
 
         defineRequired(module_.canonicalName, mangledName);
     }
+
     void extract(Function f, Call call, string mangledName) {
         assert(f.moduleName==module_.canonicalName);
 
-        if(extractedFunctions.contains(mangledName)) return;
-        extractedFunctions.add(mangledName);
+        NamedStruct ns;
+        string key = mangledName;
+
+        if(f.isStructMember) {
+            ns = f.getStruct.parent.as!NamedStruct;
+            assert(ns);
+            key = ns.getUniqueName ~ "." ~ mangledName;
+        }
+
+        if(extractedFunctions.contains(key)) return;
+        extractedFunctions.add(key);
 
         if(call.templateTypes.length != f.templateParamNames.length) {
             throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, call,
@@ -62,8 +74,10 @@ public:
         /// mangledName = {
         Token[] tokens = [
             stringToken(f.tokens, mangledName),
-            typeToken(f.tokens, TT.EQUALS)
+            ttToken(f.tokens, TT.EQUALS)
         ] ~ f.tokens.dup;
+
+        dd("  tokens=", tokens.toString);
 
         foreach(ref tok; tokens) {
             if(tok.type==TT.IDENTIFIER) {
@@ -85,10 +99,17 @@ private:
         t.value = value;
         return t;
     }
-    Token typeToken(Token[] tokens, TT e) {
+    Token ttToken(Token[] tokens, TT e) {
         auto t  = copyToken(tokens[0]);
         t.type  = e;
         t.value = "";
+        return t;
+    }
+    Token typeToken(Token[] tokens, Type ty) {
+        auto t         = copyToken(tokens[0]);
+        t.type         = TT.IDENTIFIER;
+        t.value        = "type";
+        t.templateType = ty;
         return t;
     }
     int paramIndex(string[] templateParamNames, string param) {

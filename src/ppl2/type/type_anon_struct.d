@@ -64,7 +64,16 @@ public:
         }
         return null;
     }
-
+    ///
+    /// Return true if there are Composites at root level which signifies
+    /// that a template function has just been added
+    ///
+    bool containsComposites() {
+        foreach(ch; children) {
+            if(ch.isComposite) return true;
+        }
+        return false;
+    }
     Variable[] getMemberVariables() {
         return cast(Variable[])
             children[].filter!(it=>cast(Variable)it !is null)

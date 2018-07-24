@@ -43,3 +43,15 @@ tfunc = <A,B> { A a, B b ->
 tfunc = { float f ->
     return 20
 }
+struct M3 = <T> [
+    T t
+    foo = { T a ->
+        return 70
+    }
+    foo = <A> { A a, T t ->
+        return 71
+    }
+    foo = <A,B> { A a, B b ->
+        return 72
+    }
+]

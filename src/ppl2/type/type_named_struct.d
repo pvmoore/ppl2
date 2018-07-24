@@ -1,7 +1,7 @@
 module ppl2.type.type_named_struct;
 
 import ppl2.internal;
-
+import common : contains;
 ///
 ///
 ///
@@ -18,7 +18,8 @@ public:
 /// Template stuff
     string[] templateParamNames;
     Token[] tokens;
-    bool isTemplate() const { return templateParamNames.length > 0; }
+    bool isTemplateBlueprint() { return templateParamNames.length > 0; }
+    bool isTemplateInstance()  { return name.contains('<'); }
 /// end of template stuff
 
 /// ASTNode interface
@@ -75,7 +76,7 @@ public:
     }
     override string toString() {
         string s;
-        if(isTemplate()) {
+        if(isTemplateBlueprint()) {
             s ~= "<" ~ templateParamNames.join(",") ~ "> ";
         }
         return "%s%s:%s%s".format(s, name, getUniqueName, isKnown ? "":"?");

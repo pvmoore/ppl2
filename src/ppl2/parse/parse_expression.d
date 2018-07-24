@@ -459,7 +459,7 @@ private:
 
         t.skip(TT.LCURLY);
 
-        int arrow = t.findInCurrentScope(TT.RT_ARROW);
+        int arrow = t.findInScope(TT.RT_ARROW);
         if(arrow!=-1) {
             /// collect the args
             while(t.type!=TT.RT_ARROW) {
@@ -793,8 +793,8 @@ private:
         i.addToEnd(inits);
 
         bool hasInits() {
-            auto end = t.findInCurrentScope(TT.RBRACKET);
-            auto sc  = t.findInCurrentScope(TT.SEMICOLON);
+            auto end = t.findInScope(TT.RBRACKET);
+            auto sc  = t.findInScope(TT.SEMICOLON);
             return sc!=-1 && end!=-1 && sc < end;
         }
 

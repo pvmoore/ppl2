@@ -26,9 +26,6 @@ public:
     bool writeASM = true;
     bool writeOBJ = true;
 
-    bool foldConstants = true;  /// This MUST be enabled if you use consts
-                                /// to initialise array counts for example
-
     bool dce           = true; /// dead code elimination
 
     bool nullChecks    = true;

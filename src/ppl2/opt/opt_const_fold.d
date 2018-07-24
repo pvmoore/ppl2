@@ -20,6 +20,7 @@ public:
         nodesFolded = 0;
         foreach(r; module_.activeRoots.values.dup) {
             recursiveVisit(r);
+            //if(module_.canonicalName=="test_template_functions") dd("   root", r);
         }
 
         watch.stop();
@@ -34,8 +35,7 @@ public:
 
         /// If cast is unnecessary then just remove the As
         if(n.leftType.exactlyMatches(n.rightType)) {
-            n.parent.replaceChild(n, n.left());
-            nodesFolded++;
+            fold(n, n.left);
             return;
         }
 
@@ -46,8 +46,7 @@ public:
             lit.value.as(n.rightType);
             lit.str = lit.value.getString();
 
-            n.parent.replaceChild(n, lit);
-            nodesFolded++;
+            fold(n, lit);
             return;
         }
     }
@@ -60,8 +59,7 @@ public:
                 throw new CompilerError(Err.ASSERT_FAILED, n, "Assertion failed");
             }
 
-            nodesFolded++;
-            n.parent.replaceChild(n, lit);
+            fold(n, lit);
         }
     }
     void visit(Binary n) {
@@ -79,16 +77,11 @@ public:
             lit.value.applyBinary(n.type, n.op, rt.value);
             lit.str = lit.value.getString();
 
-            nodesFolded++;
-            n.parent.replaceChild(n, lit);
+            fold(n, lit);
             return;
         }
     }
     void visit(Composite n) {
-        if(module_.canonicalName=="test_template_functions") {
-            dd("FOLD", n);
-        }
-
         final switch(n.usage) with(Composite.Usage) {
             case STANDARD:
                 /// Can be removed if empty
@@ -98,21 +91,19 @@ public:
                     nodesFolded++;
                 } else if(n.numChildren==1) {
                     auto child = n.first();
-                    n.parent.replaceChild(n, child);
-                    nodesFolded++;
+                    fold(n, child);
                 }
                 break;
             case PERMANENT:
                 /// Never remove or replace
                 break;
             case PLACEHOLDER:
-                dd("placeholder", module_.canonicalName);
+                dd("placeholder", module_.canonicalName, n.numChildren);
                 /// Never remove
                 /// Can be replaced if contains single child
                 if(n.numChildren==1) {
                     auto child = n.first();
-                    n.parent.replaceChild(n, child);
-                    nodesFolded++;
+                    fold(n, child);
                 }
                 break;
         }
@@ -128,8 +119,7 @@ public:
             auto lit        = ini.literal();
 
             if(lit && lit.isResolved) {
-                n.parent.replaceChild(n, lit.copy());
-                nodesFolded++;
+                fold(n, lit.copy());
                 n.target.dereference();
                 return;
             }
@@ -150,14 +140,12 @@ public:
     void visit(Parenthesis n) {
         if(n.expr().isA!Parenthesis) {
             /// Remove unnecessary parens ((expr))
-            n.parent.replaceChild(n, n.expr());
-            nodesFolded++;
+            fold(n, n.expr());
             return;
         }
         auto lit = n.expr().as!LiteralNumber;
         if(lit) {
-            n.parent.replaceChild(n, lit);
-            nodesFolded++;
+            fold(n, lit);
             return;
         }
     }
@@ -172,8 +160,7 @@ public:
             lit.value.applyUnary(n.op);
             lit.str = lit.value.getString();
 
-            nodesFolded++;
-            n.parent.replaceChild(n, lit);
+            fold(n, lit);
             return;
         }
     }
@@ -204,5 +191,13 @@ private:
                 recursiveVisit(n);
             }
         }
+    }
+    void fold(ASTNode replaceMe, ASTNode withMe) {
+        auto p = replaceMe.parent;
+        p.replaceChild(replaceMe, withMe);
+        nodesFolded++;
+
+        /// Ensure active roots remain valid
+        module_.addActiveRoot(withMe);
     }
 }

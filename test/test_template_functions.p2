@@ -5,11 +5,30 @@ import test_imports
 public
 
 struct M1 = [
-    //foo = {
-    //    return 3
-    //}
+    foo = { int a->
+        return 1
+    }
     foo = <T> { T a ->
-        return 4
+        return 2
+    }
+    foo = <A,B> { A a, B b ->
+        return 3
+    }
+    bar = {
+        //foo(1)
+        //foo<double>(4.5)
+    }
+]
+struct M2 = <T> [
+    T t
+    foo = <F> { F a ->
+        return 90
+    }
+    foo = <A,B> { A a, B b ->
+        return 91
+    }
+    foo = { float f ->
+        return 92
     }
 ]
 
@@ -25,20 +44,36 @@ testTemplateFunctions = {
         // imported templated function
         assert 10 == tfunc<bool>(true)
         assert 30 == tfunc<double,float>(1,2)
-        // imported untemplated fucntion
+        // imported untemplated function
         assert 20 == tfunc(3.1)
     }
     closures = {
 
     }
     structs = {
+        M1 m = M1()
+        // templated function
+        assert 2 == m.foo<float>(3.1)
+        assert 2 == m.foo<byte>(4)
+        assert 3 == m.foo<double,int>(2.1, 4)
+        // untemplated function
+        assert 1 == m.foo(1)
 
+        // templated struct
+        M2<double> m2 = M2<double>()
+        assert 90 == m2.foo<short>(18)
+        assert 91 == m2.foo<bool,int>(false,2)
+        assert 92 == m2.foo(4.3)
+
+        // imported struct
+        var m3 = M3<int>()
+        assert 70 == m3.foo(2)
+        assert 71 == m3.foo<float>(3.1, 3)
+        assert 72 == m3.foo<int,bool>(6,true)
     }
     globals()
     closures()
     structs()
-
-    //M1 m
 }
 
 func = <T> { T a ->

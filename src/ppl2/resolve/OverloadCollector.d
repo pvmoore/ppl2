@@ -104,7 +104,7 @@ final class OverloadCollector {
         }
     }
     void addFunction(Function f) {
-        if(f.isTemplate) {
+        if(f.isTemplateBlueprint) {
             if(includeTemplates) {
                 results.add(Callable(f));
             }

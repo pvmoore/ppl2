@@ -133,7 +133,7 @@ private:
         t.next;
 
         /// Must have an arrow
-        int arrow = t.findInCurrentScope(TT.RT_ARROW);
+        int arrow = t.findInScope(TT.RT_ARROW);
         if(arrow==-1) return false;
 
         /// Check the return type only

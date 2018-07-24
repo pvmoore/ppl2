@@ -314,6 +314,7 @@ public:
                 }
             }
 
+            /// Rearrange the args to match the parameter order
             if(n.paramNames.length>0) {
 
                 //dd("!!!", n.target, n.paramNames, n.target.paramNames());
@@ -323,9 +324,6 @@ public:
                         "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length));
                 }
 
-
-
-                /// Rearrange the args to match the parameter order
                 import common : indexOf;
                 auto targetNames = n.target.paramNames();
                 auto args        = new Expression[n.numArgs];
@@ -858,8 +856,8 @@ public:
 private:
     void recursiveVisit(ASTNode m) {
 
-        if(m.isNamedStruct && m.as!NamedStruct.isTemplate) return;
-        if(m.isFunction && m.as!Function.isTemplate) return;
+        if(m.isNamedStruct && m.as!NamedStruct.isTemplateBlueprint) return;
+        if(m.isFunction && m.as!Function.isTemplateBlueprint) return;
         if(m.isDefine && m.as!Define.type.isKnown) return;
 
         //dd("resolve", typeid(m), m.nid);

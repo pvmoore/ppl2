@@ -18,14 +18,14 @@ public:
         this.marks        = new Stack!int;
         this.namedStructs = new Stack!NamedStruct;
     }
-    void appendTokens(Token[] tokens) {
-        this.tokens ~= tokens;
-    }
-    void reset() {
-        pos = 0;
-        marks.clear();
-        namedStructs.clear();
-        access = Access.PRIVATE;
+    auto reuse(Module module_, Token[] tokens) {
+        this.module_ = module_;
+        this.tokens  = tokens;
+        this.pos     = 0;
+        this.access  = Access.PRIVATE;
+        this.marks.clear();
+        this.namedStructs.clear();
+        return this;
     }
     //=======================================
     void markPosition() {
@@ -48,11 +48,12 @@ public:
         return namedStructs.peek();
     }
     //=======================================
-    int index() {
-        return pos;
-    }
-    int line() { return get().line; }
-    int column() { return get().column; }
+    int index()    { return pos; }
+    int line()     { return get().line; }
+    int column()   { return get().column; }
+    TT type()      { return get().type; }
+    string value() { return get().value; }
+
     Token get() {
         if(pos >= tokens.length) return NO_TOKEN;
         return tokens[pos];
@@ -60,12 +61,6 @@ public:
     /// Inclusive range
     Token[] get(int start, int end) {
         return tokens[start..end+1];
-    }
-    TT type() {
-        return get().type;
-    }
-    string value() {
-        return get().value;
     }
     Token peek(int offset) {
         if(pos+offset < 0 || pos+offset >= tokens.length) return NO_TOKEN;
@@ -98,9 +93,9 @@ public:
     }
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
-        throw new Error("!!");
-        //throw new CompilerError(Err.BAD_SYNTAX, this,
-        //            "Expecting one of %s".format(types));
+        //throw new Error("!!");
+        throw new CompilerError(Err.BAD_SYNTAX, this,
+                    "Expecting one of %s".format(types));
     }
     bool hasNext() {
         return pos < cast(int)tokens.length - 1;
@@ -117,7 +112,7 @@ public:
     /// Find a type in the current scope. If the scope ends by reaching
     /// an unopened close bracket of any type then it will return -1;
     ///
-    int findInCurrentScope(TT t, int offset=0) {
+    int findInScope(TT t, int offset=0) {
         int cbr = 0, sqbr = 0, br = 0;
         while(pos+offset < tokens.length) {
             auto ty = peek(offset).type;
@@ -158,6 +153,9 @@ public:
             offset++;
         }
         return -1;
+    }
+    bool scopeContains(TT t) {
+        return findInScope(t) !=-1;
     }
     ///
     /// Returns the offset of the closing bracket.
