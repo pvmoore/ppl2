@@ -15,7 +15,7 @@ struct M1 = [
         return 3
     }
     bar = {
-        //foo(1)
+        assert 1 == foo(1)
         //foo<double>(4.5)
     }
 ]
@@ -58,6 +58,9 @@ testTemplateFunctions = {
         assert 3 == m.foo<double,int>(2.1, 4)
         // untemplated function
         assert 1 == m.foo(1)
+
+        // can bar to test struct->struct funcs
+        m.bar()
 
         // templated struct
         M2<double> m2 = M2<double>()
