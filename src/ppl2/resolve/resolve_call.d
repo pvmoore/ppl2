@@ -64,6 +64,8 @@ public:
     ///
     Callable standardFind(Call call) {
 
+        NamedStruct ns = call.getAncestor!NamedStruct;
+
         if(call.isTemplated && !call.name.contains("<")) {
             /// We can't do anything until the template types are known
             if(!call.templateTypes.areKnown) {
@@ -71,25 +73,21 @@ public:
             }
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
 
-            dd("looking for", mangledName);
+            /// Possible implicit this.call<...>(...)
 
-            /// Look for a function with this mangled name even if the params are not resolved yet
-            bool ready = collector.collect(mangledName, call, overloads, true);
-            if(!ready) {
-                dd("  not ready");
-                return CALLABLE_NOT_READY;
-            } else if(overloads.length==0) {
-                dd("  ready length==0");
-                if(extractTemplate(call, mangledName)) {
-                    call.name = mangledName;
-                }
-                return CALLABLE_NOT_READY;
-            } else {
-                dd("  already extracted");
-                /// It must have been extracted already.
-                /// Update the call name and continue
+            if(ns) {
+                extractTemplate(ns, call, mangledName);
+            }
+
+            if(extractTemplate(call, mangledName)) {
                 call.name = mangledName;
             }
+            return CALLABLE_NOT_READY;
+        }
+
+        /// Come back when all root level Composites have been removed
+        if(ns && ns.type.containsComposites) {
+            return CALLABLE_NOT_READY;
         }
 
         dd("looking for", call.name);
@@ -145,25 +143,18 @@ public:
 
         /// Come back when all root level Composites have been removed
         if(struct_.containsComposites) {
-            dd("bail");
             return CALLABLE_NOT_READY;
         }
 
         if(call.isTemplated && !call.name.contains("<")) {
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
 
-            dd("structFind looking for", mangledName);
-
-            if(struct_.getMemberFunctions(mangledName)) {
-                dd("  already extracted");
-                /// It must have been extracted already.
-                /// Update the call name and continue
-                call.name = mangledName;
-            } else {
-                extractTemplate(ns, call, mangledName);
-                return CALLABLE_NOT_READY;
-            }
+            extractTemplate(ns, call, mangledName);
+            call.name = mangledName;
+            return CALLABLE_NOT_READY;
         }
+
+        dd("structFind looking for", call.name);
 
         auto fns      = struct_.getMemberFunctions(call.name);
         auto var      = struct_.getMemberVariable(call.name);
@@ -335,8 +326,9 @@ private:
         dd("    template ready");
 
         if(overloads.length==0) {
-            throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
-                "Function template %s not found".format(call.name));
+            //throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
+            //    "Function template %s not found".format(call.name));
+            return true;
         }
 
         dd("    templates found", overloads[]);

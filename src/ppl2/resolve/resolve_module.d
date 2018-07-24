@@ -229,8 +229,6 @@ public:
     void visit(Call n) {
         if(!n.target.isResolved) {
 
-            // todo - handle template function call
-
             if(n.isStartOfChain()) {
 
                 auto callable = callResolver.standardFind(n);

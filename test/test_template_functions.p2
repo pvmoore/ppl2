@@ -16,7 +16,9 @@ struct M1 = [
     }
     bar = {
         assert 1 == foo(1)
-        //foo<double>(4.5)
+
+        // internal templated call
+        assert 2 == foo<double>(4.5)
     }
 ]
 struct M2 = <T> [
