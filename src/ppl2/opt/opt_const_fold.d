@@ -98,7 +98,6 @@ public:
                 /// Never remove or replace
                 break;
             case PLACEHOLDER:
-                dd("placeholder", module_.canonicalName, n.numChildren);
                 /// Never remove
                 /// Can be replaced if contains single child
                 if(n.numChildren==1) {

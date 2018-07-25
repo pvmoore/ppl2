@@ -89,13 +89,11 @@ public:
             return CALLABLE_NOT_READY;
         }
 
-        dd("looking for", call.name);
+        //dd("looking for", call.name);
 
         /// From this point on we don't include any template blueprints
 
         if(collector.collect(call.name, call, overloads, false)) {
-
-            dd("  ready overloads=", overloads[]);
 
             if(overloads.length==1) {
                 /// Return this result as it's the only one and check it later
@@ -128,7 +126,6 @@ public:
 
             return overloads[0];
         }
-        dd("  not ready");
         return CALLABLE_NOT_READY;
     }
     /// Assume:
@@ -153,7 +150,7 @@ public:
             return CALLABLE_NOT_READY;
         }
 
-        dd("structFind looking for", call.name);
+        //dd("structFind looking for", call.name);
 
         auto fns      = struct_.getMemberFunctions(call.name);
         auto var      = struct_.getMemberVariable(call.name);
@@ -296,7 +293,7 @@ private:
                 }
             }
 
-            dd("  exact match", callable.id, overloads[]);
+            //dd("  exact match", callable.id, overloads[]);
 
             /// Exact match found
             foreach(o; overloads[].dup) {
@@ -316,22 +313,17 @@ private:
     ///     - Extract the tokens in the other module
     ///
     bool extractTemplate(Call call, string mangledName) {
-        dd("extractTemplate", call.name, mangledName);
 
         /// Find the template(s)
         if(!collector.collect(call.name, call, overloads, true)) {
-            dd("    template not ready");
             return false;
         }
-        dd("    template ready");
 
         if(overloads.length==0) {
             //throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
             //    "Function template %s not found".format(call.name));
             return true;
         }
-
-        dd("    templates found", overloads[]);
 
         foreach(ft; overloads[]) {
             if(ft.isFunction) {
@@ -360,7 +352,6 @@ private:
     /// Extract one or more struct function templates
     ///
     void extractTemplate(NamedStruct ns, Call call, string mangledName) {
-        dd("extractTemplate", ns.name, call.name, mangledName);
 
         AnonStruct struct_ = ns.type;
         auto fns = struct_.getMemberFunctions(call.name);
