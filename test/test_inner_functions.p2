@@ -3,85 +3,105 @@ import core.intrinsics
 
  // Module scope
 
-int g1
-
-gf1 = {}
+int globalVar1
+globalFunc1 = {}
 
 struct Struct = [
     // Can see struct scope + module scope
-    int s1
-    f = {
+    int memberVar1
+    memberFunc = { // Struct* this
         // Struct member func
-        // Can see func scope + struct scope + module scope
+        // Can see this scope, Struct scope and module scope
 
-        inner = {
+        int memberFuncVar1
+
+        memberFuncVar1
+        //memberFuncVar2 // not visible
+        globalVar1
+        globalVar2
+        memberVar1
+        memberVar2
+        globalFunc1()
+        globalFunc2()
+
+        inner = { // Struct* this
             // inner function
-            // Can see this scope only
+            // Can see this scope, Struct scope and module scope
 
-            int i1
+            int innerVar1
 
-            i1  // ok
-            //i2  // nope
-            //s1  // nope
-            //s2  // nope
+            innerVar1  // ok
+            //innerVar2  // nope
+            memberVar1  // ok
+            memberVar2  // ok
+            // memberFunc1() // ok but will recurse
+            memberFunc2()
 
-            int i2
+            int innerVar2
         }
+
+        inner()
+
+        int memberFuncVar2
     }
-    int s2
+    memberFunc2 = {}
+    int memberVar2
 ]
 
-func = {    // {->}
-    // Can only see vars and funcs at this scope and module scope
+func = { // {->}
+    // Can see this scope and module scope
 
-    int func1
+    int funcVar1
+
     f1 = {
-        // Can only see vars and funcs at this scope and module scope
-        int f1var = 1
+        // Can see this scope and module scope
+        int f1var
 
-        f1var += 1  // ok
+        f1var
+        //funcVar1 // not visible
+        //funcVar2 // not visible
+        globalVar1
+        globalVar2
+        //inner() // not visible
     }
 
-    func1 += 1  // ok
-    g1 += 1     // ok
-    g2 += 1     // ok
+    funcVar1
+    //funcVar2 // not visible
+    globalVar1
+    globalVar2
 
-    inner = { // {->}
-        // Can only see vars and funcs at this scope and module scope
+    inner = {
+        // Can see this scope and module scope
 
-        int inn1
+        int innerVar1
         f3 = {}
 
-        inn1 += 1  // ok
-        //inn2 += 1  // nope
-        //f1var += 1  // nope
-        //func1 += 1  // nope
-        //func2 += 1  // nope
-        g1 += 1     // ok
-        g2 += 1     // ok
-
-        gf1()     // ok
-        gf2()     // ok
+        innerVar1
+        //innerVar2 // nope
+        //f1var     // nope
+        globalVar1
+        globalVar2
+        globalFunc1()
+        globalFunc2()
         //f1()      // nope
         //f2()      // nope
         f3()        // ok
 
-        int inn2
+        int innerVar2
     }
-    int func2
+    int funcVar2
     f2 = {}
 
-    func2 += 1 // ok
+    funcVar2
 
     inner()
 }
-func2 = {
+
+int globalVar2
+globalFunc2 = {
     inner = {}
     inner()
 }
-
-int g2
-gf2 = {}
 
 testClosures = {
     var closure1 = { int a -> return 2 }
@@ -97,7 +117,10 @@ public testInnerFunctions = {
     testClosures()
 
     Struct s
+    s.memberFunc()
+    s.memberVar1
+    s.memberVar2
+
     func()      // ok
-    func2()
     //inner()   // not visible
 }

@@ -109,6 +109,11 @@ public:
         }
         return -1;
     }
+    Function[] getInnerFunctions() {
+        auto array = new Array!Function;
+        recursiveCollect!Function(array, f=>f.isInner);
+        return array[];
+    }
     //===============================================================
     Type[] memberVariableTypes() {
         return children[].filter!(it=>it.id() == NodeID.VARIABLE)

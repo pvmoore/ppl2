@@ -98,8 +98,7 @@ public:
             /// Do some house-keeping
             auto anonStruct = n.type;
 
-            addDefaultConstructor(t, anonStruct);
-            addImplicitThisParam(n, anonStruct);
+            addDefaultConstructor(t, n, anonStruct);
             addImplicitReturnThis(anonStruct);
             addCallToDefaultConstructor(anonStruct);
             moveInitCodeInsideDefaultConstructor(anonStruct);
@@ -110,7 +109,7 @@ public:
     }
 private:
     /// If there is no default constructor 'new()' then create one
-    void addDefaultConstructor(Tokens t, AnonStruct anonStruct) {
+    void addDefaultConstructor(Tokens t, NamedStruct ns, AnonStruct anonStruct) {
         auto defCons = anonStruct.getDefaultConstructor();
         if(!defCons) {
 
@@ -120,6 +119,8 @@ private:
             anonStruct.addToEnd(defCons);
 
             auto params = makeNode!Parameters(t);
+            params.addThisParameter(ns);
+
             auto type   = makeNode!FunctionType(t);
             type.params = params;
 
@@ -144,17 +145,6 @@ private:
 
             auto ret = builder().return_(builder().identifier("this"));
             bdy.addToEnd(ret);
-        }
-    }
-    /// Add the implicit this* to all member functions including constructors (at root level only)
-    void addImplicitThisParam(NamedStruct ns, AnonStruct anonStruct) {
-        foreach(f; anonStruct.getMemberFunctions()) {
-            assert(!f.isExtern && !f.isImport);
-            if(f.isTemplateBlueprint) {
-
-            } else {
-                f.params().addThisParameter(ns);
-            }
         }
     }
     /// Every non-default constructor should start with a call to the default constructor
