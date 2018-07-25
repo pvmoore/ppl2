@@ -247,40 +247,16 @@ private: //=====================================================================
     ///
     void parseFunction(Tokens t, ASTNode parent) {
 
+        auto f = makeNode!Function(t);
+        parent.addToEnd(f);
+
         /// name
-        string name = t.value;
+        f.name       = t.value;
+        f.moduleName = module_.canonicalName;
         t.next;
 
         /// =
         t.skip(TT.EQUALS);
-
-        if(parent.isA!LiteralFunction || (parent.getAncestor!LiteralFunction !is null)) {
-            /// This is a closure.
-            /// Convert this into a function ptr variable
-
-            assert(t.type!=TT.LANGLE, "closure function template not implemented");
-
-            auto var = makeNode!Variable(t);
-            parent.addToEnd(var);
-
-            if(name=="new") newReservedForConstructors(var);
-
-            var.name = name;
-            var.type = TYPE_UNKNOWN;
-
-            auto ini = makeNode!Initialiser(t);
-            ini.var = var;
-            var.addToEnd(ini);
-
-            exprParser().parse(t, ini);
-            return;
-        }
-
-        auto f = makeNode!Function(t);
-        parent.addToEnd(f);
-
-        f.name       = name;
-        f.moduleName = module_.canonicalName;
 
         /// Function template
         if(t.type==TT.LANGLE) {

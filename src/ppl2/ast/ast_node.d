@@ -283,6 +283,13 @@ abstract class ASTNode {
             n.recursiveCollect(array, filter);
         }
     }
+    void recursiveCollect(T)(Array!T array, bool delegate(T n) filter) {
+        T t = this.as!T;
+        if(t && filter(t)) array.add(t);
+        foreach(n; children) {
+            n.recursiveCollect!T(array, filter);
+        }
+    }
     void recurse(T)(void delegate(T n) functor) {
         if(this.isA!T) functor(this.as!T);
         foreach(n; children) {

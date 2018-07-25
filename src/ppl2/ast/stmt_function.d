@@ -41,20 +41,21 @@ public:
         return getBody().getType;
     }
 ///
-    bool isLocal() const {
-        return getContainer().id()==NodeID.LITERAL_FUNCTION;
-    }
     bool isStructMember() const {
-        return parent.id()==NodeID.ANON_STRUCT;
+        return getContainer().id==NodeID.ANON_STRUCT;
     }
     bool isGlobal() const {
-        return getContainer().id()==NodeID.MODULE;
+        return getContainer().id==NodeID.MODULE;
+    }
+    bool isInner() {
+        return getContainer().id==NodeID.LITERAL_FUNCTION;
     }
     bool isDefaultConstructor() {
         if(isImport || isExtern) return false;
         if(name!="new") return false;
         return params().numParams==0 || (params().numParams==1 && params().paramNames[0]=="this");
     }
+
 
     Parameters params() { return isExtern ? null : getBody().params(); }
     AnonStruct getStruct() {
@@ -89,7 +90,7 @@ public:
     override string toString() {
         string loc = isExtern ? "EXTERN" :
                      isImport ? "IMPORT" :
-                     isLocal ? "LOCAL" :
+                     isInner ? "INNER" :
                      isGlobal ? "GLOBAL" : "STRUCT";
         string s;
         if(isTemplateBlueprint()) {

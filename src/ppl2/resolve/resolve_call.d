@@ -74,7 +74,6 @@ public:
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
 
             /// Possible implicit this.call<...>(...)
-
             if(ns) {
                 extractTemplate(ns, call, mangledName);
             }
@@ -306,7 +305,8 @@ private:
             assert(overloads.length==1);
         }
     }
-    /// Extract one or more function templates
+    ///
+    /// Extract one or more function templates:
     ///
     /// If the template is in this module:
     ///     - Extract the tokens and add them to the module
@@ -352,12 +352,12 @@ private:
                         module_.addToEnd(proxy);
                     }
                 }
-            } else assert(false, "Handle funcptr template");
+            } else assert(false, "funcptrs cannot be templated");
         }
         return true;
     }
     ///
-    ///
+    /// Extract one or more struct function templates
     ///
     void extractTemplate(NamedStruct ns, Call call, string mangledName) {
         dd("extractTemplate", ns.name, call.name, mangledName);
@@ -374,7 +374,7 @@ private:
             }
         }
         if(var) {
-            assert(false, "Handle struct funcptr template");
+            assert(false, "funcptrs cannot be templated");
         }
     }
 }

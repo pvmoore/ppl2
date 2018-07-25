@@ -115,6 +115,7 @@ private:
                 parseValueOf(t, parent);
                 break;
             default:
+                //errorBadSyntax(t, "Syntax error");
                 writefln("BAD LHS %s", t.get);
                 parent.getModule.dumpToConsole();
                 throw new CompilerError(Err.BAD_LHS_EXPR, t, "Bad LHS");
@@ -485,8 +486,9 @@ private:
         //if(f.getContainer().id()==NodeID.LITERAL_FUNCTION) {
 
             string name = module_.makeTemporary("closure");
-            if(parent.isInitialiser) {
-                name ~= "_" ~ parent.as!Initialiser.var.name;
+            auto var = f.getAncestor!Variable;
+            if(var) {
+                name ~= "_" ~ var.name;
             }
 
             auto closure = makeNode!Closure(t);

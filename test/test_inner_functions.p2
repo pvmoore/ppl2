@@ -1,8 +1,5 @@
-/**
- *
- *
- *
- */
+
+import core.intrinsics
 
  // Module scope
 
@@ -17,18 +14,18 @@ struct Struct = [
         // Struct member func
         // Can see func scope + struct scope + module scope
 
-        closure = {
-            // Closure
-            // Can see closure scope only
+        inner = {
+            // inner function
+            // Can see this scope only
 
-            int c1
+            int i1
 
-            c1  // ok
-            //c2  // nope
+            i1  // ok
+            //i2  // nope
             //s1  // nope
             //s2  // nope
 
-            int c2
+            int i2
         }
     }
     int s2
@@ -49,14 +46,14 @@ func = {    // {->}
     g1 += 1     // ok
     g2 += 1     // ok
 
-    closure = { // {->}
+    inner = { // {->}
         // Can only see vars and funcs at this scope and module scope
 
-        int clos1
+        int inn1
         f3 = {}
 
-        clos1 += 1  // ok
-        //clos2 += 1  // nope
+        inn1 += 1  // ok
+        //inn2 += 1  // nope
         //f1var += 1  // nope
         //func1 += 1  // nope
         //func2 += 1  // nope
@@ -69,19 +66,38 @@ func = {    // {->}
         //f2()      // nope
         f3()        // ok
 
-        int clos2
+        int inn2
     }
     int func2
     f2 = {}
 
     func2 += 1 // ok
+
+    inner()
+}
+func2 = {
+    inner = {}
+    inner()
 }
 
 int g2
 gf2 = {}
 
-public testClosures = {
+testClosures = {
+    var closure1 = { int a -> return 2 }
+    var closure2 = { int a -> return 3 }
+    {int->int} funcptr = closure2
+
+    assert 2 == closure1(1)
+    assert 3 == closure2(1)
+    assert 3 == funcptr(1)
+}
+
+public testInnerFunctions = {
+    testClosures()
+
     Struct s
     func()      // ok
-    //closure()   // nope
+    func2()
+    //inner()   // not visible
 }

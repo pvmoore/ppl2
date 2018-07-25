@@ -41,6 +41,7 @@ public:
             functionRequired(g_mainModuleCanonicalName, "new");
             functionRequired(g_mainModuleCanonicalName, "main");
 
+            ///============================ Start
             parseAndResolve();
             removeUnreferencedNodes();
             afterResolution();
@@ -55,38 +56,13 @@ public:
                     ok = true;
                 }
             }
+            ///============================ End
 
-            if(!ok) {
-                writefln("Fail");
-                return;
+            if(ok) {
+                success(watch.peek().total!"nsecs");
+            } else {
+                failure();
             }
-
-            /// Finished
-
-            auto time = watch.peek().total!"nsecs";
-
-            //writefln("\nModule info:");
-            //flushLogs();
-            //foreach(m; modules.values) {
-            //    writefln("- %s", m.canonicalName);
-            //    m.dumpInfo();
-            //}
-
-            writefln("\nOK");
-
-            import core.memory : GC;
-
-            writefln("");
-            writefln("Active modules ......... %s", modules.length);
-            writefln("Parser time ............ %.2f ms", modules.values.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6);
-            writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
-            writefln("Constant folder time ... %.2f ms", modules.values.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6);
-            writefln("Semantic checker time .. %.2f ms", modules.values.map!(it=>it.checker.getElapsedNanos).sum() * 1e-6);
-            writefln("IR generation time ..... %.2f ms", modules.values.map!(it=>it.gen.getElapsedNanos).sum() * 1e-6);
-            writefln("Optimise time .......... %.2f ms", optimiser.getElapsedNanos * 1e-6);
-            writefln("Link time .............. %.2f ms", linker.getElapsedNanos * 1e-6);
-            writefln("Total time.............. %.2f ms", time * 1e-6);
-            writefln("Memory used ............ %s KB", GC.stats.usedSize / 1024);
 
         }catch(CompilerError e) {
             prettyErrorMsg(e);
@@ -285,5 +261,32 @@ private:
         dd("linking");
         log("Linking");
         return linker.link(mainModule());
+    }
+    void failure() {
+        writefln("!! Fail !!");
+    }
+    void success(ulong time) {
+        import core.memory : GC;
+
+        writefln("\nOK");
+        writefln("");
+        writefln("Active modules ......... %s", modules.length);
+        writefln("Parser time ............ %.2f ms", modules.values.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6);
+        writefln("Resolver time .......... %.2f ms", modules.values.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6);
+        writefln("Constant folder time ... %.2f ms", modules.values.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6);
+        writefln("Semantic checker time .. %.2f ms", modules.values.map!(it=>it.checker.getElapsedNanos).sum() * 1e-6);
+        writefln("IR generation time ..... %.2f ms", modules.values.map!(it=>it.gen.getElapsedNanos).sum() * 1e-6);
+        writefln("Optimise time .......... %.2f ms", optimiser.getElapsedNanos * 1e-6);
+        writefln("Link time .............. %.2f ms", linker.getElapsedNanos * 1e-6);
+        writefln("Total time.............. %.2f ms", time * 1e-6);
+        writefln("Memory used ............ %s KB", GC.stats.usedSize / 1024);
+
+        //writefln("\nModule info:");
+        //flushLogs();
+        foreach(m; modules.values) {
+            //writefln("- %s", m.canonicalName);
+            //writefln("%s", m.closures);
+        //    m.dumpInfo();
+        }
     }
 }

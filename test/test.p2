@@ -10,7 +10,7 @@ import test_arrays
 import test_expressions
 import test_structs
 import test_casting
-import test_closures
+import test_inner_functions
 import test_consts
 import test_constructors
 import test_meta
@@ -110,7 +110,7 @@ main = {
     testArrays()
 
     testStructs()
-    testClosures()
+    testInnerFunctions()
     testConstructors()
     testLiteralStruct()
     testCalls()

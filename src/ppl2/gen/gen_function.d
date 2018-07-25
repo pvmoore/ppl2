@@ -19,6 +19,17 @@ void generateLocalStructMemberFunctionDeclarations(Module module_) {
         }
     }
 }
+void generateInnerFunctionDeclarations(Module module_) {
+    foreach(f; module_.getInnerFunctions()) {
+        generateFunctionDeclaration(module_, f);
+    }
+}
+void generateInnerFunctionBodies(Module module_, LiteralGenerator literalGen) {
+    foreach(f; module_.getInnerFunctions()) {
+        auto litFunc = f.getBody();
+        literalGen.generate(litFunc, f.llvmValue);
+    }
+}
 void generateLocalStructMemberFunctionBodies(Module module_, LiteralGenerator literalGen) {
     foreach(s; module_.getAllNamedStructs()) {
         foreach(f; s.type.getMemberFunctions()) {

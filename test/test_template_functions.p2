@@ -15,10 +15,12 @@ struct M1 = [
         return 3
     }
     bar = {
+        // internal standard call
         assert 1 == foo(1)
 
         // internal templated call
         assert 2 == foo<double>(4.5)
+        assert 3 == foo<int, float>(1,2)
     }
 ]
 struct M2 = <T> [

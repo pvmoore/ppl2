@@ -154,13 +154,13 @@ public:
     ///
     /// Find all AnonStructs at module scope.
     ///
-    Type[] getAnonStructs() {
-        auto array = new Array!ASTNode;
-        recursiveCollect(array,
-            it => it.getType.isAnonStruct
-        );
-        return cast(Type[])array[].map!(it=>it.getType).array;
-    }
+    //Type[] getAnonStructs() {
+    //    auto array = new Array!ASTNode;
+    //    recursiveCollect(array,
+    //        it => it.getType.isAnonStruct
+    //    );
+    //    return cast(Type[])array[].map!(it=>it.getType).array;
+    //}
     //================================================================================
     NamedStruct[] getImportedNamedStructs() {
         NamedStruct[string] structs;
@@ -218,9 +218,14 @@ public:
         }
         return set.values;
     }
-    Function[] getExternalFunctions() {
-        return getFunctions().filter!(it=>it.isExtern).array;
+    Function[] getInnerFunctions() {
+        auto array = new Array!Function;
+        recursiveCollect!Function(array, f=>f.isInner);
+        return array[];
     }
+    //Function[] getExternalFunctions() {
+    //    return getFunctions().filter!(it=>it.isExtern).array;
+    //}
     ///
     ///  Dump module info to the log.
     ///

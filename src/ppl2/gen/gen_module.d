@@ -47,14 +47,17 @@ public:
 
         generateImportedStructDeclarations(module_);
         generateLocalStructDeclarations(module_);
+
         generateIntrinsicFuncDeclarations();
         generateStandardFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
         generateClosureDeclarations(module_);
         generateLocalStructMemberFunctionDeclarations(module_);
+        generateInnerFunctionDeclarations(module_);
 
         generateLocalStructMemberFunctionBodies(module_, literalGen);
         generateClosureBodies(module_, literalGen);
+        generateInnerFunctionBodies(module_, literalGen);
 
         visitChildren(module_);
 
@@ -180,9 +183,11 @@ public:
     }
     void visit(Function n) {
         dd("visit Function", n.name);
-        if(!n.isExtern) {
-            n.getBody().visit!ModuleGenerator(this);
-        }
+        if(n.isExtern) return;
+        if(n.isInner) return;
+
+        assert(n.llvmValue);
+        n.getBody().visit!ModuleGenerator(this);
     }
     void visit(Identifier n) {
         dd("visit Identifier", n.name, n.target);

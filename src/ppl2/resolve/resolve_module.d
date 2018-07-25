@@ -823,12 +823,12 @@ public:
             //}
         }
         if(n.type.isKnown) {
-            /// Set the closure type matches the function ptr
+            /// Ensure the function ptr matches the closure type
             if(n.isFunctionPtr && n.hasInitialiser) {
                 auto lf = n.getDescendent!LiteralFunction;
-                assert(lf);
-
-                lf.type = n.type;
+                if(lf) {
+                    lf.type = n.type;
+                }
             }
         }
     }
