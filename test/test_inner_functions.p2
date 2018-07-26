@@ -1,8 +1,6 @@
 
 import core.intrinsics
 
- // Module scope
-
 int globalVar1
 globalFunc1 = {}
 
@@ -25,7 +23,6 @@ struct Struct = [
         globalFunc2()
 
         inner = { // Struct* this
-            // inner function
             // Can see this scope, Struct scope and module scope
 
             int innerVar1

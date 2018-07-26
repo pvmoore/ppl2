@@ -16,9 +16,8 @@ public:
     int numRefs;
 
 /// Template stuff
-    string[] templateParamNames;
-    Token[] tokens;
-    bool isTemplateBlueprint() { return templateParamNames.length > 0; }
+    TemplateBlueprint blueprint;
+    bool isTemplateBlueprint() { return blueprint !is null; }
     bool isTemplateInstance()  { return name.contains('<'); }
 /// end of template stuff
 
@@ -77,8 +76,8 @@ public:
     override string toString() {
         string s;
         if(isTemplateBlueprint()) {
-            s ~= "<" ~ templateParamNames.join(",") ~ "> ";
+            s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
         }
-        return "%s%s:%s%s".format(s, name, getUniqueName, isKnown ? "":"?");
+        return "%s%s%s".format(s, getUniqueName, isKnown ? "":"?");
     }
 }

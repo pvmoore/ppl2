@@ -35,6 +35,7 @@ struct Callable {
     ASTNode getNode()     { return func ? func : var; }
     bool resultReady()    { return getNode() !is null; }
     bool isStructMember() { return func ? func.isStructMember : var.isStructMember; }
+    bool isTemplateBlueprint() { return func ? func.isTemplateBlueprint : false; }
 
     size_t toHash() const @safe pure nothrow {
         assert(id!=0);
@@ -51,12 +52,16 @@ final class CallResolver {
 private:
     Module module_;
     Array!Callable overloads;
+    Array!Function funcTemplates;
     OverloadCollector collector;
+    ImplicitTemplates implicitTemplates;
 public:
     this(Module module_) {
-        this.module_   = module_;
-        this.overloads = new Array!Callable;
-        this.collector = new OverloadCollector;
+        this.module_           = module_;
+        this.overloads         = new Array!Callable;
+        this.funcTemplates     = new Array!Function;
+        this.collector         = new OverloadCollector;
+        this.implicitTemplates = new ImplicitTemplates(module_);
     }
 
     /// Assume:
@@ -93,9 +98,9 @@ public:
 
         /// From this point on we don't include any template blueprints
 
-        if(collector.collect(call.name, call, overloads, false)) {
+        if(collector.collect(call.name, call, overloads)) {
 
-            if(overloads.length==1) {
+            if(overloads.length==1 && !overloads[0].isTemplateBlueprint) {
                 /// Return this result as it's the only one and check it later
                 /// to make sure the types match
                 return overloads[0];
@@ -104,7 +109,7 @@ public:
             /// From this point onwards we need the resolved types
             if(!call.argTypes.areKnown) return CALLABLE_NOT_READY;
 
-            filter(call, overloads);
+            filterOverloads(call);
 
             if(overloads.length==0) {
                 string msg;
@@ -161,9 +166,21 @@ public:
         foreach(f; fns) overloads.add(Callable(f));
         if(var && var.isFunctionPtr) overloads.add(Callable(var));
 
-        filter(call, overloads);
+        filterOverloads(call);
 
         if(overloads.length==0) {
+
+            if(funcTemplates.length>0) {
+                /// There is a template with the same name. Try that
+                auto templateMatch = implicitTemplates.getStructCandidate(ns, call, funcTemplates);
+                if(templateMatch[0]) {
+                    /// Try this template
+                    call.name = call.name ~ "<" ~ mangle(templateMatch[1]) ~ ">";
+                    dd("setting call name to", call.name);
+                    return CALLABLE_NOT_READY;
+                }
+            }
+
             string msg;
             if(call.paramNames.length>0) {
                 auto buf = new StringBuffer;
@@ -188,14 +205,17 @@ public:
 private:
     ///
     /// Filter out any overloads that do not have the correct param names
+    /// Add any filtered out function templates to funcTemplates
     ///
     /// Assume:
     ///     Assume all function names are the same
     ///     Assume all types are known
     ///     paramNames must match actual param names
     ///     paramNames are unique
-    void filter(Call call, Array!Callable overloads) {
+    void filterOverloads(Call call) {
         import common : indexOf;
+
+        funcTemplates.clear();
 
         bool isPossibleImplicitThisCall =
             call.name!="new" &&
@@ -204,6 +224,11 @@ private:
 
         lp:foreach(callable; overloads[].dup) {
 
+            if(callable.isTemplateBlueprint) {
+                overloads.remove(callable);
+                funcTemplates.add(callable.func);
+                continue;
+            }
             if(!callable.getType.isFunction) {
                 overloads.remove(callable);
                 continue;
@@ -315,7 +340,7 @@ private:
     bool extractTemplate(Call call, string mangledName) {
 
         /// Find the template(s)
-        if(!collector.collect(call.name, call, overloads, true)) {
+        if(!collector.collect(call.name, call, overloads)) {
             return false;
         }
 
@@ -330,7 +355,7 @@ private:
                 auto f = ft.func;
                 assert(!f.isImport);
 
-                if(f.isTemplateBlueprint && f.templateParamNames.length==call.templateTypes.length) {
+                if(f.isTemplateBlueprint && f.blueprint.numTemplateParams==call.templateTypes.length) {
                     /// Extract the tokens
                     auto m = PPL2.getModule(f.moduleName);
                     m.templates.extract(f, call, mangledName);
@@ -358,7 +383,7 @@ private:
         auto var = struct_.getMemberVariable(call.name);
 
         foreach(f; fns) {
-            if(f.isTemplateBlueprint && f.templateParamNames.length==call.templateTypes.length) {
+            if(f.isTemplateBlueprint && f.blueprint.numTemplateParams==call.templateTypes.length) {
                 /// Extract the tokens
                 auto m = PPL2.getModule(f.moduleName);
                 m.templates.extract(f, call, mangledName);

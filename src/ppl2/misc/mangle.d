@@ -22,7 +22,7 @@ string mangle(Function f) {
 
     string name  = f.name;
     if(f.isStructMember) {
-        auto struct_ = f.getContainingStruct();
+        auto struct_ = f.getAncestor!AnonStruct();
         if(struct_.isNamed) {
             name = struct_.parent.as!NamedStruct.getUniqueName ~ "." ~ name;
         }

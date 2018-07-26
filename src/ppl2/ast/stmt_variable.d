@@ -24,7 +24,7 @@ final class Variable : Statement {
     override Type getType() { return type; }
 
     bool isLocal() const {
-        return parent.isLiteralFunction || parent.isIf;
+        return parent.isLiteralFunction || parent.isIf || parent.isLoop;
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isNamedStructMember() {
@@ -69,7 +69,7 @@ final class Variable : Statement {
     }
     Function getFunction() {
         assert(isParameter());
-        auto bd = getContainingFunctionBody();
+        auto bd = getAncestor!LiteralFunction();
         assert(bd);
         return bd.getFunction();
     }

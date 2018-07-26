@@ -398,7 +398,7 @@ public:
                     functionRequired(func.moduleName, func.name);
 
                     if(func.isStructMember) {
-                        auto struct_ = n.getContainingStruct();
+                        auto struct_ = n.getAncestor!AnonStruct();
                         assert(struct_);
                         //checkStructMemberAccessIsNotPrivate(struct_, func);
                         //checkForReadOnlyAssignment(struct_, func);
@@ -411,7 +411,7 @@ public:
                     Variable var = res.isVar ? res.var : null;
 
                     if (var.isStructMember) {
-                        auto struct_ = n.getContainingStruct();
+                        auto struct_ = n.getAncestor!AnonStruct();
                         assert(struct_);
                         //checkStructMemberAccessIsNotPrivate(struct_, var);
                         //checkForReadOnlyAssignment(struct_, var);

@@ -250,6 +250,8 @@ private: //=====================================================================
         auto f = makeNode!Function(t);
         parent.addToEnd(f);
 
+        auto ns = f.getAncestor!NamedStruct;
+
         /// name
         f.name       = t.value;
         f.moduleName = module_.canonicalName;
@@ -263,9 +265,11 @@ private: //=====================================================================
             /// Template function - just gather the args and tokens
             t.skip(TT.LANGLE);
 
+            f.blueprint = new TemplateBlueprint;
+
             /// < .. >
             while(t.type!=TT.RANGLE) {
-                f.templateParamNames ~= t.value;
+                f.blueprint.paramNames ~= t.value;
                 t.next;
                 t.expect(TT.RANGLE, TT.COMMA);
                 if(t.type==TT.COMMA) t.next;
@@ -277,10 +281,10 @@ private: //=====================================================================
 
             int start = t.index;
             int end   = t.findEndOfBlock(TT.LCURLY);
-            f.tokens = t.get(start, start+end).dup;
+            f.blueprint.setTokens(ns, t.get(start, start+end).dup);
             t.next(end+1);
 
-            dd("Function template decl", f.name, f.templateParamNames, f.tokens.toString);
+            dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);
 
         } else {
             /// function literal
@@ -288,7 +292,6 @@ private: //=====================================================================
             exprParser().parse(t, f);
 
             /// Add implicit this* as 1st parameter if this is a struct member function
-            auto ns = f.getAncestor!NamedStruct;
             if(ns) {
                 f.params.addThisParameter(ns);
             }

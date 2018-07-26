@@ -13,20 +13,20 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    Type parse(Tokens t, ASTNode node) {
+    Type parse(Tokens t, ASTNode node, bool addToNode = true) {
         //dd("parseType");
         string value = t.value;
         Type type    = null;
 
         if(t.type==TT.LSQBRACKET && t.peek(1).type==TT.COLON) {
             /// array "[:" type count_expr "]"
-            type = parseArrayType(t, node);
+            type = parseArrayType(t, node, addToNode);
         } else if(t.type==TT.LSQBRACKET) {
             /// [ <T> ] "[" struct
-            type = parseAnonStruct(t, node);
+            type = parseAnonStruct(t, node, addToNode);
         } else if(t.type==TT.LCURLY) {
             /// {int a,bool->int}
-            type = parseFunctionType(t, node);
+            type = parseFunctionType(t, node, addToNode);
         } else {
             /// built-in type
             int p = g_builtinTypes.get(value, -1);
@@ -134,11 +134,13 @@ public:
     ///
     /// struct_type ::= "[" statement { statement } "]"
     ///
-    Type parseAnonStruct(Tokens t, ASTNode node) {
+    Type parseAnonStruct(Tokens t, ASTNode node, bool addToNode) {
 
         /// [
         auto s = makeNode!AnonStruct(t);
-        node.addToEnd(s);
+        if(addToNode) {
+            node.addToEnd(s);
+        }
 
         t.skip(TT.LSQBRACKET);
 
@@ -156,9 +158,11 @@ public:
     ///
     /// array_type ::= "[:" type count_expr "]"
     ///
-    Type parseArrayType(Tokens t, ASTNode node) {
+    Type parseArrayType(Tokens t, ASTNode node, bool addToNode) {
         auto a = makeNode!ArrayType(t);
-        node.addToEnd(a);
+        if(addToNode) {
+            node.addToEnd(a);
+        }
 
         /// [:
         t.skip(TT.LSQBRACKET);
@@ -181,13 +185,15 @@ public:
     ///
     /// function_type ::= "{" [ type { "," type } ] "->" [ type ] "}"
     ///
-    Type parseFunctionType(Tokens t, ASTNode node) {
+    Type parseFunctionType(Tokens t, ASTNode node, bool addToNode) {
         //dd("function type");
 
         t.skip(TT.LCURLY);
 
         auto f = makeNode!FunctionType(t);
-        node.addToEnd(f);
+        if(addToNode) {
+            node.addToEnd(f);
+        }
 
         /// args
         while(t.type!=TT.RT_ARROW) {

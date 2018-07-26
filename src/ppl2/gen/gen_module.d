@@ -466,7 +466,7 @@ public:
         builder.store(value, ptr);
     }
     LLVMBasicBlockRef createBlock(ASTNode n, string name) {
-        auto body_ = n.getContainingFunctionBody();
+        auto body_ = n.getAncestor!LiteralFunction();
         assert(body_);
         return body_.getLLVMValue().appendBasicBlock(name);
     }

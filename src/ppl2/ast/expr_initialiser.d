@@ -35,15 +35,8 @@ public:
         if(!areResolved(children[])) return;
 
         /// Generate initialisation AST for our parent Variable
-        assert(numChildren>0);
+        assert(numChildren==1);
 
-        //if(var.type.isNamedStruct) {
-        //    convertToAssignment();
-        //} else if(var.type.isAnonStruct) {
-        //    convertToAssignment();
-        //} else {
-        //    convertToAssignment();
-        //}
         convertToAssignment();
 
         astGenerated = true;

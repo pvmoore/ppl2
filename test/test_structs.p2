@@ -26,8 +26,8 @@ public
     }
     baz = { /* Fruit* this, */ bool sing ->
         int loc
-        localFunc = {
-            // This is a closure
+        localFunc = { /* Fruit* this, */
+            // inner func
         }
 
         z += 1

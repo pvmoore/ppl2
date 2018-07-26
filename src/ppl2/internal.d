@@ -7,7 +7,7 @@ import std.format    : format;
 import std.string    : toLower, indexOf, lastIndexOf;
 import std.conv      : to;
 import std.typecons  : Tuple, tuple;
-import std.array     : appender, array, join;
+import std.array     : Appender, appender, array, join;
 import std.range     : takeOne;
 import std.datetime.stopwatch  : StopWatch;
 import std.algorithm.iteration : each, map, filter, sum;
@@ -90,7 +90,6 @@ import ppl2.misc.mangle;
 import ppl2.misc.node_builder;
 import ppl2.misc.optimiser;
 import ppl2.misc.tasks;
-import ppl2.misc.templates;
 import ppl2.misc.util;
 import ppl2.misc.writer;
 
@@ -109,6 +108,11 @@ import ppl2.resolve.OverloadCollector;
 import ppl2.resolve.resolve_call;
 import ppl2.resolve.resolve_identifier;
 import ppl2.resolve.resolve_module;
+
+import ppl2.templates.blueprint;
+import ppl2.templates.ImplicitTemplates;
+import ppl2.templates.ParamTypeEstimator;
+import ppl2.templates.templates;
 
 import ppl2.type.define;
 import ppl2.type.type;

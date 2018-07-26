@@ -5,7 +5,6 @@ import ppl2.internal;
 final class OverloadCollector {
     private:
     Array!Callable results;
-    bool includeTemplates;
     string name;
     bool ready;
     public:
@@ -15,11 +14,10 @@ final class OverloadCollector {
     /// Return true - if results contains the full overload set and all types are known,
     ///       false - if we are waiting for imports or some types are waiting to be known.
     ///
-    bool collect(string name, ASTNode startNode, Array!Callable results, bool includeTemplates) {
+    bool collect(string name, ASTNode startNode, Array!Callable results) {
         this.name             = name;
         this.ready            = true;
         this.results          = results;
-        this.includeTemplates = includeTemplates;
         this.results.clear();
         subCollect(startNode);
         return ready;
@@ -52,7 +50,7 @@ final class OverloadCollector {
             /// If this is not a closure
             if(!node.as!LiteralFunction.isClosure) {
                 /// Go to containing struct if there is one
-                auto struct_ = node.getContainingStruct();
+                auto struct_ = node.getAncestor!AnonStruct();
                 if(struct_) return subCollect(struct_);
             }
 
@@ -105,9 +103,7 @@ final class OverloadCollector {
     }
     void addFunction(Function f) {
         if(f.isTemplateBlueprint) {
-            if(includeTemplates) {
-                results.add(Callable(f));
-            }
+            results.add(Callable(f));
         } else {
             if(f.getType.isUnknown) {
                 ready = false;

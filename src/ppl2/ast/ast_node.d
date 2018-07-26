@@ -84,6 +84,7 @@ bool isInitialiser(inout ASTNode n) { return n.id()==NodeID.INITIALISER; }
 bool isLiteralNull(inout ASTNode n) { return n.id()==NodeID.LITERAL_NULL; }
 bool isLiteralNumber(inout ASTNode n) { return n.id()==NodeID.LITERAL_NUMBER; }
 bool isLiteralFunction(inout ASTNode n) { return n.id()==NodeID.LITERAL_FUNCTION; }
+bool isLoop(inout ASTNode n) { return n.id()==NodeID.LOOP; }
 bool isModule(inout ASTNode n) { return n.id()==NodeID.MODULE; }
 bool isNamedStruct(inout ASTNode n) { return n.id()==NodeID.NAMED_STRUCT; }
 bool isReturn(inout ASTNode n) { return n.id()==NodeID.RETURN; }
@@ -106,11 +107,12 @@ abstract class ASTNode {
         children = new Array!ASTNode;
     }
 
-    // Override these
+/// Override these
     abstract NodeID id() const;
     abstract bool isResolved() { return false; }
     Type getType() { return TYPE_UNKNOWN; }
     string description() { return toString(); }
+/// end
 
     bool hasChildren() const { return children.length > 0; }
     int numChildren() const { return cast(int)children.length; }
@@ -176,7 +178,7 @@ abstract class ASTNode {
         return -1;
     }
     //=================================================================================
-    inout ASTNode prevSibling() {
+    ASTNode prevSibling() {
         int i = index();
         if(i<1) return null;
         return parent.children[i-1];
@@ -224,17 +226,6 @@ abstract class ASTNode {
         if(c) return c;
         if(parent) return parent.getContainer();
         throw new Exception("We are not inside a container!!");
-    }
-    /// This may return null if we are not in a struct
-    AnonStruct getContainingStruct() {
-        if(parent is null) return null;
-        if(parent.isAnonStruct) return parent.as!AnonStruct;
-        return parent.getContainingStruct();
-    }
-    LiteralFunction getContainingFunctionBody() {
-        if(parent is null) return null;
-        if(parent.isLiteralFunction) return parent.as!LiteralFunction;
-        return parent.getContainingFunctionBody();
     }
     bool hasAncestor(T)() {
         if(parent is null) return false;

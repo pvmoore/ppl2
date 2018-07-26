@@ -66,7 +66,7 @@ public:
                 /// If this is not a closure
                 if(!node.as!LiteralFunction.isClosure) {
                     /// Go to containing struct if there is one
-                    auto struct_ = node.getContainingStruct();
+                    auto struct_ = node.getAncestor!AnonStruct();
                     if(struct_) return findFirst(name, struct_);
                 }
 

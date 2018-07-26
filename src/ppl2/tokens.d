@@ -27,6 +27,11 @@ public:
         this.namedStructs.clear();
         return this;
     }
+    void setLength(int len) {
+        if(tokens.length > len) {
+            tokens.length = len;
+        }
+    }
     //=======================================
     void markPosition() {
         marks.push(pos);
@@ -66,6 +71,7 @@ public:
         if(pos+offset < 0 || pos+offset >= tokens.length) return NO_TOKEN;
         return tokens[pos+offset];
     }
+    int length() { return tokens.length.as!int; }
     bool isKeyword(string k) {
         return type()==TT.IDENTIFIER && value()==k;
     }
@@ -98,7 +104,7 @@ public:
                     "Expecting one of %s".format(types));
     }
     bool hasNext() {
-        return pos < cast(int)tokens.length - 1;
+        return pos < tokens.length;
     }
     int find(TT t) {
         int offset = 0;

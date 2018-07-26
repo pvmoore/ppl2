@@ -21,9 +21,8 @@ public:
     LLVMValueRef llvmValue;
 
 /// Template stuff
-    string[] templateParamNames;
-    Token[] tokens;
-    bool isTemplateBlueprint() { return templateParamNames.length > 0; }
+    TemplateBlueprint blueprint;
+    bool isTemplateBlueprint() { return blueprint !is null; }
     bool isTemplateInstance()  { return name.contains('<'); }
 /// end of template stuff
 
@@ -94,7 +93,7 @@ public:
                      isGlobal ? "GLOBAL" : "STRUCT";
         string s;
         if(isTemplateBlueprint()) {
-            s ~= "<" ~ templateParamNames.join(",") ~ "> ";
+            s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
         }
         return "'%s' %s Function[refs=%s,%s] (%s)".format(name, s, numRefs, numExternalRefs, loc);
     }
