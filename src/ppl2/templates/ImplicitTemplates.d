@@ -16,18 +16,18 @@ public:
     ///
     ///
     ///
-    Type[] getNonStructCandidate(Call call, Array!Function templateFuncs) {
+    bool getNonStructTemplate(Call call, Array!Function templateFuncs) {
 
 
-        return null;
+        return false;
     }
-    Tuple!(bool, Type[]) getStructCandidate(NamedStruct ns, Call call, Array!Function templateFuncs) {
+    bool getStructMemberTemplate(NamedStruct ns, Call call, Array!Function templateFuncs) {
         dd("===================================== Get possible struct function templates", call.name, "(", call.argTypes.prettyString,")");
 
         import common : contains;
 
         if(call.name.contains("<") || call.numArgs<2) {
-            return tuple(false, cast(Type[])null);
+            return false;
         }
 
         Type[] templateTypes;
@@ -36,11 +36,14 @@ public:
             if(f.blueprint.numFuncParams == call.numArgs) {
                 if(checkPossibleMatch(ns, f, call, templateTypes)) {
                     dd("   MATCH", "<", templateTypes.prettyString, ">");
-                    return tuple(true, templateTypes);
+
+                    /// Set the template types on the call
+                    call.templateTypes = templateTypes;
+                    return true;
                 }
             }
         }
-        return tuple(false, cast(Type[])null);
+        return false;
     }
 private:
     ///

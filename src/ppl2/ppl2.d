@@ -268,6 +268,8 @@ private:
     void success(ulong time) {
         import core.memory : GC;
 
+        GC.collect();
+
         writefln("\nOK");
         writefln("");
         writefln("Active modules ......... %s", modules.length);
@@ -281,7 +283,6 @@ private:
         writefln("Total time.............. %.2f ms", time * 1e-6);
         writefln("Memory used ............ %s KB", GC.stats.usedSize / 1024);
 
-        //writefln("\nModule info:");
         //flushLogs();
         foreach(m; modules.values) {
             //writefln("- %s", m.canonicalName);

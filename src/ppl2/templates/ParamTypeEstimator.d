@@ -43,7 +43,9 @@ public:
 
             auto buf = appender!(Tuple!(string,Type)[]);
             int tokenIndex = 0;
+
             matchProxiesToTypes(buf, [callType], tokens, tokenIndex);
+
             chat("\tbuf =");
             foreach(j, tup; buf.data) {
                 chat("\t\t[%s] %s=%s", j, tup[0], tup[1]);
@@ -97,10 +99,10 @@ public:
     /// Param tokens = Cat < A , B , C >
     ///
     void matchProxiesToTypes(Appender!(Tuple!(string,Type)[]) buf,
-                                       Type[] types,
-                                       Token[] argTokens,
-                                       ref int tokenIndex,
-                                       string depth="")
+                             Type[] types,
+                             Token[] argTokens,
+                             ref int tokenIndex,
+                             string depth="")
     {
         chat(depth~"... matching");
         chat(depth~"types  = %s", types);

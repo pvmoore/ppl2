@@ -105,6 +105,7 @@ enum Err {
     CALL_PARAM_CAN_NOT_BE_CALLED_THIS,
 
     TEMPLATE_INCORRECT_NUM_PARAMS,
+    TEMPLATE_PARAM_NAME_IS_TYPE,
 }
 //======================================================================
 class CompilerError : Exception {

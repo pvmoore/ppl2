@@ -269,6 +269,12 @@ private: //=====================================================================
 
             /// < .. >
             while(t.type!=TT.RANGLE) {
+
+                if(typeDetector().isType(t, f)) {
+                    throw new CompilerError(Err.TEMPLATE_PARAM_NAME_IS_TYPE, t,
+                        "Template param name cannot be a type");
+                }
+
                 f.blueprint.paramNames ~= t.value;
                 t.next;
                 t.expect(TT.RANGLE, TT.COMMA);

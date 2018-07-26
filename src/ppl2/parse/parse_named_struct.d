@@ -6,8 +6,9 @@ final class NamedStructParser {
 private:
     Module module_;
 
-    TypeParser typeParser() { return module_.typeParser; }
-    NodeBuilder builder() { return module_.nodeBuilder; }
+    TypeParser typeParser()     { return module_.typeParser; }
+    TypeDetector typeDetector() { return module_.typeDetector; }
+    NodeBuilder builder()       { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -73,6 +74,12 @@ public:
 
             /// template params < A,B,C >
             while(t.type!=TT.RANGLE) {
+
+                if(typeDetector().isType(t, n)) {
+                    throw new CompilerError(Err.TEMPLATE_PARAM_NAME_IS_TYPE, t,
+                        "Template param name cannot be a type");
+                }
+
                 n.blueprint.paramNames ~= t.value;
                 t.next;
 

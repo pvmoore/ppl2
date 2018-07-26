@@ -172,11 +172,9 @@ public:
 
             if(funcTemplates.length>0) {
                 /// There is a template with the same name. Try that
-                auto templateMatch = implicitTemplates.getStructCandidate(ns, call, funcTemplates);
-                if(templateMatch[0]) {
-                    /// Try this template
-                    call.name = call.name ~ "<" ~ mangle(templateMatch[1]) ~ ">";
-                    dd("setting call name to", call.name);
+                if(implicitTemplates.getStructMemberTemplate(ns, call, funcTemplates)) {
+                    /// If we get here then we found a match.
+                    /// call.templateTypes have been set
                     return CALLABLE_NOT_READY;
                 }
             }
@@ -338,6 +336,7 @@ private:
     ///     - Extract the tokens in the other module
     ///
     bool extractTemplate(Call call, string mangledName) {
+        assert(call.isTemplated);
 
         /// Find the template(s)
         if(!collector.collect(call.name, call, overloads)) {
@@ -377,20 +376,19 @@ private:
     /// Extract one or more struct function templates
     ///
     void extractTemplate(NamedStruct ns, Call call, string mangledName) {
+        assert(call.isTemplated);
 
         AnonStruct struct_ = ns.type;
         auto fns = struct_.getMemberFunctions(call.name);
-        auto var = struct_.getMemberVariable(call.name);
 
         foreach(f; fns) {
-            if(f.isTemplateBlueprint && f.blueprint.numTemplateParams==call.templateTypes.length) {
-                /// Extract the tokens
-                auto m = PPL2.getModule(f.moduleName);
-                m.templates.extract(f, call, mangledName);
-            }
-        }
-        if(var) {
-            assert(false, "funcptrs cannot be templated");
+            if(!f.isTemplateBlueprint) continue;
+            if(f.blueprint.numTemplateParams!=call.templateTypes.length) continue;
+            if(f.blueprint.numFuncParams!=call.numArgs) continue;
+
+            /// Extract the tokens
+            auto m = PPL2.getModule(f.moduleName);
+            m.templates.extract(f, call, mangledName);
         }
     }
 }
