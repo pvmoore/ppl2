@@ -36,6 +36,22 @@ final class Call : Expression {
         return target.getType().getFunctionType.returnType;
     }
 
+    void addImplicitThisArg(Variable this_) {
+        import std.array : insertInPlace;
+        assert(this_);
+        assert(!implicitThisArgAdded);
+
+        auto b = getModule().builder(this);
+        auto id = b.identifier(this_);
+        this.insertAt(0, id);
+
+        if(paramNames.length>0) {
+            paramNames.insertInPlace(0, "this");
+        }
+
+        implicitThisArgAdded = true;
+    }
+
     override string toString() {
         if(target.isResolved){
             return "Call %s".format(target);

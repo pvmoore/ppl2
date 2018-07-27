@@ -229,6 +229,8 @@ public:
     void visit(Call n) {
         if(!n.target.isResolved) {
 
+            bool isTemplated = n.isTemplated;
+
             if(n.isStartOfChain()) {
 
                 auto callable = callResolver.standardFind(n);
@@ -291,23 +293,27 @@ public:
                     }
                 }
             }
+
+            /// We added template params
+            if(isTemplated != n.isTemplated) {
+                rewrites++;
+            }
         }
 
         if(n.target.isResolved && n.argTypes.areKnown) {
             /// We have a target and all args are known
 
             /// Check to see whether we need to add an implicit "this." prefix
-            if(n.isStartOfChain() && n.argTypes.length == n.target.paramTypes.length-1) {
+            if(n.isStartOfChain() &&
+               n.argTypes.length == n.target.paramTypes.length-1 &&
+               !n.implicitThisArgAdded)
+            {
                 auto ns = n.getAncestor!NamedStruct;
                 if(ns) {
-                    import std.array : insertInPlace;
-
-                    rewrites++;
-                    auto b = module_.builder(n);
-                    n.insertAt(0, b.identifier("this"));
-
-                    if(n.paramNames.length>0) {
-                        n.paramNames.insertInPlace(0, "this");
+                    auto r = identifierResolver.findFirst("this", n);
+                    if(r.found) {
+                        n.addImplicitThisArg(r.var);
+                        rewrites++;
                     }
                 }
             }

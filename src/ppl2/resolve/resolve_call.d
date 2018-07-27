@@ -112,6 +112,16 @@ public:
             filterOverloads(call);
 
             if(overloads.length==0) {
+
+                if(funcTemplates.length > 0) {
+                    /// There is a template with the same name. Try that
+                    if(implicitTemplates.find(ns, call, funcTemplates)) {
+                        /// If we get here then we found a match.
+                        /// call.templateTypes have been set
+                        return CALLABLE_NOT_READY;
+                    }
+                }
+
                 string msg;
                 if(call.paramNames.length>0) {
                     auto buf = new StringBuffer;
@@ -157,9 +167,8 @@ public:
 
         //dd("structFind looking for", call.name);
 
-        auto fns      = struct_.getMemberFunctions(call.name);
-        auto var      = struct_.getMemberVariable(call.name);
-        auto thisType = PtrType.of(ns, 1);
+        auto fns = struct_.getMemberFunctions(call.name);
+        auto var = struct_.getMemberVariable(call.name);
 
         /// Filter
         overloads.clear();
@@ -172,7 +181,7 @@ public:
 
             if(funcTemplates.length>0) {
                 /// There is a template with the same name. Try that
-                if(implicitTemplates.getStructMemberTemplate(ns, call, funcTemplates)) {
+                if(implicitTemplates.find(ns, call, funcTemplates)) {
                     /// If we get here then we found a match.
                     /// call.templateTypes have been set
                     return CALLABLE_NOT_READY;

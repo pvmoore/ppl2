@@ -30,22 +30,6 @@ public:
 
         auto tokens = ns.blueprint.extractStruct(mangledName, templateTypes);
 
-        /// struct mangledName =
-        //Token[] tokens = [
-        //    ns.blueprint.tok("struct"),
-        //    ns.blueprint.tok(mangledName),
-        //    ns.blueprint.tok(TT.EQUALS)
-        //] ~ ns.blueprint.tokens.dup;
-        //
-        //foreach(ref tok; tokens) {
-        //    if(tok.type==TT.IDENTIFIER) {
-        //        int i = ns.blueprint.indexOf(tok.value);
-        //        if(i!=-1) {
-        //            tok.templateType = templateTypes[i];
-        //        }
-        //    }
-        //}
-
         module_.parser.appendTokens(ns, tokens);
 
         defineRequired(module_.canonicalName, mangledName);
