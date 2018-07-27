@@ -21,23 +21,31 @@ public:
         return children[$-1].as!Variable.type;
     }
 
+    int numParams() {
+        if(params) return params.numParams;
+        return numChildren-1;
+    }
     Type[] paramTypes() {
         /// If there is a FunctionLiteral
         if(params) return params.paramTypes();
+
         /// Variable or extern function
-        if(hasChildren) {
-            return children[0..$-1].map!(it=>it.getType).array;
-        }
-        assert(false, "FunctionType has no children");
+        assert(children[].all!(it=>it.isVariable));
+        assert(numChildren > 0, "FunctionType has no children");
+
+        /// Last child will be the return type
+        return children[0..$-1].map!(it=>it.getType).array;
     }
     string[] paramNames() {
         /// If there is a FunctionLiteral
         if(params) return params.paramNames();
+
         /// Variable or extern function
-        if(hasChildren) {
-            return children[0..$-1].map!(it=>it.as!Variable.name).array;
-        }
-        assert(false, "FunctionType has no children");
+        assert(children[].all!(it=>it.isVariable));
+        assert(numChildren > 0, "FunctionType has no children");
+
+        /// Last child will be the return type
+        return children[0..$-1].map!(it=>it.as!Variable.name).array;
     }
 
 /// Type interface

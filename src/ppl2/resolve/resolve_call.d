@@ -29,6 +29,7 @@ struct Callable {
     bool isFunction()     { return func !is null; }
     string getName()      { return func ? func.name : var.name; }
     Type getType()        { return func ? func.getType : var.type; }
+    int numParams()       { return getType.getFunctionType.numParams; }
     string[] paramNames() { return getType.getFunctionType.paramNames; }
     Type[] paramTypes()   { return getType.getFunctionType.paramTypes; }
     Module getModule()    { return func ? func.getModule : var.getModule; }
@@ -101,9 +102,22 @@ public:
         if(collector.collect(call.name, call, overloads)) {
 
             if(overloads.length==1 && !overloads[0].isTemplateBlueprint) {
+
+                auto r = overloads[0];
+
+                //if(call.numArgs==r.numParams &&
+                //   call.argTypes.areKnown &&
+                //  !call.argTypes.canImplicitlyCastTo(r.paramTypes))
+                //{
+                //    /// Ok we have enough info to know this won't work
+                //
+                //
+                //}
+
+
                 /// Return this result as it's the only one and check it later
                 /// to make sure the types match
-                return overloads[0];
+                return r;
             }
 
             /// From this point onwards we need the resolved types
@@ -358,27 +372,35 @@ private:
             return true;
         }
 
+        Function[][string] toExtract;
+
         foreach(ft; overloads[]) {
             if(ft.isFunction) {
                 auto f = ft.func;
                 assert(!f.isImport);
 
-                if(f.isTemplateBlueprint && f.blueprint.numTemplateParams==call.templateTypes.length) {
-                    /// Extract the tokens
-                    auto m = PPL2.getModule(f.moduleName);
-                    m.templates.extract(f, call, mangledName);
+                if(!f.isTemplateBlueprint) continue;
+                if(f.blueprint.numTemplateParams!=call.templateTypes.length) continue;
 
-                    if(m.nid!=module_.nid) {
-                        /// Create the proxy
-                        auto proxy       = makeNode!Function;
-                        proxy.name       = mangledName;
-                        proxy.moduleName = m.canonicalName;
-                        proxy.isImport   = true;
-                        module_.addToEnd(proxy);
-                    }
-                }
-            } else assert(false, "funcptrs cannot be templated");
+                /// Extract this one
+                toExtract[f.moduleName] ~= f;
+            }
         }
+
+        foreach(k,v; toExtract) {
+            auto m = PPL2.getModule(k);
+            m.templates.extract(v, call, mangledName);
+
+            if(m.nid!=module_.nid) {
+                /// Create the proxy
+                auto proxy       = makeNode!Function;
+                proxy.name       = mangledName;
+                proxy.moduleName = m.canonicalName;
+                proxy.isImport   = true;
+                module_.addToEnd(proxy);
+            }
+        }
+
         return true;
     }
     ///
@@ -390,14 +412,20 @@ private:
         AnonStruct struct_ = ns.type;
         auto fns = struct_.getMemberFunctions(call.name);
 
+        Function[][string] toExtract;
+
         foreach(f; fns) {
             if(!f.isTemplateBlueprint) continue;
             if(f.blueprint.numTemplateParams!=call.templateTypes.length) continue;
             if(f.blueprint.numFuncParams!=call.numArgs) continue;
 
-            /// Extract the tokens
-            auto m = PPL2.getModule(f.moduleName);
-            m.templates.extract(f, call, mangledName);
+            /// Extract this one
+            toExtract[f.moduleName] ~= f;
+        }
+
+        foreach(k,v; toExtract) {
+            auto m = PPL2.getModule(k);
+            m.templates.extract(v, call, mangledName);
         }
     }
 }

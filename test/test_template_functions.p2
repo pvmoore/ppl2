@@ -25,8 +25,11 @@ struct M1 = [
         // internal implicit template call foo<T>(T)
         assert 2 == foo(3.1)
         assert 3 == foo(1,2)
-        
+
         //foo()     // No 0 arg func or template
+
+        assert 1 == func<byte>(1 as byte)   // calls func<byte>(byte)
+        assert 2== func(1 as byte)          // calls func(float)
     }
 ]
 struct M2 = <T> [
@@ -90,6 +93,10 @@ testTemplateFunctions = {
 
         //func(1,2,3)   // No template exists with 3 args
         //func()        // No 0 arg func or template
+
+        // calls func<int>(int*)
+        int* a
+        assert 4 == func<int>(a)
     }
     implicitStruct = {
         M1 m1
@@ -114,6 +121,9 @@ testTemplateFunctions = {
 
 func = <T> { T a ->
     return 1
+}
+func = <T> { T* a ->
+    return 4
 }
 func = <A,B> { A a, B b ->
     return 3

@@ -15,6 +15,9 @@ public:
         this.extractedFunctions = new Set!string;
         this.nav                = new Tokens(module_, null);
     }
+    ///
+    /// Extract a struct template
+    ///
     void extract(NamedStruct ns, ASTNode requestingNode, string mangledName, Type[] templateTypes) {
         assert(ns.moduleName==module_.canonicalName);
 
@@ -34,34 +37,48 @@ public:
 
         defineRequired(module_.canonicalName, mangledName);
     }
+    ///
+    /// Extract several function templates
+    ///
+    void extract(Function[] funcs, Call call, string mangledName) {
+        assert(funcs.all!(f=>f.moduleName==module_.canonicalName));
 
-    void extract(Function f, Call call, string mangledName) {
-        assert(f.moduleName==module_.canonicalName);
+        auto keys = new Set!string;
 
-        NamedStruct ns;
-        string key = mangledName;
+        foreach(f; funcs) {
 
-        if(f.isStructMember) {
-            ns = f.getStruct.parent.as!NamedStruct;
-            assert(ns);
-            key = ns.getUniqueName ~ "." ~ mangledName;
+            if(call.templateTypes.length != f.blueprint.numTemplateParams) {
+                throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, call,
+                    "Expecting %s template parameters".format(f.blueprint.numTemplateParams));
+            }
+
+            NamedStruct ns;
+            string key = mangledName;
+
+            if(f.isStructMember) {
+                ns = f.getStruct.parent.as!NamedStruct;
+                assert(ns);
+                key = ns.getUniqueName ~ "." ~ mangledName;
+            }
+
+            if(extractedFunctions.contains(key)) return;
+
+            //extractedFunctions.add(key);
+            keys.add(key);
+
+            dd("Extracting function template", f.name, mangledName, ns ? "(struct "~ns.name~")" : "", module_.canonicalName);
+
+            auto tokens = f.blueprint.extractFunction(mangledName, call.templateTypes);
+            dd("  tokens=", tokens.toString);
+
+            module_.parser.appendTokens(f, tokens);
+
+            functionRequired(module_.canonicalName, mangledName);
         }
 
-        if(extractedFunctions.contains(key)) return;
-        extractedFunctions.add(key);
-
-        if(call.templateTypes.length != f.blueprint.numTemplateParams) {
-            throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, call,
-                "Expecting %s template parameters".format(f.blueprint.numTemplateParams));
+        /// Ensure these templates are not extract again with the same params
+        foreach(k; keys.values) {
+            extractedFunctions.add(k);
         }
-
-        dd("Extracting function template", f.name, mangledName, ns ? "(struct "~ns.name~")" : "", module_.canonicalName);
-
-        auto tokens = f.blueprint.extractFunction(mangledName, call.templateTypes);
-        dd("  tokens=", tokens.toString);
-
-        module_.parser.appendTokens(f, tokens);
-
-        functionRequired(module_.canonicalName, mangledName);
     }
 }
