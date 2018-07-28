@@ -81,10 +81,10 @@ public:
 
             /// Possible implicit this.call<...>(...)
             if(ns) {
-                extractTemplate(ns, call, mangledName);
+                extractTemplates(ns, call, mangledName);
             }
 
-            if(extractTemplate(call, mangledName)) {
+            if(extractTemplates(call, mangledName)) {
                 call.name = mangledName;
             }
             return CALLABLE_NOT_READY;
@@ -172,7 +172,7 @@ public:
         if(call.isTemplated && !call.name.contains("<")) {
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
 
-            extractTemplate(ns, call, mangledName);
+            extractTemplates(ns, call, mangledName);
             call.name = mangledName;
             return CALLABLE_NOT_READY;
         }
@@ -239,6 +239,7 @@ private:
 
         bool isPossibleImplicitThisCall =
             call.name!="new" &&
+            !call.implicitThisArgAdded &&
             call.isStartOfChain &&
             call.hasAncestor!NamedStruct;
 
@@ -360,7 +361,7 @@ private:
     ///     - Create one proxy Function within this module using the mangled name
     ///     - Extract the tokens in the other module
     ///
-    bool extractTemplate(Call call, string mangledName) {
+    bool extractTemplates(Call call, string mangledName) {
         assert(call.isTemplated);
 
         /// Find the template(s)
@@ -408,7 +409,7 @@ private:
     ///
     /// Extract one or more struct function templates
     ///
-    void extractTemplate(NamedStruct ns, Call call, string mangledName) {
+    void extractTemplates(NamedStruct ns, Call call, string mangledName) {
         assert(call.isTemplated);
 
         AnonStruct struct_ = ns.type;
@@ -419,7 +420,6 @@ private:
         foreach(f; fns) {
             if(!f.isTemplateBlueprint) continue;
             if(f.blueprint.numTemplateParams!=call.templateTypes.length) continue;
-            if(f.blueprint.numFuncParams!=call.numArgs) continue;
 
             /// Extract this one
             toExtract[f.moduleName] ~= f;

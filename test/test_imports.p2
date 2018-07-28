@@ -35,23 +35,23 @@ importedFunc = {
 
 // global function templates
 tfunc = <T> { T a ->
-    return 10
+    return 200
 }
 tfunc = <A,B> { A a, B b ->
-    return 30
+    return 202
 }
 tfunc = { float f ->
-    return 20
+    return 201
 }
 struct M3 = <T> [
     T t
     foo = { T a ->
-        return 70
+        return 270
     }
     foo = <A> { A a, T t ->
-        return 71
+        return 271
     }
     foo = <A,B> { A a, B b ->
-        return 72
+        return 272
     }
 ]

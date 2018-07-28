@@ -17,7 +17,7 @@ public:
         this.identifierResolver = new IdentifierResolver(module_);
     }
     bool find(NamedStruct ns, Call call, Array!Function templateFuncs) {
-        dd("===================================== Get possible function templates", call.name, "(", call.argTypes.prettyString,")");
+        dd("================== Get implicit function templates for call", call.name, "(", call.argTypes.prettyString,")");
 
         /// Exit if call is already templated or there are no non-this args
         if(call.name.contains("<")) return false;
@@ -43,6 +43,7 @@ public:
         /// If we gete here without a match and the call is from within a struct
         /// then try adding the implicit this* and check for template matches within the same struct
         if(ns && !call.implicitThisArgAdded) {
+
             /// Add implicit this* as 1st arg
             auto r = identifierResolver.findFirst("this", call);
             if(!r.found) return false;
