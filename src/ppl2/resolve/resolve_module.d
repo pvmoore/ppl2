@@ -735,6 +735,8 @@ public:
                     auto call = n.parent.as!Call;
                     if(call.isResolved) {
                         type = call.target.paramTypes()[n.index()];
+                    } else {
+                        type = n.getInferredType();
                     }
                     break;
                 }

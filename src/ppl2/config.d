@@ -26,8 +26,6 @@ public:
     bool writeASM = true;
     bool writeOBJ = true;
 
-    bool dce           = true; /// dead code elimination
-
     bool nullChecks    = true;
     bool enableAsserts = true;
 

@@ -201,8 +201,6 @@ private:
         return nodesFolded;
     }
     void removeUnreferencedNodes() {
-        if(!getConfig().dce) return;
-
         dd("remove unreferenced");
 
         log("Removing dead nodes...");

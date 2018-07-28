@@ -47,12 +47,27 @@ final class TemplateBlueprint {
 
             int start = nav.index;
 
+            int sq = 0, curly = 0;
+
             while(nav.hasNext) {
-                if(nav.type==TT.COMMA) {
-                    argTokens ~= nav.get(start, nav.index-1);
-                    nav.next;
-                    start = nav.index;
-                } else nav.next;
+                switch(nav.type) {
+                    case TT.LCURLY: curly++; nav.next; break;
+                    case TT.RCURLY: curly--; nav.next; break;
+                    case TT.LSQBRACKET: sq++; nav.next; break;
+                    case TT.RSQBRACKET: sq--; nav.next; break;
+                    case TT.COMMA:
+                        if(curly==0 && sq==0) {
+                            argTokens ~= nav.get(start, nav.index-1);
+                            nav.next;
+                            start = nav.index;
+                        } else {
+                            nav.next;
+                        }
+                        break;
+                    default:
+                        nav.next;
+                        break;
+                }
             }
             if(start != nav.index) {
                 argTokens ~= nav.get(start, nav.index-1);
@@ -97,6 +112,8 @@ final class TemplateBlueprint {
         return tokens;
     }
     Type[] getFuncParamTypes(Module module_, Call call, Type[] templateTypes) {
+        assert(templateTypes.length==paramNames.length);
+
         Type[] paramTypes;
         foreach(at; argTokens) {
             auto tokens = at.dup;

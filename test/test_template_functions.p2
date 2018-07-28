@@ -97,6 +97,10 @@ testTemplateFunctions = {
         // calls func<int>(int*)
         int* a
         assert 4 == func<int>(a)
+
+        assert 5 == func(1, 1, [1,1]) // <int>(int,int,[int,int])
+
+        assert 6 == funky(1, {float a, bool b -> return 4.2})   // <float,bool>(int,{float,bool}*)
     }
     implicitStruct = {
         M1 m1
@@ -127,6 +131,12 @@ func = <T> { T* a ->
 }
 func = <A,B> { A a, B b ->
     return 3
+}
+func = <A> { int a, int b, [A, A b] c ->
+    return 5
+}
+funky = <A,B> { int a, {A,B->A} c ->
+    return 6
 }
 func = { float a ->
     return 2

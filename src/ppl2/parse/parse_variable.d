@@ -35,13 +35,7 @@ public:
         }
 
         if(typeDetector().isType(t, v)) {
-
             v.type = typeParser.parse(t, v);
-
-            if(v.type.isFunction) {
-                /// Make this a pointer
-                v.type = PtrType.of(v.type, 1);
-            }
         } else {
             /// there is no type
             if(requireType) {
@@ -54,7 +48,7 @@ public:
             v.type = TYPE_UNKNOWN;
         }
 
-        if(t.type==TT.IDENTIFIER) {
+        if(t.type==TT.IDENTIFIER && !t.get.templateType) {
             v.name = t.value;
             if(v.name=="this") {
                 throw new CompilerError(Err.VAR_CAN_NOT_BE_CALLED_THIS, t,
@@ -82,8 +76,6 @@ public:
                         "Const variable must be initialised");
                 }
             }
-        } else if(t.type==TT.COMMA) {
-            t.next;
         }
     }
 }

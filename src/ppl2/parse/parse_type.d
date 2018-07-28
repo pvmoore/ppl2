@@ -14,7 +14,7 @@ public:
         this.module_ = module_;
     }
     Type parse(Tokens t, ASTNode node, bool addToNode = true) {
-        //dd("parseType");
+        //dd("parseType", node.id, t.get);
         string value = t.value;
         Type type    = null;
 
@@ -138,9 +138,7 @@ public:
 
         /// [
         auto s = makeNode!AnonStruct(t);
-        if(addToNode) {
-            node.addToEnd(s);
-        }
+        node.addToEnd(s);
 
         t.skip(TT.LSQBRACKET);
 
@@ -153,6 +151,9 @@ public:
         }
         t.skip(TT.RSQBRACKET);
 
+        if(!addToNode) {
+            s.detach();
+        }
         return s;
     }
     ///
@@ -160,9 +161,7 @@ public:
     ///
     Type parseArrayType(Tokens t, ASTNode node, bool addToNode) {
         auto a = makeNode!ArrayType(t);
-        if(addToNode) {
-            node.addToEnd(a);
-        }
+        node.addToEnd(a);
 
         /// [:
         t.skip(TT.LSQBRACKET);
@@ -180,6 +179,9 @@ public:
 
         t.skip(TT.RSQBRACKET);
 
+        if(!addToNode) {
+            a.detach();
+        }
         return a;
     }
     ///
@@ -191,9 +193,7 @@ public:
         t.skip(TT.LCURLY);
 
         auto f = makeNode!FunctionType(t);
-        if(addToNode) {
-            node.addToEnd(f);
-        }
+        node.addToEnd(f);
 
         /// args
         while(t.type!=TT.RT_ARROW) {
@@ -227,6 +227,10 @@ public:
 
         t.skip(TT.RCURLY);
 
-        return f;
+        if(!addToNode) {
+            f.detach();
+        }
+
+        return PtrType.of(f, 1);
     }
 }

@@ -30,7 +30,7 @@ public:
 
         foreach(f; templateFuncs) {
             if(f.blueprint.numFuncParams == call.numArgs) {
-                if(checkPossibleMatch(ns, f, call, templateTypes)) {
+                if(checkPossibleMatch(f, call, templateTypes)) {
                     //dd("   MATCH", "<", templateTypes.prettyString, ">");
 
                     /// Set the template types on the call
@@ -62,11 +62,13 @@ private:
     ///
     /// Assume the number of function params are correct
     ///
-    bool checkPossibleMatch(NamedStruct ns, Function f, Call call, ref Type[] templateTypes) {
+    bool checkPossibleMatch(Function f, Call call, ref Type[] templateTypes) {
         //dd("  Checking template", f.blueprint);
 
-        templateTypes = typeEstimator.getEstimatedParams(ns, call, f);
+        templateTypes = typeEstimator.getEstimatedParams(call, f);
         //dd("  got param estimates:", "<", templateTypes.map!(it=>it.prettyString).join(","), ">");
+
+        if(templateTypes.length==0) return false;
 
         Type[] paramTypes = f.blueprint.getFuncParamTypes(module_, call, templateTypes);
         //dd("  paramTypes=", paramTypes);

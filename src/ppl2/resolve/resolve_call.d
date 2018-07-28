@@ -97,8 +97,6 @@ public:
 
         //dd("looking for", call.name);
 
-        /// From this point on we don't include any template blueprints
-
         if(collector.collect(call.name, call, overloads)) {
 
             if(overloads.length==1 && !overloads[0].isTemplateBlueprint) {
@@ -189,6 +187,7 @@ public:
         foreach(f; fns) overloads.add(Callable(f));
         if(var && var.isFunctionPtr) overloads.add(Callable(var));
 
+        /// Try to filter the results down to one match
         filterOverloads(call);
 
         if(overloads.length==0) {
@@ -225,12 +224,12 @@ public:
     }
 private:
     ///
-    /// Filter out any overloads that do not have the correct param names
+    /// Filter out any overloads that do not have the correct num args, param names etc.
     /// Add any filtered out function templates to funcTemplates
     ///
     /// Assume:
-    ///     Assume all function names are the same
-    ///     Assume all types are known
+    ///     All function names are the same
+    ///     Arg types are known
     ///     paramNames must match actual param names
     ///     paramNames are unique
     void filterOverloads(Call call) {
@@ -277,6 +276,7 @@ private:
             }
 
             if(call.paramNames.length > 0) {
+                /// param=expr arg list
                 int count = 0;
                 string[] names = callable.paramNames();
                 foreach(i, name; call.paramNames) {
@@ -294,14 +294,16 @@ private:
                         continue lp;
                     }
                 }
-
             } else {
+                /// standard arg list
                 if(!canImplicitlyCastTo(args, params)) {
                     overloads.remove(callable);
                     continue;
                 }
             }
         }
+        /// Only try to select an exact match if we have checked
+        /// the arg types and failed to find a distinct match
         if(overloads.length > 1) {
             selectExactMatch(call, overloads);
         }
