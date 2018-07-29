@@ -9,6 +9,8 @@ public:
 
 const string VERSION = "2.0.0";
 
+__gshared Mutex g_getModuleMutex;
+
 __gshared Config g_config;
 
 __gshared int g_nodeid = 1;
@@ -47,6 +49,8 @@ __gshared const TRUE  = -1;
 __gshared const FALSE = 0;
 
 shared static this() {
+    g_getModuleMutex = new Mutex;
+
     g_logger = new FileLogger(".logs/log.log");
     g_taskQueue = new Queue!Task(1024);
 

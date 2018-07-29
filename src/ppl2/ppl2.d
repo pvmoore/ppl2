@@ -4,12 +4,24 @@ import ppl2.internal;
 
 final class PPL2 {
     __gshared static Module[string] modules; /// key=canonical module name
-    LLVMWrapper llvm;
+    __gshared static LLVMWrapper llvm;
     Optimiser optimiser;
     Linker linker;
 public:
     __gshared static Module getModule(string canonicalName) {
-        return modules.get(canonicalName, null);
+        g_getModuleMutex.lock();
+        scope(exit) g_getModuleMutex.unlock();
+
+        auto m = modules.get(canonicalName, null);
+        if(!m) {
+            m = new Module(canonicalName, llvm);
+            modules[canonicalName] = m;
+
+            /// Get to the point where we know what the exports are
+            m.parser.readContents();
+            m.parser.tokenise();
+        }
+        return m;
     }
     __gshared static Module mainModule() {
         return modules[g_mainModuleCanonicalName];
@@ -89,37 +101,14 @@ private:
             while(tasksAvailable()) {
                 Task t = popTask();
 
-                log("%s", t);
                 //dd(t);
-
-                Module mod = PPL2.getModule(t.moduleName);
-                bool moduleCreated;
-                if(mod is null) {
-                    moduleCreated = true;
-                    mod = new Module(t.moduleName, llvm);
-                    modules[t.moduleName] = mod;
-                }
-
                 log("Executing %s (%s queued)", t, countTasks());
 
-                if(moduleCreated) {
-                    /// Get to the point where we know what the exports are
-                    mod.parser.readContents();
-                    mod.parser.tokenise();
-                }
+                Module mod = PPL2.getModule(t.moduleName);
 
                 /// Try to parse this module if we haven't done so already
                 if(!mod.isParsed) {
-
                     mod.parser.parse();
-
-                    if(!mod.isParsed) {
-                        /// We couldn't parse the whole thing.
-                        /// Push this task again for later
-                        log("Re-pushing task %s", t);
-                        pushTask(t);
-                        continue;
-                    }
                 }
 
                 final switch(t.type) with(Task.Enum) {
@@ -128,8 +117,6 @@ private:
                         break;
                     case DEFINE:
                         mod.resolver.resolveDefine(t.elementName);
-                        break;
-                    case MODULE:
                         break;
                 }
             }
@@ -185,8 +172,7 @@ private:
                 numUnresolvedModules++;
             }
         }
-        log("There are %s unresolved modules, %s unresolved nodes",
-            numUnresolvedModules, numUnresolvedNodes);
+        log("There are %s unresolved modules, %s unresolved nodes", numUnresolvedModules, numUnresolvedNodes);
         return numUnresolvedModules;
     }
     int runConstFoldPass() {

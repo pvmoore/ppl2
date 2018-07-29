@@ -869,8 +869,15 @@ private:
     void recursiveVisit(ASTNode m) {
 
         if(m.isNamedStruct && m.as!NamedStruct.isTemplateBlueprint) return;
-        if(m.isFunction && m.as!Function.isTemplateBlueprint) return;
-        if(m.isDefine && m.as!Define.type.isKnown) return;
+        if(m.isFunction) {
+            auto f = m.as!Function;
+            if(f.isTemplateBlueprint) return;
+            if(f.isImport) return;
+        }
+        if(m.isDefine) {
+            auto d = m.as!Define;
+            if(!d.type.isDefine) return;
+        }
 
         //dd("resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
@@ -907,7 +914,7 @@ private:
         /// Handle import
         if(def.isImport) {
             auto m = PPL2.getModule(def.moduleName);
-            if(m && m.isParsed) {
+            if(m.isParsed) {
                 auto externDef = m.getDefine(def.name);
                 if(externDef) {
                     /// Switch to the external Define
@@ -959,7 +966,6 @@ private:
                 } else {
                     /// Extract the template
                     auto structModule = PPL2.getModule(ns.moduleName);
-                    assert(structModule);
                     structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
 
                     typesWaiting++;

@@ -199,12 +199,19 @@ main = {
         //float4 v4
         //float8 v8
     }
+    testInnerImport = {
+        import imports3
+
+        assert 77 == i3func()
+        I3Object obj = I3Object()
+    }
     testGlobals()
     test0()
     test1()
     test2()
     test3()
     test4()
+    testInnerImport()
 }
 bool yop
 

@@ -67,6 +67,7 @@ public:
     }
     LiteralFunction getBody() {
         assert(!isExtern, "Function %s is extern".format(name));
+        assert(!isImport, "Function %s is import".format(name));
         assert(hasChildren(), "Function %s has no body".format(name));
 
         foreach(ch; children) {

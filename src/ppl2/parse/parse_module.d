@@ -53,25 +53,17 @@ public:
     void parse() {
         watch.start();
 
-        bool paused = false;
-    outer:
+        log("[%s] Parsing", module_.canonicalName);
+
         foreach(i, nav; navs) {
-            log("[%s] Parsing from line %s", module_.canonicalName, nav.line);
             while(nav.hasNext()) {
-                auto cont = stmtParser().parse(nav, startNodes[i]);
-                if(!cont) {
-                    log("[%s] Parser pausing at line %s", module_.canonicalName, nav.line);
-                    paused = true;
-                    break outer;
-                }
+                stmtParser().parse(nav, startNodes[i]);
             }
         }
 
-        if(!paused) {
-            log("[%s] Parser finished", module_.canonicalName);
-            moduleFullyParsed();
-            module_.isParsed = true;
-        }
+        log("[%s] Parsing finished", module_.canonicalName);
+        moduleFullyParsed();
+        module_.isParsed = true;
 
         watch.stop();
     }

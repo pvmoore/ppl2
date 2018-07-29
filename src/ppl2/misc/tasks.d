@@ -4,16 +4,6 @@ import ppl2.internal;
 
 public:
 //=============================================================================
-void moduleRequired(string moduleName) {
-    if(g_modulesRequested.contains(moduleName)) return;
-    g_modulesRequested.add(moduleName);
-
-    Task t = {
-        Task.Enum.MODULE,
-        moduleName, null
-    };
-    pushPriorityTask(t);
-}
 void defineRequired(string moduleName, string defineName) {
     string key = "%s|%s".format(moduleName, defineName);
 
@@ -42,7 +32,7 @@ void functionRequired(string moduleName, string funcName) {
 }
 //=============================================================================
 struct Task {
-    enum Enum { FUNC, DEFINE, MODULE }
+    enum Enum { FUNC, DEFINE }
     Enum type;
 
     string moduleName;

@@ -2,6 +2,8 @@ module ppl2.internal;
 
 public:
 
+import core.sync.mutex : Mutex;
+
 import std.stdio     : writefln;
 import std.format    : format;
 import std.string    : toLower, indexOf, lastIndexOf;

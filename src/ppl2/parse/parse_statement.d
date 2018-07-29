@@ -17,7 +17,7 @@ public:
         this.module_ = module_;
     }
 
-    bool parse(Tokens t, ASTNode parent) {
+    void parse(Tokens t, ASTNode parent) {
         //dd(module_.canonicalName, "statement line=", t.line, " parent", parent, t.get);
         //scope(exit) dd("end statement line", t.line);
 
@@ -32,56 +32,57 @@ public:
         switch(t.value) {
             case "assert":
                 parseAssert(t, parent);
-                return true;
+                return;
             case "break":
                 parseBreak(t, parent);
-                return true;
+                return;
             case "const":
                 varParser().parse(t, parent);
-                return true;
+                return;
             case "continue":
                 parseContinue(t, parent);
-                return true;
+                return;
             case "define":
                 parseDefine(t, parent);
-                return true;
+                return;
             case "extern":
                 parseExtern(t, parent);
-                return true;
+                return;
             case "if":
                 noExprAllowedAtModuleScope();
                 exprParser.parse(t, parent);
-                return true;
+                return;
             case "import":
-                return parseImport(t, parent);
+                parseImport(t, parent);
+                return;
             case "loop":
                 parseLoop(t, parent);
-                return true;
+                return;
             case "private":
                 t.access = Access.PRIVATE;
                 t.next;
-                return true;
+                return;
             case "public":
                 t.access = Access.PUBLIC;
                 t.next;
-                return true;
+                return;
             case "readonly":
                 t.access = Access.READONLY;
                 t.next;
-                return true;
+                return;
             case "return":
                 parseReturn(t, parent);
-                return true;
+                return;
             case "struct":
                 namedStructParser().parse(t, parent);
-                return true;
+                return;
             default:
                 break;
         }
 
         if(t.type==TT.SEMICOLON) {
             t.next;
-            return true;
+            return;
         }
 
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
@@ -96,7 +97,7 @@ public:
                 noExprAllowedAtModuleScope();
                 exprParser.parse(t, parent);
             }
-            return true;
+            return;
         }
 
         int eot = typeDetector().endOffset(t, parent);
@@ -119,7 +120,7 @@ public:
                 /// Variable decl
                 varParser().parse(t, parent);
             }
-            return true;
+            return;
         }
 
         /// Handle 'Type type' where Type is not known
@@ -129,8 +130,6 @@ public:
 
         noExprAllowedAtModuleScope();
         exprParser.parse(t, parent);
-
-        return true;
     }
 private: //=============================================================================== private
     /// extern putchar {int->int}
@@ -153,9 +152,7 @@ private: //=====================================================================
     ///
     /// import::= "import" module_name [ "as" identifier ]
     ///
-    bool parseImport(Tokens t, ASTNode parent) {
-
-        t.markPosition();
+    void parseImport(Tokens t, ASTNode parent) {
 
         /// "import"
         t.next;
@@ -177,20 +174,12 @@ private: //=====================================================================
         if(!exists(Module.getFullPath(moduleName))) {
             t.resetToMark();
             throw new CompilerError(Err.MODULE_DOES_NOT_EXIST, t,
-            "Module %s does not exist".format(moduleName));
+                "Module %s does not exist".format(moduleName));
         }
         t.discardMark();
 
-        /// Request exports and pause if they are not already available
+        /// Trigger the loading of the module
         auto mod = PPL2.getModule(moduleName);
-        if(!mod) {
-            log("Statement: Requesting exports for module %s", moduleName);
-            moduleRequired(moduleName);
-            t.resetToMark();
-            return false;
-        } else {
-            t.discardMark();
-        }
 
         if(t.isKeyword("as")) {
             assert(false, "import modulename as alias");
@@ -212,7 +201,6 @@ private: //=====================================================================
             def.isImport    = true;
             parent.addToEnd(def);
         }
-        return true;
     }
     ///
     /// define            ::= define_struct | define_non_struct

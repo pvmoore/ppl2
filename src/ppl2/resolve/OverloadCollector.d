@@ -77,7 +77,7 @@ final class OverloadCollector {
         } else if(f && f.name==name) {
             if(f.isImport) {
                 auto m = PPL2.getModule(f.moduleName);
-                if(m && m.isParsed) {
+                if(m.isParsed) {
                     auto fns = m.getFunctions(name);
                     if(fns.length==0) {
                         /// Assume it will turn up later
