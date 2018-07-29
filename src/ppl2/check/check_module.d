@@ -75,7 +75,7 @@ public:
             }
 
             /// Check whether we are modifying a const variable
-            if(n.op.isAssign && !n.parent.isInitialiser) {
+            if(!n.parent.isInitialiser) {
                 auto id = n.left().as!Identifier;
                 if(id && id.target.isVariable && id.target.getVariable.isConst) {
                     errorModifyingConst(n, id);
@@ -134,6 +134,38 @@ public:
     }
     void visit(Identifier n) {
 
+        void checkReadOnlyAssignment(Access access, int moduleNID) {
+        //    // allow writing to indexed pointer value
+        //    auto idx = findAncestor!Index;
+        //    if(idx) return;
+        //
+            if(access.isReadOnly && moduleNID!=module_.nid) {
+                auto a = n.getAncestor!Binary;
+                if(a && a.op.isAssign && n.isAncestor(a.left)) {
+                    throw new CompilerError(Err.VAR_ACCESS_IS_READONLY, n,
+                        "Attempting to modify readonly property");
+                }
+            }
+        }
+
+        void checkPrivateAccess(Access access, int moduleNID) {
+            if(access.isPrivate && moduleNID!=module_.nid) {
+                throw new CompilerError(Err.VAR_ACCESS_IS_PRIVATE, n,
+                    "Attempting to access private property");
+            }
+        }
+
+
+        if(n.target.isMemberVariable) {
+            auto var = n.target.getVariable;
+            checkPrivateAccess(var.access, var.moduleNID);
+            checkReadOnlyAssignment(var.access, var.moduleNID);
+        }
+        if(n.target.isMemberFunction) {
+            auto func = n.target.getFunction;
+            checkPrivateAccess(func.access, func.moduleNID);
+            checkReadOnlyAssignment(func.access, func.moduleNID);
+        }
     }
     void visit(If n) {
         if(n.isExpr) {

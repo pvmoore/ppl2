@@ -412,8 +412,7 @@ public:
                     if(func.isStructMember) {
                         auto struct_ = n.getAncestor!AnonStruct();
                         assert(struct_);
-                        //checkStructMemberAccessIsNotPrivate(struct_, func);
-                        //checkForReadOnlyAssignment(struct_, func);
+
                         n.target.set(func, struct_.getMemberIndex(func));
                     } else {
                         /// Global, local or parameter
@@ -422,11 +421,10 @@ public:
                 } else {
                     Variable var = res.isVar ? res.var : null;
 
-                    if (var.isStructMember) {
+                    if(var.isStructMember) {
                         auto struct_ = n.getAncestor!AnonStruct();
                         assert(struct_);
-                        //checkStructMemberAccessIsNotPrivate(struct_, var);
-                        //checkForReadOnlyAssignment(struct_, var);
+
                         n.target.set(var, struct_.getMemberIndex(var));
                     } else {
                         /// Global, local or parameter
@@ -434,7 +432,7 @@ public:
                     }
 
                     /// If var is unknown we need to do some detective work...
-                    if (var.type.isUnknown && n.parent.isA!Binary) {
+                    if(var.type.isUnknown && n.parent.isA!Binary) {
                         auto bin = n.parent.as!Binary;
                         if (bin.op == Operator.ASSIGN) {
                             auto opposite = bin.otherSide(n);
@@ -515,8 +513,6 @@ public:
 
                     auto var = struct_.getMemberVariable(n.name);
                     if(var) {
-                        //checkStructMemberAccessIsNotPrivate(struct_, var);
-                        //checkForReadOnlyAssignment(struct_, var);
                         n.target.set(var, struct_.getMemberIndex(var));
                     }
                 }

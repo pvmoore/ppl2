@@ -1,13 +1,14 @@
 # Todo
 ## High Priority
 - Check access when accessing struct members
+
 - Operator overloading eg.
     - op: = { int index-> }
     - op+ = { A other -> }
 - Attributes eg (* inline). (* expect true) (* notnull)
 
 ## Medium Priority
-- Other compile time meta properties eg. #type, #length, #size etc... (#size already implemented)
+- Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... (#size already implemented)
 - If last arg of function is a closure then allow Groovy access
 - import c = core.c
     - c::memset(..)  // maybe re-use use Dot with a flag

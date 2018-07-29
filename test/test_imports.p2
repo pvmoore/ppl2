@@ -6,21 +6,27 @@ public
 bool isit = false
 
 struct Dog = [
+public
     int age
 ]
 struct Cat = [
+public
     bool isGinger
 ]
 struct Bat = [
+public
     float size
 ]
 struct Pig = [
+public
     int weight
 ]
 struct Wolf = [
+public
     bool isGrey
 ]
 struct Rose = <T> [
+public
     T a
 ]
 
@@ -44,6 +50,7 @@ tfunc = { float f ->
     return 201
 }
 struct M3 = <T> [
+public
     T t
     foo = { T a ->
         return 270

@@ -23,16 +23,16 @@ testAccess = {
     //a.foo3(1)   // private
 
     // read access
-    a.a     // private
+    //a.a     // private
     a.b
     a.c
-    a.d     // private
+    //a.d     // private
 
     // write access
-    a.a += 1    // private
-    a.b += 1    // readonly
+    //a.a += 1    // private
+    //a.b += 1    // readonly
     a.c += 1
-    a.d += 1    // private
+    //a.d += 1    // private
 
 
     // same for templated structs
@@ -43,9 +43,11 @@ testAccess = {
     a2.foo1<int>(1)
     //a2.foo(1)       // private
     a2.foo1(1)
-    
-    a2.a        // private
+
+    //a2.a        // private
     a2.b
-    a2.a += 1   // private
+    a2.c
+    //a2.a += 1   // private
     a2.b += 1
+    //a2.c += 1       // readonly
 }
