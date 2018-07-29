@@ -7,24 +7,24 @@ private:
     Token[] tokens;
     int pos = 0;
     Stack!int marks;
-    Stack!NamedStruct namedStructs;
+    Stack!Access _access;
 public:
     Module module_;
-    Access access = Access.PRIVATE;
 
     this(Module module_, Token[] tokens) {
         this.module_      = module_;
         this.tokens       = tokens;
         this.marks        = new Stack!int;
-        this.namedStructs = new Stack!NamedStruct;
+        this._access      = new Stack!Access;
+        this._access.push(Access.PRIVATE);
     }
     auto reuse(Module module_, Token[] tokens) {
         this.module_ = module_;
         this.tokens  = tokens;
         this.pos     = 0;
-        this.access  = Access.PRIVATE;
         this.marks.clear();
-        this.namedStructs.clear();
+        this._access.clear();
+        this._access.push(Access.PRIVATE);
         return this;
     }
     void setLength(int len) {
@@ -43,14 +43,20 @@ public:
         marks.pop();
     }
     //=======================================
-    void push(NamedStruct ns) {
-        namedStructs.push(ns);
+    Access access() { return _access.peek(); }
+    void setAccess(Access a) {
+        _access.pop();
+        _access.push(a);
     }
-    void popNamedStruct() {
-        namedStructs.pop();
+    /// Start of Module level NamedStruct
+    void startAccessScope() {
+        _access.push(Access.PRIVATE);
+        assert(_access.length==2);
     }
-    NamedStruct namedStruct() {
-        return namedStructs.peek();
+    /// End of Module level NamedStruct
+    void endAccessScope() {
+        _access.pop();
+        assert(_access.length==1);
     }
     //=======================================
     int index()    { return pos; }

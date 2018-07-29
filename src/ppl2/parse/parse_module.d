@@ -38,7 +38,15 @@ public:
         extractExports(tokens);
     }
     void appendTokens(ASTNode afterNode, Token[] tokens) {
-        this.navs ~= new Tokens(module_, tokens);
+        auto t = new Tokens(module_, tokens);
+        this.navs ~= t;
+        if(afterNode.isFunction) {
+            t.setAccess(afterNode.as!Function.access);
+        } else {
+            assert(afterNode.isNamedStruct);
+            t.setAccess(afterNode.as!NamedStruct.access);
+        }
+
         auto composite = Composite.make(navs[$-1], Composite.Usage.PLACEHOLDER);
         afterNode.parent.insertAt(afterNode.index, composite);
         this.startNodes ~= composite;

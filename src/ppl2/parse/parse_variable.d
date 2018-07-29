@@ -25,6 +25,8 @@ public:
         auto v = makeNode!Variable(t);
         parent.addToEnd(v);
 
+        v.moduleNID = module_.nid;
+
         if("const"==t.value) {
             t.next;
             v.isConst = true;
@@ -33,6 +35,8 @@ public:
         if(t.isKeyword("var")) {
             v.isImplicit = true;
         }
+
+        v.access = t.access();
 
         if(typeDetector().isType(t, v)) {
             v.type = typeParser.parse(t, v);

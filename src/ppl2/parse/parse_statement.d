@@ -59,15 +59,15 @@ public:
                 parseLoop(t, parent);
                 return;
             case "private":
-                t.access = Access.PRIVATE;
+                t.setAccess(Access.PRIVATE);
                 t.next;
                 return;
             case "public":
-                t.access = Access.PUBLIC;
+                t.setAccess(Access.PUBLIC);
                 t.next;
                 return;
             case "readonly":
-                t.access = Access.READONLY;
+                t.setAccess(Access.READONLY);
                 t.next;
                 return;
             case "return":
@@ -123,7 +123,16 @@ public:
             return;
         }
 
-        /// Handle 'Type type' where Type is not known
+        /// Test for identifier<...> not followed by a '('
+        /// which indicates a missing type
+        if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
+            auto end = t.findEndOfBlock(TT.LANGLE, 1);
+            if(end!=-1 && t.peek(end+1).type!=TT.LBRACKET) {
+                errorMissingType(t);
+            }
+        }
+
+        /// Test for 'Type type' where Type is not known
         if(parent.isModule && t.type==TT.IDENTIFIER && t.peek(1).type==TT.IDENTIFIER) {
             errorMissingType(t, t.value);
         }
@@ -190,6 +199,7 @@ private: //=====================================================================
             auto fn       = makeNode!Function(t);
             fn.name       = f;
             fn.moduleName = moduleName;
+            fn.moduleNID  = mod.nid;
             fn.isImport   = true;
             parent.addToEnd(fn);
         }
@@ -198,6 +208,7 @@ private: //=====================================================================
             def.name        = d;
             def.type        = TYPE_UNKNOWN;
             def.moduleName  = moduleName;
+            def.moduleNID   = mod.nid;
             def.isImport    = true;
             parent.addToEnd(def);
         }
@@ -243,7 +254,11 @@ private: //=====================================================================
         /// name
         f.name       = t.value;
         f.moduleName = module_.canonicalName;
+        f.moduleNID  = module_.nid;
         t.next;
+
+        /// Function readonly access is effectively public
+        f.access = t.access()==Access.PRIVATE ? Access.PRIVATE : Access.PUBLIC;
 
         /// =
         t.skip(TT.EQUALS);
@@ -281,6 +296,7 @@ private: //=====================================================================
             dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);
 
         } else {
+
             /// function literal
             t.expect(TT.LCURLY);
             exprParser().parse(t, f);

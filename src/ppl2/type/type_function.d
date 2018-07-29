@@ -129,7 +129,7 @@ public:
         } else {
             foreach (i, t; paramTypes()) {
                 if (i>0) a ~= ",";
-                a ~= "%s".format(t);
+                a ~= "%s".format(t.prettyString);
                 //if (paramNames[i] !is null) a ~= " " ~ paramNames[i];
             }
         }

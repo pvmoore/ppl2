@@ -16,6 +16,8 @@ final class Variable : Statement {
     bool isConst;
     bool isImplicit;    /// true if this is a "var"
     int numRefs;
+    int moduleNID;      /// module.nid of enclosing module
+    Access access = Access.PUBLIC;
 
     LLVMValueRef llvmValue;
 
@@ -83,13 +85,14 @@ final class Variable : Statement {
     }
 
     override string toString() {
+        string acc = "[%s]".format(access);
         string loc = isParameter ? "PARAM" :
                      isLocal ? "LOCAL" :
                      isGlobal ? "GLOBAL" : "STRUCT";
         string c = isConst ? "const ":"";
         if(name) {
-            return "Variable[refs=%s] '%s' (type=%s%s) (%s)".format(numRefs, name, c, type, loc);
+            return "Variable[refs=%s] '%s' (type=%s%s) (%s) %s".format(numRefs, name, c, type.prettyString, loc, acc);
         }
-        return "Variable[refs=%s] (type=%s%s) (%s)".format(numRefs, c, type, loc);
+        return "Variable[refs=%s] %s(type=%s) (%s) %s".format(numRefs, c, type.prettyString, loc, acc);
     }
 }

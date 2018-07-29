@@ -138,6 +138,6 @@ public:
     }
     //===============================================================
     override string toString() {
-        return "AnonStruct %s".format(memberVariableTypes());
+        return "AnonStruct %s".format(memberVariableTypes().prettyString);
     }
 }

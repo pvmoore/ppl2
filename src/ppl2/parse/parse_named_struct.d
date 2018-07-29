@@ -25,6 +25,7 @@ public:
         parent.addToEnd(n);
 
         n.moduleName = module_.canonicalName;
+        n.access     = t.access();
 
         /// Is this type already defined?
         auto type = findType(t.value, parent);
@@ -60,7 +61,11 @@ public:
         n.name = t.value;
         t.next;
 
-        t.push(n);
+        bool isModuleScope = parent.isModule ||
+                            (parent.isComposite && parent.as!Composite.parent.isModule);
+        if(isModuleScope) {
+            t.startAccessScope();
+        }
 
         /// =
         t.skip(TT.EQUALS);
@@ -114,7 +119,9 @@ public:
 
         }
 
-        t.popNamedStruct();
+        if(isModuleScope) {
+            t.endAccessScope();
+        }
     }
 private:
     /// If there is no default constructor 'new()' then create one

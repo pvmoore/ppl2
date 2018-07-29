@@ -58,7 +58,7 @@ public:
         if(isResolved) {
             c = countAsInt().to!string;
         } else {
-            c = countExpr().toString;
+            c = "?";
         }
         return "[:%s %s]".format(subtype.prettyString(), c);
     }

@@ -3,11 +3,15 @@ module ppl2.resolve.OverloadCollector;
 import ppl2.internal;
 
 final class OverloadCollector {
-    private:
+private:
+    Module module_;
     Array!Callable results;
     string name;
     bool ready;
-    public:
+public:
+    this(Module module_) {
+        this.module_ = module_;
+    }
     ///
     /// Find any function or variable that matches the given name.
     ///

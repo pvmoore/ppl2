@@ -10,7 +10,9 @@ private:
     string _uniqueName;
 public:
     string name;
-    string moduleName;
+    string moduleName;      /// canonical name of module (!=this.getModule.canonicalName if isImport)
+    int moduleNID;          /// nid of module (!=this.getModule.nid if isImport)
+    Access access = Access.PUBLIC;
 
     Type externType;        /// for extern functions only
     bool isImport;          /// true if this is just a proxy for an imported function
@@ -88,6 +90,7 @@ public:
     }
 
     override string toString() {
+        string acc = "[%s] ".format(access);
         string loc = isExtern ? "EXTERN" :
                      isImport ? "IMPORT" :
                      isInner ? "INNER" :
@@ -96,6 +99,6 @@ public:
         if(isTemplateBlueprint()) {
             s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
         }
-        return "'%s' %s Function[refs=%s,%s] (%s)".format(name, s, numRefs, numExternalRefs, loc);
+        return "'%s' %s Function[refs=%s,%s] (%s) %s".format(name, s, numRefs, numExternalRefs, loc, acc);
     }
 }

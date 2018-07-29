@@ -25,18 +25,20 @@ struct Callable {
         this.func = f;
     }
 
-    bool isVariable()     { return var !is null; }
-    bool isFunction()     { return func !is null; }
-    string getName()      { return func ? func.name : var.name; }
-    Type getType()        { return func ? func.getType : var.type; }
-    int numParams()       { return getType.getFunctionType.numParams; }
-    string[] paramNames() { return getType.getFunctionType.paramNames; }
-    Type[] paramTypes()   { return getType.getFunctionType.paramTypes; }
-    Module getModule()    { return func ? func.getModule : var.getModule; }
-    ASTNode getNode()     { return func ? func : var; }
-    bool resultReady()    { return getNode() !is null; }
-    bool isStructMember() { return func ? func.isStructMember : var.isStructMember; }
+    bool isVariable()          { return var !is null; }
+    bool isFunction()          { return func !is null; }
+    string getName()           { return func ? func.name : var.name; }
+    Type getType()             { return func ? func.getType : var.type; }
+    int numParams()            { return getType.getFunctionType.numParams; }
+    string[] paramNames()      { return getType.getFunctionType.paramNames; }
+    Type[] paramTypes()        { return getType.getFunctionType.paramTypes; }
+    Module getModule()         { return func ? func.getModule : var.getModule; }
+    int moduleNID()            { return func ? func.moduleNID : var.moduleNID; }
+    ASTNode getNode()          { return func ? func : var; }
+    bool resultReady()         { return getNode() !is null; }
+    bool isStructMember()      { return func ? func.isStructMember : var.isStructMember; }
     bool isTemplateBlueprint() { return func ? func.isTemplateBlueprint : false; }
+    bool isPrivate()           { return (func ? func.access : var.access).isPrivate; }
 
     size_t toHash() const @safe pure nothrow {
         assert(id!=0);
@@ -61,7 +63,7 @@ public:
         this.module_           = module_;
         this.overloads         = new Array!Callable;
         this.funcTemplates     = new Array!Function;
-        this.collector         = new OverloadCollector;
+        this.collector         = new OverloadCollector(module_);
         this.implicitTemplates = new ImplicitTemplates(module_);
     }
 
@@ -99,6 +101,8 @@ public:
 
         if(collector.collect(call.name, call, overloads)) {
 
+            int numRemoved = removeInvisible();
+
             if(overloads.length==1 && !overloads[0].isTemplateBlueprint) {
 
                 auto r = overloads[0];
@@ -111,7 +115,6 @@ public:
                 //
                 //
                 //}
-
 
                 /// Return this result as it's the only one and check it later
                 /// to make sure the types match
@@ -187,6 +190,8 @@ public:
         foreach(f; fns) overloads.add(Callable(f));
         if(var && var.isFunctionPtr) overloads.add(Callable(var));
 
+        int numRemoved = removeInvisible();
+
         /// Try to filter the results down to one match
         filterOverloads(call);
 
@@ -201,19 +206,27 @@ public:
                 }
             }
 
-            string msg;
+            string argsStr;
             if(call.paramNames.length>0) {
                 auto buf = new StringBuffer;
                 foreach(i, n; call.paramNames) {
                     if(i>0) buf.add(", ");
                     buf.add(n).add("=").add(call.argTypes[i].prettyString);
                 }
-                msg = "Struct %s does not have function %s(%s)"
-                    .format(ns.getUniqueName, call.name, buf.toString);
+                argsStr = buf.toString;
             } else {
-                msg = "Struct %s does not have function %s(%s)"
-                    .format(ns.getUniqueName, call.name, call.argTypes.prettyString);
+                argsStr = call.argTypes.prettyString;
             }
+
+            string msg;
+
+            if(numRemoved>0) {
+                msg = "Struct %s function %s(%s) is not visible";
+            } else {
+                msg = "Struct %s does not have function %s(%s)";
+            }
+            msg = msg.format(ns.getUniqueName, call.name, argsStr);
+
             throw new CompilerError(Err.FUNCTION_NOT_FOUND, call, msg);
 
         } else if(overloads.length > 1) {
@@ -223,6 +236,23 @@ public:
         return overloads[0];
     }
 private:
+    ///
+    /// Filter out inaccessible functions
+    ///
+    int removeInvisible() {
+        int thisNID = module_.nid;
+
+        int count = 0;
+        foreach(callable; overloads[].dup) {
+            if(callable.moduleNID() != thisNID) {
+                if(callable.isPrivate) {
+                    overloads.remove(callable);
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
     ///
     /// Filter out any overloads that do not have the correct num args, param names etc.
     /// Add any filtered out function templates to funcTemplates

@@ -5,6 +5,7 @@ import ppl2.internal;
 final class Define : Statement, Type {
     string name;
     string moduleName;
+    int moduleNID;
     bool isImport;
     int numRefs;
     Type type;
@@ -30,7 +31,7 @@ final class Define : Statement, Type {
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
     LLVMTypeRef getLLVMType()            { assert(false); }
-    string prettyString()                { assert(false); }
+    string prettyString()                { return "Define %s=%s".format(name,type.prettyString); }
     //=======================================================================================
     override string toString() {
         string val = "%s".format(getType);

@@ -14,6 +14,7 @@ public:
     string moduleName;
     AnonStruct type;
     int numRefs;
+    Access access = Access.PUBLIC;
 
 /// Template stuff
     TemplateBlueprint blueprint;
@@ -74,10 +75,11 @@ public:
         return "NamedStruct[refs=%s] %s".format(numRefs, toString());
     }
     override string toString() {
+        string acc = "[%s]".format(access);
         string s;
         if(isTemplateBlueprint()) {
             s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
         }
-        return "%s%s%s".format(s, getUniqueName, isKnown ? "":"?");
+        return "%s%s%s %s".format(s, getUniqueName, isKnown ? "":"?", acc);
     }
 }

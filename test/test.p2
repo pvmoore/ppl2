@@ -212,6 +212,9 @@ main = {
     test3()
     test4()
     testInnerImport()
+
+    import test_access
+    testAccess()
 }
 bool yop
 
