@@ -14,6 +14,8 @@ public:
     int moduleNID;          /// nid of module (!=this.getModule.nid if isImport)
     Access access = Access.PUBLIC;
 
+    Operator op = Operator.NOTHING; /// Set if this is an operator overload
+
     Type externType;        /// for extern functions only
     bool isImport;          /// true if this is just a proxy for an imported function
     bool isExtern;
@@ -56,7 +58,9 @@ public:
         if(name!="new") return false;
         return params().numParams==0 || (params().numParams==1 && params().paramNames[0]=="this");
     }
-
+    bool isOperatorOverload() {
+        return op != Operator.NOTHING;
+    }
 
     Parameters params() { return isExtern ? null : getBody().params(); }
     AnonStruct getStruct() {

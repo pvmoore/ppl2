@@ -96,7 +96,6 @@ import ppl2.misc.tasks;
 import ppl2.misc.util;
 import ppl2.misc.writer;
 
-import ppl2.parse.detect_template_params;
 import ppl2.parse.detect_type;
 import ppl2.parse.parse_expression;
 import ppl2.parse.parse_module;

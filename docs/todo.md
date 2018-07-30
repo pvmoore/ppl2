@@ -1,7 +1,5 @@
 # Todo
 ## High Priority
-- Check access when accessing struct members
-
 - Operator overloading eg.
     - op: = { int index-> }
     - op+ = { A other -> }
@@ -21,6 +19,7 @@
 - Built-in vector types eg float4, int2 etc...
 - More constant folding and dce (calls and functions)
 - Allow block of raw LLVM IR eg.
+- Run DScanner to highlight unused functions etc
 ```
 IR { // or LLVM or similar
     %a = alloca i32

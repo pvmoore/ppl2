@@ -191,6 +191,46 @@ public:
         }
     }
     void visit(Binary n) {
+
+        /// We need the types before we can continue
+        if(n.leftType().isUnknown || n.rightType.isUnknown) {
+            return;
+        }
+
+        if(n.leftType.isStruct && n.op.isOverloadable) {
+            /// Look for an operator overload
+            string name = "operator" ~ n.op.value;
+
+            auto struct_ = n.leftType.getAnonStruct;
+            assert(struct_);
+
+            //auto f = struct_.getMemberFunctions(name);
+            //if(f) {
+            //
+            //}
+
+            /// Rewrite to operator overload:
+            /// Binary
+            ///     left struct
+            ///     right
+            /// Dot
+            ///     AddressOf
+            ///         left struct
+            ///     Call
+            ///         right
+            auto b      = module_.builder(n);
+
+            auto left  = n.leftType.isValue ? b.addressOf(n.left) : n.left;
+            auto right = b.call(name, null);
+            right.addToEnd(n.right);
+
+            auto dot = b.dot(left, right);
+
+            n.parent.replaceChild(n, dot);
+            rewrites++;
+            return;
+        }
+
         if(n.type.isUnknown) {
 
             auto lt = n.leftType();
@@ -215,6 +255,34 @@ public:
                 }
             }
         }
+        if(n.type.isKnown) {
+            /**
+             *	Binary
+             *     left
+             *     right
+             *
+             *  Call
+             *     left
+             *     right
+             */
+
+        }
+
+
+        //void rewriteBinaryToCall(ResolveState state, Binary b) {
+        //    logln("\tRewriting binary to call: %s %s %s"
+        //    .format(b.leftType, b.operator, b.rightType));
+        //
+        //    Call c		 = new Call();
+        //    c.tokenIndex = b.tokenIndex;
+        //    c.name       = "operator" ~ b.operator.toString();
+        //    c.add(b.firstChild);
+        //    c.add(b.firstChild);
+        //
+        //    b.replaceWith(c);
+        //
+        //    state.rewriteOccurred = true;
+        //}
     }
     void visit(Break n) {
         if(!n.isResolved) {
@@ -317,12 +385,6 @@ public:
                 }
             }
 
-            if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
-                dd("YOWZA", n.name, "args=",n.argTypes.prettyString, "target=",n.target.paramTypes.prettyString);
-
-
-            }
-
             /// Rearrange the args to match the parameter order
             if(n.paramNames.length>0) {
 
@@ -357,6 +419,8 @@ public:
                 /// We don't need the param names any more
                 n.paramNames = null;
             }
+
+            assert(n.argTypes.canImplicitlyCastTo(n.target.paramTypes));
         }
     }
     void visit(Calloc n) {

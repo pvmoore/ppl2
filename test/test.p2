@@ -99,6 +99,8 @@ struct Array = <A,B> [
 ]
 
 main = {
+    import test_operator_overloading
+
     testLiterals()
     testExpressions()
     testCasting()
@@ -114,6 +116,7 @@ main = {
     testIf()
     testLoop()
     testTemplateFunctions()
+    testOperatorOverloading()
 
     testGlobals = {
         assert dd is int**

@@ -18,7 +18,7 @@ public:
 
     void parse(Tokens t, ASTNode parent) {
         //log("Expression: parse---------------------------- START");
-        //dd("expression");
+        //dd("expression", t.get);
 
         parseLHS(t, parent);
         parseRHS(t, parent);
@@ -64,6 +64,9 @@ private:
             return;
         } else if(t.value=="not") {
             parseUnary(t, parent);
+            return;
+        } else if(t.value=="operator") {
+            parseCall(t, parent);
             return;
         }
 
@@ -149,9 +152,7 @@ private:
                 case TT.DIV:
                 case TT.PERCENT:
                 case TT.ASTERISK:
-                case TT.AMPERSAND:
                 case TT.HAT:
-                case TT.PIPE:
                 case TT.SHL:
                 case TT.SHR:
                 case TT.USHR:
@@ -173,6 +174,14 @@ private:
                 case TT.USHR_ASSIGN:
                 case TT.BOOL_EQ:
                 case TT.BOOL_NE:
+                    parent = attachAndRead(t, parent, parseBinary(t));
+                    break;
+                case TT.AMPERSAND:
+                    if(t.peek(1).type==TT.AMPERSAND) errorBadSyntax(t, "Did you mean 'and'");
+                    parent = attachAndRead(t, parent, parseBinary(t));
+                    break;
+                case TT.PIPE:
+                    if(t.peek(1).type==TT.PIPE) errorBadSyntax(t, "Did you mean 'or'");
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.COLON:
@@ -238,6 +247,40 @@ private:
         return newExpr;
     }
     ///
+    /// "<" param { "," param } ">"
+    ///
+    bool isTemplateParams(Tokens t, int offset) {
+        bool result = false;
+        t.markPosition();
+        t.next(offset);
+        outer:while(!result) {
+            /// <
+            if(t.type!=TT.LANGLE) break;
+            t.next;
+
+            /// param
+            if(t.type!=TT.IDENTIFIER) break;
+            t.next;
+
+            while(t.type!=TT.RANGLE) {
+                /// ,
+                if(t.type!=TT.COMMA) break outer;
+                t.next;
+
+                /// param
+                if(t.type!=TT.IDENTIFIER) break outer;
+                t.next;
+            }
+
+            /// >
+            if(t.type!=TT.RANGLE) break;
+
+            result = true;
+        }
+        t.resetToMark();
+        return result;
+    }
+    ///
     /// binary_expr ::= expression operator expression
     /// operator ::= "=" | "+" | "-" etc...
     ///
@@ -252,6 +295,9 @@ private:
             b.op = Operator.BOOL_OR;
         } else {
             b.op = parseOperator(t);
+            if(b.op==Operator.NOTHING) {
+                throw new CompilerError(Err.INVALID_OPERATOR, t, "Invalid operator");
+            }
         }
 
         t.next;
@@ -351,6 +397,16 @@ private:
             ///
             throw new CompilerError(Err.CALL_CONSTRUCTOR_CALLS_DISALLOWED, c,
                 "Explicit constructor calls not allowed");
+        }
+
+        if(c.name=="operator") {
+            /// Call to operator overload
+
+            auto op = parseOperator(t);
+            if(!op.isOverloadable) errorBadSyntax(t, "Expecting an overloadable operator");
+
+            c.name ~= op.value;
+            t.next;
         }
 
         /// template args

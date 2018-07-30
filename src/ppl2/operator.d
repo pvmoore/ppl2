@@ -22,7 +22,7 @@ Operator parseOperator(Tokens t) {
         case "or":  return Operator.BOOL_OR;
         default: break;
     }
-    throw new CompilerError(Err.INVALID_OPERATOR, t, "Invalid operator");
+    return Operator.NOTHING;
 }
 ///
 /// & (AddressOf) = 2
@@ -34,6 +34,8 @@ struct Op {
     string value;
 }
 enum Operator : Op {
+    NOTHING = Op(0,0,null),
+
     NEG      = Op(0, 2, "neg"),
     BIT_NOT  = Op(1, 2, "~"),
     BOOL_NOT = Op(2, 2, "not"),
@@ -100,9 +102,26 @@ bool isBool(Operator o) {
 }
 bool isUnary(Operator o) {
     switch(o.id) with(Operator) {
-            case NEG.id:
-            case BIT_NOT.id:
-            case BOOL_NOT.id:
+        case NEG.id:
+        case BIT_NOT.id:
+        case BOOL_NOT.id:
+            return true;
+        default:
+            return false;
+    }
+}
+bool isOverloadable(Operator o) {
+    switch(o.id) with(Operator) {
+        case ADD.id:
+        case SUB.id:
+        case MUL.id:
+        case DIV.id:
+        case MOD.id:
+        case ADD_ASSIGN.id:
+        case SUB_ASSIGN.id:
+        case MUL_ASSIGN.id:
+        case DIV_ASSIGN.id:
+        case MOD_ASSIGN.id:
             return true;
         default:
             return false;
