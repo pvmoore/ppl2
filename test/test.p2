@@ -1,7 +1,4 @@
 
-import core.c
-import core.string
-import core.intrinsics
 //import c = core.c
 
 import test_imports
@@ -189,7 +186,6 @@ main = {
         List<int> list = List<int>()
         Array<int,float> array
         Rose<int> rose
-        rose.a
         ANiceRose anicerose
         List<BlueRose> blueList
         List<List<int>> listoflist
@@ -218,8 +214,6 @@ main = {
     testAccess()
 }
 bool yop
-
-
 
 
 /*

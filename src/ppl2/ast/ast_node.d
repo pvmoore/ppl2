@@ -23,6 +23,7 @@ enum NodeID {
     FUNCTION,
     IDENTIFIER,
     IF,
+    IMPORT,
     INITIALISER,
     IS,
     INDEX,

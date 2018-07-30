@@ -1,6 +1,4 @@
 
-import core.intrinsics
-
 int globalVar1
 globalFunc1 = {}
 

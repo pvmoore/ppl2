@@ -65,6 +65,7 @@ import ppl2.ast.stmt_assert;
 import ppl2.ast.stmt_break;
 import ppl2.ast.stmt_continue;
 import ppl2.ast.stmt_function;
+import ppl2.ast.stmt_import;
 import ppl2.ast.stmt_loop;
 import ppl2.ast.stmt_return;
 import ppl2.ast.expr_value_of;
@@ -105,6 +106,7 @@ import ppl2.parse.parse_type;
 import ppl2.parse.parse_variable;
 
 import ppl2.resolve.after_resolution;
+import ppl2.resolve.find_import;
 import ppl2.resolve.find_type;
 import ppl2.resolve.OverloadCollector;
 import ppl2.resolve.resolve_call;

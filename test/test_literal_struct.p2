@@ -1,7 +1,4 @@
 
-import core.intrinsics
-import core.string
-
 public
 
 testLiteralStruct = {

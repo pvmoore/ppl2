@@ -1,6 +1,4 @@
 
-import core.string  // should be implicit later
-
 new = {}
 
 public testLiterals = {

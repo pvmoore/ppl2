@@ -1,8 +1,4 @@
 
-import core.c
-import core.string
-import core.console
-
 public
 
 __assert = { bool result, byte* moduleName, int line ->

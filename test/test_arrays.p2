@@ -1,7 +1,4 @@
 
-import core.c
-import core.intrinsics
-
 public
 
 testArrays = {

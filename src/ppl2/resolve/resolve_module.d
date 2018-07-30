@@ -156,8 +156,7 @@ public:
         if(!n.isResolved) {
 
             /// This should eventually be imported implicitly
-            assert(module_.getFunctions("__assert"), "import core.intrinsics");
-            //assert(module_.getDefine("string") || module_.getNamedStruct("string"), "import core.string");
+            assert(findImport("core.intrinsics", n));
 
             /// Wait until we know what the type is
             Type type = n.expr().getType();
@@ -549,6 +548,9 @@ public:
                 n.type = thenType;
             }
         }
+    }
+    void visit(Import n) {
+
     }
     void visit(Index n) {
 

@@ -26,7 +26,7 @@ public:
         subCollect(startNode);
         return ready;
     }
-    private:
+private:
     void subCollect(ASTNode node) {
         auto nid = node.id();
 
@@ -74,6 +74,7 @@ public:
         auto v    = n.as!Variable;
         auto f    = n.as!Function;
         auto comp = n.as!Composite;
+        auto imp  = n.as!Import;
 
         if(v && v.name==name) {
             if(v.type.isUnknown) ready = false;
@@ -101,6 +102,10 @@ public:
             }
         } else if(comp) {
             foreach(ch; comp.children[]) {
+                check(ch);
+            }
+        } else if(imp) {
+            foreach(ch; imp.children[]) {
                 check(ch);
             }
         }

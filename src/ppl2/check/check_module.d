@@ -190,6 +190,9 @@ public:
             }
         }
     }
+    void visit(Import n) {
+
+    }
     void visit(Index n) {
         auto lit = n.index().as!LiteralNumber;
         if(lit) {

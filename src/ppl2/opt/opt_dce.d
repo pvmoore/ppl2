@@ -59,5 +59,12 @@ public:
                 }
             }
         }
+        /// Remove ALL imports
+        auto imports = new Array!Import;
+        module_.selectDescendents!Import(imports);
+        foreach(imp; imports) {
+            log("\t import %s", imp.moduleName);
+            imp.detach();
+        }
     }
 }

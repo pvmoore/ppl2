@@ -163,54 +163,65 @@ private: //=====================================================================
     ///
     void parseImport(Tokens t, ASTNode parent) {
 
+        auto imp = makeNode!Import(t);
+        parent.addToEnd(imp);
+
         /// "import"
         t.next;
 
-        /// module name
-        string moduleName = t.value;
-        t.markPosition();
-        t.next;
+        string collectModuleName() {
+            string moduleName = t.value;
+            t.markPosition();
+            t.next;
 
-        while(t.type==TT.DOT) {
-            t.next;
-            moduleName ~= ".";
-            moduleName ~= t.value;
-            t.next;
+            while(t.type==TT.DOT) {
+                t.next;
+                moduleName ~= ".";
+                moduleName ~= t.value;
+                t.next;
+            }
+
+            /// Check that the import exists
+            import std.file : exists;
+            if(!exists(Module.getFullPath(moduleName))) {
+                t.resetToMark();
+                throw new CompilerError(Err.MODULE_DOES_NOT_EXIST, t,
+                    "Module %s does not exist".format(moduleName));
+            }
+            t.discardMark();
+            return moduleName;
         }
 
-        /// Check that the import exists
-        import std.file : exists;
-        if(!exists(Module.getFullPath(moduleName))) {
-            t.resetToMark();
-            throw new CompilerError(Err.MODULE_DOES_NOT_EXIST, t,
-                "Module %s does not exist".format(moduleName));
+        imp.moduleName = collectModuleName();
+
+        if(findImport(imp.moduleName, imp)) {
+            throw new CompilerError(Err.IMPORT_DUPLICATE, imp, "Module %s already imported".format(imp.moduleName));
         }
-        t.discardMark();
 
         /// Trigger the loading of the module
-        auto mod = PPL2.getModule(moduleName);
+        imp.mod = PPL2.getModule(imp.moduleName);
 
         if(t.isKeyword("as")) {
             assert(false, "import modulename as alias");
         }
 
         /// For each exported function and type, add proxies to this module
-        foreach(f; mod.exportedFunctions.values) {
+        foreach(f; imp.mod.exportedFunctions.values) {
             auto fn       = makeNode!Function(t);
             fn.name       = f;
-            fn.moduleName = moduleName;
-            fn.moduleNID  = mod.nid;
+            fn.moduleName = imp.moduleName;
+            fn.moduleNID  = imp.mod.nid;
             fn.isImport   = true;
-            parent.addToEnd(fn);
+            imp.addToEnd(fn);
         }
-        foreach(d; mod.exportedTypes.values) {
+        foreach(d; imp.mod.exportedTypes.values) {
             auto def        = makeNode!Define(t);
             def.name        = d;
             def.type        = TYPE_UNKNOWN;
-            def.moduleName  = moduleName;
-            def.moduleNID   = mod.nid;
+            def.moduleName  = imp.moduleName;
+            def.moduleNID   = imp.mod.nid;
             def.isImport    = true;
-            parent.addToEnd(def);
+            imp.addToEnd(def);
         }
     }
     ///

@@ -32,7 +32,7 @@ public:
         watch.stop();
     }
     void tokenise() {
-        auto tokens      = lexer.tokenise(contents);
+        auto tokens      = getImplicitImportsTokens() ~ lexer.tokenise(contents);
         this.navs       ~= new Tokens(module_, tokens);
         this.startNodes ~= module_;
         extractExports(tokens);
@@ -171,5 +171,35 @@ private:
             t.next;
         }
         watch.stop();
+    }
+    Token[] getImplicitImportsTokens() {
+        auto tokens = appender!(Token[]);
+
+        Token tok(string value) {
+            Token t;
+            t.type   = TT.IDENTIFIER;
+            t.line   = 1;
+            t.column = 1;
+            t.value  = value;
+            return t;
+        }
+
+        __gshared static string[] IMPORTS = [
+            "core.core",
+            "core.c",
+            "core.intrinsics",
+            "core.string",
+            "core.console",
+            "core.unsigned",
+        ];
+
+        foreach(s; IMPORTS) {
+            if(module_.canonicalName!=s) {
+                tokens ~= tok("import");
+                tokens ~= tok(s);
+            }
+        }
+
+        return tokens.data;
     }
 }
