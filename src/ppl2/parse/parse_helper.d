@@ -18,6 +18,11 @@ bool isOperatorOverloadFunction(Tokens t) {
     assert(false);
 }
 bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
+    if(t.peek(offset).value=="neg") {
+        endOffset = offset+1;
+        return true;
+    }
+
     switch(t.peek(offset).type) {
         case TT.PLUS:
         case TT.MINUS:

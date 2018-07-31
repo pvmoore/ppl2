@@ -22,6 +22,8 @@ struct Vector = <T> [
     operator== = { T s -> return x==s and y==s and z==s }
     operator!= = { T s -> return x!=s or y!=s or z!=s }
 
+    operator neg = { return Vector<T>(-x,-y,-z) }
+
     operator+ = { Vector<T> v -> return Vector<T>(x+v.x, y+v.y, z+v.z) }
     operator- = { Vector<T> v -> return Vector<T>(x-v.x, y-v.y, z-v.z) }
     operator* = { Vector<T> v -> return Vector<T>(x*v.x, y*v.y, z*v.z) }
@@ -147,6 +149,8 @@ testOperatorOverloading = {
             assert Vec(0b101) | Vec(1, 0b11, 0b111) == Vec(0b101, 0b111, 0b111)
             assert Vec(0b101) & Vec(1, 0b11, 0b111) == Vec(1,         1, 0b101)
             assert Vec(0b101) ^ Vec(1, 0b11, 0b111) == Vec(0b100, 0b110, 0b010)
+
+            assert -Vec(1,2,3) == Vec(-1,-2,-3)
         }
         scalars()
         structs()

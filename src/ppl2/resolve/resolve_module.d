@@ -204,11 +204,6 @@ public:
             auto struct_ = n.leftType.getAnonStruct;
             assert(struct_);
 
-            //auto f = struct_.getMemberFunctions(name);
-            //if(f) {
-            //
-            //}
-
             /// Rewrite to operator overload:
             /// Binary
             ///     left struct
@@ -255,34 +250,6 @@ public:
                 }
             }
         }
-        if(n.type.isKnown) {
-            /**
-             *	Binary
-             *     left
-             *     right
-             *
-             *  Call
-             *     left
-             *     right
-             */
-
-        }
-
-
-        //void rewriteBinaryToCall(ResolveState state, Binary b) {
-        //    logln("\tRewriting binary to call: %s %s %s"
-        //    .format(b.leftType, b.operator, b.rightType));
-        //
-        //    Call c		 = new Call();
-        //    c.tokenIndex = b.tokenIndex;
-        //    c.name       = "operator" ~ b.operator.toString();
-        //    c.add(b.firstChild);
-        //    c.add(b.firstChild);
-        //
-        //    b.replaceWith(c);
-        //
-        //    state.rewriteOccurred = true;
-        //}
     }
     void visit(Break n) {
         if(!n.isResolved) {
@@ -868,6 +835,31 @@ public:
     }
     void visit(Unary n) {
 
+        if(n.expr.getType.isStruct && n.op.isOverloadable) {
+            /// Look for an operator overload
+            string name = "operator" ~ n.op.value;
+
+            auto struct_ = n.expr.getType.getAnonStruct;
+            assert(struct_);
+
+            /// Rewrite to operator overload:
+            /// Unary
+            ///     expr struct
+            /// Dot
+            ///     AddressOf
+            ///         expr struct
+            ///     Call
+            ///
+            auto b      = module_.builder(n);
+
+            auto left  = n.expr.getType.isValue ? b.addressOf(n.expr) : n.expr;
+            auto right = b.call(name, null);
+
+            auto dot = b.dot(left, right);
+
+            n.parent.replaceChild(n, dot);
+            rewrites++;
+        }
     }
     void visit(ValueOf n) {
 

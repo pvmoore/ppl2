@@ -20,6 +20,7 @@ Operator parseOperator(Tokens t) {
     switch(t.value) {
         case "and": return Operator.BOOL_AND;
         case "or":  return Operator.BOOL_OR;
+        case "neg": return Operator.NEG;
         default: break;
     }
     return Operator.NOTHING;
@@ -32,7 +33,7 @@ struct Op {
 enum Operator : Op {
     NOTHING = Op(0,0,null),
 
-    NEG      = Op(1, 2, "neg"),
+    NEG      = Op(1, 2, " neg"),    /// the space in the value is important
     BIT_NOT  = Op(2, 2, "~"),
     BOOL_NOT = Op(3, 2, "not"),
 
@@ -134,6 +135,8 @@ bool isOverloadable(Operator o) {
 
         case BOOL_EQ.id:
         case BOOL_NE.id:
+
+        case NEG.id:
             return true;
         default:
             return false;
