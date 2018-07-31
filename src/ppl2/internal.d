@@ -98,6 +98,7 @@ import ppl2.misc.writer;
 
 import ppl2.parse.detect_type;
 import ppl2.parse.parse_expression;
+import ppl2.parse.parse_helper;
 import ppl2.parse.parse_module;
 import ppl2.parse.parse_named_struct;
 import ppl2.parse.parse_statement;

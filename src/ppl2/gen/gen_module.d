@@ -69,35 +69,27 @@ public:
     }
     //======================================================================================
     void visit(AddressOf n) {
-        dd("visit AddressOf");
         n.expr().visit!ModuleGenerator(this);
 
         rhs = lhs;
     }
     void visit(AnonStruct n) {
-        dd("visit AnonStruct");
-
         foreach(f; n.getMemberFunctions()) {
             f.visit!ModuleGenerator(this);
         }
     }
     void visit(As n) {
-        dd("visit As");
-
         n.left.visit!ModuleGenerator(this);
 
         rhs = castType(rhs, n.left().getType, n.getType, "as");
     }
     void visit(Binary n) {
-        dd("visit Binary", n.op);
         binaryGen.generate(n);
     }
     void visit(Break n) {
-        dd("visit Break");
         loopGen.generate(n);
     }
     void visit(Call n) {
-        dd("visit Call", n.name);
         Type returnType       = n.target.returnType;
         Type[] funcParamTypes = n.target.paramTypes;
         LLVMValueRef[] argValues;
@@ -124,6 +116,12 @@ public:
         } else if(n.target.isMemberFunction) {
             assert(n.target.llvmValue);
             rhs = builder.call(n.target.llvmValue, argValues, LLVMCallConv.LLVMFastCallConv);
+
+            //if(rhs.getType.isPointer) {
+            //    int index = n.target.structMemberIndex;
+            //    lhs = builder.getElementPointer_struct(rhs, index);
+            //}
+
         } else if(n.target.isVariable) {
             rhs = builder.load(n.target.llvmValue);
             rhs = builder.call(rhs, argValues, LLVMCallConv.LLVMFastCallConv);
@@ -132,43 +130,33 @@ public:
             rhs = builder.call(n.target.llvmValue, argValues, n.target.getFunction().getCallingConvention());
         }
 
-        //if(returnType.isStruct &&
-        //(c.parent.isDot || c.parent.isParens) &&
-        //!returnType.isPtr)
-        //{
-        //    /// special case for this no-op
-        //    /// we need to store the result locally
-        //    /// so that we can take a pointer to it
-        //    lhs = builder.alloca(returnType.tgetLLVMType(), "retValStorage");
-        //    builder.store(grhs, lhs);
-        //}
+        if(returnType.isStruct && (n.parent.isDot || n.parent.isA!Parenthesis) && !returnType.isPtr)
+        {
+            /// Special case for returning struct values.
+            /// We need to store the result locally
+            /// so that we can take a pointer to it
+            lhs = builder.alloca(returnType.getLLVMType(), "retValStorage");
+            builder.store(rhs, lhs);
+        }
     }
     void visit(Calloc n) {
-        dd("visit Calloc");
-
         rhs = builder.malloc(n.valueType.getLLVMType(), "calloc");
         memsetZero(rhs, n.valueType.size);
     }
     void visit(Closure n) {
-        dd("visit Closure");
-
         assert(n.llvmValue);
         rhs = n.llvmValue;
     }
     void visit(Composite n) {
-        dd("visit Composite");
         visitChildren(n);
     }
     void visit(Continue n) {
-        dd("visit Continue");
         loopGen.generate(n);
     }
     void visit(Constructor n) {
-        dd("visit Constructor", n.type.getNamedStruct.name);
         visitChildren(n);
     }
     void visit(Dot n) {
-        dd("visit Dot");
         n.left.visit!ModuleGenerator(this);
 
         if(n.left.getType.isPtr) {
@@ -182,7 +170,6 @@ public:
         n.right.visit!ModuleGenerator(this);
     }
     void visit(Function n) {
-        dd("visit Function", n.name);
         if(n.isExtern) return;
         if(n.isInner) return;
 
@@ -190,7 +177,6 @@ public:
         n.getBody().visit!ModuleGenerator(this);
     }
     void visit(Identifier n) {
-        dd("visit Identifier", n.name, n.target);
         if(n.target.isMemberFunction) {
             assert(false);
             //int index = n.target.structMemberIndex;
@@ -220,18 +206,13 @@ public:
         }
     }
     void visit(If n) {
-        dd("visit If");
         ifGen.generate(n);
     }
     void visit(Index n) {
-        dd("visit Index", n.getType);
-
-        dd("  index index");
         n.index().visit!ModuleGenerator(this);
         rhs = castType(rhs, n.index().getType, TYPE_INT, "cast");
         LLVMValueRef arrayIndex = rhs;
 
-        dd("  index left");
         n.left().visit!ModuleGenerator(this);
 
         if(n.isArrayIndex) {
@@ -252,14 +233,11 @@ public:
         } else assert(false);
 
         rhs = builder.load(lhs);
-        //dd("rhs=", rhs.toString);
     }
     void visit(Initialiser n) {
-        dd("visit Initialiser");
         visitChildren(n);
     }
     void visit(Is n) {
-        dd("visit Is");
         n.left.visit!ModuleGenerator(this);
         auto left = castType(rhs, n.leftType(), n.rightType());
 
@@ -272,41 +250,31 @@ public:
         rhs = castI1ToI8(cmp);
     }
     void visit(LiteralArray n) {
-        dd("visit LiteralArray");
         literalGen.generate(n);
     }
     void visit(LiteralFunction n) {
-        dd("visit LiteralFunction");
-
         assert(!n.isClosure);
         literalGen.generate(n, n.getLLVMValue);
     }
     void visit(LiteralNull n) {
-        dd("visit LiteralNull");
         literalGen.generate(n);
     }
     void visit(LiteralNumber n) {
-        dd("visit LiteralNumber", n);
         literalGen.generate(n);
     }
     void visit(LiteralString n) {
-        dd("visit LiteralString");
         literalGen.generate(n);
     }
     void visit(LiteralStruct n) {
-        dd("visit LiteralStruct");
         literalGen.generate(n);
     }
     void visit(Loop n) {
-        dd("visit Loop");
         loopGen.generate(n);
     }
     void visit(NamedStruct n) {
         /// Nothing to do
     }
     void visit(Parameters n) {
-        dd("visit Parameters");
-
         auto litFunc   = n.getLiteralFunction();
         auto llvmValue = litFunc.getLLVMValue();
         auto params    = getFunctionParams(llvmValue);
@@ -329,8 +297,6 @@ public:
         n.expr().visit!ModuleGenerator(this);
     }
     void visit(Return n) {
-        dd("visit Return");
-
         if(n.hasExpr) {
             n.expr().visit!ModuleGenerator(this);
             rhs = castType(rhs, n.expr().getType, n.getReturnType());
@@ -363,7 +329,6 @@ public:
         rhs = builder.load(rhs, "valueOf");
     }
     void visit(Variable n) {
-        dd("visit Variable", n.name);
         if(n.isGlobal) {
 
         } else if(n.isStructMember) {
@@ -493,7 +458,7 @@ public:
     }*/
     LLVMValueRef castType(LLVMValueRef v, Type from, Type to, string name=null) {
         if(from.exactlyMatches(to)) return v;
-        dd("cast", from, to);
+        //dd("cast", from, to);
         /// cast to different pointer type
         if(from.isPtr && to.isPtr) {
             rhs = builder.bitcast(v, to.getLLVMType, name);

@@ -333,7 +333,7 @@ private:
     void dumpTokens(Token[] tokens) {
         if(!getConfig().logTokens) return;
 
-        auto f = new FileLogger(getConfig().targetPath~module_.canonicalName~".tok");
+        auto f = new FileLogger(getConfig().targetPath~"tok/"~module_.canonicalName~".tok");
         foreach(i, t; tokens) {
             f.log("[%s] %s", i, t);
         }

@@ -147,25 +147,6 @@ public:
         exprParser.parse(t, parent);
     }
 private: //=============================================================================== private
-    ///
-    /// "operator" [+-*/%]=? "=" {"
-    ///
-    bool isOperatorOverloadFunction(Tokens t) {
-        assert(t.value=="operator");
-
-        t.markPosition();
-        t.next;
-
-        auto op = parseOperator(t);
-
-        if(op.isOverloadable) {
-            t.resetToMark();
-            return t.peek(3).type==TT.LCURLY;
-        }
-        errorBadSyntax(t, "Expecting an overloadable operator");
-        assert(false);
-    }
-
     /// extern putchar {int->int}
     void parseExtern(Tokens t, ASTNode parent) {
         /// "extern"
@@ -299,6 +280,8 @@ private: //=====================================================================
             f.op = parseOperator(t);
             f.name ~= f.op.value;
             t.next;
+
+            if(f.op==Operator.NOTHING) errorBadSyntax(t, "Expecting an overloadable operator");
         }
 
         /// Function readonly access is effectively public
@@ -337,7 +320,7 @@ private: //=====================================================================
             f.blueprint.setTokens(ns, t.get(start, start+end).dup);
             t.next(end+1);
 
-            dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);
+            //dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);
 
         } else {
 

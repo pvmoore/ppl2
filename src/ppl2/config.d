@@ -46,6 +46,7 @@ public:
     }
 private:
     void generateTargetDirectories() {
+        createTargetDir("tok/");
         createTargetDir("ast/");
         createTargetDir("ir/");
         createTargetDir("ir_opt/");

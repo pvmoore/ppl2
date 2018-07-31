@@ -14,11 +14,11 @@ final class BinaryGenerator {
         Type type = b.type;
 
         //dd("binary", b, "left=", b.left.id, "right=", b.right.id);
-        dd("  left");
+        //dd("  left");
         b.left.visit!ModuleGenerator(gen);
         auto left	   = gen.rhs;
         auto assignVar = gen.lhs;
-        dd("  assignvar=", assignVar.toString);
+        //dd("  assignvar=", assignVar.toString);
 
         //logln("left=%s", left);
         //logln("assignVar type is %s", assignVar.getType());
@@ -28,15 +28,15 @@ final class BinaryGenerator {
             return;
         }
 
-        dd("  right");
+        //dd("  right");
         b.right.visit!ModuleGenerator(gen);
         auto right = gen.rhs; //castType(rhs, b.rightType, type);
         //logln("right=%s", right);
 
         if(b.op.isBool) {
-            dd(0.1, b.op, b.leftType, b.rightType);
+            //dd(0.1, b.op, b.leftType, b.rightType);
             Type cmpType = getBestFit(b.leftType, b.rightType);
-            dd(0.2, cmpType);
+            //dd(0.2, cmpType);
             //logln("\tcmpType is %s", cmpType);
             left  = gen.castType(left, b.leftType, cmpType);
             right = gen.castType(right, b.rightType, cmpType);
@@ -179,10 +179,10 @@ private:
         }
     }
     void assign(LLVMValueRef right, LLVMValueRef assignVar) {
-        dd("    Assign");
-        dd("       ", right.toString, "(", right.getType.toString, ")");
-        dd("    to");
-        dd("       ", assignVar.toString, "(", assignVar.getType.toString, ")");
+        //dd("    Assign");
+        //dd("       ", right.toString, "(", right.getType.toString, ")");
+        //dd("    to");
+        //dd("       ", assignVar.toString, "(", assignVar.getType.toString, ")");
         builder.store(right, assignVar);
     }
     auto add(Type type, LLVMValueRef left, LLVMValueRef right) {

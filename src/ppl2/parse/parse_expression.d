@@ -42,7 +42,7 @@ private:
                 return;
             }
             if(nextTok.type==TT.LBRACKET) {
-                parseStructConstructor(t, parent);
+                parseConstructor(t, parent);
                 return;
             }
             if(t.peek(-2).value=="is" && t.peek(-1).value=="not") {
@@ -116,6 +116,9 @@ private:
                 break;
             case TT.AT:
                 parseValueOf(t, parent);
+                break;
+            case TT.EXCLAMATION:
+                errorBadSyntax(t, "Did you mean 'not'");
                 break;
             default:
                 //errorBadSyntax(t, "Syntax error");
@@ -407,6 +410,8 @@ private:
 
             c.name ~= op.value;
             t.next;
+
+            if(op==Operator.NOTHING) errorBadSyntax(t, "Expecting an overloadable operator");
         }
 
         /// template args
@@ -431,7 +436,7 @@ private:
             }
             t.skip(TT.RANGLE);
 
-            dd("Function template call", c.name, c.templateTypes);
+            //dd("Function template call", c.name, c.templateTypes);
         }
 
         t.skip(TT.LBRACKET);
@@ -707,7 +712,7 @@ private:
     /// constructor ::= identifier "(" { cexpr [ "," cexpr ] } ")"
     /// cexpr :: expression | paramname "=" expression
     ///
-    void parseStructConstructor(Tokens t, ASTNode parent) {
+    void parseConstructor(Tokens t, ASTNode parent) {
         /// S(...)
         ///    Variable _temp
         ///    ValueOf
@@ -752,7 +757,10 @@ private:
             expr = b.dot(b.typeExpr(con.type), call);
         } else {
             /// Stack alloca
-            auto var  = b.variable(module_.makeTemporary(con.getName()), con.type, false);
+            import common : contains;
+            auto prefix = con.getName();
+            if(prefix.contains("__")) prefix = "constructor";
+            auto var  = b.variable(module_.makeTemporary(prefix), con.type, false);
             con.add(var);
 
             thisPtr = b.addressOf(b.identifier(var.name));

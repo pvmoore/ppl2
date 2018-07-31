@@ -25,7 +25,9 @@ final class Constructor : Expression {
     override NodeID id() const { return NodeID.CONSTRUCTOR; }
     override Type getType() { return type; }
 
-    string getName() { return type.isDefine ? type.getDefine.name : type.getNamedStruct.name; }
+    string getName() {
+        return type.isNamedStruct ? type.getNamedStruct.name : type.getDefine.name;
+    }
     bool isPtr()     { return type.isPtr; }
 
     Expression expr() {

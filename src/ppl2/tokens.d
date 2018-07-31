@@ -268,6 +268,7 @@ enum TT {
     BIT_AND_ASSIGN, //  &=
     BIT_XOR_ASSIGN, // ^=
     BIT_OR_ASSIGN,  // |=
+
     SHL_ASSIGN,     // <<=
     SHR_ASSIGN,     // >>=
     USHR_ASSIGN,    // >>>=

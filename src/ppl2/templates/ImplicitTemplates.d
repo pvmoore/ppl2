@@ -17,7 +17,7 @@ public:
         this.identifierResolver = new IdentifierResolver(module_);
     }
     bool find(NamedStruct ns, Call call, Array!Function templateFuncs) {
-        dd("================== Get implicit function templates for call", call.name, "(", call.argTypes.prettyString,")");
+        //dd("================== Get implicit function templates for call", call.name, "(", call.argTypes.prettyString,")");
 
         /// Exit if call is already templated or there are no non-this args
         if(call.name.contains("<")) return false;

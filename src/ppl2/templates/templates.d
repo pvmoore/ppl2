@@ -29,7 +29,7 @@ public:
                 "Expecting %s template parameters".format(ns.blueprint.numTemplateParams));
         }
 
-        dd("Extracting struct template", ns.name, mangledName, module_.canonicalName);
+        //dd("Extracting struct template", ns.name, mangledName, module_.canonicalName);
 
         auto tokens = ns.blueprint.extractStruct(mangledName, templateTypes);
 
@@ -66,10 +66,10 @@ public:
             //extractedFunctions.add(key);
             keys.add(key);
 
-            dd("Extracting function template", f.name, mangledName, ns ? "(struct "~ns.name~")" : "", module_.canonicalName);
+            //dd("Extracting function template", f.name, mangledName, ns ? "(struct "~ns.name~")" : "", module_.canonicalName);
 
             auto tokens = f.blueprint.extractFunction(mangledName, call.templateTypes);
-            dd("  tokens=", tokens.toString);
+            //dd("  tokens=", tokens.toString);
 
             module_.parser.appendTokens(f, tokens);
 

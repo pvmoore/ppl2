@@ -24,10 +24,6 @@ Operator parseOperator(Tokens t) {
     }
     return Operator.NOTHING;
 }
-///
-/// & (AddressOf) = 2
-/// @ (ValueOf)   = 2
-///
 struct Op {
     int id;
     int priority;
@@ -36,49 +32,49 @@ struct Op {
 enum Operator : Op {
     NOTHING = Op(0,0,null),
 
-    NEG      = Op(0, 2, "neg"),
-    BIT_NOT  = Op(1, 2, "~"),
-    BOOL_NOT = Op(2, 2, "not"),
+    NEG      = Op(1, 2, "neg"),
+    BIT_NOT  = Op(2, 2, "~"),
+    BOOL_NOT = Op(3, 2, "not"),
 
-    DIV  = Op(3, 3, "/"),
-    MUL = Op(5, 3, "*"),
-    MOD  = Op(6, 3, "%"),
+    /// & addressof = 2
+    /// @ valueof = 2
 
-    ADD = Op(8, 4, "+"),
-    SUB = Op(9, 4, "-"),
+    DIV      = Op(4, 3, "/"),
+    MUL      = Op(5, 3, "*"),
+    MOD      = Op(6, 3, "%"),
 
-    SHL  = Op(10, 5, "<<"),
-    SHR  = Op(11, 5, ">>"),
-    USHR = Op(12, 5, ">>>"),
+    ADD      = Op(7,  4, "+"),
+    SUB      = Op(8,  4, "-"),
+    SHL      = Op(9,  4, "<<"),
+    SHR      = Op(10, 4, ">>"),
+    USHR     = Op(11, 4, ">>>"),
+    BIT_AND  = Op(12, 4, "&"),
+    BIT_XOR  = Op(13, 4, "^"),
+    BIT_OR   = Op(14, 4, "|"),
 
-    LT   = Op(13, 6, "<"),
-    GT   = Op(14, 6, ">"),
-    LTE  = Op(15, 6, "<="),
-    GTE  = Op(16, 6, ">="),
+    LT       = Op(15, 7, "<"),
+    GT       = Op(16, 7, ">"),
+    LTE      = Op(17, 7, "<="),
+    GTE      = Op(18, 7, ">="),
+    BOOL_EQ  = Op(19, 7, "=="),
+    BOOL_NE  = Op(20, 7, "!="),
 
-    BOOL_EQ = Op(21, 7, "=="),
-    BOOL_NE = Op(22, 7, "!="),
+    BOOL_AND = Op(21, 11, "and"),
+    BOOL_OR  = Op(22, 11, "or"),
 
-    BIT_AND = Op(23, 8, "&"),
-    BIT_XOR = Op(24, 9, "^"),
-    BIT_OR  = Op(25, 10, "|"),
+    ADD_ASSIGN     = Op(23, 14, "+="),
+    SUB_ASSIGN     = Op(24, 14, "-="),
+    MUL_ASSIGN     = Op(25, 14, "*="),
+    DIV_ASSIGN     = Op(26, 14, "/="),
+    MOD_ASSIGN     = Op(27, 14, "%="),
+    BIT_AND_ASSIGN = Op(28, 14, "&="),
+    BIT_XOR_ASSIGN = Op(29, 14, "^="),
+    BIT_OR_ASSIGN  = Op(30, 14, "|="),
 
-    BOOL_AND = Op(26, 11, "and"),
-    BOOL_OR  = Op(27, 11, "or"),
-
-    ADD_ASSIGN     = Op(28, 14, "+="),
-    SUB_ASSIGN     = Op(29, 14, "-="),
-    MUL_ASSIGN     = Op(30, 14, "*="),
-    DIV_ASSIGN     = Op(31, 14, "/="),
-    MOD_ASSIGN     = Op(33, 14, "%="),
-    BIT_AND_ASSIGN = Op(35, 14, "&="),
-    BIT_XOR_ASSIGN = Op(36, 14, "^="),
-    BIT_OR_ASSIGN  = Op(37, 14, "|="),
-
-    SHL_ASSIGN     = Op(38, 14, "<<="),
-    SHR_ASSIGN     = Op(39, 14, ">>="),
-    USHR_ASSIGN    = Op(40, 14, ">>>="),
-    ASSIGN         = Op(41, 14, "=")
+    SHL_ASSIGN     = Op(31, 14, "<<="),
+    SHR_ASSIGN     = Op(32, 14, ">>="),
+    USHR_ASSIGN    = Op(33, 14, ">>>="),
+    ASSIGN         = Op(34, 14, "=")
 }
 //===========================================================================
 bool isAssign(Operator o) {
@@ -117,11 +113,27 @@ bool isOverloadable(Operator o) {
         case MUL.id:
         case DIV.id:
         case MOD.id:
+        case SHL.id:
+        case SHR.id:
+        case USHR.id:
+        case BIT_OR.id:
+        case BIT_AND.id:
+        case BIT_XOR.id:
+
         case ADD_ASSIGN.id:
         case SUB_ASSIGN.id:
         case MUL_ASSIGN.id:
         case DIV_ASSIGN.id:
         case MOD_ASSIGN.id:
+        case SHL_ASSIGN.id:
+        case SHR_ASSIGN.id:
+        case USHR_ASSIGN.id:
+        case BIT_OR_ASSIGN.id:
+        case BIT_AND_ASSIGN.id:
+        case BIT_XOR_ASSIGN.id:
+
+        case BOOL_EQ.id:
+        case BOOL_NE.id:
             return true;
         default:
             return false;
