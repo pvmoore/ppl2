@@ -138,7 +138,7 @@ public:
 
         /// [
         auto s = makeNode!AnonStruct(t);
-        node.addToEnd(s);
+        node.add(s);
 
         t.skip(TT.LSQBRACKET);
 
@@ -161,7 +161,7 @@ public:
     ///
     Type parseArrayType(Tokens t, ASTNode node, bool addToNode) {
         auto a = makeNode!ArrayType(t);
-        node.addToEnd(a);
+        node.add(a);
 
         /// [:
         t.skip(TT.LSQBRACKET);
@@ -193,7 +193,7 @@ public:
         t.skip(TT.LCURLY);
 
         auto f = makeNode!FunctionType(t);
-        node.addToEnd(f);
+        node.add(f);
 
         /// args
         while(t.type!=TT.RT_ARROW) {
@@ -222,7 +222,7 @@ public:
             /// void return type
             auto v = makeNode!Variable(t);
             v.type = TYPE_VOID;
-            f.addToEnd(v);
+            f.add(v);
         }
 
         t.skip(TT.RCURLY);

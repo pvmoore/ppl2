@@ -22,7 +22,7 @@ public:
         t.skip("struct");
 
         NamedStruct n = makeNode!NamedStruct(t);
-        parent.addToEnd(n);
+        parent.add(n);
 
         n.moduleName = module_.canonicalName;
         n.access     = t.access();
@@ -132,7 +132,7 @@ private:
             defCons            = makeNode!Function(t);
             defCons.name       = "new";
             defCons.moduleName = module_.canonicalName;
-            anonStruct.addToEnd(defCons);
+            anonStruct.add(defCons);
 
             auto params = makeNode!Parameters(t);
             params.addThisParameter(ns);
@@ -141,9 +141,9 @@ private:
             type.params = params;
 
             auto bdy  = makeNode!LiteralFunction(t);
-            bdy.addToEnd(params);
+            bdy.add(params);
             bdy.type = type;
-            defCons.addToEnd(bdy);
+            defCons.add(bdy);
         }
     }
     /// Add implicit return 'this' at the end of all constructors
@@ -160,7 +160,7 @@ private:
             }
 
             auto ret = builder().return_(builder().identifier("this"));
-            bdy.addToEnd(ret);
+            bdy.add(ret);
         }
     }
     /// Every non-default constructor should start with a call to the default constructor
@@ -175,7 +175,7 @@ private:
                 auto call = builder().call("new", null);
                 auto arg  = builder().identifier("this");
 
-                call.addToEnd(arg);
+                call.add(arg);
                 /// Add it after Arguments
                 bdy.insertAt(1, call);
             }

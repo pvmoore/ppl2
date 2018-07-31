@@ -239,8 +239,8 @@ private:
             }
         }
 
-        newExpr.addToEnd(prev.last);
-        prev.addToEnd(newExpr);
+        newExpr.add(prev.last);
+        prev.add(newExpr);
 
         parseLHS(t, newExpr);
 
@@ -348,7 +348,7 @@ private:
     }
     void parseTypeExpr(Tokens t, ASTNode parent) {
         auto e = makeNode!TypeExpr(t);
-        parent.addToEnd(e);
+        parent.add(e);
 
         e.type = typeParser().parse(t, e);
 
@@ -368,12 +368,12 @@ private:
             auto lit = makeNode!LiteralNumber(t);
             lit.str = t.value;
             e = lit;
-            parent.addToEnd(e);
+            parent.add(e);
             lit.determineType();
             t.next;
         } else if("null"==t.value) {
             e = makeNode!LiteralNull(t);
-            parent.addToEnd(e);
+            parent.add(e);
             t.next;
         } else {
             assert(false, "How did we get here?");
@@ -385,7 +385,7 @@ private:
     void parseCall(Tokens t, ASTNode parent) {
 
         auto c = makeNode!Call(t);
-        parent.addToEnd(c);
+        parent.add(c);
 
         c.target = new Target(module_);
         c.name = t.value;
@@ -477,7 +477,7 @@ private:
     void parseIdentifier(Tokens t, ASTNode parent) {
 
         auto id = makeNode!Identifier(t);
-        parent.addToEnd(id);
+        parent.add(id);
 
         /// Two identifiers in a row means one was probably a type that we don't know about
         auto prev = id.prevSibling;
@@ -491,7 +491,7 @@ private:
     }
     void parseParenthesis(Tokens t, ASTNode parent) {
         auto p = makeNode!Parenthesis(t);
-        parent.addToEnd(p);
+        parent.add(p);
 
         t.skip(TT.LBRACKET);
 
@@ -505,10 +505,10 @@ private:
     void parseLiteralFunction(Tokens t, ASTNode parent) {
 
         LiteralFunction f = makeNode!LiteralFunction(t);
-        parent.addToEnd(f);
+        parent.add(f);
 
         auto params = makeNode!Parameters(t);
-        f.addToEnd(params);
+        f.add(params);
 
         auto type   = makeNode!FunctionType(t);
         type.params = params;
@@ -549,11 +549,11 @@ private:
 
             auto closure = makeNode!Closure(t);
             closure.name = name;
-            closure.addToEnd(f);
+            closure.add(f);
 
             module_.addClosure(closure);
 
-            parent.addToEnd(closure);
+            parent.add(closure);
         }
     }
     ///
@@ -561,7 +561,7 @@ private:
     ///
     void parseLiteralStruct(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralStruct(t);
-        parent.addToEnd(e);
+        parent.add(e);
 
         /// [
         t.skip(TT.LSQBRACKET);
@@ -594,7 +594,7 @@ private:
     ///
     void parseLiteralArray(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralArray(t);
-        parent.addToEnd(e);
+        parent.add(e);
 
         /// [:
         t.skip(TT.LSQBRACKET);
@@ -615,8 +615,8 @@ private:
                 /// Split binary into 2 expressions
                 auto b = e.last.as!Binary;
                 e.remove(b);
-                e.addToEnd(b.left);
-                e.addToEnd(b.right);
+                e.add(b.left);
+                e.add(b.right);
 
             } else {
                 if(e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
@@ -633,7 +633,7 @@ private:
     void parseUnary(Tokens t, ASTNode parent) {
 
         auto u = makeNode!Unary(t);
-        parent.addToEnd(u);
+        parent.add(u);
 
         /// - ~ not
         if("not"==t.value) {
@@ -655,7 +655,7 @@ private:
     void parseLiteralString(Tokens t, ASTNode parent) {
 
         auto composite = makeNode!Composite(t);
-        parent.addToEnd(composite);
+        parent.add(composite);
 
         auto s = makeNode!LiteralString(t);
 
@@ -688,20 +688,20 @@ private:
         auto var = makeNode!Variable(t);
         var.name = module_.makeTemporary("str");
         var.type = findType("string", parent);
-        composite.addToEnd(var);
+        composite.add(var);
 
         /// Call string.new(this, byte*, int)
 
         Call call    = b.call("new", null);
         auto thisPtr = b.addressOf(b.identifier(var.name));
-        call.addToEnd(thisPtr);
-        call.addToEnd(s);
-        call.addToEnd(LiteralNumber.makeConst(s.calculateLength(), TYPE_INT));
+        call.add(thisPtr);
+        call.add(s);
+        call.add(LiteralNumber.makeConst(s.calculateLength(), TYPE_INT));
 
         auto dot = b.dot(b.identifier(var.name), call);
 
         auto valueof = b.valueOf(dot);
-        composite.addToEnd(valueof);
+        composite.add(valueof);
     }
     ///
     /// constructor ::= identifier "(" { cexpr [ "," cexpr ] } ")"
@@ -723,7 +723,7 @@ private:
         ///             malloc
         ///
         auto con = makeNode!Constructor(t);
-        parent.addToEnd(con);
+        parent.add(con);
 
         auto b = module_.builder(con);
 
@@ -753,16 +753,16 @@ private:
         } else {
             /// Stack alloca
             auto var  = b.variable(module_.makeTemporary(con.getName()), con.type, false);
-            con.addToEnd(var);
+            con.add(var);
 
             thisPtr = b.addressOf(b.identifier(var.name));
 
             auto dot = b.dot(b.identifier(var), call);
             expr = b.valueOf(dot);
         }
-        call.addToEnd(thisPtr);
+        call.add(thisPtr);
 
-        con.addToEnd(expr);
+        con.add(expr);
 
         /// (
         t.skip(TT.LBRACKET);
@@ -816,7 +816,7 @@ private:
     void parseAddressOf(Tokens t, ASTNode parent) {
 
         auto a = makeNode!AddressOf(t);
-        parent.addToEnd(a);
+        parent.add(a);
 
         t.skip(TT.AMPERSAND);
 
@@ -825,7 +825,7 @@ private:
     void parseValueOf(Tokens t, ASTNode parent) {
 
         auto v = makeNode!ValueOf(t);
-        parent.addToEnd(v);
+        parent.add(v);
 
         t.skip(TT.AT);
 
@@ -838,7 +838,7 @@ private:
     ///
     void parseIf(Tokens t, ASTNode parent) {
         auto i = makeNode!If(t);
-        parent.addToEnd(i);
+        parent.add(i);
 
         /// if
         t.skip("if");
@@ -848,7 +848,7 @@ private:
 
         /// possible init expressions
         auto inits = Composite.make(t, Composite.Usage.PERMANENT);
-        i.addToEnd(inits);
+        i.add(inits);
 
         bool hasInits() {
             auto end = t.findInScope(TT.RBRACKET);
@@ -873,7 +873,7 @@ private:
         t.skip(TT.RBRACKET);
 
         auto then = Composite.make(t, Composite.Usage.PERMANENT);
-        i.addToEnd(then);
+        i.add(then);
 
         /// then block
         if(t.type==TT.LCURLY) {
@@ -893,7 +893,7 @@ private:
             t.skip("else");
 
             auto else_ = Composite.make(t, Composite.Usage.PERMANENT);
-            i.addToEnd(else_);
+            i.add(else_);
 
             if(t.type==TT.LCURLY) {
                 t.skip(TT.LCURLY);

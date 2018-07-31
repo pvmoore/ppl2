@@ -43,7 +43,7 @@ final class LiteralStruct : Expression {
                 auto v = makeNode!Variable(this);
                 v.name = n;
                 v.type = types[i];
-                t.addToEnd(v);
+                t.add(v);
             }
         } else {
             /// This is a standard list of expressions
@@ -52,12 +52,12 @@ final class LiteralStruct : Expression {
             foreach (ty; elementTypes) {
                 auto v = makeNode!Variable(this);
                 v.type = ty;
-                t.addToEnd(v);
+                t.add(v);
             }
         }
         /// Add this AnonStruct at module scope because we need it to be in the AST
         /// but we don't want it as our own child node
-        getModule.addToEnd(t);
+        getModule.add(t);
 
         return t;
     }

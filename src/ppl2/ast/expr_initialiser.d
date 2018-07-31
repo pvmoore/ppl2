@@ -50,6 +50,6 @@ private:
         _literal = last().as!LiteralNumber;
         auto b      = getModule.builder(var);
         auto assign = b.binary(Operator.ASSIGN, b.identifier(var), last().as!Expression, var.type);
-        addToEnd(assign);
+        add(assign);
     }
 }

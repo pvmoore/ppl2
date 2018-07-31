@@ -430,7 +430,7 @@ private:
                 proxy.name       = mangledName;
                 proxy.moduleName = m.canonicalName;
                 proxy.isImport   = true;
-                module_.addToEnd(proxy);
+                module_.add(proxy);
             }
         }
 

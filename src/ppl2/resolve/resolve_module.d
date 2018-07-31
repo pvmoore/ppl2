@@ -142,10 +142,10 @@ public:
 
                     auto left  = b.addressOf(n.left);
                     auto right = b.addressOf(n.right);
-                    n.addToEnd(left);
-                    n.addToEnd(right);
+                    n.add(left);
+                    n.add(right);
 
-                    value.addToEnd(n);
+                    value.add(n);
 
                     rewrites++;
                 }
@@ -178,14 +178,14 @@ public:
             } else {
                 value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNumber.makeConst(0));
             }
-            c.addToEnd(value);
+            c.add(value);
 
             /// string
-            //c.addToEnd(b.string_(module_.moduleNameLiteral));
-            c.addToEnd(module_.moduleNameLiteral.copy());
+            //c.add(b.string_(module_.moduleNameLiteral));
+            c.add(module_.moduleNameLiteral.copy());
 
             /// line
-            c.addToEnd(LiteralNumber.makeConst(n.line, TYPE_INT));
+            c.add(LiteralNumber.makeConst(n.line, TYPE_INT));
 
             rewrites++;
         }
@@ -221,10 +221,10 @@ public:
             auto b      = module_.builder(n);
 
             auto left  = n.leftType.isValue ? b.addressOf(n.left) : n.left;
-            auto right = b.call(name, null);
-            right.addToEnd(n.right);
+            auto right = b.call(name, null)
+                          .add(n.right);
 
-            auto dot = b.dot(left, right);
+            auto dot = b.dot(left, right.as!Expression);
 
             n.parent.replaceChild(n, dot);
             rewrites++;
@@ -331,7 +331,7 @@ public:
 
                         if(prevType.isValue) {
                             auto ptr = makeNode!AddressOf;
-                            ptr.addToEnd(prev);
+                            ptr.add(prev);
                             n.insertAt(0, ptr);
                         } else {
                             n.insertAt(0, prev);
@@ -413,7 +413,7 @@ public:
                     a.detach();
                 }
                 foreach(a; args) {
-                    n.addToEnd(a);
+                    n.add(a);
                 }
 
                 /// We don't need the param names any more

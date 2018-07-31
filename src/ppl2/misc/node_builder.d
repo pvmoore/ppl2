@@ -17,13 +17,13 @@ final class NodeBuilder {
 
     AddressOf addressOf(Expression expr) {
         auto a = makeNode!AddressOf(node);
-        a.addToEnd(expr);
+        a.add(expr);
         return a;
     }
     As as(Expression left, Type type) {
         auto a = makeNode!As(node);
-        a.addToEnd(left);
-        a.addToEnd(typeExpr(type));
+        a.add(left);
+        a.add(typeExpr(type));
         return a;
     }
     Binary binary(Operator op, Expression left, Expression right, Type type=TYPE_UNKNOWN) {
@@ -31,8 +31,8 @@ final class NodeBuilder {
         b.type = type;
         b.op   = op;
 
-        b.addToEnd(left);
-        b.addToEnd(right);
+        b.add(left);
+        b.add(right);
         return b;
     }
     Call call(string name, Function f) {
@@ -52,8 +52,8 @@ final class NodeBuilder {
     }
     Dot dot(Expression left, Expression right) {
         auto d = makeNode!Dot(node);
-        d.addToEnd(left);
-        d.addToEnd(right);
+        d.add(left);
+        d.add(right);
         return d;
     }
     Identifier identifier(Variable v) {
@@ -78,13 +78,13 @@ final class NodeBuilder {
     }
     Index index(Expression left, Expression right) {
         auto i = makeNode!Index(node);
-        i.addToEnd(left);
-        i.addToEnd(right);
+        i.add(left);
+        i.add(right);
         return i;
     }
     Return return_(Expression expr) {
         auto ret = makeNode!Return(node);
-        ret.addToEnd(expr);
+        ret.add(expr);
         return ret;
     }
     TypeExpr typeExpr(Type t) {
@@ -94,7 +94,7 @@ final class NodeBuilder {
     }
     ValueOf valueOf(Expression expr) {
         auto v = makeNode!ValueOf(node);
-        v.addToEnd(expr);
+        v.add(expr);
         return v;
     }
     Variable variable(string name, Type t, bool isConst = false) {
@@ -111,18 +111,18 @@ final class NodeBuilder {
         con.type = findType("string", module_);
 
         auto var = variable(module_.makeTemporary("str"), con.type);
-        con.addToEnd(var);
+        con.add(var);
 
         /// Call string.new(this, byte*, int)
         Call call = call("new", null);
-            call.addToEnd(addressOf(identifier(var.name)));
-            call.addToEnd(lit);
-            call.addToEnd(LiteralNumber.makeConst(lit.calculateLength(), TYPE_INT));
+            call.add(addressOf(identifier(var.name)));
+            call.add(lit);
+            call.add(LiteralNumber.makeConst(lit.calculateLength(), TYPE_INT));
 
         //auto dot = dot(identifier(var.name), call);
 
         //auto valueof = valueOf(dot);
-        con.addToEnd(valueOf(dot(identifier(var.name), call)));
+        con.add(valueOf(dot(identifier(var.name), call)));
         return con;
     }
 }

@@ -118,16 +118,19 @@ abstract class ASTNode {
     bool hasChildren() const { return children.length > 0; }
     int numChildren() const { return cast(int)children.length; }
 
-    void addToFront(ASTNode child) {
+    auto addToFront(ASTNode child) {
         child.detach();
         children.insertAt(child, 0);
         child.parent = this;
+        return this;
     }
-    void addToEnd(ASTNode child) {
+    auto add(ASTNode child) {
         child.detach();
         children.add(child);
         child.parent = this;
+        return this;
     }
+
     void insertAt(int index, ASTNode child) {
         child.detach();
         children.insertAt(child, index);

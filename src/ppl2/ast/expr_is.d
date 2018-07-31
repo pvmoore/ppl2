@@ -133,9 +133,9 @@ private:
         auto b = getModule.builder(this);
 
         auto call = b.call("memcmp", null);
-        call.addToEnd(b.addressOf(left()));
-        call.addToEnd(b.addressOf(right()));
-        call.addToEnd(LiteralNumber.makeConst(leftType.size, TYPE_INT));
+        call.add(b.addressOf(left()));
+        call.add(b.addressOf(right()));
+        call.add(LiteralNumber.makeConst(leftType.size, TYPE_INT));
 
         auto op = negate ? Operator.BOOL_NE : Operator.BOOL_EQ;
         auto ne = b.binary(op, call, LiteralNumber.makeConst(0, TYPE_INT));

@@ -172,7 +172,7 @@ private: //=====================================================================
         t.next;
 
         auto f = makeNode!Function(t);
-        parent.addToEnd(f);
+        parent.add(f);
         f.moduleName = module_.canonicalName;
         f.isExtern   = true;
 
@@ -189,7 +189,7 @@ private: //=====================================================================
     void parseImport(Tokens t, ASTNode parent) {
 
         auto imp = makeNode!Import(t);
-        parent.addToEnd(imp);
+        parent.add(imp);
 
         /// "import"
         t.next;
@@ -237,7 +237,7 @@ private: //=====================================================================
             fn.moduleName = imp.moduleName;
             fn.moduleNID  = imp.mod.nid;
             fn.isImport   = true;
-            imp.addToEnd(fn);
+            imp.add(fn);
         }
         foreach(d; imp.mod.exportedTypes.values) {
             auto def        = makeNode!Define(t);
@@ -246,7 +246,7 @@ private: //=====================================================================
             def.moduleName  = imp.moduleName;
             def.moduleNID   = imp.mod.nid;
             def.isImport    = true;
-            imp.addToEnd(def);
+            imp.add(def);
         }
     }
     ///
@@ -258,7 +258,7 @@ private: //=====================================================================
     void parseDefine(Tokens t, ASTNode parent) {
 
         auto def = makeNode!Define(t);
-        parent.addToEnd(def);
+        parent.add(def);
 
         /// "define"
         t.skip("define");
@@ -283,7 +283,7 @@ private: //=====================================================================
     void parseFunction(Tokens t, ASTNode parent) {
 
         auto f = makeNode!Function(t);
-        parent.addToEnd(f);
+        parent.add(f);
 
         auto ns = f.getAncestor!NamedStruct;
 
@@ -357,7 +357,7 @@ private: //=====================================================================
     void parseReturn(Tokens t, ASTNode parent) {
 
         auto r = makeNode!Return(t);
-        parent.addToEnd(r);
+        parent.add(r);
 
         int line = t.get().line;
 
@@ -379,7 +379,7 @@ private: //=====================================================================
 
         /// Only add if asserts are enabled
         if(getConfig().enableAsserts) {
-            parent.addToEnd(a);
+            parent.add(a);
         }
 
         parse(t, a);
@@ -387,20 +387,20 @@ private: //=====================================================================
     void parseBreak(Tokens t, ASTNode parent) {
 
         auto b = makeNode!Break(t);
-        parent.addToEnd(b);
+        parent.add(b);
 
         t.skip("break");
     }
     void parseContinue(Tokens t, ASTNode parent) {
         auto c = makeNode!Continue(t);
-        parent.addToEnd(c);
+        parent.add(c);
 
         t.skip("continue");
     }
     void parseLoop(Tokens t, ASTNode parent) {
 
         auto loop = makeNode!Loop(t);
-        parent.addToEnd(loop);
+        parent.add(loop);
 
         t.skip("loop");
 
@@ -408,7 +408,7 @@ private: //=====================================================================
 
         /// Init statements (must be Variables or Binary)
         auto inits = Composite.make(t, Composite.Usage.PERMANENT);
-        loop.addToEnd(inits);
+        loop.add(inits);
 
         if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop initialiser");
 
@@ -426,7 +426,7 @@ private: //=====================================================================
 
         /// Condition
         auto cond = Composite.make(t, Composite.Usage.PERMANENT);
-        loop.addToEnd(cond);
+        loop.add(cond);
         if(t.type!=TT.SEMICOLON) {
             exprParser().parse(t, cond);
         } else {
@@ -437,7 +437,7 @@ private: //=====================================================================
 
         /// Post loop expressions
         auto post = Composite.make(t, Composite.Usage.PERMANENT);
-        loop.addToEnd(post);
+        loop.add(post);
         while(t.type!=TT.RBRACKET) {
 
             exprParser().parse(t, post);
@@ -451,7 +451,7 @@ private: //=====================================================================
 
         /// Body statements
         auto body_ = Composite.make(t, Composite.Usage.PERMANENT);
-        loop.addToEnd(body_);
+        loop.add(body_);
 
         while(t.type!=TT.RCURLY) {
             parse(t, body_);

@@ -101,15 +101,15 @@ private:
             initFunc = makeNode!Function;
             initFunc.name       = "new";
             initFunc.moduleName = module_.canonicalName;
-            module_.addToEnd(initFunc);
+            module_.add(initFunc);
 
             auto params = makeNode!Parameters;
             auto type   = makeNode!FunctionType;
             type.params = params;
             auto lit    = makeNode!LiteralFunction;
-            lit.addToEnd(params);
+            lit.add(params);
             lit.type = type;
-            initFunc.addToEnd(lit);
+            initFunc.add(lit);
         }
         if(isMainModule) {
             g_mainModuleNID = module_.nid;

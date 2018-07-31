@@ -90,7 +90,7 @@ final class LiteralArray : Expression {
         /// If we get here then we know all we need to know
 
         if(!type.hasCountExpr()) {
-            type.addToEnd(LiteralNumber.makeConst(calculateCount()));
+            type.add(LiteralNumber.makeConst(calculateCount()));
         }
     }
 

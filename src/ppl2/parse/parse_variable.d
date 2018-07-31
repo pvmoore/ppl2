@@ -23,7 +23,7 @@ public:
     void parse(Tokens t, ASTNode parent, bool requireType=false) {
         //dd("variable");
         auto v = makeNode!Variable(t);
-        parent.addToEnd(v);
+        parent.add(v);
 
         v.moduleNID = module_.nid;
 
@@ -66,7 +66,7 @@ public:
 
                 auto ini = makeNode!Initialiser(t);
                 ini.var = v;
-                v.addToEnd(ini);
+                v.add(ini);
 
                 exprParser().parse(t, ini);
 
