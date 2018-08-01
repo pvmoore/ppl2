@@ -38,7 +38,7 @@ enum Operator : Op {
     BOOL_NOT = Op(3, 2, "not"),
 
     /// & addressof = 2
-    /// @ valueof = 2
+    /// @ valueof   = 2
 
     DIV      = Op(4, 3, "/"),
     MUL      = Op(5, 3, "*"),
@@ -58,7 +58,7 @@ enum Operator : Op {
     LTE      = Op(17, 7, "<="),
     GTE      = Op(18, 7, ">="),
     BOOL_EQ  = Op(19, 7, "=="),
-    BOOL_NE  = Op(20, 7, "!="),
+    COMPARE  = Op(20, 7, "<>"),     /// BOOL_NE
 
     BOOL_AND = Op(21, 11, "and"),
     BOOL_OR  = Op(22, 11, "or"),
@@ -87,7 +87,7 @@ bool isBool(Operator o) {
         case BOOL_OR.id:
         case BOOL_NOT.id:
         case BOOL_EQ.id:
-        case BOOL_NE.id:
+        case COMPARE.id:
         case LT.id:
         case GT.id:
         case LTE.id:
@@ -134,9 +134,22 @@ bool isOverloadable(Operator o) {
         case BIT_XOR_ASSIGN.id:
 
         case BOOL_EQ.id:
-        case BOOL_NE.id:
+        case COMPARE.id:
 
         case NEG.id:
+            return true;
+        default:
+            return false;
+    }
+}
+bool isComparison(Operator o) {
+    switch(o.id) with(Operator) {
+        case LT.id:
+        case LTE.id:
+        case GT.id:
+        case GTE.id:
+        case BOOL_EQ.id:
+        case COMPARE.id:
             return true;
         default:
             return false;

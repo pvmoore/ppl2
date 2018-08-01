@@ -22,7 +22,7 @@ testConsts = {
     const var N = 1 <= 1
     const var O = 1 >= 1
     const var P = 1 == 1
-    const var Q = 1 != 1
+    const var Q = 1 <> 1
 
     const var R = 0 & 0xff
     const var S = 0 ^ 0xff

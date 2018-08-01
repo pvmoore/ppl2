@@ -274,7 +274,7 @@ enum TT {
     USHR_ASSIGN,    // >>>=
 
     BOOL_EQ,        // ==
-    BOOL_NE,        // !=
+    COMPARE,        // <>
 }
 string toString(Token[] tokens) {
     return tokens.map!(it=>it.type==TT.IDENTIFIER ? it.value : it.type.toString).join(" ");
@@ -332,7 +332,7 @@ string toString(TT t) {
         map[USHR_ASSIGN] = ">>>=";
 
         map[BOOL_EQ] = "==";
-        map[BOOL_NE] = "!=";
+        map[COMPARE] = "<>";
     }
     return map.get(t, "%s".format(t));
 }

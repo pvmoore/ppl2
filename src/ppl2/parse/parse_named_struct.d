@@ -155,7 +155,7 @@ private:
 
             /// Don't allow user to add their own return
             if(bdy.getReturns().length > 0) {
-                errorIncorrectReturnType(bdy.getReturns()[0],
+                throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, bdy.getReturns()[0],
                     "Constructor should not include a return statement");
             }
 

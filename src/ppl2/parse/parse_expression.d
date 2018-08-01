@@ -78,7 +78,8 @@ private:
             }
             if(t.peek(1).type==TT.LANGLE) {
                 /// Could be a call or a Binary name < expr
-                if(isTemplateParams(t, 1)) {
+                int end;
+                if(isTemplateParams(t, 1, end)) {
                     parseCall(t, parent);
                     return;
                 }
@@ -176,7 +177,7 @@ private:
                 case TT.SHR_ASSIGN:
                 case TT.USHR_ASSIGN:
                 case TT.BOOL_EQ:
-                case TT.BOOL_NE:
+                case TT.COMPARE:
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.AMPERSAND:
@@ -248,40 +249,6 @@ private:
         parseLHS(t, newExpr);
 
         return newExpr;
-    }
-    ///
-    /// "<" param { "," param } ">"
-    ///
-    bool isTemplateParams(Tokens t, int offset) {
-        bool result = false;
-        t.markPosition();
-        t.next(offset);
-        outer:while(!result) {
-            /// <
-            if(t.type!=TT.LANGLE) break;
-            t.next;
-
-            /// param
-            if(t.type!=TT.IDENTIFIER) break;
-            t.next;
-
-            while(t.type!=TT.RANGLE) {
-                /// ,
-                if(t.type!=TT.COMMA) break outer;
-                t.next;
-
-                /// param
-                if(t.type!=TT.IDENTIFIER) break outer;
-                t.next;
-            }
-
-            /// >
-            if(t.type!=TT.RANGLE) break;
-
-            result = true;
-        }
-        t.resetToMark();
-        return result;
     }
     ///
     /// binary_expr ::= expression operator expression

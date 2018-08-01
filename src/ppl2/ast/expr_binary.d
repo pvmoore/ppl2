@@ -33,6 +33,58 @@ public class Binary : Expression {
         return null;
     }
 
+    void rewriteToOperatorOverloadCall() {
+        auto struct_ = leftType.getAnonStruct;
+        assert(struct_);
+
+        auto b = getModule.builder(this);
+
+        switch(op.id) with(Operator) {
+            case LT.id:
+            case LTE.id:
+            case GT.id:
+            case GTE.id:
+            case BOOL_EQ.id:
+            case COMPARE.id:
+                /// Binary
+                ///     left struct
+                ///     right
+                /// .....................
+                /// Binary [< | <= | > | >= | == | <>]
+                ///     Dot
+                ///         [AddressOf] left struct
+                ///         Call operator<>
+                ///             right
+                ///     0
+                auto left = leftType.isValue ? b.addressOf(this.left) : this.left;
+                auto call = b.call("operator<>", null)
+                             .add(this.right);
+
+                auto dot = b.dot(left, call.as!Expression);
+
+                add(dot);
+                add(LiteralNumber.makeConst(0, TYPE_INT));
+                break;
+            default:
+                /// Binary
+                ///     left struct
+                ///     right
+                /// .....................
+                /// Dot
+                ///     [AddressOf] left struct
+                ///     Call
+                ///         right
+                auto left  = leftType.isValue ? b.addressOf(this.left) : this.left;
+                auto right = b.call("operator" ~ op.value, null)
+                              .add(this.right);
+
+                auto dot = b.dot(left, right.as!Expression);
+
+                parent.replaceChild(this, dot);
+                break;
+        }
+    }
+
     override string toString() {
         return "%s (type=%s)".format(op, getType());
     }

@@ -14,7 +14,13 @@ bool isOperatorOverloadFunction(Tokens t) {
     }
 
     t.next;
-    errorBadSyntax(t, "Expecting an overloadable operator");
+
+    string msg = "Expecting an overloadable operator";
+    if(t.type==TT.BOOL_EQ || t.type==TT.LANGLE || t.type==TT.RANGLE || t.type==TT.LTE || t.type==TT.GTE) {
+        msg ~= ". Did you mean operator<> ?";
+    }
+
+    errorBadSyntax(t, msg);
     assert(false);
 }
 bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
@@ -46,8 +52,7 @@ bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
         case TT.BIT_AND_ASSIGN:
         case TT.BIT_XOR_ASSIGN:
 
-        case TT.BOOL_EQ:
-        case TT.BOOL_NE:
+        case TT.COMPARE:
             endOffset = offset+1;
             return true;
         case TT.RANGLE: // SHR, USHR
@@ -66,4 +71,42 @@ bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
             endOffset = offset;
             return false;
     }
+}
+///
+/// "<" param { "," param } ">"
+///
+bool isTemplateParams(Tokens t, int offset, ref int endOffset) {
+    assert(t.peek(offset).type==TT.LANGLE);
+
+    bool result = false;
+    t.markPosition();
+    int startOffset = t.index;
+    t.next(offset);
+    outer:while(!result) {
+        /// <
+        if(t.type!=TT.LANGLE) break;
+        t.next;
+
+        /// param
+        if(t.type!=TT.IDENTIFIER) break;
+        t.next;
+
+        while(t.type!=TT.RANGLE) {
+            /// ,
+            if(t.type!=TT.COMMA) break outer;
+            t.next;
+
+            /// param
+            if(t.type!=TT.IDENTIFIER) break outer;
+            t.next;
+        }
+
+        /// >
+        if(t.type!=TT.RANGLE) break;
+
+        result = true;
+    }
+    endOffset = t.index - startOffset;
+    t.resetToMark();
+    return result;
 }

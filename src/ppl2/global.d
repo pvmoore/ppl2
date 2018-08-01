@@ -109,7 +109,7 @@ shared static this() {
     g_ttToOperator[TT.GTE] = Operator.GTE;
 
     g_ttToOperator[TT.BOOL_EQ] = Operator.BOOL_EQ;
-    g_ttToOperator[TT.BOOL_NE] = Operator.BOOL_NE;
+    g_ttToOperator[TT.COMPARE] = Operator.COMPARE;
 
     g_ttToOperator[TT.AMPERSAND] = Operator.BIT_AND;
     g_ttToOperator[TT.HAT] = Operator.BIT_XOR;
@@ -130,4 +130,5 @@ shared static this() {
     g_ttToOperator[TT.SHR_ASSIGN] = Operator.SHR_ASSIGN;
     g_ttToOperator[TT.USHR_ASSIGN] = Operator.USHR_ASSIGN;
     g_ttToOperator[TT.EQUALS] = Operator.ASSIGN;
+
 }

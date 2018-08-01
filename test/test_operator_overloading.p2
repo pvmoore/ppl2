@@ -19,8 +19,11 @@ struct Vector = <T> [
     operator| = { T s -> return Vector<T>(x|s, y|s, z|s) }
     operator& = { T s -> return Vector<T>(x&s, y&s, z&s) }
     operator^ = { T s -> return Vector<T>(x^s, y^s, z^s) }
-    operator== = { T s -> return x==s and y==s and z==s }
-    operator!= = { T s -> return x!=s or y!=s or z!=s }
+
+    operator<> = { T s ->
+        return if(x==s or y==s or z==s) 0 else
+               if(x<s or y<s or z<s) -1 else 1
+    }
 
     operator neg = { return Vector<T>(-x,-y,-z) }
 
@@ -35,8 +38,13 @@ struct Vector = <T> [
     operator| = { Vector<T> v -> return Vector<T>(x|v.x, y|v.y, z|v.z) }
     operator& = { Vector<T> v -> return Vector<T>(x&v.x, y&v.y, z&v.z) }
     operator^ = { Vector<T> v -> return Vector<T>(x^v.x, y^v.y, z^v.z) }
-    operator== = { Vector<T> v -> return x==v.x and y==v.y and z==v.z }
-    operator!= = { Vector<T> v -> return not operator==(v) }
+
+    operator<> = { Vector<T> v ->
+        return if(x==v.x and y==v.y and z==v.z) 0 else
+               if(x<v.x) -1 else
+               if(y<v.y) -1 else
+               if(z<v.z) -1 else 1
+    }
 
     operator+=  = { T s -> x += s y += s z += s }
     operator-=  = { T s -> x -= s y -= s z -= s }
@@ -98,8 +106,13 @@ testOperatorOverloading = {
             var v12 = Vector<int>(0b110) ^ 0b111
             assert v12.x==1 and v12.y==1 and v12.z==1
             var v13 = Vector<int>(0)
-            assert(v13 == 0)
-            assert(v13 != 1)
+            // <>
+            assert v13 == 0
+            assert v13 <> 1
+            assert v13 < 1
+            assert v13 <= 0
+            assert v13 > -1
+            assert v13 >= 0
 
             var b = Vector<int>()
             assert b.x==0 and b.y==0 and b.z==0
@@ -150,7 +163,15 @@ testOperatorOverloading = {
             assert Vec(0b101) & Vec(1, 0b11, 0b111) == Vec(1,         1, 0b101)
             assert Vec(0b101) ^ Vec(1, 0b11, 0b111) == Vec(0b100, 0b110, 0b010)
 
+            // neg
             assert -Vec(1,2,3) == Vec(-1,-2,-3)
+
+            // <>
+            assert Vec(0) < Vec(1)
+            assert Vec(0) <= Vec(0)
+            assert Vec(0) > Vec(-1)
+            assert Vec(0) >= Vec(0)
+            assert Vec(0) <> Vec(1)
         }
         scalars()
         structs()

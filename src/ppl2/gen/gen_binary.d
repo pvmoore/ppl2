@@ -43,7 +43,7 @@ final class BinaryGenerator {
 
             if(b.op is Operator.BOOL_EQ) {
                 eq(cmpType, left, right);
-            } else if(b.op is Operator.BOOL_NE) {
+            } else if(b.op is Operator.COMPARE) {   /// BOOL_NE
                 neq(cmpType, left, right);
             } else if(b.op is Operator.LT) {
                 lt(cmpType, left, right);

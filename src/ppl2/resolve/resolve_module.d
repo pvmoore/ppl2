@@ -172,11 +172,11 @@ public:
             /// value
             Expression value;
             if(type.isPtr) {
-                value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNull.makeConst(type));
+                value = b.binary(Operator.COMPARE, n.expr(), LiteralNull.makeConst(type));
             } else if(type.isBool) {
                 value = n.expr();
             } else {
-                value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNumber.makeConst(0));
+                value = b.binary(Operator.COMPARE, n.expr(), LiteralNumber.makeConst(0));
             }
             c.add(value);
 
@@ -197,33 +197,12 @@ public:
             return;
         }
 
-        if(n.leftType.isStruct && n.op.isOverloadable) {
-            /// Look for an operator overload
-            string name = "operator" ~ n.op.value;
-
-            auto struct_ = n.leftType.getAnonStruct;
-            assert(struct_);
-
-            /// Rewrite to operator overload:
-            /// Binary
-            ///     left struct
-            ///     right
-            /// Dot
-            ///     AddressOf
-            ///         left struct
-            ///     Call
-            ///         right
-            auto b      = module_.builder(n);
-
-            auto left  = n.leftType.isValue ? b.addressOf(n.left) : n.left;
-            auto right = b.call(name, null)
-                          .add(n.right);
-
-            auto dot = b.dot(left, right.as!Expression);
-
-            n.parent.replaceChild(n, dot);
-            rewrites++;
-            return;
+        if(n.leftType.isStruct) {
+            if(n.op.isOverloadable || n.op.isComparison) {
+                n.rewriteToOperatorOverloadCall();
+                rewrites++;
+                return ;
+            }
         }
 
         if(n.type.isUnknown) {

@@ -190,7 +190,10 @@ public:
                     addToken(TT.RBRACKET);
                     break;
                 case '<':
-                    if(peek(1)=='=') {
+                    if(peek(1)=='>') {
+                        addToken(TT.COMPARE, 2);
+                        index++;
+                    } else if(peek(1)=='=') {
                         addToken(TT.LTE, 2);
                         index++;
                     } else if(peek(1)=='<' && peek(2)=='=') {
@@ -237,12 +240,7 @@ public:
                     }
                     break;
                 case '!':
-                    if(peek(1)=='=') {
-                        addToken(TT.BOOL_NE, 2);
-                        index++;
-                    } else {
-                        addToken(TT.EXCLAMATION);
-                    }
+                    addToken(TT.EXCLAMATION);
                     break;
                 case '&':
                     if(peek(1)=='=') {

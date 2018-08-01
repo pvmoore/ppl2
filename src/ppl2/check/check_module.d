@@ -127,7 +127,12 @@ public:
 
     }
     void visit(Function n) {
-
+        if(n.name=="operator<>") {
+            if(!n.getType.getFunctionType.returnType.exactlyMatches(TYPE_INT)) {
+                throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, n,
+                    "operator<> must return int");
+            }
+        }
     }
     void visit(FunctionType n) {
 

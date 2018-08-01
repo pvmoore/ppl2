@@ -52,6 +52,9 @@ enum Err {
     IMPORT_NOT_FOUND,
     IMPORT_DUPLICATE,
 
+    /// Function
+    FUNCTION_INCORRECT_RETURN_TYPE,
+
     /// Index
     INDEX_STRUCT_INDEX_MUST_BE_CONST,
 
@@ -90,7 +93,6 @@ enum Err {
     ARRAY_COUNT_MUST_BE_CONST,
     ARRAY_INDEX_MUST_BE_CONST,
     ARRAY_BOUNDS,
-    INCORRECT_RETURN_TYPE,
 
     /// if
     IF_TYPES_NO_NOT_MATCH,
@@ -156,7 +158,7 @@ final class AmbiguousCall : CompilerError {
 }
 //======================================================================
 void warn(Tokens n, string msg) {
-    writefln("Warn: %s", msg);
+   writefln("\nWarn: [%s Line %s] %s", n.module_.getPath(), n.line, msg);
 }
 //======================================================================
 void prettyErrorMsg(CompilerError e) {
@@ -277,6 +279,7 @@ void errorMissingType(Tokens t, string name=null) {
     if(name) {
         throw new CompilerError(Err.MISSING_TYPE, t, "Type %s not found".format(name));
     }
+    //throw new Error("!!");
     throw new CompilerError(Err.MISSING_TYPE, t, "Type not found");
 }
 void errorAmbiguousExpr(ASTNode n) {
@@ -286,9 +289,6 @@ void errorAmbiguousExpr(ASTNode n) {
 void errorArrayBounds(ASTNode n, int value, int maxValue) {
     throw new CompilerError(Err.ARRAY_BOUNDS, n,
         "Array bounds error. %s >= %s".format(value, maxValue));
-}
-void errorIncorrectReturnType(ASTNode n, string msg) {
-    throw new CompilerError(Err.INCORRECT_RETURN_TYPE, n, msg);
 }
 void newReservedForConstructors(ASTNode n) {
     throw new CompilerError(Err.CALL_NEW_RESERVED_FOR_CONSTRUCTORS, n,

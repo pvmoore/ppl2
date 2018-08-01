@@ -129,12 +129,15 @@ public:
             return;
         }
 
-        /// Test for identifier<...> not followed by a '('
+        /// Test for identifier<params> not followed by a '('
         /// which indicates a missing type
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
-            auto end = t.findEndOfBlock(TT.LANGLE, 1);
-            if(end!=-1 && t.peek(end+1).type!=TT.LBRACKET) {
-                errorMissingType(t);
+
+            int end;
+            if(isTemplateParams(t,1,end)) {
+                if(t.peek(end+1).type!=TT.LBRACKET) {
+                    errorMissingType(t);
+                }
             }
         }
 

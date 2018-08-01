@@ -137,7 +137,7 @@ private:
         call.add(b.addressOf(right()));
         call.add(LiteralNumber.makeConst(leftType.size, TYPE_INT));
 
-        auto op = negate ? Operator.BOOL_NE : Operator.BOOL_EQ;
+        auto op = negate ? Operator.COMPARE : Operator.BOOL_EQ;
         auto ne = b.binary(op, call, LiteralNumber.makeConst(0, TYPE_INT));
 
         parent.replaceChild(this, ne);

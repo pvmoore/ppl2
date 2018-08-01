@@ -139,7 +139,7 @@ struct Value {
                 case LTE.id:     i = (getLong() <= right.getLong()) ? TRUE : FALSE; break;
                 case GTE.id:     i = (getLong() >= right.getLong()) ? TRUE : FALSE; break;
                 case BOOL_EQ.id: i = (getLong() == right.getLong()) ? TRUE : FALSE; break;
-                case BOOL_NE.id: i = (getLong() != right.getLong()) ? TRUE : FALSE; break;
+                case COMPARE.id: i = (getLong() != right.getLong()) ? TRUE : FALSE; break;
 
                 case BIT_AND.id: i = getLong() & right.getLong(); break;
                 case BIT_XOR.id: i = getLong() ^ right.getLong(); break;
@@ -175,7 +175,7 @@ struct Value {
                 case LTE.id:     f = (getDouble() <= right.getDouble()) ? TRUE : FALSE; break;
                 case GTE.id:     f = (getDouble() >= right.getDouble()) ? TRUE : FALSE; break;
                 case BOOL_EQ.id: f = (getDouble() == right.getDouble()) ? TRUE : FALSE; break;
-                case BOOL_NE.id: f = (getDouble() != right.getDouble()) ? TRUE : FALSE; break;
+                case COMPARE.id: f = (getDouble() != right.getDouble()) ? TRUE : FALSE; break;
 
                 case BIT_AND.id: f = (cast(ulong)getLong() & right.getLong()); break;
                 case BIT_XOR.id: f = (cast(ulong)getLong() ^ right.getLong()); break;
