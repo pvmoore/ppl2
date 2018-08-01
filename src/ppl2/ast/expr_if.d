@@ -58,6 +58,9 @@ final class If : Expression {
             return true;
         }
         if(p.id==NodeID.IF) return p.as!If.isExpr();
+        if(p.id==NodeID.ADDRESS_OF) return true;
+        if(p.id==NodeID.VALUE_OF) return true;
+        if(p.id==NodeID.PARENTHESIS) return true;
 
         assert(false, "dunno parent=%s".format(p));
     }

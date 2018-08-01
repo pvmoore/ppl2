@@ -11,7 +11,7 @@ import ppl2.internal;
 ///         Variable (0 - *)
 ///     statement (0 - *)
 ///
-final class LiteralFunction : Expression, Scope, Container {
+final class LiteralFunction : Expression, Container {
     Type type;      /// PtrType -> FunctionType
 
     override bool isResolved() { return type.isKnown; }

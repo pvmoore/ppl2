@@ -54,6 +54,7 @@ enum Err {
 
     /// Function
     FUNCTION_INCORRECT_RETURN_TYPE,
+    FUNCTION_INCORRECT_NUM_PARAMS,
 
     /// Index
     INDEX_STRUCT_INDEX_MUST_BE_CONST,

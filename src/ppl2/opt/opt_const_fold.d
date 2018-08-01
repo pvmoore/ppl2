@@ -137,6 +137,9 @@ public:
 
     }
     void visit(Parenthesis n) {
+        /// We don't need these any more
+
+
         if(n.expr().isA!Parenthesis) {
             /// Remove unnecessary parens ((expr))
             fold(n, n.expr());

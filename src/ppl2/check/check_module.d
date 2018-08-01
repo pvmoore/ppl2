@@ -127,11 +127,30 @@ public:
 
     }
     void visit(Function n) {
-        if(n.name=="operator<>") {
-            if(!n.getType.getFunctionType.returnType.exactlyMatches(TYPE_INT)) {
-                throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, n,
-                    "operator<> must return int");
-            }
+
+        auto retType = n.getType.getFunctionType.returnType;
+
+        switch(n.name) {
+            case "operator<>":
+                if(retType.isPtr || !retType.isInt) {
+                    throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, n,
+                        "operator<> must return int");
+                }
+                break;
+            case "operator:":
+                if(n.params.numParams==2) {
+                    /// get
+                    if(retType.isValue && retType.isVoid) {
+                        throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, n,
+                            "operator:(this,int) must not return void");
+                    }
+                } else if(n.params.numParams==3) {
+                    /// set
+
+                }
+                break;
+            default:
+                break;
         }
     }
     void visit(FunctionType n) {

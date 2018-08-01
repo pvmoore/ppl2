@@ -90,6 +90,9 @@ public:
             t.next;
             return;
         }
+        if(t.type==TT.LBRACKET) {
+            errorBadSyntax(t, "Parenthesis not allowed here");
+        }
 
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
             /// Could be a function, a named struct or a binary expression
@@ -368,7 +371,7 @@ private: //=====================================================================
             parent.add(a);
         }
 
-        parse(t, a);
+        exprParser().parse(t, a);
     }
     void parseBreak(Tokens t, ASTNode parent) {
 

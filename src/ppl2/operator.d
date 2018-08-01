@@ -31,51 +31,53 @@ struct Op {
     string value;
 }
 enum Operator : Op {
-    NOTHING = Op(0,0,null),
+    NOTHING  = Op(0, 0,null),
 
-    NEG      = Op(1, 2, " neg"),    /// the space in the value is important
-    BIT_NOT  = Op(2, 2, "~"),
-    BOOL_NOT = Op(3, 2, "not"),
+    INDEX    = Op(1, 1, ":"),
+
+    NEG      = Op(2, 2, " neg"),    /// the space in the value is important
+    BIT_NOT  = Op(3, 2, "~"),
+    BOOL_NOT = Op(4, 2, "not"),
 
     /// & addressof = 2
     /// @ valueof   = 2
 
-    DIV      = Op(4, 3, "/"),
-    MUL      = Op(5, 3, "*"),
-    MOD      = Op(6, 3, "%"),
+    DIV      = Op(5, 3, "/"),
+    MUL      = Op(6, 3, "*"),
+    MOD      = Op(7, 3, "%"),
 
-    ADD      = Op(7,  4, "+"),
-    SUB      = Op(8,  4, "-"),
-    SHL      = Op(9,  4, "<<"),
-    SHR      = Op(10, 4, ">>"),
-    USHR     = Op(11, 4, ">>>"),
-    BIT_AND  = Op(12, 4, "&"),
-    BIT_XOR  = Op(13, 4, "^"),
-    BIT_OR   = Op(14, 4, "|"),
+    ADD      = Op(8,  4, "+"),
+    SUB      = Op(9,  4, "-"),
+    SHL      = Op(10,  4, "<<"),
+    SHR      = Op(11, 4, ">>"),
+    USHR     = Op(12, 4, ">>>"),
+    BIT_AND  = Op(13, 4, "&"),
+    BIT_XOR  = Op(14, 4, "^"),
+    BIT_OR   = Op(15, 4, "|"),
 
-    LT       = Op(15, 7, "<"),
-    GT       = Op(16, 7, ">"),
-    LTE      = Op(17, 7, "<="),
-    GTE      = Op(18, 7, ">="),
-    BOOL_EQ  = Op(19, 7, "=="),
-    COMPARE  = Op(20, 7, "<>"),     /// BOOL_NE
+    LT       = Op(16, 7, "<"),
+    GT       = Op(17, 7, ">"),
+    LTE      = Op(18, 7, "<="),
+    GTE      = Op(19, 7, ">="),
+    BOOL_EQ  = Op(20, 7, "=="),
+    COMPARE  = Op(21, 7, "<>"),     /// BOOL_NE
 
-    BOOL_AND = Op(21, 11, "and"),
-    BOOL_OR  = Op(22, 11, "or"),
+    BOOL_AND = Op(22, 11, "and"),
+    BOOL_OR  = Op(23, 11, "or"),
 
-    ADD_ASSIGN     = Op(23, 14, "+="),
-    SUB_ASSIGN     = Op(24, 14, "-="),
-    MUL_ASSIGN     = Op(25, 14, "*="),
-    DIV_ASSIGN     = Op(26, 14, "/="),
-    MOD_ASSIGN     = Op(27, 14, "%="),
-    BIT_AND_ASSIGN = Op(28, 14, "&="),
-    BIT_XOR_ASSIGN = Op(29, 14, "^="),
-    BIT_OR_ASSIGN  = Op(30, 14, "|="),
+    ADD_ASSIGN     = Op(24, 14, "+="),
+    SUB_ASSIGN     = Op(25, 14, "-="),
+    MUL_ASSIGN     = Op(26, 14, "*="),
+    DIV_ASSIGN     = Op(27, 14, "/="),
+    MOD_ASSIGN     = Op(28, 14, "%="),
+    BIT_AND_ASSIGN = Op(29, 14, "&="),
+    BIT_XOR_ASSIGN = Op(30, 14, "^="),
+    BIT_OR_ASSIGN  = Op(31, 14, "|="),
 
-    SHL_ASSIGN     = Op(31, 14, "<<="),
-    SHR_ASSIGN     = Op(32, 14, ">>="),
-    USHR_ASSIGN    = Op(33, 14, ">>>="),
-    ASSIGN         = Op(34, 14, "=")
+    SHL_ASSIGN     = Op(32, 14, "<<="),
+    SHR_ASSIGN     = Op(33, 14, ">>="),
+    USHR_ASSIGN    = Op(34, 14, ">>>="),
+    ASSIGN         = Op(35, 14, "=")
 }
 //===========================================================================
 bool isAssign(Operator o) {
@@ -137,6 +139,8 @@ bool isOverloadable(Operator o) {
         case COMPARE.id:
 
         case NEG.id:
+
+        case INDEX.id:
             return true;
         default:
             return false;

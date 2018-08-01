@@ -28,7 +28,6 @@ import ppl2.error;
 import ppl2.ppl2;
 import ppl2.global;
 import ppl2.operator;
-import ppl2.scope_;
 import ppl2.target;
 import ppl2.tokens;
 

@@ -467,6 +467,8 @@ private:
 
         t.skip(TT.LBRACKET);
 
+        if(t.type==TT.RBRACKET) errorBadSyntax(t, "Empty parenthesis");
+
         parse(t, p);
 
         t.skip(TT.RBRACKET);

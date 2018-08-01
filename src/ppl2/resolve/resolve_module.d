@@ -563,7 +563,72 @@ public:
 
     }
     void visit(Index n) {
+        if(n.leftType().isNamedStruct) {
+            auto struct_ = n.leftType.getAnonStruct;
+            assert(struct_);
 
+            auto ns = n.leftType.getNamedStruct;
+
+            if(struct_.getMemberFunctions("operator:")) {
+
+                auto b = module_.builder(n);
+
+                if(n.parent.isBinary) {
+                    auto bin = n.parent.as!Binary;
+                    if(bin.op.isAssign && n.nid==bin.left.nid) {
+                        /// Rewrite to operator:(int,value)
+
+                        /// Binary =
+                        ///     Index
+                        ///         struct
+                        ///         index
+                        ///     expr
+                        ///....................
+                        /// Dot
+                        ///     [AddressOf] struct
+                        ///     Call
+                        ///         index
+                        ///         expr
+                        auto left = n.leftType.isValue ? b.addressOf(n.left) : n.left;
+                        auto call = b.call("operator:", null)
+                                     .add(n.index)
+                                     .add(bin.right);
+
+                        auto dot = b.dot(left, call);
+
+                        bin.parent.replaceChild(bin, dot);
+
+                        rewrites++;
+                        return;
+                    }
+                }
+                /// Rewrite to operator:(int)
+
+                /// Index
+                ///     struct
+                ///     index
+                ///.............
+                /// Dot
+                ///     [AddressOf] struct
+                ///     Call
+                ///         index
+
+                ///
+                ///
+                ///
+                auto left = n.leftType.isValue ? b.addressOf(n.left) : n.left;
+                auto call = b.call("operator:", null)
+                             .add(n.index);
+
+                auto dot = b.dot(left, call);
+
+                n.parent.replaceChild(n, dot);
+
+                rewrites++;
+                return;
+
+            }
+        }
     }
     void visit(Initialiser n) {
         n.resolve();

@@ -15,6 +15,12 @@ final class Index : Expression {
         if(isArrayIndex()) {
             return index().isResolved;
         }
+        if(left.getType.isNamedStruct) {
+            /// Check if we are waiting to be rewritten to operator:
+            auto struct_ = leftType.getAnonStruct;
+            assert(struct_);
+            if(struct_.getMemberFunctions("operator:")) return false;
+        }
         /// Struct index must be a const number
         return index().isResolved && index().isA!LiteralNumber;
     }
@@ -55,8 +61,8 @@ final class Index : Expression {
     bool isStructIndex() { return leftType().isValue && leftType().isStruct; }
     bool isPtrIndex() { return leftType().isPtr; }
 
-    Expression index() { return cast(Expression)children[1]; }
     Expression left() { return cast(Expression)children[0]; }
+    Expression index() { return cast(Expression)children[1]; }
 
     Type leftType() { return left().getType; }
 

@@ -53,6 +53,8 @@ bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
         case TT.BIT_XOR_ASSIGN:
 
         case TT.COMPARE:
+
+        case TT.COLON:
             endOffset = offset+1;
             return true;
         case TT.RANGLE: // SHR, USHR

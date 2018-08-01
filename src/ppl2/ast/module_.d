@@ -2,7 +2,7 @@ module ppl2.ast.module_;
 
 import ppl2.internal;
 
-final class Module : ASTNode, Scope, Container {
+final class Module : ASTNode, Container {
 private:
     int tempCounter;
 public:

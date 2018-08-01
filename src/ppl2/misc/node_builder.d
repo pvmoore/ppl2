@@ -50,7 +50,7 @@ final class NodeBuilder {
         }
         return call;
     }
-    Dot dot(Expression left, Expression right) {
+    Dot dot(ASTNode left, ASTNode right) {
         auto d = makeNode!Dot(node);
         d.add(left);
         d.add(right);

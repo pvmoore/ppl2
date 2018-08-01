@@ -27,6 +27,17 @@ struct Vector = <T> [
 
     operator neg = { return Vector<T>(-x,-y,-z) }
 
+    // get
+    operator: = { int index ->
+        return if(index==0) x else
+               if(index==1) y else z
+    }
+    // set
+    operator: = { int index, T value ->
+        @(if(index==0) &x else
+          if(index==1) &y else &z) = value
+    }
+
     operator+ = { Vector<T> v -> return Vector<T>(x+v.x, y+v.y, z+v.z) }
     operator- = { Vector<T> v -> return Vector<T>(x-v.x, y-v.y, z-v.z) }
     operator* = { Vector<T> v -> return Vector<T>(x*v.x, y*v.y, z*v.z) }
@@ -113,6 +124,12 @@ testOperatorOverloading = {
             assert v13 <= 0
             assert v13 > -1
             assert v13 >= 0
+
+            // :
+            assert Vector<int>(1,2,3):0 == 1
+            var v14 = Vector<int>(1,2,3)
+            v14:0 = 2
+            assert v14:0 == 2
 
             var b = Vector<int>()
             assert b.x==0 and b.y==0 and b.z==0
