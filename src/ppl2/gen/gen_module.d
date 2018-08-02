@@ -358,6 +358,7 @@ public:
     //============================================================================================
     void visitChildren(ASTNode n) {
         foreach(ch; n.children) {
+            //dd("visit", ch.id);
             ch.visit!ModuleGenerator(this);
         }
     }

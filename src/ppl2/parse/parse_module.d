@@ -188,6 +188,7 @@ private:
             "core.core",
             "core.c",
             "core.intrinsics",
+            "core.list",
             "core.string",
             "core.console",
             "core.unsigned",

@@ -1,0 +1,67 @@
+
+public
+
+struct List = <T> [
+public
+    T* array
+    int arrayLength
+readonly
+    int length
+public
+    new = { int reserve ->
+        expand(reserve)
+    }
+    empty = {
+        return length==0
+    }
+    add = { T value ->
+        expand(1)
+        array:length = value
+        length += 1
+        return this
+    }
+    operator: = { int index->
+        return array:index
+    }
+    operator: = { int index, T value ->
+        array:index = value
+    }
+    operator<> = { List<T> other ->
+        if(length <> other.length) return false
+        return memcmp(array, other.array, length*T.#size)==0
+    }
+    first = {
+        assert length > 0
+        return array:0
+    }
+    last = {
+        assert length > 0
+        return array:(length-1)
+    }
+    removeAt = { int index ->
+
+    }
+    insertAt = { int index, T value ->
+        return this
+    }
+    clear = {
+        length = 0
+        return this
+    }
+    pack = {
+        return this
+    }
+private
+    expand = { int required ->
+        if(required < 1) return
+        if(not array) {
+            arrayLength = required + 7
+            array       = malloc(arrayLength*T.#size) as T*
+            assert array
+        } else if(length+required > arrayLength) {
+            arrayLength = (length+required) * 2
+            array       = realloc(array, arrayLength*T.#size) as T*
+            assert array
+        }
+    }
+]

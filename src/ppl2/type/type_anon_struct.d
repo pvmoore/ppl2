@@ -127,6 +127,15 @@ public:
     bool hasDefaultConstructor() {
         return getDefaultConstructor() !is null;
     }
+    bool hasOperatorOverload(Operator op) {
+        string name = "operator";
+        if(op==Operator.NEG) {
+            name ~= " neg";
+        } else {
+            name ~= op.value;
+        }
+        return getMemberFunctions(name).length > 0;
+    }
     Function getDefaultConstructor() {
         foreach(f; getConstructors()) {
             if(f.isDefaultConstructor) return f;

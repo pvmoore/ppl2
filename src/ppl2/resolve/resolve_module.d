@@ -366,7 +366,8 @@ public:
                 n.paramNames = null;
             }
 
-            assert(n.argTypes.canImplicitlyCastTo(n.target.paramTypes));
+            assert(n.argTypes.canImplicitlyCastTo(n.target.paramTypes),
+                "%s argTypes=%s, paramTypes=%s".format(n.name, n.argTypes.prettyString, n.target.paramTypes.prettyString));
         }
     }
     void visit(Calloc n) {

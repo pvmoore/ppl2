@@ -182,16 +182,16 @@ main = {
         //assert r2.b==2
     }
     test3 = {
-        struct List = <T> [
+        struct Listy = <T> [
             T length
         ]
 
-        List<int> list = List<int>()
+        Listy<int> list = Listy<int>()
         Array<int,float> array
         Rose<int> rose
         ANiceRose anicerose
-        List<BlueRose> blueList
-        List<List<int>> listoflist
+        Listy<BlueRose> blueList
+        Listy<Listy<int>> listoflist
     }
     test4 = {
         //float2 v2
@@ -215,6 +215,9 @@ main = {
 
     import test_access
     testAccess()
+
+    import test_list
+    testList()
 }
 bool yop
 

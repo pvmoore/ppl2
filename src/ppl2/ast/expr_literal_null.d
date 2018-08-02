@@ -22,6 +22,6 @@ final class LiteralNull : Expression {
     override NodeID id() const { return NodeID.LITERAL_NULL; }
 
     override string toString() {
-        return "null (type=const %s)".format(type);
+        return "null (type=const %s)".format(type.prettyString);
     }
 }

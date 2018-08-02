@@ -33,27 +33,33 @@ struct Op {
 enum Operator : Op {
     NOTHING  = Op(0, 0,null),
 
+    /// As    = 1
+    /// Dot   = 1
+    /// Index = 1
+
     INDEX    = Op(1, 1, ":"),
 
-    NEG      = Op(2, 2, " neg"),    /// the space in the value is important
-    BIT_NOT  = Op(3, 2, "~"),
-    BOOL_NOT = Op(4, 2, "not"),
+    /// Call  = 2
 
-    /// & addressof = 2
-    /// @ valueof   = 2
+    NEG      = Op(2, 3, " neg"),    /// the space in the value is important
+    BIT_NOT  = Op(3, 3, "~"),
+    BOOL_NOT = Op(4, 3, "not"),
 
-    DIV      = Op(5, 3, "/"),
-    MUL      = Op(6, 3, "*"),
-    MOD      = Op(7, 3, "%"),
+    /// & addressof = 3
+    /// @ valueof   = 3
 
-    ADD      = Op(8,  4, "+"),
-    SUB      = Op(9,  4, "-"),
-    SHL      = Op(10,  4, "<<"),
-    SHR      = Op(11, 4, ">>"),
-    USHR     = Op(12, 4, ">>>"),
-    BIT_AND  = Op(13, 4, "&"),
-    BIT_XOR  = Op(14, 4, "^"),
-    BIT_OR   = Op(15, 4, "|"),
+    DIV      = Op(5, 4, "/"),
+    MUL      = Op(6, 4, "*"),
+    MOD      = Op(7, 4, "%"),
+
+    ADD      = Op(8,  5, "+"),
+    SUB      = Op(9,  5, "-"),
+    SHL      = Op(10, 5, "<<"),
+    SHR      = Op(11, 5, ">>"),
+    USHR     = Op(12, 5, ">>>"),
+    BIT_AND  = Op(13, 5, "&"),
+    BIT_XOR  = Op(14, 5, "^"),
+    BIT_OR   = Op(15, 5, "|"),
 
     LT       = Op(16, 7, "<"),
     GT       = Op(17, 7, ">"),
@@ -61,6 +67,8 @@ enum Operator : Op {
     GTE      = Op(19, 7, ">="),
     BOOL_EQ  = Op(20, 7, "=="),
     COMPARE  = Op(21, 7, "<>"),     /// BOOL_NE
+
+    /// Is = 7
 
     BOOL_AND = Op(22, 11, "and"),
     BOOL_OR  = Op(23, 11, "or"),

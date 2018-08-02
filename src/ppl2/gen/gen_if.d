@@ -48,6 +48,7 @@ final class IfGenerator {
             }
 
             if(!n.thenBlockEndsWithReturn) {
+
                 builder.br(endLabel);
             }
         //} else {

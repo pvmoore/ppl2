@@ -1,15 +1,25 @@
 
 public
 
+print = { string s ->
+    //loop(int i; i<s.length; i+=1) {
+    //    putchar(s:i)
+    //}
+}
 println = { string s ->
     // Can we assume string will
     // have a trailing zero?
     puts(s.ptr)
 }
 /// todo - don't emit a trailing newline
-print = { int n ->
-    [:byte 20] bytes
-    _itoa(n, bytes.ptr, 10)
+print = { long n ->
+    [:byte 30] bytes
+
+    _itoa(n as int, bytes.ptr, 10)
 
     puts(bytes.ptr)
+}
+print = { bool b ->
+    if(b) print("true")
+    else print("false")
 }

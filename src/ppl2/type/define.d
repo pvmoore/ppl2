@@ -34,7 +34,7 @@ final class Define : Statement, Type {
     string prettyString()                { return "Define %s=%s".format(name,type.prettyString); }
     //=======================================================================================
     override string toString() {
-        string val = "%s".format(getType);
+        string val = "%s".format(getType.prettyString);
         string imp = isImport ? " (IMPORT)" : "";
         return "Define[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
     }

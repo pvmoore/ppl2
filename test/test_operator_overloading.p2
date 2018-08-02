@@ -126,10 +126,10 @@ testOperatorOverloading = {
             assert v13 >= 0
 
             // :
-            assert Vector<int>(1,2,3):0 == 1
+            assert Vector<int>(1,2,3):0 == 1    // get
             var v14 = Vector<int>(1,2,3)
-            v14:0 = 2
-            assert v14:0 == 2
+            v14:0 = 2   // set
+            assert v14:0 == 2   // get
 
             var b = Vector<int>()
             assert b.x==0 and b.y==0 and b.z==0

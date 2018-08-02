@@ -31,7 +31,7 @@ final class Call : Expression {
 
     override bool isResolved() { return target.isResolved; }
     override NodeID id() const { return NodeID.CALL; }
-    override int priority() const { return 1; }
+    override int priority() const { return 2; }
     override Type getType() {
         if(!target.isResolved) return TYPE_UNKNOWN;
         return target.getType().getFunctionType.returnType;

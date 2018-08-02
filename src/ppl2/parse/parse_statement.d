@@ -94,6 +94,7 @@ public:
             errorBadSyntax(t, "Parenthesis not allowed here");
         }
 
+
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
             /// Could be a function, a named struct or a binary expression
 

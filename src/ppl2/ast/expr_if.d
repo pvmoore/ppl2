@@ -65,6 +65,7 @@ final class If : Expression {
         assert(false, "dunno parent=%s".format(p));
     }
     bool thenBlockEndsWithReturn() {
+        if(thenStmt.numChildren==0) return false;
         return thenStmt().last().isReturn;
     }
     bool elseBlockEndsWithReturn() {

@@ -15,6 +15,9 @@ final class Index : Expression {
         if(isArrayIndex()) {
             return index().isResolved;
         }
+        if(isPtrIndex) {
+            return true;
+        }
         if(left.getType.isNamedStruct) {
             /// Check if we are waiting to be rewritten to operator:
             auto struct_ = leftType.getAnonStruct;
@@ -28,11 +31,20 @@ final class Index : Expression {
     override int priority() const { return 1; }
 
     override Type getType() {
-        auto t = leftType();
+        auto t       = leftType();
+        auto struct_ = t.getAnonStruct;
+        auto array   = t.getArrayType;
+
         if(t.isPtr) {
             return PtrType.of(t, -1);
         }
-        auto array = t.getArrayType;
+        if(t.isNamedStruct) {
+            assert(struct_);
+            if(struct_.hasOperatorOverload(Operator.INDEX)) {
+                /// This will be replaced with an operator overload later
+                return TYPE_UNKNOWN;
+            }
+        }
         if(array) {
             /// Check for bounds error
             if(array.isResolved && index().isResolved && index().isA!LiteralNumber) {
@@ -43,7 +55,6 @@ final class Index : Expression {
             }
             return array.subtype;
         }
-        auto struct_ = t.getAnonStruct;
         if(struct_) {
             if(index().isResolved && index().isA!LiteralNumber) {
                 auto i = getIndexAsInt();

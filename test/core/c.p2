@@ -13,9 +13,11 @@ extern calloc {long numElements, long elementSize->void*}
 extern exit {int status->void}
 extern free {void* ptr->void}
 extern malloc {long size->void*}
+extern realloc {void* ptr, long size -> void*}
 
 // string.h
-extern memcmp {void* ptr1,void* ptr2, long numBytes->int}
-extern memcpy {void* destination, void* source, long num -> void*}
-extern memset {void* ptr, int value, long num -> void*}
-extern strlen {byte* str -> long}
+extern memcmp  {void* ptr1,void* ptr2, long numBytes->int}
+extern memcpy  {void* destination, void* source, long num -> void*}
+extern memmove {void* dest, void* src, long numBytes->void*}
+extern memset  {void* ptr, int value, long num -> void*}
+extern strlen  {byte* str -> long}

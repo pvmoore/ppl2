@@ -86,6 +86,6 @@ public:
         } else {
             c = !hasCountExpr() ? "infer" : hasCountExpr() ? "%s".format(countExpr()) : "?";
         }
-        return "ArrayType:[nid=%s, subtype=%s, count=%s]".format(nid, subtype, c);
+        return "ArrayType:[nid=%s, subtype=%s, count=%s]".format(nid, subtype.prettyString, c);
     }
 }
