@@ -1,11 +1,11 @@
-module ppl2.interfaces.container;
+module ppl2.interfaces;
 
 import ppl2.internal;
-/**
- *  Variable or Function container.
- *
- *  Module, LiteralFunction, AnonStruct
- */
+///
+/// Variable or Function container.
+///
+/// Module, LiteralFunction, AnonStruct
+///
 interface Container {
     NodeID id() const;
 

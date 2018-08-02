@@ -15,51 +15,49 @@ testArrays = {
     }
     arrayOfArray = {
         [:[:int 3] 1] a
-        assert a:0 is [:int]
-        assert a:0 is [:int 3]
-        var b = a:0:1
+        assert a[0] is [:int]
+        assert a[0] is [:int 3]
+
+        var b = a[0][1]
         assert b==0
     }
     anonStructOfArray = {
         [:[int a, float b] 2] a
         assert a.length==2
-        assert a:0 is [int,float]
-        assert a:0:0 is int
-        assert a:0:1 is float
-        assert a:0.a is int
-        assert a:0.b is float
+        assert a[0] is [int,float]
+        assert a[0][0] is int
+        assert a[0][1] is float
+        assert a[0].a is int
+        assert a[0].b is float
 
-        assert a:0:0 == 0
+        assert a[0][0] == 0
 
-        var b = a:0
+        var b = a[0]
     }
     namedStructOfArray = {
         struct SOA = [
             [:int 5] array
         ]
-        [:SOA 2] soa = [:
-            SOA(),
-            SOA()
-        ]
+        [:SOA 2] soa = [: SOA(),SOA()]
         assert soa.length==2
-        assert soa:0 is SOA
-        assert soa:1 is SOA
-        assert soa:0.array.length==5
-        assert soa:0:0.length==5
-        assert soa:0:0 is [:int 5]
-        assert soa:1:0 is [:int 5]
-        assert soa:0:0:0 is int
+        assert soa[0] is SOA
+        assert soa[1] is SOA
+        assert soa[0].array.length==5
+        assert soa[0][0].length==5
+        assert soa[0][0] is [:int 5]
+        assert soa[1][0] is [:int 5]
+        assert soa[0][0][0] is int
 
-        soa:0:0 = [:1,2,3,4,5]
-        soa:1:0 = [:10,20,30,40,50]
+        soa[0][0] = [: 1,2,3,4,5]
+        soa[1][0] = [: 10,20,30,40,50]
 
-        var z1 = soa:0:0:0
+        var z1 = soa[0][0][0]
         assert z1 == 1
-        assert soa:0:0:1 == 2
-        assert soa:0.array:1 == 2
+        assert soa[0][0][1] == 2
+        assert soa[0].array[1] == 2
 
-        assert soa:0:0 is [: 1 as int,2,3,4,5]
-        assert soa:1:0 is [: 10 as int,20,30,40,50]
+        assert soa[0][0] is [: 1 as int,2,3,4,5]
+        assert soa[1][0] is [: 10 as int,20,30,40,50]
     }
     arrayLength = {
         [:int 4] a
@@ -93,10 +91,10 @@ testLiteralArrays = {
     test1 = {
         // zero initialised
         [:int 2] array
-        assert array:0 == 0
-        assert array:1 == 0
+        assert array[0] == 0
+        assert array[1] == 0
         int n = 0
-        assert array:n == 0
+        assert array[n] == 0
         assert array.length==2
         assert array.subtype is int
         assert array.#size==8
@@ -106,63 +104,63 @@ testLiteralArrays = {
 
         ptr = &[: 3 as int, 7]
 
-        assert ptr:0 is [:int 2]
-        assert ptr:0:0 == 3
-        assert ptr:0:1 == 7
+        assert ptr[0] is [:int 2]
+        assert ptr[0][0] == 3
+        assert ptr[0][1] == 7
         assert ptr.length==2
     }
     test2 = {
         // initialised
         [:int 2] array = [: 5, 10]
 
-        assert array:0 == 5
-        assert array:1 == 10
-        assert array:0 is int
-        assert array:1 is int
+        assert array[0] == 5
+        assert array[1] == 10
+        assert array[0] is int
+        assert array[1] is int
 
         var b = [:3, 7]
         assert b is [:int 2]
-        assert b:0 == 3
-        assert b:1 == 7
+        assert b[0] == 3
+        assert b[1] == 7
     }
     test3 = {
         // sparse initialised
         [:int 5] a = [: 2=1, 4=2]
-        assert a:0==0
-        assert a:1==0
-        assert a:2==1
-        assert a:3==0
-        assert a:4==2
+        assert a[0]==0
+        assert a[1]==0
+        assert a[2]==1
+        assert a[3]==0
+        assert a[4]==2
     }
     test4 = { [:int 2] a ->
-        assert a:0 == 77
-        assert a:1 == 88
+        assert a[0] == 77
+        assert a[1] == 88
     }
     test5 = {
         [:99,100]
-        var a = [:101,102]:0
+        var a = [:101,102][0]
         assert a==101
     }
     test6 = {
         // empty array literal
         [:int 1] a = [:]
-        assert a:0 == 0
+        assert a[0] == 0
 
         // too few values
         [:float 3] b = [: 7]
-        assert b:0 == 7
-        assert b:1 == 0
-        assert b:2 == 0
+        assert b[0] == 7
+        assert b[1] == 0
+        assert b[2] == 0
 
         b = [:8,3]
-        assert b:0 == 8
-        assert b:1 == 3
-        assert b:2 == 0
+        assert b[0] == 8
+        assert b[1] == 3
+        assert b[2] == 0
 
         b = [:]
-        assert b:0 == 0
-        assert b:1 == 0
-        assert b:2 == 0
+        assert b[0] == 0
+        assert b[1] == 0
+        assert b[2] == 0
     }
     test7 = {
 

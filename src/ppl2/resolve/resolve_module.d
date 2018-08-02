@@ -192,6 +192,15 @@ public:
     }
     void visit(Binary n) {
 
+        if(n.op==Operator.BOOL_AND) {
+            auto p = n.parent.as!Binary;
+            if(p && p.op==Operator.BOOL_OR) errorAmbiguousExpr(n);
+        }
+        if(n.op==Operator.BOOL_OR) {
+            auto p = n.parent.as!Binary;
+            if(p && p.op==Operator.BOOL_AND) errorAmbiguousExpr(n);
+        }
+
         /// We need the types before we can continue
         if(n.leftType().isUnknown || n.rightType.isUnknown) {
             return;
@@ -201,7 +210,7 @@ public:
             if(n.op.isOverloadable || n.op.isComparison) {
                 n.rewriteToOperatorOverloadCall();
                 rewrites++;
-                return ;
+                return;
             }
         }
 
@@ -515,7 +524,7 @@ public:
 
                     if(!prevType.isStruct) {
                         throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
-                            "Left of identifier must be a struct type not a %s".format(prevType));
+                            "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev));
                     }
 
                     AnonStruct struct_ = prevType.getAnonStruct();
@@ -564,13 +573,14 @@ public:
 
     }
     void visit(Index n) {
-        if(n.leftType().isNamedStruct) {
-            auto struct_ = n.leftType.getAnonStruct;
+
+        if(n.exprType().isNamedStruct) {
+            auto struct_ = n.exprType.getAnonStruct;
             assert(struct_);
 
-            auto ns = n.leftType.getNamedStruct;
+            auto ns = n.exprType.getNamedStruct;
 
-            if(struct_.getMemberFunctions("operator:")) {
+            if(struct_.hasOperatorOverload(Operator.INDEX)) {
 
                 auto b = module_.builder(n);
 
@@ -581,8 +591,8 @@ public:
 
                         /// Binary =
                         ///     Index
-                        ///         struct
                         ///         index
+                        ///         struct
                         ///     expr
                         ///....................
                         /// Dot
@@ -590,8 +600,8 @@ public:
                         ///     Call
                         ///         index
                         ///         expr
-                        auto left = n.leftType.isValue ? b.addressOf(n.left) : n.left;
-                        auto call = b.call("operator:", null)
+                        auto left = n.exprType.isValue ? b.addressOf(n.expr) : n.expr;
+                        auto call = b.call("operator[]", null)
                                      .add(n.index)
                                      .add(bin.right);
 
@@ -613,12 +623,8 @@ public:
                 ///     [AddressOf] struct
                 ///     Call
                 ///         index
-
-                ///
-                ///
-                ///
-                auto left = n.leftType.isValue ? b.addressOf(n.left) : n.left;
-                auto call = b.call("operator:", null)
+                auto left = n.exprType.isValue ? b.addressOf(n.expr) : n.expr;
+                auto call = b.call("operator[]", null)
                              .add(n.index);
 
                 auto dot = b.dot(left, call);
@@ -955,6 +961,7 @@ public:
         scope(exit) f.close();
 
         module_.dump(f);
+
         f.log("==============================================");
         f.log("======================== Unresolved Nodes (%s)", unresolved.length);
 

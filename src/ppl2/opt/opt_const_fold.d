@@ -137,19 +137,10 @@ public:
 
     }
     void visit(Parenthesis n) {
-        /// We don't need these any more
+        assert(n.numChildren==1);
 
-
-        if(n.expr().isA!Parenthesis) {
-            /// Remove unnecessary parens ((expr))
-            fold(n, n.expr());
-            return;
-        }
-        auto lit = n.expr().as!LiteralNumber;
-        if(lit) {
-            fold(n, lit);
-            return;
-        }
+        /// We don't need any Parentheses any more
+        fold(n, n.expr());
     }
     void visit(TypeExpr n) {
 

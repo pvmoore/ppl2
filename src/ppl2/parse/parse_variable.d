@@ -21,7 +21,7 @@ public:
     /// type id "=" expression
     ///
     void parse(Tokens t, ASTNode parent, bool requireType=false) {
-        //dd("variable");
+        //dd("variable", t.get);
         auto v = makeNode!Variable(t);
         parent.add(v);
 

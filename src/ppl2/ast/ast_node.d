@@ -81,6 +81,7 @@ bool isExpression(inout ASTNode n) { return n.as!Expression !is null; }
 bool isFunction(inout ASTNode n) { return n.id()==NodeID.FUNCTION; }
 bool isIdentifier(inout ASTNode n) { return n.id()==NodeID.IDENTIFIER; }
 bool isIf(inout ASTNode n) { return n.id()==NodeID.IF; }
+bool isIndex(inout ASTNode n) { return n.id()==NodeID.INDEX; }
 bool isInitialiser(inout ASTNode n) { return n.id()==NodeID.INITIALISER; }
 bool isLiteralNull(inout ASTNode n) { return n.id()==NodeID.LITERAL_NULL; }
 bool isLiteralNumber(inout ASTNode n) { return n.id()==NodeID.LITERAL_NUMBER; }

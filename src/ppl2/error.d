@@ -208,6 +208,7 @@ void prettyErrorMsg(Module m, int line, int col, int errNum, string msg) {
 
     string spaces;
     for(int i=0; i<col; i++) { spaces ~= " "; }
+
     writefln("\n%s|", spaces);
     writefln("%sv", spaces);
     writefln("%s", lines[line-1]);

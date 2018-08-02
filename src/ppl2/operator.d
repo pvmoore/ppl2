@@ -34,10 +34,11 @@ enum Operator : Op {
     NOTHING  = Op(0, 0,null),
 
     /// As    = 1
-    /// Dot   = 1
-    /// Index = 1
 
-    INDEX    = Op(1, 1, ":"),
+    /// Dot   = 2
+    /// Index = 2
+
+    INDEX    = Op(1, 2, "[]"),
 
     /// Call  = 2
 

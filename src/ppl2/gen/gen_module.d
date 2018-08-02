@@ -213,7 +213,7 @@ public:
         rhs = castType(rhs, n.index().getType, TYPE_INT, "cast");
         LLVMValueRef arrayIndex = rhs;
 
-        n.left().visit!ModuleGenerator(this);
+        n.expr().visit!ModuleGenerator(this);
 
         if(n.isArrayIndex) {
 

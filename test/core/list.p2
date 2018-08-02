@@ -16,15 +16,15 @@ public
     }
     add = { T value ->
         expand(1)
-        array:length = value
+        array[length] = value
         length += 1
         return this
     }
     operator: = { int index->
-        return array:index
+        return array[index]
     }
     operator: = { int index, T value ->
-        array:index = value
+        array[index] = value
     }
     operator<> = { List<T> other ->
         if(length <> other.length) return false
@@ -32,11 +32,17 @@ public
     }
     first = {
         assert length > 0
-        return array:0
+        return array[0]
     }
     last = {
         assert length > 0
-        return array:(length-1)
+        return array[length-1]
+    }
+    each = { {T->void} closure ->
+        loop(int i; i<length; i+=1) {
+            // fixme
+            //closure(i)
+        }
     }
     removeAt = { int index ->
 

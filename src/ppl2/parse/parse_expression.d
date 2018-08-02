@@ -23,10 +23,14 @@ public:
         parseLHS(t, parent);
         parseRHS(t, parent);
 
+        //parent.dumpToConsole();
+
         //log("Expression: parse---------------------------- END");
     }
 private:
     void parseLHS(Tokens t, ASTNode parent) {
+
+        //dd("lhs", t.get, "parent=", parent.id);
 
         /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);
@@ -131,6 +135,8 @@ private:
     void parseRHS(Tokens t, ASTNode parent) {
 
         while(true) {
+            //dd("rhs", t.get, "parent=", parent.id);
+
             if("is"==t.value) {
                 parent = attachAndRead(t, parent, parseIs(t));
             } else if("as"==t.value) {
@@ -143,7 +149,6 @@ private:
                 case TT.RCURLY:
                 case TT.LBRACKET:
                 case TT.RBRACKET:
-                case TT.LSQBRACKET:
                 case TT.RSQBRACKET:
                 case TT.NUMBER:
                 case TT.COMMA:
@@ -188,8 +193,12 @@ private:
                     if(t.peek(1).type==TT.PIPE) errorBadSyntax(t, "Did you mean 'or'");
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
-                case TT.COLON:
-                    parent = attachAndRead(t, parent, parseIndex(t));
+                case TT.LSQBRACKET:
+                    if(t.peek(1).type==TT.COLON) return;
+                    if(typeDetector().isType(t, parent, 1)) {
+                        return;
+                    }
+                    parent = attachAndRead(t, parent, parseIndex(t, parent), false);
                     break;
                 case TT.DOT:
                     parent = attachAndRead(t, parent, parseDot(t));
@@ -208,30 +217,38 @@ private:
             }
         }
     }
-    Expression attachAndRead(Tokens t, ASTNode parent, Expression newExpr) {
+    Expression attachAndRead(Tokens t, ASTNode parent, Expression newExpr, bool andRead = true) {
+        //dd("attach", newExpr.id, "to", parent.id);
+
         ASTNode prev = parent;
 
         ///
         /// Swap expressions according to operator precedence
         ///
-        const doPrecedenceCheck = prev.isA!Expression && !prev.isCall && !prev.isIf;
+        const doPrecedenceCheck = prev.isA!Expression;
         if(doPrecedenceCheck) {
 
             /// Ensure two expressions in a row do not have the same priority
             /// as this could lead to ambiguous results
-            bool isAmbiguous = parent.isExpression &&
-                              (newExpr.priority == parent.as!Expression.priority);
-
-            bool binary = (newExpr.isBinary && parent.isBinary);
-            bool as     = (newExpr.isAs && parent.isAs);
-
-            if(isAmbiguous && (binary || as)) {
-                errorAmbiguousExpr(parent);
-            }
+            //bool samePriority = parent.isExpression &&
+            //                  (newExpr.priority == parent.as!Expression.priority);
+            //
+            //auto b1     = newExpr.as!Binary;
+            //auto b2     = parent.as!Binary;
+            //bool binary = (b1 && b2);
+            ////bool as     = (newExpr.isAs && parent.isAs);
+            //
+            //bool andOr = binary && (b1.op==Operator.BOOL_AND
+            //
+            //if(samePriority && binary) { // (binary || as)) {
+            //    errorAmbiguousExpr(parent);
+            //}
 
             /// Adjust to account for operator precedence
             Expression prevExpr = prev.as!Expression;
-            while(prevExpr.parent && newExpr.priority >= prevExpr.priority) {
+            while(prevExpr.parent &&
+                  newExpr.priority >= prevExpr.priority)
+            {
 
                 if(!prevExpr.parent.isExpression) {
                     prev = prevExpr.parent;
@@ -246,7 +263,9 @@ private:
         newExpr.add(prev.last);
         prev.add(newExpr);
 
-        parseLHS(t, newExpr);
+        if(andRead) {
+            parseLHS(t, newExpr);
+        }
 
         return newExpr;
     }
@@ -285,11 +304,29 @@ private:
 
         return d;
     }
-    Expression parseIndex(Tokens t) {
+    //Expression parseIndex(Tokens t) {
+    //
+    //    auto i = makeNode!Index(t);
+    //
+    //    t.skip(TT.COLON);
+    //
+    //    return i;
+    //}
+    Expression parseIndex(Tokens t, ASTNode parent) {
 
         auto i = makeNode!Index(t);
+        parent.add(i);
 
-        t.skip(TT.COLON);
+        t.skip(TT.LSQBRACKET);
+
+        auto parens = makeNode!Parenthesis(t);
+        i.add(parens);
+
+        parse(t, parens);
+
+        t.skip(TT.RSQBRACKET);
+
+        i.detach();
 
         return i;
     }
@@ -410,11 +447,16 @@ private:
 
         import common : contains;
 
+        /// Add args to a Composite to act as a ceiling so that
+        /// the operator precedence never moves them above the call
+        auto composite = Composite.make(t, Composite.Usage.STANDARD);
+        c.add(composite);
+
         while(t.type!=TT.RBRACKET) {
 
             if(t.peek(1).type==TT.EQUALS) {
                 /// paramname = expr
-                if(c.numArgs>1 && c.paramNames.length==0) {
+                if(composite.numChildren>1 && c.paramNames.length==0) {
                     throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
                         "Mixing named and un-named constructor arguments");
                 }
@@ -430,7 +472,7 @@ private:
 
                 t.skip(TT.EQUALS);
 
-                parse(t, c);
+                parse(t, composite);
 
             } else {
                 if(c.paramNames.length>0) {
@@ -438,13 +480,19 @@ private:
                         "Mixing named and un-named constructor arguments");
                 }
 
-                parse(t, c);
+                parse(t, composite);
             }
 
             t.expect(TT.RBRACKET, TT.COMMA);
             if(t.type==TT.COMMA) t.next;
         }
         t.skip(TT.RBRACKET);
+
+        /// Move args to call and discard parenthesis
+        while(composite.hasChildren) {
+            c.add(composite.first());
+        }
+        composite.detach();
     }
     void parseIdentifier(Tokens t, ASTNode parent) {
 
@@ -746,18 +794,23 @@ private:
 
         import common : contains;
 
+        /// Add args to a Composite to act as a ceiling so that
+        /// the operator precedence never moves them above the call
+        auto composite = Composite.make(t, Composite.Usage.STANDARD);
+        call.add(composite);
+
         while(t.type!=TT.RBRACKET) {
 
             if(t.peek(1).type==TT.EQUALS) {
                 /// paramname = expr
 
-                if(call.numArgs>1 && call.paramNames.length==0) {
+                if(composite.numChildren>1 && call.paramNames.length==0) {
                     throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, con,
                         "Mixing named and un-named constructor arguments");
                 }
 
                 /// Add the implicit 'this' param
-                if(call.numArgs==1) {
+                if(composite.numChildren==0) {
                     call.paramNames ~= "this";
                 }
 
@@ -774,14 +827,14 @@ private:
 
                 t.skip(TT.EQUALS);
 
-                parse(t, call);
+                parse(t, composite);
 
             } else {
                 if(call.paramNames.length>0) {
                     throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, con,
                         "Mixing named and un-named constructor arguments");
                 }
-                parse(t, call);
+                parse(t, composite);
             }
 
             t.expect(TT.COMMA, TT.RBRACKET);
@@ -789,6 +842,12 @@ private:
         }
         /// )
         t.skip(TT.RBRACKET);
+
+        /// Move args to call and discard parenthesis
+        while(composite.hasChildren) {
+            call.add(composite.first());
+        }
+        composite.detach();
     }
     void parseAddressOf(Tokens t, ASTNode parent) {
 

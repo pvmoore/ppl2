@@ -5,22 +5,22 @@ import ppl2.internal;
 /// index_expr ::= expression ":" expression
 ///
 /// Index
-///     array | struct | ptr
 ///     index
+///     expr array | struct | ptr
 ///
 final class Index : Expression {
 
     override bool isResolved() {
-        if(!left().isResolved) return false;
+        if(!expr().isResolved) return false;
         if(isArrayIndex()) {
             return index().isResolved;
         }
         if(isPtrIndex) {
             return true;
         }
-        if(left.getType.isNamedStruct) {
+        if(exprType().isNamedStruct) {
             /// Check if we are waiting to be rewritten to operator:
-            auto struct_ = leftType.getAnonStruct;
+            auto struct_ = exprType().getAnonStruct;
             assert(struct_);
             if(struct_.getMemberFunctions("operator:")) return false;
         }
@@ -28,10 +28,13 @@ final class Index : Expression {
         return index().isResolved && index().isA!LiteralNumber;
     }
     override NodeID id() const { return NodeID.INDEX; }
-    override int priority() const { return 1; }
+    override int priority() const { return 2; }
 
     override Type getType() {
-        auto t       = leftType();
+        /// This might happen if an error is thrown
+        if(numChildren < 2) return TYPE_UNKNOWN;
+
+        auto t       = exprType();
         auto struct_ = t.getAnonStruct;
         auto array   = t.getArrayType;
 
@@ -68,14 +71,14 @@ final class Index : Expression {
         return TYPE_UNKNOWN;
     }
 
-    bool isArrayIndex() { return leftType().isValue && leftType().isArray; }
-    bool isStructIndex() { return leftType().isValue && leftType().isStruct; }
-    bool isPtrIndex() { return leftType().isPtr; }
+    bool isArrayIndex()  { return exprType().isValue && exprType().isArray; }
+    bool isStructIndex() { return exprType().isValue && exprType().isStruct; }
+    bool isPtrIndex()    { return exprType().isPtr; }
 
-    Expression left() { return cast(Expression)children[0]; }
-    Expression index() { return cast(Expression)children[1]; }
+    Expression expr()  { return cast(Expression)children[1]; }
+    Expression index() { return cast(Expression)children[0]; }
 
-    Type leftType() { return left().getType; }
+    Type exprType() { return expr().getType; }
 
     int getIndexAsInt() {
         assert(index().isA!LiteralNumber);

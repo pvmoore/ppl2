@@ -25,6 +25,7 @@ import llvm.all;
 import ppl2.access;
 import ppl2.config;
 import ppl2.error;
+import ppl2.interfaces;
 import ppl2.ppl2;
 import ppl2.global;
 import ppl2.operator;
@@ -82,8 +83,6 @@ import ppl2.gen.gen_struct;
 
 import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;
-
-import ppl2.interfaces.container;
 
 import ppl2.misc.lexer;
 import ppl2.misc.linker;

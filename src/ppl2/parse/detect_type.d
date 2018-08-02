@@ -12,8 +12,12 @@ public:
         this.module_ = module_;
     }
 
-    bool isType(Tokens t, ASTNode node) {
-        return endOffset(t, node) != -1;
+    bool isType(Tokens t, ASTNode node, int offset = 0) {
+        t.markPosition();
+        t.next(offset);
+        bool result = endOffset(t, node) != -1;
+        t.resetToMark();
+        return result;
     }
     ///
     /// Return the offset of the end of the type.

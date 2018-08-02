@@ -222,7 +222,7 @@ public:
         if(lit) {
             /// Index is a const. Check the bounds
             if(n.isArrayIndex) {
-                ArrayType array = n.left().getType.getArrayType;
+                ArrayType array = n.exprType().getArrayType;
                 assert(array);
 
                 auto count = array.countExpr().as!LiteralNumber;
@@ -233,7 +233,7 @@ public:
                 }
             } else if(n.isStructIndex) {
 
-                AnonStruct struct_ = n.left().getType.getAnonStruct;
+                AnonStruct struct_ = n.exprType().getAnonStruct;
                 assert(struct_);
 
                 auto count = struct_.numMemberVariables();

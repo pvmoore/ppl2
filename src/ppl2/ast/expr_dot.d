@@ -8,7 +8,7 @@ final class Dot : Expression {
 
     override bool isResolved() { return getType.isKnown; }
     override NodeID id() const { return NodeID.DOT; }
-    override int priority() const { return 1; }
+    override int priority() const { return 2; }
     override Type getType() {
         if(right() is null) return TYPE_UNKNOWN;
         return right().getType;
