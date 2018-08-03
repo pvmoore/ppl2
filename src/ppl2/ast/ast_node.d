@@ -157,9 +157,14 @@ abstract class ASTNode {
         child.parent      = null;
         otherChild.parent = this;
     }
-    int indexOf(inout ASTNode child) const {
-        foreach(i, ch; children[]) {
-            if(ch is child) return cast(int)i;
+    int indexOf(ASTNode child) {
+        /// Do the happy path first, assuming child is an immediate descendent
+        foreach(int i, ch; children[]) {
+            if(ch is child) return i;
+        }
+        /// Do the slower version looking at all descendents
+        foreach(int i, ch; children[]) {
+            if(ch.hasDescendent(child)) return i;
         }
         return -1;
     }
@@ -176,7 +181,7 @@ abstract class ASTNode {
             parent.remove(this);
         }
     }
-    int index() const {
+    int index() {
         if(parent) {
             return parent.indexOf(this);
         }
@@ -255,6 +260,15 @@ abstract class ASTNode {
         if(d) return true;
         foreach(ch; children) {
             if(ch.hasDescendent!T) return true;
+        }
+        return false;
+    }
+    /// true if d is our descendent
+    bool hasDescendent(ASTNode d) {
+        foreach(ch; children) {
+            if(ch is d) return true;
+            bool r = ch.hasDescendent(d);
+            if(r) return true;
         }
         return false;
     }

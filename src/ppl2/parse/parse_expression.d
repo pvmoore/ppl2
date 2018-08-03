@@ -228,22 +228,6 @@ private:
         const doPrecedenceCheck = prev.isA!Expression;
         if(doPrecedenceCheck) {
 
-            /// Ensure two expressions in a row do not have the same priority
-            /// as this could lead to ambiguous results
-            //bool samePriority = parent.isExpression &&
-            //                  (newExpr.priority == parent.as!Expression.priority);
-            //
-            //auto b1     = newExpr.as!Binary;
-            //auto b2     = parent.as!Binary;
-            //bool binary = (b1 && b2);
-            ////bool as     = (newExpr.isAs && parent.isAs);
-            //
-            //bool andOr = binary && (b1.op==Operator.BOOL_AND
-            //
-            //if(samePriority && binary) { // (binary || as)) {
-            //    errorAmbiguousExpr(parent);
-            //}
-
             /// Adjust to account for operator precedence
             Expression prevExpr = prev.as!Expression;
             while(prevExpr.parent &&

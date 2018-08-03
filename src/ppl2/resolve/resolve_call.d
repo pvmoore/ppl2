@@ -24,6 +24,8 @@ struct Callable {
         this.id   = g_callableID++;
         this.func = f;
     }
+    bool resultReady()         { return getNode() !is null; }
+    ASTNode getNode()          { return func ? func : var; }
 
     bool isVariable()          { return var !is null; }
     bool isFunction()          { return func !is null; }
@@ -34,8 +36,6 @@ struct Callable {
     Type[] paramTypes()        { return getType.getFunctionType.paramTypes; }
     Module getModule()         { return func ? func.getModule : var.getModule; }
     int moduleNID()            { return func ? func.moduleNID : var.moduleNID; }
-    ASTNode getNode()          { return func ? func : var; }
-    bool resultReady()         { return getNode() !is null; }
     bool isStructMember()      { return func ? func.isStructMember : var.isStructMember; }
     bool isTemplateBlueprint() { return func ? func.isTemplateBlueprint : false; }
     bool isPrivate()           { return (func ? func.access : var.access).isPrivate; }
@@ -48,6 +48,9 @@ struct Callable {
     bool opEquals(ref const Callable o) const @safe  pure nothrow {
         assert(id!=0 && o.id!=0);
         return o.id==id;
+    }
+    string toString() {
+        return "%s %s(%s)".format(func?"FUNC":"VAR", getName, paramTypes.prettyString);
     }
 }
 
@@ -191,6 +194,16 @@ public:
         if(var && var.isFunctionPtr) overloads.add(Callable(var));
 
         int numRemoved = removeInvisible();
+
+        /// From this point onwards we need the resolved types
+        if(!call.argTypes.areKnown) {
+
+            if(overloads.length>0) {
+                return findImplicitMatchWithUnknownArgs(call);
+            }
+
+            return CALLABLE_NOT_READY;
+        }
 
         /// Try to filter the results down to one match
         filterOverloads(call);
@@ -460,4 +473,171 @@ private:
             m.templates.extract(v, call, mangledName);
         }
     }
+    ///
+    /// Some of the call args are unknown but we have some name matches.
+    /// If we can resolve any function ptr call args then we might
+    /// make some progress.
+    /// Also, if any of the call args are empty array or empty map
+    /// then we can use that information to filter our results.
+    ///
+    /// eg. call args = (int, {UNKNOWN->void})
+    /// nameMatches   = (int, {void->void})
+    ///                 (int, {int->void})   // <-- match
+    ///
+    /// eg. call expr = (int, [])
+    /// nameMatches   = (int, AnonStruct)   // <-- match
+    ///                 (int, float)
+    ///
+    Callable findImplicitMatchWithUnknownArgs(Call call) {
+        //if(call.name.indexOf("each")!=-1) dd("findImplicitMatchWithUnknownArgs", call);
+
+        bool checkFuncPtr(FunctionType param, FunctionType arg) {
+            bool numArgsMatch() {
+                return param.numParams == arg.numParams;
+            }
+            bool returnTypesSameOrUnknown() {
+                return param.returnType.isUnknown ||
+                arg.returnType.isUnknown ||
+                param.returnType.exactlyMatches(arg.returnType);
+            }
+            return numArgsMatch() && returnTypesSameOrUnknown();
+        }
+        //bool checkEmptyLiteralStruct() {
+        //
+        //}
+        //    bool isEmptyArrayLiteral(Type fType, Expression expr) {
+        //        return expr.isArrayLiteral &&
+        //        (cast(ArrayLiteral)expr).numElements==0;
+        //    }
+        //    //bool isEmptyMapLiteral(Type fType, Expression expr) {
+        //    //    return expr.isMapLiteral &&
+        //    //    (cast(MapLiteral)expr).numEntries==0;
+        //    //}
+
+        foreach(callable; overloads[]) {
+            assert(!callable.isTemplateBlueprint);
+
+            Type[] argTypes   = call.argTypes;
+            Type[] paramTypes = callable.paramTypes;
+
+            bool possibleMatch = call.numArgs == callable.numParams;
+            for(auto i=0; possibleMatch && i<call.numArgs; i++) {
+                auto arg   = argTypes[i];
+                auto param = paramTypes[i];
+
+                if(arg.isUnknown) {
+                    if(arg.isFunction && param.isFunction) {
+                        /// This is an unresolved function ptr argument.
+                        /// Filter out where number of args is different.
+                        /// If return type is known, filter out if they are different
+                        possibleMatch = checkFuncPtr(param.getFunctionType, arg.getFunctionType);
+                    } else {
+                        /// We have an unknown that we can't handle
+                        //dd("\tBAIL param=%s arg=%s".format(param, arg));
+                        return CALLABLE_NOT_READY;
+                    }
+                } else {
+                    possibleMatch = arg.canImplicitlyCastTo(param);
+                }
+            }
+            if(possibleMatch) {
+                //dd("\tPossible match:", callable);
+            } else {
+                //dd("\tNot a match   :", callable);
+                overloads.remove(callable);
+            }
+        }
+        if(overloads.length==1) {
+            //dd("\tWe have a winner", overloads[0]);
+            return overloads[0];
+        }
+
+        return CALLABLE_NOT_READY;
+    }
 }
+
+/*
+private Function findImplicitMatchWithUnknowns(
+    Module module_,
+    Function[] nameMatches,
+    Expression[] callExprs,
+    Type[] callArgs)
+{
+    //    if(module_.name=="test") {
+    //        writefln("findImplicitMatchWithUnknowns");
+    //        foreach(m; nameMatches) {
+    //            writefln("\tmatch     = %s", m.argTypes());
+    //        }
+    //        writefln("\tCallArgs  = %s", callArgs);
+    //        writefln("\tcallExprs = %s", callExprs);
+    //        writefln("\t---");
+    //    }
+    if(callExprs.length!=callArgs.length) return null;
+
+    pragma(inline,true) {
+        bool isPossibleFuncPtrMatch(Type fType, Type cType) {
+            bool numArgsMatch() {
+                return fType.func.argTypes.length == cType.func.argTypes.length;
+            }
+            bool returnTypesSameOrUnknown() {
+                return fType.func.returnType.isUnknown ||
+                cType.func.returnType.isUnknown ||
+                fType.func.returnType==cType.func.returnType;
+            }
+            return numArgsMatch() && returnTypesSameOrUnknown();
+        }
+        bool isEmptyArrayLiteral(Type fType, Expression expr) {
+            return expr.isArrayLiteral &&
+            (cast(ArrayLiteral)expr).numElements==0;
+        }
+        bool isEmptyMapLiteral(Type fType, Expression expr) {
+            return expr.isMapLiteral &&
+            (cast(MapLiteral)expr).numEntries==0;
+        }
+    }
+    auto filteredMatches = appender!(Function[]);
+
+    foreach(j, match; nameMatches) {
+        //writefln("\tchecking match %s", j);
+        bool isPossibleMatch = match.numArgs==callArgs.length;
+        for(auto i=0; isPossibleMatch && i<callArgs.length; i++) {
+            auto c     = callArgs[i];
+            auto fType = match.argTypes[i];
+            auto expr  = callExprs[i];
+
+            if(c.isUnknown) {
+                //writefln("\tCall arg %s is unknown", i);
+                if(c.isFunction) {
+                    // This is an unresolved function ptr argument.
+                    // Filter out where number of args is different.
+                    // If return type is known, filter out if they are different
+                    isPossibleMatch =isPossibleFuncPtrMatch(fType, c);
+                } else if(isEmptyArrayLiteral(fType, expr)) {
+                    isPossibleMatch = fType.isStruct && fType.struct_.name.startsWith("Array.");
+                } else if(isEmptyMapLiteral(fType, expr)) {
+                    isPossibleMatch = fType.isStruct && fType.struct_.name.startsWith("Map.");
+                } else {
+                    // We have an unknown that we can't handle.
+                    // Bail out
+                    //writefln("BAIL fType=%s expr=%s", fType, expr);
+                    return null;
+                }
+            } else {
+                isPossibleMatch = fType.canContain(c);
+            }
+        }
+        if(isPossibleMatch) {
+            //writefln("\tPOSSIBLE MATCH %s", match);
+            filteredMatches ~= match;
+        } else {
+            //writefln("\tNOT A MATCH %s", match);
+        }
+    }
+    //writefln("\tfiltered length = %s", filteredMatches.data.length);
+    if(filteredMatches.data.length==1) {
+        logln("\t...Found a match by heuristic unknown arg analysis");
+        return functionFound(module_, filteredMatches.data[0]);
+    }
+    return null;
+}
+*/

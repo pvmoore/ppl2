@@ -9,7 +9,7 @@ abstract class Expression : Statement {
     bool isConst() { return false; }
 
 
-    bool isStartOfChain() const {
+    bool isStartOfChain() {
         if(!parent.isDot) return true;
         if(index()!=0) return false;
 

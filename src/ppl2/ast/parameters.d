@@ -25,6 +25,12 @@ final class Parameters : ASTNode {
         auto r = getParams().filter!(it=>it.name==name).takeOne;
         return r.empty ? null : r.front;
     }
+    int getIndex(Variable param) {
+        foreach(int i, p; getParams) {
+            if(p.nid==param.nid) return i;
+        }
+        return -1;
+    }
     Variable[] getParams() {
         return children[].as!(Variable[]);
     }

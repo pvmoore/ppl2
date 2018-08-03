@@ -40,8 +40,12 @@ public
     }
     each = { {T->void} closure ->
         loop(int i; i<length; i+=1) {
-            // fixme
-            //closure(i)
+            closure(array[i])
+        }
+    }
+    each = { {int,T->void} closure ->
+        loop(int i; i<length; i+=1) {
+            closure(i,array[i])
         }
     }
     removeAt = { int index ->

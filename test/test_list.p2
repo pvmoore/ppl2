@@ -26,4 +26,14 @@ testList = {
 
     print(list.first())
     print(list.last())
+
+    println("each(T):")
+    list.each({ a ->
+        print(a)
+    })
+
+    println("each(int,T):")
+    list.each({ i, a ->
+        print(a)
+    })
 }

@@ -271,9 +271,12 @@ public:
                 assert(prev);
                 Type prevType = prev.getType;
 
-                if(prevType.isKnown && n.argTypes().areKnown) {
+                if(prevType.isKnown) { //  && n.argTypes().areKnown
                     if(!prevType.isStruct) throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
                         "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
+
+                    AnonStruct struct_ = prevType.getAnonStruct();
+                    assert(struct_);
 
                     if(n.name!="new" && !n.implicitThisArgAdded) {
                         /// Rewrite this call so that prev becomes the 1st argument (thisptr)
@@ -298,11 +301,8 @@ public:
                         rewrites++;
                     }
 
-                    AnonStruct struct_ = prevType.getAnonStruct();
-
-                    //checkStructMemberAccessIsNotPrivate(struct_, var);
-
                     auto callable = callResolver.structFind(n, prevType.getNamedStruct);
+
                     if(callable.resultReady) {
                         /// If we get here then we have 1 good match
 
@@ -724,18 +724,10 @@ public:
     }
     void visit(LiteralFunction n) {
         if(n.type.isUnknown) {
+
             auto ty = n.type.getFunctionType;
             if(ty.returnType.isUnknown) {
                 ty.returnType = n.determineReturnType();
-            }
-            foreach(i, a; ty.paramTypes) {
-                if(a.isUnknown) {
-                    /// Set param type from child param Variable
-                    auto param = n.params().getParam(i);
-                    if(param.type.isKnown) {
-                        ty.paramTypes[i] = param.type;
-                    }
-                }
             }
         }
     }
@@ -920,6 +912,27 @@ public:
         resolveType(n, n.type);
 
         if(n.type.isUnknown) {
+
+            if(n.isParameter) {
+                /// If we are a closure inside a call
+                auto call = n.getAncestor!Call;
+                if(call && call.isResolved) {
+
+                    auto params = n.parent.as!Parameters;
+                    assert(params);
+
+                    auto callIndex = call.indexOf(n);
+
+                    auto ptype = call.target.paramTypes[callIndex];
+                    if(ptype.isFunction) {
+                        auto idx = params.getIndex(n);
+                        assert(idx!=-1);
+
+                        auto t = ptype.getFunctionType.paramTypes[idx];
+                        n.setType(t);
+                    }
+                }
+            }
 
             if(n.hasInitialiser) {
                 /// Get the type from the initialiser

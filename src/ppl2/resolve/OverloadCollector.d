@@ -71,43 +71,59 @@ private:
         subCollect(node.parent);
     }
     void check(ASTNode n) {
-        auto v    = n.as!Variable;
-        auto f    = n.as!Function;
-        auto comp = n.as!Composite;
-        auto imp  = n.as!Import;
-
-        if(v && v.name==name) {
-            if(v.type.isUnknown) ready = false;
-            results.add(Callable(v));
-        } else if(f && f.name==name) {
-            if(f.isImport) {
-                auto m = PPL2.getModule(f.moduleName);
-                if(m.isParsed) {
-                    auto fns = m.getFunctions(name);
-                    if(fns.length==0) {
-                        /// Assume it will turn up later
-                        ready = false;
-                        return;
-                    }
-                    foreach(fn; fns) {
-                        addFunction(fn);
-                    }
-                } else {
-                    /// Bring the import in and start parsing it
-                    functionRequired(f.moduleName, name);
-                    ready = false;
+        switch(n.id) with(NodeID) {
+            case VARIABLE:
+                auto v = n.as!Variable;
+                if(v.name==name) {
+                    if(v.type.isUnknown) ready = false;
+                    results.add(Callable(v));
                 }
-            } else {
-                addFunction(f);
-            }
-        } else if(comp) {
-            foreach(ch; comp.children[]) {
-                check(ch);
-            }
-        } else if(imp) {
-            foreach(ch; imp.children[]) {
-                check(ch);
-            }
+                break;
+            case FUNCTION:
+                auto f = n.as!Function;
+                if(f.name==name) {
+                    if(f.isImport) {
+                        auto m = PPL2.getModule(f.moduleName);
+                        if(m.isParsed) {
+                            auto fns = m.getFunctions(name);
+                            if(fns.length==0) {
+                                /// Assume it will turn up later
+                                ready = false;
+                                return;
+                            }
+                            foreach(fn; fns) {
+                                addFunction(fn);
+                            }
+                        } else {
+                            /// Bring the import in and start parsing it
+                            functionRequired(f.moduleName, name);
+                            ready = false;
+                        }
+                    } else {
+                        addFunction(f);
+                    }
+                }
+                break;
+            case COMPOSITE:
+                auto comp = n.as!Composite;
+                foreach(ch; comp.children[]) {
+                    check(ch);
+                }
+                break;
+            case IMPORT:
+                auto imp = n.as!Import;
+                foreach(ch; imp.children[]) {
+                    check(ch);
+                }
+                break;
+            case PARAMETERS:
+                auto params = n.as!Parameters;
+                foreach(ch; params.children[]) {
+                    check(ch);
+                }
+                break;
+            default:
+                break;
         }
     }
     void addFunction(Function f) {
