@@ -575,66 +575,65 @@ public:
     void visit(Index n) {
 
         if(n.exprType().isNamedStruct) {
-            auto struct_ = n.exprType.getAnonStruct;
-            assert(struct_);
+            /// Rewrite this to a call to operator[]
 
             auto ns = n.exprType.getNamedStruct;
 
-            if(struct_.hasOperatorOverload(Operator.INDEX)) {
+            auto struct_ = n.exprType.getAnonStruct;
+            assert(struct_);
 
-                auto b = module_.builder(n);
+            auto b = module_.builder(n);
 
-                if(n.parent.isBinary) {
-                    auto bin = n.parent.as!Binary;
-                    if(bin.op.isAssign && n.nid==bin.left.nid) {
-                        /// Rewrite to operator:(int,value)
+            if(n.parent.isBinary) {
+                auto bin = n.parent.as!Binary;
+                if(bin.op.isAssign && n.nid==bin.left.nid) {
+                    /// Rewrite to operator:(int,value)
 
-                        /// Binary =
-                        ///     Index
-                        ///         index
-                        ///         struct
-                        ///     expr
-                        ///....................
-                        /// Dot
-                        ///     [AddressOf] struct
-                        ///     Call
-                        ///         index
-                        ///         expr
-                        auto left = n.exprType.isValue ? b.addressOf(n.expr) : n.expr;
-                        auto call = b.call("operator[]", null)
-                                     .add(n.index)
-                                     .add(bin.right);
+                    /// Binary =
+                    ///     Index
+                    ///         index
+                    ///         struct
+                    ///     expr
+                    ///....................
+                    /// Dot
+                    ///     [AddressOf] struct
+                    ///     Call
+                    ///         index
+                    ///         expr
+                    auto left = n.exprType.isValue ? b.addressOf(n.expr) : n.expr;
+                    auto call = b.call("operator[]", null)
+                                 .add(n.index)
+                                 .add(bin.right);
 
-                        auto dot = b.dot(left, call);
+                    auto dot = b.dot(left, call);
 
-                        bin.parent.replaceChild(bin, dot);
+                    bin.parent.replaceChild(bin, dot);
 
-                        rewrites++;
-                        return;
-                    }
+                    rewrites++;
+                    return;
                 }
-                /// Rewrite to operator:(int)
-
-                /// Index
-                ///     struct
-                ///     index
-                ///.............
-                /// Dot
-                ///     [AddressOf] struct
-                ///     Call
-                ///         index
-                auto left = n.exprType.isValue ? b.addressOf(n.expr) : n.expr;
-                auto call = b.call("operator[]", null)
-                             .add(n.index);
-
-                auto dot = b.dot(left, call);
-
-                n.parent.replaceChild(n, dot);
-
-                rewrites++;
-                return;
-
             }
+            /// Rewrite to operator:(int)
+
+            /// Index
+            ///     struct
+            ///     index
+            ///.............
+            /// Dot
+            ///     [AddressOf] struct
+            ///     Call
+            ///         index
+            auto left = n.exprType.isValue ? b.addressOf(n.expr) : n.expr;
+            auto call = b.call("operator[]", null)
+                         .add(n.index);
+
+            auto dot = b.dot(left, call);
+
+            n.parent.replaceChild(n, dot);
+
+            rewrites++;
+            return;
+
         }
     }
     void visit(Initialiser n) {

@@ -6,7 +6,7 @@ import ppl2.internal;
 ///
 /// Index
 ///     index
-///     expr array | struct | ptr
+///     ArrayType | AnonStruct | PtrType
 ///
 final class Index : Expression {
 
@@ -72,7 +72,7 @@ final class Index : Expression {
     }
 
     bool isArrayIndex()  { return exprType().isValue && exprType().isArray; }
-    bool isStructIndex() { return exprType().isValue && exprType().isStruct; }
+    bool isStructIndex() { return exprType().isValue && exprType().isAnonStruct; }
     bool isPtrIndex()    { return exprType().isPtr; }
 
     Expression expr()  { return cast(Expression)children[1]; }

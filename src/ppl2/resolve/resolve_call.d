@@ -477,16 +477,10 @@ private:
     /// Some of the call args are unknown but we have some name matches.
     /// If we can resolve any function ptr call args then we might
     /// make some progress.
-    /// Also, if any of the call args are empty array or empty map
-    /// then we can use that information to filter our results.
     ///
     /// eg. call args = (int, {UNKNOWN->void})
     /// nameMatches   = (int, {void->void})
-    ///                 (int, {int->void})   // <-- match
-    ///
-    /// eg. call expr = (int, [])
-    /// nameMatches   = (int, AnonStruct)   // <-- match
-    ///                 (int, float)
+    ///                 (int, {int->void})      // <-- match
     ///
     Callable findImplicitMatchWithUnknownArgs(Call call) {
         //if(call.name.indexOf("each")!=-1) dd("findImplicitMatchWithUnknownArgs", call);
@@ -502,17 +496,6 @@ private:
             }
             return numArgsMatch() && returnTypesSameOrUnknown();
         }
-        //bool checkEmptyLiteralStruct() {
-        //
-        //}
-        //    bool isEmptyArrayLiteral(Type fType, Expression expr) {
-        //        return expr.isArrayLiteral &&
-        //        (cast(ArrayLiteral)expr).numElements==0;
-        //    }
-        //    //bool isEmptyMapLiteral(Type fType, Expression expr) {
-        //    //    return expr.isMapLiteral &&
-        //    //    (cast(MapLiteral)expr).numEntries==0;
-        //    //}
 
         foreach(callable; overloads[]) {
             assert(!callable.isTemplateBlueprint);
@@ -533,7 +516,6 @@ private:
                         possibleMatch = checkFuncPtr(param.getFunctionType, arg.getFunctionType);
                     } else {
                         /// We have an unknown that we can't handle
-                        //dd("\tBAIL param=%s arg=%s".format(param, arg));
                         return CALLABLE_NOT_READY;
                     }
                 } else {
@@ -555,89 +537,3 @@ private:
         return CALLABLE_NOT_READY;
     }
 }
-
-/*
-private Function findImplicitMatchWithUnknowns(
-    Module module_,
-    Function[] nameMatches,
-    Expression[] callExprs,
-    Type[] callArgs)
-{
-    //    if(module_.name=="test") {
-    //        writefln("findImplicitMatchWithUnknowns");
-    //        foreach(m; nameMatches) {
-    //            writefln("\tmatch     = %s", m.argTypes());
-    //        }
-    //        writefln("\tCallArgs  = %s", callArgs);
-    //        writefln("\tcallExprs = %s", callExprs);
-    //        writefln("\t---");
-    //    }
-    if(callExprs.length!=callArgs.length) return null;
-
-    pragma(inline,true) {
-        bool isPossibleFuncPtrMatch(Type fType, Type cType) {
-            bool numArgsMatch() {
-                return fType.func.argTypes.length == cType.func.argTypes.length;
-            }
-            bool returnTypesSameOrUnknown() {
-                return fType.func.returnType.isUnknown ||
-                cType.func.returnType.isUnknown ||
-                fType.func.returnType==cType.func.returnType;
-            }
-            return numArgsMatch() && returnTypesSameOrUnknown();
-        }
-        bool isEmptyArrayLiteral(Type fType, Expression expr) {
-            return expr.isArrayLiteral &&
-            (cast(ArrayLiteral)expr).numElements==0;
-        }
-        bool isEmptyMapLiteral(Type fType, Expression expr) {
-            return expr.isMapLiteral &&
-            (cast(MapLiteral)expr).numEntries==0;
-        }
-    }
-    auto filteredMatches = appender!(Function[]);
-
-    foreach(j, match; nameMatches) {
-        //writefln("\tchecking match %s", j);
-        bool isPossibleMatch = match.numArgs==callArgs.length;
-        for(auto i=0; isPossibleMatch && i<callArgs.length; i++) {
-            auto c     = callArgs[i];
-            auto fType = match.argTypes[i];
-            auto expr  = callExprs[i];
-
-            if(c.isUnknown) {
-                //writefln("\tCall arg %s is unknown", i);
-                if(c.isFunction) {
-                    // This is an unresolved function ptr argument.
-                    // Filter out where number of args is different.
-                    // If return type is known, filter out if they are different
-                    isPossibleMatch =isPossibleFuncPtrMatch(fType, c);
-                } else if(isEmptyArrayLiteral(fType, expr)) {
-                    isPossibleMatch = fType.isStruct && fType.struct_.name.startsWith("Array.");
-                } else if(isEmptyMapLiteral(fType, expr)) {
-                    isPossibleMatch = fType.isStruct && fType.struct_.name.startsWith("Map.");
-                } else {
-                    // We have an unknown that we can't handle.
-                    // Bail out
-                    //writefln("BAIL fType=%s expr=%s", fType, expr);
-                    return null;
-                }
-            } else {
-                isPossibleMatch = fType.canContain(c);
-            }
-        }
-        if(isPossibleMatch) {
-            //writefln("\tPOSSIBLE MATCH %s", match);
-            filteredMatches ~= match;
-        } else {
-            //writefln("\tNOT A MATCH %s", match);
-        }
-    }
-    //writefln("\tfiltered length = %s", filteredMatches.data.length);
-    if(filteredMatches.data.length==1) {
-        logln("\t...Found a match by heuristic unknown arg analysis");
-        return functionFound(module_, filteredMatches.data[0]);
-    }
-    return null;
-}
-*/

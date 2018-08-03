@@ -43,21 +43,19 @@ testArrays = {
         assert soa[0] is SOA
         assert soa[1] is SOA
         assert soa[0].array.length==5
-        assert soa[0][0].length==5
-        assert soa[0][0] is [:int 5]
-        assert soa[1][0] is [:int 5]
-        assert soa[0][0][0] is int
+        assert soa[0].array is [:int 5]
+        assert soa[1].array is [:int 5]
+        assert soa[0].array[0] is int
 
-        soa[0][0] = [: 1,2,3,4,5]
-        soa[1][0] = [: 10,20,30,40,50]
+        soa[0].array = [: 1,2,3,4,5]
+        soa[1].array = [: 10,20,30,40,50]
 
-        var z1 = soa[0][0][0]
+        var z1 = soa[0].array[0]
         assert z1 == 1
-        assert soa[0][0][1] == 2
         assert soa[0].array[1] == 2
 
-        assert soa[0][0] is [: 1 as int,2,3,4,5]
-        assert soa[1][0] is [: 10 as int,20,30,40,50]
+        assert soa[0].array is [: 1 as int,2,3,4,5]
+        assert soa[1].array is [: 10 as int,20,30,40,50]
     }
     arrayLength = {
         [:int 4] a

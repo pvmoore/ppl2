@@ -254,6 +254,9 @@ public:
 
             /// We could add a runtime check here in debug mode
         }
+        if(n.exprType.isKnown) {
+
+        }
     }
     void visit(Initialiser n) {
 
