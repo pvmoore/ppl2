@@ -84,7 +84,7 @@ shared static this() {
     g_typeToString[Type.VOID]         = "void";
     g_typeToString[Type.ANON_STRUCT]  = "anon_struct";
     g_typeToString[Type.NAMED_STRUCT] = "named_struct";
-    g_typeToString[Type.ARRAY]        = "array";
+    g_typeToString[Type.ARRAY_STRUCT] = "array";
     g_typeToString[Type.FUNCTION]     = "function";
 
     // unary

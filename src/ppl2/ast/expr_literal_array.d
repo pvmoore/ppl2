@@ -9,12 +9,12 @@ import ppl2.internal;
 ///     expr
 ///     expr etc...
 final class LiteralArray : Expression {
-    ArrayType type;
+    ArrayStruct type;
     bool isIndexBased;  /// if true, the elements are [(idx)expr, (val)expr, (idx)expr, (val)expr,   etc...]
                         /// if false the elements are [expr, expr,  etc...]
 
     this() {
-        type         = makeNode!ArrayType(this);
+        type         = makeNode!ArrayStruct(this);
         type.subtype = TYPE_UNKNOWN;
     }
 

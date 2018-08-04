@@ -1,24 +1,24 @@
-module ppl2.type.type_array;
+module ppl2.type.type_array_struct;
 
 import ppl2.internal;
 ///
-/// array_type::= "[" type ":" count_expr "]"
+/// array_struct::= "[" type ":" count_expr "]"
 ///
 /// array_type
 ///     count_expr
 ///
-final class ArrayType : ASTNode, Type {
+final class ArrayStruct : ASTNode, Type {
 private:
     LLVMTypeRef _llvmType;
 public:
     Type subtype;
 
     override bool isResolved() { return isKnown; }
-    override NodeID id() const { return NodeID.ARRAY; }
+    override NodeID id() const { return NodeID.ARRAY_STRUCT; }
     override Type getType() { return this; }
 
 /// Type
-    int getEnum() const { return Type.ARRAY; }
+    int getEnum() const { return Type.ARRAY_STRUCT; }
 
     bool isKnown() {
         return subtype.isKnown() && hasCountExpr() && countExpr().isResolved && countExpr().isA!LiteralNumber;
@@ -27,9 +27,9 @@ public:
         /// Do the common checks
         if(!prelimExactlyMatches(this, other)) return false;
         /// Now check the base type
-        if(!other.isArray) return false;
+        if(!other.isArrayStruct) return false;
 
-        auto rightArray = other.getArrayType;
+        auto rightArray = other.getArrayStruct;
 
         if(!rightArray.subtype.exactlyMatches(subtype)) return false;
 
@@ -39,9 +39,9 @@ public:
         /// Do the common checks
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
         /// Now check the base type
-        if(!other.isArray) return false;
+        if(!other.isArrayStruct) return false;
 
-        auto rightArray = other.getArrayType;
+        auto rightArray = other.getArrayStruct;
 
         if(!rightArray.subtype.exactlyMatches(subtype)) return false;
 

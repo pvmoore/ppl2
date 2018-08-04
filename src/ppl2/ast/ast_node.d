@@ -6,7 +6,7 @@ import ppl2.internal;
 enum NodeID {
     ADDRESS_OF,
     ANON_STRUCT,
-    ARRAY,
+    ARRAY_STRUCT,
     AS,
     ASSERT,
     BINARY,

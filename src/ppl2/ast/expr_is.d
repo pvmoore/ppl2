@@ -66,7 +66,7 @@ public:
                     rewriteToMemcmp();
                     return;
                 }
-                if(leftType.isArray && rightType.isArray) {
+                if(leftType.isArrayStruct && rightType.isArrayStruct) {
                     rewriteToMemcmp();
                     return;
                 }
@@ -85,8 +85,8 @@ public:
             /// eg. expr is [:int]
             ///     [:bool] is expr
             ///
-            ArrayType leftArray  = leftType.getArrayType;
-            ArrayType rightArray = rightType.getArrayType;
+            ArrayStruct leftArray  = leftType.getArrayStruct;
+            ArrayStruct rightArray = rightType.getArrayStruct;
             if(leftArray && rightArray) {
                 bool r  = (left.isTypeExpr && leftArray.subtype.isKnown && !leftArray.hasCountExpr);
                      r |= (right.isTypeExpr && rightArray.subtype.isKnown && !rightArray.hasCountExpr);

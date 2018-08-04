@@ -160,7 +160,7 @@ public:
     /// array_type ::= "[:" type count_expr "]"
     ///
     Type parseArrayType(Tokens t, ASTNode node, bool addToNode) {
-        auto a = makeNode!ArrayType(t);
+        auto a = makeNode!ArrayStruct(t);
         node.add(a);
 
         /// [:

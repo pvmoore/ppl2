@@ -132,7 +132,7 @@ public:
                 tokenIndex++;
 
                 typeIndex++;
-            } else if(type.isArray) {
+            } else if(type.isArrayStruct) {
                 /// [: type length ]
                 chat(depth~"ArrayType");
 
@@ -143,7 +143,7 @@ public:
                 tokenIndex++;
 
                 chat(depth~"recurse array");
-                auto children = [type.getArrayType.subtype];
+                auto children = [type.getArrayStruct.subtype];
                 matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
 
                 /// ]

@@ -108,7 +108,7 @@ public:
     void visit(AnonStruct n) {
 
     }
-    void visit(ArrayType n) {
+    void visit(ArrayStruct n) {
         resolveType(n, n.subtype);
     }
     void visit(As n) {
@@ -480,28 +480,28 @@ public:
                     /// Properties:
                     switch(n.name) {
                         case "length":
-                            if(prevType.isArray) {
-                                int len = prevType.getArrayType.countAsInt();
+                            if(prevType.isArrayStruct) {
+                                int len = prevType.getArrayStruct.countAsInt();
                                 dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
                                 rewrites++;
                                 return;
                             }
                             break;
                         case "subtype":
-                            if(prevType.isArray) {
-                                dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
+                            if(prevType.isArrayStruct) {
+                                dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayStruct.subtype));
                                 rewrites++;
                                 return;
                             }
                             break;
                         case "ptr":
-                            if(prevType.isArray) {
+                            if(prevType.isArrayStruct) {
                                 if(prevType.isPtr) {
                                     assert(false, "array is a pointer. handle this");
                                 }
 
                                 auto b = module_.builder(n);
-                                auto as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
+                                auto as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayStruct.subtype, 1));
                                 /// As
                                 ///   AddressOf
                                 ///      prev
@@ -680,9 +680,9 @@ public:
                     assert(false, "Parent of LiteralArray is %s".format(n.parent.id));
             }
             if(parentType && parentType.isKnown) {
-                auto type = parentType.getArrayType;
+                auto type = parentType.getArrayStruct;
                 if(type) {
-                    if(!type.isArray) {
+                    if(!type.isArrayStruct) {
                         throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
                             "Cannot cast array literal to %s".format(type.prettyString));
                     }
@@ -696,17 +696,17 @@ public:
         } else {
             /// Make sure we have the same subtype as our parent
             if(n.parent.getType.isKnown) {
-                //auto arrayType = n.parent.getType().getArrayType;
-                //assert(arrayType, "Expecting ArrayType, got %s".format(n.parent.getType()));
+                //auto arrayStruct = n.parent.getType().getArrayStruct;
+                //assert(arrayStruct, "Expecting ArrayStruct, got %s".format(n.parent.getType()));
 
-                //n.type.subtype = arrayType.subtype;
+                //n.type.subtype = arrayStruct.subtype;
             }
         }
         //if(n.type.isKnown) {
         //    if(n.isArray) {
         //        /// Check that element type matches
         //
-        //        auto eleType = n.type.getArrayType.subtype;
+        //        auto eleType = n.type.getArrayStruct.subtype;
         //        //auto t       = n.calculateElementType(eleType);
         //
         //        foreach(i, t; n.elementTypes()) {
@@ -942,7 +942,7 @@ public:
                 }
             } else {
                 /// No initialiser
-                if(n.type.isArray && !n.type.getArrayType.hasCountExpr()) {
+                if(n.type.isArrayStruct && !n.type.getArrayStruct.hasCountExpr()) {
                     throw new CompilerError(Err.INFER_ARRAY_WITHOUT_INITIALISER, n,
                         "Array with inferred count must have an initialiser");
                 }

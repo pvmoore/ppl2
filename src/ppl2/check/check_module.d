@@ -44,7 +44,7 @@ public:
         }
     }
 
-    void visit(ArrayType n) {
+    void visit(ArrayStruct n) {
         if(!n.countExpr().isA!LiteralNumber) {
             errorArrayCountMustBeConst(n.countExpr());
         }
@@ -222,7 +222,7 @@ public:
         if(lit) {
             /// Index is a const. Check the bounds
             if(n.isArrayIndex) {
-                ArrayType array = n.exprType().getArrayType;
+                ArrayStruct array = n.exprType().getArrayStruct;
                 assert(array);
 
                 auto count = array.countExpr().as!LiteralNumber;
