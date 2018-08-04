@@ -166,8 +166,6 @@ main = {
 
         dothings(0, cat)
 
-        putchar('a')
-
         Dog* dd1 = null
         dd1 = dog
         dd1 = null
@@ -229,10 +227,8 @@ main = {
     import test_access
     testAccess()
 
-    import test_list
-    testList()
-
     testGroovyStyleCall = {
+        println("Test ... Groovy stype function calls")
         blah = { {void->void} closure ->
             closure()
         }
@@ -243,22 +239,24 @@ main = {
             closure(1)
         }
         blah {
-            print("hello")
+            println("hello")
         }
         blah() {
-            print("hello2")
+            println("hello2")
         }
         blah(1) {
-            print("hello3")
+            println("hello3")
         }
         blah<int> { a->
-            print("hello4")
-        }
-        blah<float> { a ->
-            print("hello5")
+            println("hello4")
         }
     }
     testGroovyStyleCall()
+
+    import test_list
+    testList()
+    import test_console
+    testConsole()
 }
 bool yop
 

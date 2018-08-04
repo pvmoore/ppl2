@@ -19,17 +19,15 @@ public:
         auto functions = new Array!Function;
         module_.selectDescendents!Function(functions);
         foreach(f; functions) {
-        //foreach(f; module_.getFunctions()) {
             if(f.isImport) {
                 log("\t  proxy func %s", f.name);
-                f.detach();
+                remove(f);
             } else if(f.isTemplateBlueprint) {
                 log("\t  template func %s", f.name);
-                f.detach();
+                remove(f);
             } else if(f.numRefs==0 && f.name!="new") {
                 log("\t  unreferenced func %s", f);
-                f.detach();
-                /// If this function contains a call or identifier then deref them. Is that possible?
+                remove(f);
             }
         }
         /// Remove ALL Defines
@@ -66,5 +64,25 @@ public:
             log("\t import %s", imp.moduleName);
             imp.detach();
         }
+    }
+private:
+    ///
+    /// Detach this function from the AST.
+    ///
+    /// Scan through the child nodes and in the case of:
+    ///     - Call       : dereference
+    ///     - Identifier : dereference
+    ///     - Closure    : remove
+    ///
+    void remove(Function f) {
+
+        f.recurse!Call(it=>it.target.dereference());
+        f.recurse!Identifier(it=>it.target.dereference());
+
+        f.recurse!Closure(it=>
+            module_.removeClosure(it)
+        );
+
+        f.detach();
     }
 }

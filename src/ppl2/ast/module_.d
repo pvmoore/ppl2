@@ -71,6 +71,10 @@ public:
     void addClosure(Closure c) {
         closures ~= c;
     }
+    void removeClosure(Closure c) {
+        import common : remove;
+        closures.remove(c);
+    }
     void addActiveRoot(ASTNode node) {
         activeRoots.add(node.getRoot);
     }

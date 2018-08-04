@@ -156,7 +156,7 @@ public:
         if(!n.isResolved) {
 
             /// This should eventually be imported implicitly
-            assert(findImport("core.intrinsics", n));
+            assert(findImport("core.hooks", n));
 
             /// Wait until we know what the type is
             Type type = n.expr().getType();

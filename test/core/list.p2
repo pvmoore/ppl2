@@ -48,6 +48,16 @@ public
             closure(i,array[i])
         }
     }
+    eachReverse = { {T->void} closure ->
+        loop(int i = length-1; i>=0; i-=1) {
+            closure(array[i])
+        }
+    }
+    eachReverse = { {int,T->void} closure ->
+        loop(int i = length-1; i>=0; i-=1) {
+            closure(i, array[i])
+        }
+    }
     removeAt = { int index ->
 
     }

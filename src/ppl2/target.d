@@ -71,7 +71,9 @@ public:
     }
     //===========================================================
     void dereference() {
-        removeRef();
+        if(isSet) {
+            removeRef();
+        }
     }
     bool isResolved() {
         if(!isSet) return false;

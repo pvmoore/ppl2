@@ -187,7 +187,7 @@ private:
         __gshared static string[] IMPORTS = [
             "core.core",
             "core.c",
-            "core.intrinsics",
+            "core.hooks",
             "core.list",
             "core.string",
             "core.console",
