@@ -79,7 +79,6 @@ public:
         }catch(CompilerError e) {
             prettyErrorMsg(e);
         }catch(UnresolvedSymbols e) {
-            dd("unresolved symbols");
             displayUnresolved(modules.values);
         }catch(Throwable e) {
             throw e;

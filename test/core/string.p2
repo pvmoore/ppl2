@@ -16,7 +16,7 @@ readonly
         return length==0
     }
 
-    //operator: = { /*this, */ int index->
-
-    //}
+    operator[] = { int index->
+        return ptr[index]
+    }
 ]

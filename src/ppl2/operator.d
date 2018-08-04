@@ -15,6 +15,12 @@ Operator parseOperator(Tokens t) {
             return Operator.SHR;
         }
     }
+    if(t.type==TT.LSQBRACKET) {
+        if(t.peek(1).type==TT.RSQBRACKET) {
+            t.next;
+            return Operator.INDEX;
+        }
+    }
     auto p = t.type in g_ttToOperator;
     if(p) return *p;
     switch(t.value) {

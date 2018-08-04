@@ -133,13 +133,14 @@ public:
             return;
         }
 
-        /// Test for identifier<params> not followed by a '('
+        /// Test for identifier<params> not followed by a '(' or '{'
         /// which indicates a missing type
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
 
             int end;
             if(isTemplateParams(t,1,end)) {
-                if(t.peek(end+1).type!=TT.LBRACKET) {
+                auto nextTok = t.peek(end+1);
+                if(nextTok.type!=TT.LBRACKET && nextTok.type!=TT.LCURLY) {
                     errorMissingType(t);
                 }
             }

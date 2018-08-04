@@ -927,8 +927,10 @@ public:
                         auto idx = params.getIndex(n);
                         assert(idx!=-1);
 
-                        auto t = ptype.getFunctionType.paramTypes[idx];
-                        n.setType(t);
+                        if(idx<ptype.getFunctionType.paramTypes.length) {
+                            auto t = ptype.getFunctionType.paramTypes[idx];
+                            n.setType(t);
+                        }
                     }
                 }
             }

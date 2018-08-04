@@ -50,10 +50,15 @@ struct Callable {
         return o.id==id;
     }
     string toString() {
-        return "%s %s(%s)".format(func?"FUNC":"VAR", getName, paramTypes.prettyString);
+        if(!resultReady) return "Not ready";
+        string t = isTemplateBlueprint() ? " TEMPLATE":"";
+        if(!getType.getFunctionType) {
+            return "%s%s %s(type=%s)".format(func?"FUNC":"VAR", t, getName, getType);
+        }
+        return "%s%s %s(%s)".format(func?"FUNC":"VAR", t, getName, paramTypes.prettyString);
     }
 }
-
+//============================================================================================
 final class CallResolver {
 private:
     Module module_;
@@ -105,6 +110,11 @@ public:
         if(collector.collect(call.name, call, overloads)) {
 
             int numRemoved = removeInvisible();
+
+            if(overloads.length==1 && overloads[0].isTemplateBlueprint) {
+                /// If we get here then we have a possible template match but
+                /// not enough information to extract it
+            }
 
             if(overloads.length==1 && !overloads[0].isTemplateBlueprint) {
 
@@ -498,12 +508,11 @@ private:
         }
 
         foreach(callable; overloads[]) {
-            assert(!callable.isTemplateBlueprint);
-
             Type[] argTypes   = call.argTypes;
             Type[] paramTypes = callable.paramTypes;
 
-            bool possibleMatch = call.numArgs == callable.numParams;
+            bool possibleMatch = !callable.isTemplateBlueprint &&
+                                 call.numArgs == callable.numParams;
             for(auto i=0; possibleMatch && i<call.numArgs; i++) {
                 auto arg   = argTypes[i];
                 auto param = paramTypes[i];

@@ -20,10 +20,10 @@ public
         length += 1
         return this
     }
-    operator: = { int index->
+    operator[] = { int index->
         return array[index]
     }
-    operator: = { int index, T value ->
+    operator[] = { int index, T value ->
         array[index] = value
     }
     operator<> = { List<T> other ->

@@ -217,6 +217,7 @@ main = {
         assert 77 == i3func()
         I3Object obj = I3Object()
     }
+
     testGlobals()
     test0()
     test1()
@@ -230,6 +231,34 @@ main = {
 
     import test_list
     testList()
+
+    testGroovyStyleCall = {
+        blah = { {void->void} closure ->
+            closure()
+        }
+        blah = { int a, {void->void} closure ->
+            closure()
+        }
+        blah = <T> { {T->void} closure ->
+            closure(1)
+        }
+        blah {
+            print("hello")
+        }
+        blah() {
+            print("hello2")
+        }
+        blah(1) {
+            print("hello3")
+        }
+        blah<int> { a->
+            print("hello4")
+        }
+        blah<float> { a ->
+            print("hello5")
+        }
+    }
+    testGroovyStyleCall()
 }
 bool yop
 

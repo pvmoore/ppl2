@@ -54,7 +54,6 @@ bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
 
         case TT.COMPARE:
 
-        case TT.COLON:
             endOffset = offset+1;
             return true;
         case TT.RANGLE: // SHR, USHR
@@ -69,10 +68,17 @@ bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
                 endOffset = offset+1;
             }
             return true;
+        case TT.LSQBRACKET:
+            if(t.peek(offset+1).type==TT.RSQBRACKET) {
+                endOffset = offset+2;
+                return true;
+            }
+            break;
         default:
-            endOffset = offset;
-            return false;
+            break;
     }
+    endOffset = offset;
+    return false;
 }
 ///
 /// "<" param { "," param } ">"

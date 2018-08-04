@@ -2,9 +2,9 @@
 public
 
 print = { string s ->
-    //loop(int i; i<s.length; i+=1) {
-    //    putchar(s:i)
-    //}
+    loop(int i; i<s.length; i+=1) {
+        putchar(s[i])
+    }
 }
 println = { string s ->
     // Can we assume string will

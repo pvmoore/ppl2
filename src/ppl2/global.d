@@ -92,8 +92,6 @@ shared static this() {
     //g_ttToOperator[TT.BIT_NOT] = Operator.BIT_NOT;
     //g_ttToOperator[TT.BOOL_NOT] = Operator.BOOL_NOT;
 
-    g_ttToOperator[TT.COLON] = Operator.INDEX;
-
     g_ttToOperator[TT.DIV] = Operator.DIV;
     g_ttToOperator[TT.ASTERISK] = Operator.MUL;
     g_ttToOperator[TT.PERCENT] = Operator.MOD;

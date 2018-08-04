@@ -80,6 +80,12 @@ private:
                 parseCall(t, parent);
                 return;
             }
+            if(t.peek(1).type==TT.LCURLY) {
+                /// Groovy-style call with funcptr arg
+                /// func { a-> }
+                parseCall(t, parent);
+                return;
+            }
             if(t.peek(1).type==TT.LANGLE) {
                 /// Could be a call or a Binary name < expr
                 int end;
@@ -88,6 +94,8 @@ private:
                     return;
                 }
             }
+
+
             parseIdentifier(t, parent);
             return;
         }
@@ -427,56 +435,66 @@ private:
             //dd("Function template call", c.name, c.templateTypes);
         }
 
-        t.skip(TT.LBRACKET);
+        if(t.type==TT.LBRACKET) {
+            t.skip(TT.LBRACKET);
 
-        import common : contains;
+            import common : contains;
 
-        /// Add args to a Composite to act as a ceiling so that
-        /// the operator precedence never moves them above the call
-        auto composite = Composite.make(t, Composite.Usage.STANDARD);
-        c.add(composite);
+            /// Add args to a Composite to act as a ceiling so that
+            /// the operator precedence never moves them above the call
+            auto composite = Composite.make(t, Composite.Usage.STANDARD);
+            c.add(composite);
 
-        while(t.type!=TT.RBRACKET) {
+            while(t.type!=TT.RBRACKET) {
 
-            if(t.peek(1).type==TT.EQUALS) {
-                /// paramname = expr
-                if(composite.numChildren>1 && c.paramNames.length==0) {
-                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
+                if (t.peek(1).type==TT.EQUALS) {
+                    /// paramname = expr
+                    if (composite.numChildren>1 && c.paramNames.length==0) {
+                        throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
                         "Mixing named and un-named constructor arguments");
-                }
-                if(c.paramNames.contains(t.value)) {
-                    throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
-                }
-                if(t.value=="this") {
-                    throw new CompilerError(Err.CALL_PARAM_CAN_NOT_BE_CALLED_THIS, t,
+                    }
+                    if (c.paramNames.contains(t.value)) {
+                        throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
+                    }
+                    if (t.value=="this") {
+                        throw new CompilerError(Err.CALL_PARAM_CAN_NOT_BE_CALLED_THIS, t,
                         "'this' cannot be used as a parameter name");
-                }
-                c.paramNames ~= t.value;
-                t.next;
+                    }
+                    c.paramNames ~= t.value;
+                    t.next;
 
-                t.skip(TT.EQUALS);
+                    t.skip(TT.EQUALS);
 
-                parse(t, composite);
+                    parse(t, composite);
 
-            } else {
-                if(c.paramNames.length>0) {
-                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
+                } else {
+                    if (c.paramNames.length>0) {
+                        throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
                         "Mixing named and un-named constructor arguments");
+                    }
+
+                    parse(t, composite);
                 }
 
-                parse(t, composite);
+                t.expect(TT.RBRACKET, TT.COMMA);
+                if (t.type==TT.COMMA) t.next;
             }
+            t.skip(TT.RBRACKET);
 
-            t.expect(TT.RBRACKET, TT.COMMA);
-            if(t.type==TT.COMMA) t.next;
+            /// Move args to call and discard parenthesis
+            while(composite.hasChildren) {
+                c.add(composite.first());
+            }
+            composite.detach();
         }
-        t.skip(TT.RBRACKET);
 
-        /// Move args to call and discard parenthesis
-        while(composite.hasChildren) {
-            c.add(composite.first());
+        if(t.type==TT.LCURLY) {
+            /// Groovy-style with closure arg at end
+            /// func {}
+            /// func() {}
+
+            parse(t, c);
         }
-        composite.detach();
     }
     void parseIdentifier(Tokens t, ASTNode parent) {
 

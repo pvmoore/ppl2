@@ -215,13 +215,21 @@ void prettyErrorMsg(Module m, int line, int col, int errNum, string msg) {
 }
 //==============================================================================================
 void displayUnresolved(Module[] modules) {
+    writefln("");
     foreach(m; modules) {
         auto nodes = m.resolver.getUnresolvedNodes();
         if(nodes.length>0) {
 
-            foreach(n; nodes) {
-                prettyErrorMsg(m, n.line, n.column, Err.UNRESOLVED_SYMBOL,
-                    "Unresolved symbol");
+            foreach(n; nodes) with(NodeID) {
+                bool r = n.id==IDENTIFIER ||
+                         n.id==LITERAL_FUNCTION ||
+                         n.id==VARIABLE ;
+                if(r) {
+                    prettyErrorMsg(m, n.line, n.column, Err.UNRESOLVED_SYMBOL,
+                        "Unresolved symbol");
+                } else {
+                    writefln("Unresolved %s", n.id);
+                }
             }
         }
     }
