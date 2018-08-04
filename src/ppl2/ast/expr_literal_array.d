@@ -16,6 +16,7 @@ final class LiteralArray : Expression {
     this() {
         type         = makeNode!ArrayStruct(this);
         type.subtype = TYPE_UNKNOWN;
+        type.add(LiteralNumber.makeConst(0, TYPE_INT));
     }
 
     override bool isResolved() {
@@ -89,9 +90,7 @@ final class LiteralArray : Expression {
 
         /// If we get here then we know all we need to know
 
-        if(!type.hasCountExpr()) {
-            type.add(LiteralNumber.makeConst(calculateCount()));
-        }
+        type.setCount(LiteralNumber.makeConst(calculateCount()));
     }
 
     Expression[] elementValues() {

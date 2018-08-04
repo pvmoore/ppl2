@@ -942,10 +942,7 @@ public:
                 }
             } else {
                 /// No initialiser
-                if(n.type.isArrayStruct && !n.type.getArrayStruct.hasCountExpr()) {
-                    throw new CompilerError(Err.INFER_ARRAY_WITHOUT_INITIALISER, n,
-                        "Array with inferred count must have an initialiser");
-                }
+
             }
 
             //if(n.isGlobal() || n.isStructMember()) {

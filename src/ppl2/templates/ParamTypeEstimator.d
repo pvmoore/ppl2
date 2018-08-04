@@ -133,18 +133,24 @@ public:
 
                 typeIndex++;
             } else if(type.isArrayStruct) {
-                /// [: type length ]
-                chat(depth~"ArrayType");
+                /// [type : length ]
+                chat(depth~"ArrayStruct");
 
-                /// [:
+                /// [
                 if(getToken().type!=TT.LSQBRACKET) break;
-                tokenIndex++;
-                if(getToken().type!=TT.COLON) break;
                 tokenIndex++;
 
                 chat(depth~"recurse array");
                 auto children = [type.getArrayStruct.subtype];
                 matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
+
+                /// :
+                if(getToken().type!=TT.COLON) break;
+                tokenIndex++;
+
+                /// skip count expression which might be 1 or more tokens
+                // todo - test this
+                while(getToken()!=NO_TOKEN && getToken().type!=TT.RSQBRACKET) tokenIndex++;
 
                 /// ]
                 if(getToken().type!=TT.RSQBRACKET) break;

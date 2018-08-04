@@ -3,13 +3,9 @@
 
 /* main = {
 
-    [:int 10] array
+    [int:10] array
 
-    var i = 1
-
-    var a = array[0 + 1 + i / 2] * 7
-
-    array[0] = 1 * 2
+    var a = [: 10,20]
 
 } */
 
@@ -61,7 +57,7 @@ struct Goal = [
 
 struct Animal = [
     int age
-    [:int 4] s
+    [int:4] s
     Goal g
     [int,bool] anon
     bark = { // Animal* this
@@ -100,7 +96,7 @@ myfunc = { bool flag ->
 }
 
 someArrays = {
-    [:int 5] array
+    [int:5] array
     var a2 = [: 1,2]
     var a3 = [: 3=999]
 }
@@ -259,6 +255,8 @@ main = {
     testConsole()
 }
 bool yop
+
+
 
 
 /*

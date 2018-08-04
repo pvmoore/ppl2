@@ -85,20 +85,20 @@ public:
             /// eg. expr is [:int]
             ///     [:bool] is expr
             ///
-            ArrayStruct leftArray  = leftType.getArrayStruct;
-            ArrayStruct rightArray = rightType.getArrayStruct;
-            if(leftArray && rightArray) {
-                bool r  = (left.isTypeExpr && leftArray.subtype.isKnown && !leftArray.hasCountExpr);
-                     r |= (right.isTypeExpr && rightArray.subtype.isKnown && !rightArray.hasCountExpr);
-
-                if(r) {
-                    /// Do array subtype check only
-                    bool result = (leftType.getPtrDepth==rightType.getPtrDepth) &&
-                                  leftArray.subtype.exactlyMatches(rightArray.subtype);
-                    rewriteToConstBool(result);
-                    return;
-                }
-            }
+            //ArrayStruct leftArray  = leftType.getArrayStruct;
+            //ArrayStruct rightArray = rightType.getArrayStruct;
+            //if(leftArray && rightArray) {
+            //    bool r  = (left.isTypeExpr && leftArray.subtype.isKnown && !leftArray.hasCountExpr);
+            //         r |= (right.isTypeExpr && rightArray.subtype.isKnown && !rightArray.hasCountExpr);
+            //
+            //    if(r) {
+            //        /// Do array subtype check only
+            //        bool result = (leftType.getPtrDepth==rightType.getPtrDepth) &&
+            //                      leftArray.subtype.exactlyMatches(rightArray.subtype);
+            //        rewriteToConstBool(result);
+            //        return;
+            //    }
+            //}
 
             /// Both sides must be resolved
             if(leftType.isUnknown || rightType.isUnknown) return;

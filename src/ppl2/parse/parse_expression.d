@@ -202,7 +202,10 @@ private:
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.LSQBRACKET:
+                    /// array literal
                     if(t.peek(1).type==TT.COLON) return;
+
+                    /// AnonStruct or ArrayStruct
                     if(typeDetector().isType(t, parent, 1)) {
                         return;
                     }
@@ -296,14 +299,6 @@ private:
 
         return d;
     }
-    //Expression parseIndex(Tokens t) {
-    //
-    //    auto i = makeNode!Index(t);
-    //
-    //    t.skip(TT.COLON);
-    //
-    //    return i;
-    //}
     Expression parseIndex(Tokens t, ASTNode parent) {
 
         auto i = makeNode!Index(t);

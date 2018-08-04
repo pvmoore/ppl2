@@ -154,7 +154,7 @@ func2 = <A> { int a, int b, [A, A b] c ->
 func2 = <A> { int a, {A,A->A} c ->
     return 6
 }
-func3 = <A,B> { [:A 2] a, B b ->
+func3 = <A,B> { [A:2] a, B b ->
     return 7
 }
 func = { float a ->

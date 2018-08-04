@@ -13,11 +13,7 @@ public:
     }
 
     bool isType(Tokens t, ASTNode node, int offset = 0) {
-        t.markPosition();
-        t.next(offset);
-        bool result = endOffset(t, node) != -1;
-        t.resetToMark();
-        return result;
+        return endOffset(t, node, offset) != -1;
     }
     ///
     /// Return the offset of the end of the type.
@@ -26,15 +22,16 @@ public:
     /// int   // returns 0
     /// int** // returns 2
     ///
-    int endOffset(Tokens t, ASTNode node) {
+    int endOffset(Tokens t, ASTNode node, int offset = 0) {
         t.markPosition();
+
         int startOffset = t.index();
         bool found      = false;
 
-        if(t.type==TT.LSQBRACKET && t.peek(1).type==TT.COLON) {
-            found = possibleArrayType(t, node);
-        } else if(t.type==TT.LSQBRACKET) {
-            found = possibleAnonStruct(t, node);
+        t.next(offset);
+
+        if(t.type==TT.LSQBRACKET) {
+            found = possibleArrayOrAnonStruct(t, node);
         } else if(t.type==TT.LCURLY) {
             found = possibleFunctionType(t, node);
         } else {
@@ -80,31 +77,10 @@ public:
         return endOffset - startOffset - 1;
     }
 private:
-    /// Starts with [:
-    /// Could be an array type or array literal
-    bool possibleArrayType(Tokens t, ASTNode node) {
-        assert(t.type==TT.LSQBRACKET);
-        assert(t.peek(1).type==TT.COLON);
-
-        int end = t.findEndOfBlock(TT.LSQBRACKET);
-        if(end==-1) return false;
-
-        t.next(2);
-
-        /// First token must be a type
-        if(!isType(t, node)) return false;
-
-        t.next(end - 1);
-
-        return true;
-    }
     /// Starts with [
-    /// Could be an AnonStruct or struct literal
-    ///
-    /// [int, int]
-    /// [int id, int id]
-    ///
-    bool possibleAnonStruct(Tokens t, ASTNode node) {
+    /// Could be an ArrayStruct or array literal or
+    ///             AnonStruct or struct literal
+    bool possibleArrayOrAnonStruct(Tokens t, ASTNode node) {
         assert(t.type==TT.LSQBRACKET);
 
         int end = t.findEndOfBlock(TT.LSQBRACKET);
@@ -115,10 +91,51 @@ private:
         /// First token must be a type
         if(!isType(t, node)) return false;
 
+        if(t.type==TT.COLON) errorBadSyntax(t, "Deprectaed array declaration");
+
         t.next(end);
 
         return true;
     }
+    /// Starts with [:
+    /// Could be an array type or array literal
+    //bool possibleArrayType(Tokens t, ASTNode node) {
+    //    assert(t.type==TT.LSQBRACKET);
+    //    assert(t.peek(1).type==TT.COLON);
+    //
+    //    int end = t.findEndOfBlock(TT.LSQBRACKET);
+    //    if(end==-1) return false;
+    //
+    //    t.next(2);
+    //
+    //    /// First token must be a type
+    //    if(!isType(t, node)) return false;
+    //
+    //    t.next(end - 1);
+    //
+    //    return true;
+    //}
+    ///// Starts with [
+    ///// Could be an AnonStruct or struct literal
+    /////
+    ///// [int, int]
+    ///// [int id, int id]
+    /////
+    //bool possibleAnonStruct(Tokens t, ASTNode node) {
+    //    assert(t.type==TT.LSQBRACKET);
+    //
+    //    int end = t.findEndOfBlock(TT.LSQBRACKET);
+    //    if(end==-1) return false;
+    //
+    //    t.next;
+    //
+    //    /// First token must be a type
+    //    if(!isType(t, node)) return false;
+    //
+    //    t.next(end);
+    //
+    //    return true;
+    //}
     /// Starts with {
     /// Could be a FunctionType or literal function
     ///

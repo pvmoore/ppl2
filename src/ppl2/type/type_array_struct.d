@@ -21,7 +21,7 @@ public:
     int getEnum() const { return Type.ARRAY_STRUCT; }
 
     bool isKnown() {
-        return subtype.isKnown() && hasCountExpr() && countExpr().isResolved && countExpr().isA!LiteralNumber;
+        return subtype.isKnown() && countExpr().isResolved && countExpr().isA!LiteralNumber;
     }
     bool exactlyMatches(Type other) {
         /// Do the common checks
@@ -63,8 +63,11 @@ public:
         return "[:%s %s]".format(subtype.prettyString(), c);
     }
     //============================================================
-    bool hasCountExpr() {
-        return numChildren > 0;
+    void setCount(LiteralNumber lit) {
+        assert(numChildren==1);
+
+        last().detach();
+        add(lit);
     }
     Expression countExpr() {
         assert(numChildren>0, "Expecting a countExpr");
@@ -84,7 +87,7 @@ public:
         if(isResolved) {
             c = countAsInt().to!string;
         } else {
-            c = !hasCountExpr() ? "infer" : hasCountExpr() ? "%s".format(countExpr()) : "?";
+            c = "%s".format(countExpr());
         }
         return "ArrayType:[nid=%s, subtype=%s, count=%s]".format(nid, subtype.prettyString, c);
     }

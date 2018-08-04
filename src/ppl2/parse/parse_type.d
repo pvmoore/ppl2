@@ -5,10 +5,11 @@ import ppl2.internal;
 final class TypeParser {
 private:
     Module module_;
-    ModuleParser moduleParser() { return module_.parser; }
+    ModuleParser moduleParser()   { return module_.parser; }
     ExpressionParser exprParser() { return module_.exprParser; }
-    StatementParser stmtParser() { return module_.stmtParser; }
-    VariableParser varParser() { return module_.varParser; }
+    StatementParser stmtParser()  { return module_.stmtParser; }
+    VariableParser varParser()    { return module_.varParser; }
+    TypeDetector typeDetector()   { return module_.typeDetector; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -18,15 +19,18 @@ public:
         string value = t.value;
         Type type    = null;
 
-        if(t.type==TT.LSQBRACKET && t.peek(1).type==TT.COLON) {
-            /// array "[:" type count_expr "]"
-            type = parseArrayType(t, node, addToNode);
-        } else if(t.type==TT.LSQBRACKET) {
-            /// [ <T> ] "[" struct
-            type = parseAnonStruct(t, node, addToNode);
-        } else if(t.type==TT.LCURLY) {
+        if(t.type==TT.LCURLY) {
             /// {int a,bool->int}
             type = parseFunctionType(t, node, addToNode);
+        } else if(t.type==TT.LSQBRACKET) {
+            int end = typeDetector().endOffset(t, node, 1);
+            if(end!=-1 && t.peek(end+1).type==TT.COLON) {
+                /// "[" type ":" count_expr "]"
+                type = parseArrayStruct(t, node, addToNode);
+            } else {
+                /// "[" types "]"
+                type = parseAnonStruct(t, node, addToNode);
+            }
         } else {
             /// built-in type
             int p = g_builtinTypes.get(value, -1);
@@ -132,7 +136,7 @@ public:
         return type;
     }
     ///
-    /// struct_type ::= "[" statement { statement } "]"
+    /// anon_struct ::= "[" statement { statement } "]"
     ///
     Type parseAnonStruct(Tokens t, ASTNode node, bool addToNode) {
 
@@ -157,26 +161,29 @@ public:
         return s;
     }
     ///
-    /// array_type ::= "[:" type count_expr "]"
+    /// array_struct ::= "[" type ":" count_expr "]"
     ///
-    Type parseArrayType(Tokens t, ASTNode node, bool addToNode) {
+    Type parseArrayStruct(Tokens t, ASTNode node, bool addToNode) {
         auto a = makeNode!ArrayStruct(t);
         node.add(a);
 
-        /// [:
+        /// [
         t.skip(TT.LSQBRACKET);
-        t.skip(TT.COLON);
 
         a.subtype = parse(t, a);
+        assert(a.subtype);
+
         if(a.subtype is null) {
             errorMissingType(t, t.value);
         }
 
-        if(t.type!=TT.RSQBRACKET) {
-            /// count
-            exprParser().parse(t, a);
-        }
+        /// :
+        t.skip(TT.COLON);
 
+        /// count
+        exprParser().parse(t, a);
+
+        /// ]
         t.skip(TT.RSQBRACKET);
 
         if(!addToNode) {

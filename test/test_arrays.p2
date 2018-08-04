@@ -3,26 +3,24 @@ public
 
 testArrays = {
     declarations = {
-        [:int 2] a
+        [int:2] a
 
-        [:int 2] b    = [: 1,3]
+        [int:2] b     = [: 1,3]
         var c         = [: 7,13,17]
         var d         = [: 1, 3.3, true]
 
-        [:int 9]* e   = null
-        [:int] f      = [: 1,2]             // [:int 2]
-        var g         = [: 1 as int,2,3]    // [:int 3]
+        [int:9]* e   = null
+        var g         = [: 1 as int,2,3]    // [int:3]
     }
     arrayOfArray = {
-        [:[:int 3] 1] a
-        assert a[0] is [:int]
-        assert a[0] is [:int 3]
+        [[int:3]:1] a
+        assert a[0] is [int:3]
 
         var b = a[0][1]
         assert b==0
     }
     anonStructOfArray = {
-        [:[int a, float b] 2] a
+        [[int a, float b]:2] a
         assert a.length==2
         assert a[0] is [int,float]
         assert a[0][0] is int
@@ -36,15 +34,15 @@ testArrays = {
     }
     namedStructOfArray = {
         struct SOA = [
-            [:int 5] array
+            [int:5] array
         ]
-        [:SOA 2] soa = [: SOA(),SOA()]
+        [SOA:2] soa = [: SOA(),SOA()]
         assert soa.length==2
         assert soa[0] is SOA
         assert soa[1] is SOA
         assert soa[0].array.length==5
-        assert soa[0].array is [:int 5]
-        assert soa[1].array is [:int 5]
+        assert soa[0].array is [int:5]
+        assert soa[1].array is [int:5]
         assert soa[0].array[0] is int
 
         soa[0].array = [: 1,2,3,4,5]
@@ -58,7 +56,7 @@ testArrays = {
         assert soa[1].array is [: 10 as int,20,30,40,50]
     }
     arrayLength = {
-        [:int 4] a
+        [int:4] a
 
         var len = a.length
         assert len==4
@@ -67,12 +65,9 @@ testArrays = {
         assert b.length == 6
 
         assert [: 1,2,3].length==3
-        assert [:int 5].length==5
+        assert [int:5].length==5
     }
     shouldNotCompile = {
-        // no count
-        //[:int] e
-
 
     }
     declarations()
@@ -88,7 +83,7 @@ private
 testLiteralArrays = {
     test1 = {
         // zero initialised
-        [:int 2] array
+        [int:2] array
         assert array[0] == 0
         assert array[1] == 0
         int n = 0
@@ -97,19 +92,19 @@ testLiteralArrays = {
         assert array.subtype is int
         assert array.#size==8
 
-        [:int 2]* ptr
+        [int:2]* ptr
         assert ptr is null
 
         ptr = &[: 3 as int, 7]
 
-        assert ptr[0] is [:int 2]
+        assert ptr[0] is [int:2]
         assert ptr[0][0] == 3
         assert ptr[0][1] == 7
         assert ptr.length==2
     }
     test2 = {
         // initialised
-        [:int 2] array = [: 5, 10]
+        [int:2] array = [: 5, 10]
 
         assert array[0] == 5
         assert array[1] == 10
@@ -117,20 +112,20 @@ testLiteralArrays = {
         assert array[1] is int
 
         var b = [:3, 7]
-        assert b is [:int 2]
+        assert b is [int:2]
         assert b[0] == 3
         assert b[1] == 7
     }
     test3 = {
         // sparse initialised
-        [:int 5] a = [: 2=1, 4=2]
+        [int:5] a = [: 2=1, 4=2]
         assert a[0]==0
         assert a[1]==0
         assert a[2]==1
         assert a[3]==0
         assert a[4]==2
     }
-    test4 = { [:int 2] a ->
+    test4 = { [int:2] a ->
         assert a[0] == 77
         assert a[1] == 88
     }
@@ -141,11 +136,11 @@ testLiteralArrays = {
     }
     test6 = {
         // empty array literal
-        [:int 1] a = [:]
+        [int:1] a = [:]
         assert a[0] == 0
 
         // too few values
-        [:float 3] b = [: 7]
+        [float:3] b = [: 7]
         assert b[0] == 7
         assert b[1] == 0
         assert b[2] == 0
@@ -177,7 +172,7 @@ testLiteralArrays = {
     test1()
     test2()
     test3()
-    test4([: 77 as int, 88] as [:int 2])
+    test4([: 77 as int, 88] as [int:2])
     test5()
     test6()
     test7()
