@@ -161,10 +161,10 @@ public:
         return s;
     }
     ///
-    /// array_struct ::= "[" type ":" count_expr "]"
+    /// array_type ::= "[" type ":" count_expr "]"
     ///
     Type parseArrayStruct(Tokens t, ASTNode node, bool addToNode) {
-        auto a = makeNode!ArrayStruct(t);
+        auto a = makeNode!ArrayType(t);
         node.add(a);
 
         /// [

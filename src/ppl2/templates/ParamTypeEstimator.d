@@ -132,16 +132,16 @@ public:
                 tokenIndex++;
 
                 typeIndex++;
-            } else if(type.isArrayStruct) {
+            } else if(type.isArray) {
                 /// [type : length ]
-                chat(depth~"ArrayStruct");
+                chat(depth~"ArrayType");
 
                 /// [
                 if(getToken().type!=TT.LSQBRACKET) break;
                 tokenIndex++;
 
                 chat(depth~"recurse array");
-                auto children = [type.getArrayStruct.subtype];
+                auto children = [type.getArrayType.subtype];
                 matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
 
                 /// :

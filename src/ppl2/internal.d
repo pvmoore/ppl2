@@ -118,7 +118,7 @@ import ppl2.templates.templates;
 
 import ppl2.type.define;
 import ppl2.type.type;
-import ppl2.type.type_array_struct;
+import ppl2.type.type_array;
 import ppl2.type.type_basic;
 import ppl2.type.type_function;
 import ppl2.type.type_anon_struct;

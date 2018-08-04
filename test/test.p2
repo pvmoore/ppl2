@@ -3,11 +3,21 @@
 
 /* main = {
 
-    [int:10] array
+    struct AA = [int a, int b]
+    AA aa
 
-    var a = [: 10,20]
+    [int:2] a
+    var b = [: 10,20]
+    [int,int] c
+
+    [int:2] d = c as [int:2]
+
+    [int,int] e = a as [int,int]
+
+    [int,int] f = aa as [int,int]
 
 } */
+
 
 import test_imports
 import test_literals

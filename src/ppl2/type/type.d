@@ -10,7 +10,7 @@ interface Type {
         /// All lower than STRUCT are BasicTypes
         NAMED_STRUCT,
         ANON_STRUCT,
-        ARRAY_STRUCT,
+        ARRAY,
         FUNCTION
     }
 /// Override these
@@ -37,7 +37,7 @@ pragma(inline,true) {
     final bool isStruct() const { return isNamedStruct() || isAnonStruct(); }
     final bool isNamedStruct() const { return getEnum==NAMED_STRUCT; }
     final bool isAnonStruct() const { return getEnum==ANON_STRUCT; }
-    final bool isArrayStruct() const { return getEnum()==ARRAY_STRUCT; }
+    final bool isArray() const { return getEnum()==ARRAY; }
     final bool isFunction() const {  return getEnum()==FUNCTION; }
 
     final bool isDefine() const {
@@ -78,11 +78,11 @@ pragma(inline,true) {
         auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType.getAnonStruct;
         assert(false, "How did we get here?");
     }
-    final ArrayStruct getArrayStruct() {
-        if(getEnum != Type.ARRAY_STRUCT) return null;
-        auto a   = this.as!ArrayStruct; if(a) return a;
-        auto def = this.as!Define; if(def) return def.type.getArrayStruct;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getArrayStruct;
+    final ArrayType getArrayType() {
+        if(getEnum != Type.ARRAY) return null;
+        auto a   = this.as!ArrayType; if(a) return a;
+        auto def = this.as!Define; if(def) return def.type.getArrayType;
+        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getArrayType;
         assert(false, "How did we get here?");
     }
     /// Return the non pointer version of this type
@@ -123,7 +123,7 @@ Type getBestFit(Type a, Type b) {
     if(a.isFunction || b.isFunction) {
         return null;
     }
-    if(a.isArrayStruct || b.isArrayStruct) {
+    if(a.isArray || b.isArray) {
         return null;
     }
     if(a.isVoid || b.isVoid) {
@@ -180,8 +180,8 @@ void getChildTypes(Type t, Array!Type array) {
     } else if(t.isFunction) {
         array.add(t.getFunctionType.paramTypes());
         array.add(t.getFunctionType.returnType());
-    } else if(t.isArrayStruct) {
-        array.add(t.getArrayStruct.subtype);
+    } else if(t.isArray) {
+        array.add(t.getArrayType.subtype);
     }
 }
 int size(Type t) {
@@ -201,7 +201,7 @@ int size(Type t) {
         case DOUBLE: return 8;
         case NAMED_STRUCT: return t.getNamedStruct.type.memberVariableTypes().map!(it=>it.size).sum;
         case ANON_STRUCT: return t.getAnonStruct.memberVariableTypes().map!(it=>it.size).sum;
-        case ARRAY_STRUCT: return t.getArrayStruct.countAsInt()*t.getArrayStruct.subtype.size();
+        case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
     }
 }
 LLVMValueRef zero(Type t) {
@@ -212,7 +212,7 @@ LLVMValueRef zero(Type t) {
         case UNKNOWN:
         case NAMED_STRUCT:
         case ANON_STRUCT:
-        case ARRAY_STRUCT:
+        case ARRAY:
         case FUNCTION:
         case VOID:
             assert(false, "zero - type is %s".format(t));

@@ -36,7 +36,7 @@ final class Index : Expression {
 
         auto t       = exprType();
         auto struct_ = t.getAnonStruct;
-        auto array   = t.getArrayStruct;
+        auto array   = t.getArrayType;
 
         if(t.isPtr) {
             return PtrType.of(t, -1);
@@ -71,7 +71,7 @@ final class Index : Expression {
         return TYPE_UNKNOWN;
     }
 
-    bool isArrayIndex()  { return exprType().isValue && exprType().isArrayStruct; }
+    bool isArrayIndex()  { return exprType().isValue && exprType().isArray; }
     bool isStructIndex() { return exprType().isValue && exprType().isAnonStruct; }
     bool isPtrIndex()    { return exprType().isPtr; }
 

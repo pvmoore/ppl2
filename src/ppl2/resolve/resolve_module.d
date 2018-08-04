@@ -108,18 +108,23 @@ public:
     void visit(AnonStruct n) {
 
     }
-    void visit(ArrayStruct n) {
+    void visit(ArrayType n) {
         resolveType(n, n.subtype);
     }
     void visit(As n) {
         auto lt = n.leftType();
         auto rt = n.rightType();
         if(lt.isKnown && rt.isKnown) {
-            if(lt.isAnonStruct && rt.isAnonStruct && lt.isValue && rt.isValue) {
+
+            bool isValid(Type t) {
+                return t.isValue && (t.isAnonStruct || t.isArray || t.isNamedStruct);
+            }
+
+            if(isValid(lt) && isValid(rt)) {
                 if(!lt.exactlyMatches(rt)) {
                     /// AnonStruct value -> AnonStruct value
 
-                    /// This is a reinterpret cast. It may not be what we want ??
+                    /// This is a reinterpret cast
 
                     /// Rewrite:
                     ///------------
@@ -480,37 +485,45 @@ public:
                     /// Properties:
                     switch(n.name) {
                         case "length":
-                            if(prevType.isArrayStruct) {
-                                int len = prevType.getArrayStruct.countAsInt();
+                            if(prevType.isArray) {
+                                int len = prevType.getArrayType.countAsInt();
                                 dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
                                 rewrites++;
                                 return;
+                            } else if(prevType.isAnonStruct) {
+                                int len = prevType.getAnonStruct.numMemberVariables();
+                                dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                                rewrites++;
                             }
                             break;
                         case "subtype":
-                            if(prevType.isArrayStruct) {
-                                dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayStruct.subtype));
+                            if(prevType.isArray) {
+                                dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
                                 rewrites++;
                                 return;
                             }
                             break;
-                        case "ptr":
-                            if(prevType.isArrayStruct) {
-                                if(prevType.isPtr) {
-                                    assert(false, "array is a pointer. handle this");
-                                }
-
-                                auto b = module_.builder(n);
-                                auto as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayStruct.subtype, 1));
-                                /// As
-                                ///   AddressOf
-                                ///      prev
-                                /// subtype*
-                                dot.parent.replaceChild(dot, as);
-                                rewrites++;
-                                return;
+                        case "ptr": {
+                            auto b = module_.builder(n);
+                            As as;
+                            if(prevType.isArray) {
+                                as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
+                            } else if(prevType.isAnonStruct) {
+                                as = b.as(b.addressOf(prev), PtrType.of(prevType.getAnonStruct, 1));
+                            } else {
+                                break;
                             }
-                            break;
+                            if(prevType.isPtr) {
+                                assert(false, "array is a pointer. handle this %s %s %s".format(prevType, module_.canonicalName, n.line));
+                            }
+                            /// As
+                            ///   AddressOf
+                            ///      prev
+                            ///   type*
+                            dot.parent.replaceChild(dot, as);
+                            rewrites++;
+                            return;
+                        }
                         case "#size": {
                             int size = prevType.size();
                             dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
@@ -680,9 +693,9 @@ public:
                     assert(false, "Parent of LiteralArray is %s".format(n.parent.id));
             }
             if(parentType && parentType.isKnown) {
-                auto type = parentType.getArrayStruct;
+                auto type = parentType.getArrayType;
                 if(type) {
-                    if(!type.isArrayStruct) {
+                    if(!type.isArray) {
                         throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
                             "Cannot cast array literal to %s".format(type.prettyString));
                     }

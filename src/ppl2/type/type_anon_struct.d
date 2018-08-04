@@ -19,6 +19,10 @@ public:
     bool exactlyMatches(Type other) {
         /// Do the common checks
         if(!prelimExactlyMatches(this, other)) return false;
+
+        /// Size must be the same
+        if(this.size != other.size) return false;
+
         /// Now check the base type
         if(!other.isAnonStruct) return false;
 
@@ -28,14 +32,16 @@ public:
     bool canImplicitlyCastTo(Type other) {
         /// Do the common checks
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
+
+        /// Size must be the same
+        if(this.size != other.size) return false;
+
         /// Now check the base type
         if(!other.isAnonStruct) return false;
 
         auto right = other.getAnonStruct;
 
-        if(this.size != right.size) return false;
-
-        /// Types match exactly
+        /// Types must match exactly
         return .exactlyMatch(memberVariableTypes(), right.memberVariableTypes);
     }
     LLVMTypeRef getLLVMType() {
@@ -147,6 +153,6 @@ public:
     }
     //===============================================================
     override string toString() {
-        return "AnonStruct %s".format(memberVariableTypes().prettyString);
+        return "AnonStruct [%s]".format(memberVariableTypes().prettyString);
     }
 }

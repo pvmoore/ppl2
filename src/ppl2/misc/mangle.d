@@ -74,8 +74,8 @@ string mangle(Type t) {
             auto st = t.getAnonStruct;
             s = "[%s]".format(mangle(st.memberVariableTypes()));
             break;
-        case ARRAY_STRUCT:
-            auto a = t.getArrayStruct;
+        case ARRAY:
+            auto a = t.getArrayType;
             s = "A[%s]".format(mangle(a.subtype));
             break;
         case FUNCTION:

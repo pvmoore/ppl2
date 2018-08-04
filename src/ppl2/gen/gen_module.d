@@ -500,6 +500,7 @@ public:
                 rhs = builder.trunc(v, to.getLLVMType, name);
             }
         } else {
+            /// Size is the same
             assert(from.isAnonStruct);
             assert(to.isAnonStruct);
             assert(false, "we shouldn't get here");

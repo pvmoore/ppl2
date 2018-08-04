@@ -66,7 +66,7 @@ public:
                     rewriteToMemcmp();
                     return;
                 }
-                if(leftType.isArrayStruct && rightType.isArrayStruct) {
+                if(leftType.isArray && rightType.isArray) {
                     rewriteToMemcmp();
                     return;
                 }
