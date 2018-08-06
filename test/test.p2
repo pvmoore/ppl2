@@ -3,18 +3,6 @@
 
 /* main = {
 
-    struct AA = [int a, int b]
-    AA aa
-
-    [int:2] a
-    var b = [: 10,20]
-    [int,int] c
-
-    [int:2] d = c as [int:2]
-
-    [int,int] e = a as [int,int]
-
-    [int,int] f = aa as [int,int]
 
 } */
 

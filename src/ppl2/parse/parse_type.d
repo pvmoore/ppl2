@@ -64,16 +64,15 @@ public:
         return type;
     }
     Type parseDefine(Tokens t, ASTNode node) {
-        auto type = findType(t.value, node);
-        if(!type) return null;
 
-        assert(type.isDefine || type.isNamedStruct);
-
+        /// Get the name
+        string name = t.value;
+        t.markPosition();
         t.next;
 
         Type[] templateParams;
 
-        /// Check for template params
+        /// Collect any template params
         if(t.type==TT.LANGLE) {
             t.next;
 
@@ -96,43 +95,12 @@ public:
             t.skip(TT.RANGLE);
         }
 
-        auto def = type.getDefine;
-        auto ns  = type.getNamedStruct;
+        auto type = findType(name, node, module_, templateParams);
 
-        if(def) {
-            defineRequired(def.moduleName, def.name);
-        } else {
-            defineRequired(module_.canonicalName, ns.name);
+        if(!type) {
+            t.resetToMark();
+            return null;
         }
-
-        /// This is a template
-        if(templateParams.length>0) {
-            assert(def !is null || ns !is null);
-
-            if(ns && templateParams.areKnown) {
-                string name       = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
-                auto concreteType = findType(name, node);
-                if(concreteType) {
-                    /// We found the concrete impl
-                    type = concreteType;
-                    return type;
-                }
-            }
-            /// Create a template proxy Define which can
-            /// be replaced later by the concrete NamedStruct
-            auto proxy                = makeNode!Define(t);
-            proxy.name                = module_.makeTemporary("templateProxy");
-            proxy.type                = TYPE_UNKNOWN;
-            proxy.moduleName          = module_.canonicalName;
-            proxy.isImport            = false;
-            proxy.templateProxyType   = (ns ? ns : def).as!Type;
-            proxy.templateProxyParams = templateParams;
-
-            //dd("!!template proxy =", ns ? "NS:" ~ ns.name : "Def:" ~ def.name, templateParams);
-
-            type = proxy;
-        }
-
         return type;
     }
     ///

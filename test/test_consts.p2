@@ -38,6 +38,10 @@ testConsts = {
     var waa = -woo + (3 - ~3 as int)    // 6
     var wii = not true
 
+    const ARRAY_LEN = 2
+    [int:ARRAY_LEN] array
+    assert array is [int:2]
+
     //const int D         // needs initialiser
 
     //A += 1    // modifying const

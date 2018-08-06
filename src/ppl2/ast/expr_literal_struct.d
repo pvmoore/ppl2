@@ -26,7 +26,7 @@ final class LiteralStruct : Expression {
     /// Try to infer the type based on the elements.
     /// Should only need to do this eg. in the following scenarios:
     ///     var a = [1,2]
-    ///     [1,2]:index
+    ///     [1,2][index]
     ///
     AnonStruct getInferredType() {
         if(!areKnown(elementTypes())) return null;

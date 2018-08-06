@@ -136,6 +136,25 @@ Type getBestFit(Type a, Type b) {
     if(b.isReal) return b;
     return a;
 }
+///
+/// Get the largest type of all elements.
+/// If there is no common type then return null
+///
+Type getBestFit(Type[] types) {
+    if(types.length==0) return TYPE_UNKNOWN;
+
+    Type t = types[0];
+    if(types.length==1) return t;
+
+    foreach(e; types[1..$]) {
+        t = getBestFit(t, e);
+        if(t is null) {
+            dd("nope", t, e);
+            return null;
+        }
+    }
+    return t;
+}
 //============================================================================================== exactlyMatch
 bool exactlyMatch(Type[] a, Type[] b) {
     if(a.length != b.length) return false;

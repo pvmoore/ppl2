@@ -17,15 +17,10 @@ public:
     }
 
     void parse(Tokens t, ASTNode parent) {
-        //log("Expression: parse---------------------------- START");
         //dd("expression", t.get);
 
         parseLHS(t, parent);
         parseRHS(t, parent);
-
-        //parent.dumpToConsole();
-
-        //log("Expression: parse---------------------------- END");
     }
 private:
     void parseLHS(Tokens t, ASTNode parent) {
@@ -94,7 +89,6 @@ private:
                     return;
                 }
             }
-
 
             parseIdentifier(t, parent);
             return;
@@ -575,80 +569,6 @@ private:
             parent.add(closure);
         }
     }
-    ///
-    /// literal_struct ::= "[" { [name "="] expression } [ "," [name "="] expression ] "]"
-    ///
-    void parseLiteralStruct(Tokens t, ASTNode parent) {
-        auto e = makeNode!LiteralStruct(t);
-        parent.add(e);
-
-        /// [
-        t.skip(TT.LSQBRACKET);
-
-        /// expression list or
-        /// name = expression list
-        while(t.type!=TT.RSQBRACKET) {
-            if(t.peek(1).type==TT.EQUALS) {
-                /// name = expression
-                if(e.hasChildren && e.names.length==0) errorStructLiteralMixedInitialisation(t);
-
-                e.names ~= t.value;
-                t.next;
-                t.skip(TT.EQUALS);
-
-                parse(t, e);
-            } else {
-                /// expression
-                if(e.names.length>0) errorStructLiteralMixedInitialisation(t);
-
-                parse(t, e);
-            }
-            t.expect(TT.RSQBRACKET, TT.COMMA);
-            if(t.type==TT.COMMA) t.next;
-        }
-        t.skip(TT.RSQBRACKET);
-    }
-    ///
-    /// literal_array ::= "[:" [digits"="] expression { "," [digits"="] expression } "]"
-    ///
-    void parseLiteralArray(Tokens t, ASTNode parent) {
-        auto e = makeNode!LiteralArray(t);
-        parent.add(e);
-
-        /// [:
-        t.skip(TT.LSQBRACKET);
-        t.skip(TT.COLON);
-
-        /// elements
-        while(t.type!=TT.RSQBRACKET) {
-
-            if(t.peek(1).type==TT.EQUALS) {
-                /// number = expression
-                if(e.hasChildren && !e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
-                e.isIndexBased = true;
-
-                /// index = value (Binary = )
-                parse(t, e);
-                if(!e.last.isA!Binary) errorBadSyntax(e.last, "Syntax error. Expecting binary =");
-
-                /// Split binary into 2 expressions
-                auto b = e.last.as!Binary;
-                e.remove(b);
-                e.add(b.left);
-                e.add(b.right);
-
-            } else {
-                if(e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
-
-                /// value
-                parse(t, e);
-            }
-
-            t.expect(TT.RSQBRACKET, TT.COMMA);
-            if(t.type==TT.COMMA) t.next;
-        }
-        t.skip(TT.RSQBRACKET);
-    }
     void parseUnary(Tokens t, ASTNode parent) {
 
         auto u = makeNode!Unary(t);
@@ -940,6 +860,81 @@ private:
                 stmtParser().parse(t, else_);
             }
         }
+    }
+
+    ///
+    /// literal_struct ::= "[" { [name "="] expression } [ "," [name "="] expression ] "]"
+    ///
+    void parseLiteralStruct(Tokens t, ASTNode parent) {
+        auto e = makeNode!LiteralStruct(t);
+        parent.add(e);
+
+        /// [
+        t.skip(TT.LSQBRACKET);
+
+        /// expression list or
+        /// name = expression list
+        while(t.type!=TT.RSQBRACKET) {
+            if(t.peek(1).type==TT.EQUALS) {
+                /// name = expression
+                if(e.hasChildren && e.names.length==0) errorStructLiteralMixedInitialisation(t);
+
+                e.names ~= t.value;
+                t.next;
+                t.skip(TT.EQUALS);
+
+                parse(t, e);
+            } else {
+                /// expression
+                if(e.names.length>0) errorStructLiteralMixedInitialisation(t);
+
+                parse(t, e);
+            }
+            t.expect(TT.RSQBRACKET, TT.COMMA);
+            if(t.type==TT.COMMA) t.next;
+        }
+        t.skip(TT.RSQBRACKET);
+    }
+    ///
+    /// literal_array ::= "[:" [digits"="] expression { "," [digits"="] expression } "]"
+    ///
+    void parseLiteralArray(Tokens t, ASTNode parent) {
+        auto e = makeNode!LiteralArray(t);
+        parent.add(e);
+
+        /// [:
+        t.skip(TT.LSQBRACKET);
+        t.skip(TT.COLON);
+
+        /// elements
+        while(t.type!=TT.RSQBRACKET) {
+
+            if(t.peek(1).type==TT.EQUALS) {
+                /// number = expression
+                if(e.hasChildren && !e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
+                e.isIndexBased = true;
+
+                /// index = value (Binary = )
+                parse(t, e);
+                if(!e.last.isA!Binary) errorBadSyntax(e.last, "Syntax error. Expecting binary =");
+
+                /// Split binary into 2 expressions
+                auto b = e.last.as!Binary;
+                e.remove(b);
+                e.add(b.left);
+                e.add(b.right);
+
+            } else {
+                if(e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
+
+                /// value
+                parse(t, e);
+            }
+
+            t.expect(TT.RSQBRACKET, TT.COMMA);
+            if(t.type==TT.COMMA) t.next;
+        }
+        t.skip(TT.RSQBRACKET);
     }
 }
 

@@ -29,6 +29,10 @@ enum Err {
     FUNCTION_NOT_FOUND,
     MISSING_TYPE,
 
+    /// Aggregate
+    AGGREGATE_MIXING_INITIALISATION,
+    AGGREGATE_WRONG_NUM_VALUES,
+
     /// Assert
     ASSERT_FAILED,
 
@@ -274,14 +278,6 @@ void errorArrayIndexMustBeConst(ASTNode n) {
     throw new CompilerError(Err.ARRAY_INDEX_MUST_BE_CONST, n,
         "Array index expression must be a const");
 }
-void errorArrayLiteralMixedInitialisation(Tokens t) {
-    throw new CompilerError(Err.ARRAY_LITERAL_MIXING_INDEX_AND_NON_INDEX, t,
-        "Array literals must be either all indexes or all non-indexes");
-}
-void errorStructLiteralMixedInitialisation(Tokens t) {
-    throw new CompilerError(Err.STRUCT_LITERAL_MIXING_NAMED_AND_UNNAMED, t,
-        "Struct literals must be either all named or all unnamed");
-}
 void errorMissingType(ASTNode n, string name) {
     throw new CompilerError(Err.MISSING_TYPE, n, "Type %s not found".format(name));
 }
@@ -307,4 +303,17 @@ void newReservedForConstructors(ASTNode n) {
 void constructorCannotCallNonDefaultConstructor(ASTNode n) {
     throw new CompilerError(Err.CALL_NEW_RESERVED_FOR_CONSTRUCTORS, n,
         "Cannot call non-default constructor from within a constructor");
+}
+
+void errorArrayLiteralMixedInitialisation(Tokens t) {
+    throw new CompilerError(Err.ARRAY_LITERAL_MIXING_INDEX_AND_NON_INDEX, t,
+    "Array literals must be either all indexes or all non-indexes");
+}
+void errorStructLiteralMixedInitialisation(Tokens t) {
+    throw new CompilerError(Err.STRUCT_LITERAL_MIXING_NAMED_AND_UNNAMED, t,
+    "Struct literals must be either all named or all unnamed");
+}
+void aggregateMixedInitialisation(Tokens t) {
+    throw new CompilerError(Err.AGGREGATE_MIXING_INITIALISATION, t,
+        "Aggregate literals must be either all named or all unnamed");
 }

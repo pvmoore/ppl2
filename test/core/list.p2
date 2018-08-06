@@ -11,6 +11,7 @@ public
     new = { int reserve ->
         expand(reserve)
     }
+    ptr = { return array }
     empty = {
         return length==0
     }

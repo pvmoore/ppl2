@@ -116,11 +116,11 @@ public:
         auto rt = n.rightType();
         if(lt.isKnown && rt.isKnown) {
 
-            bool isValid(Type t) {
+            bool isValidRewrite(Type t) {
                 return t.isValue && (t.isAnonStruct || t.isArray || t.isNamedStruct);
             }
 
-            if(isValid(lt) && isValid(rt)) {
+            if(isValidRewrite(lt) && isValidRewrite(rt)) {
                 if(!lt.exactlyMatches(rt)) {
                     /// AnonStruct value -> AnonStruct value
 
@@ -153,8 +153,12 @@ public:
                     value.add(n);
 
                     rewrites++;
+                    return;
                 }
             }
+        }
+        if(rt.isKnown) {
+
         }
     }
     void visit(Assert n) {

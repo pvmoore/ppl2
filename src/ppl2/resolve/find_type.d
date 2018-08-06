@@ -68,3 +68,51 @@ Type findType(string name, ASTNode node) {
     /// Recurse up the tree
     return findType(name, node.parent);
 }
+//====================================================================================
+///
+/// A more advanced findType function that handles template params
+///
+Type findType(string name, ASTNode node, Module module_, Type[] templateParams) {
+
+    auto type = findType(name, node);
+    if(!type) return null;
+
+    assert(type.isDefine || type.isNamedStruct);
+
+    auto def = type.getDefine;
+    auto ns  = type.getNamedStruct;
+    assert(def !is null || ns !is null);
+
+    if(def) {
+        defineRequired(def.moduleName, def.name);
+    } else {
+        defineRequired(ns.moduleName, ns.name);
+    }
+
+    if(templateParams.length>0) {
+        if(ns && templateParams.areKnown) {
+            string name2      = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
+            auto concreteType = findType(name2, node);
+            if(concreteType) {
+                /// We found the concrete impl
+                return concreteType;
+            }
+        }
+
+        /// Create a template proxy Define which can
+        /// be replaced later by the concrete NamedStruct
+        auto proxy                = makeNode!Define(node);
+        proxy.name                = module_.makeTemporary("templateProxy");
+        proxy.type                = TYPE_UNKNOWN;
+        proxy.moduleName          = module_.canonicalName;
+        proxy.isImport            = false;
+        proxy.templateProxyType   = (ns ? ns : def).as!Type;
+        proxy.templateProxyParams = templateParams;
+
+        type = proxy;
+
+        //dd("!!template proxy =", ns ? "NS:" ~ ns.name : "Def:" ~ def.name, templateParams);
+    }
+
+    return type;
+}
