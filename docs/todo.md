@@ -1,13 +1,11 @@
 # Todo
 ## High Priority
-- Operator overloading eg.
-    - op: = { int index-> }
-    - op+ = { A other -> }
+- Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. This may involve adding an array [T*,long length] struct to hold these dynamic arrays
+- Change struct/array literals to [int[]: 1,2,3], [Map: a=1,b=2], [List: 1,2]. If no type is specified then assume array if types are implicitly the same or struct otherwise
 - Attributes eg (* inline). (* expect true) (* notnull)
 
 ## Medium Priority
 - Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... (#size already implemented)
-- If last arg of function is a closure then allow Groovy access
 - import c = core.c
     - c::memset(..)  // maybe re-use use Dot with a flag
 
@@ -47,7 +45,6 @@ func<int>(10,20) // 1 explicit param, 1 missing
 - How to do closures with captures
 - How to do named structs within named structs (this, super etc...) A.B
 - Should we allow ptr arithmentic?
-- If we have any issues disambiguating struct/array literals then we could try syntax such as [array: 1,2,3] or [map: a=1,b=2]
 ## Low Priority
 - Write AST as DOT (.gv) format so it can be viewed by using a dot viewer tool
     https://en.wikipedia.org/wiki/DOT_(graph_description_language)
