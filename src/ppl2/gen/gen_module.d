@@ -389,10 +389,11 @@ public:
         }
     }
     void generateIntrinsicFuncDeclarations() {
+        // void (i8*, i8, i32, i1)* @llvm.memset.p0i8.i32
         memsetFunc = module_.llvmValue.addFunction(
             "llvm.memset.p0i8.i32",
             voidType(),
-            [bytePointerType(), i8Type(), i32Type(), i32Type(), i1Type()],
+            [bytePointerType(), i8Type(), i32Type(), i1Type()],
             LLVMCallConv.LLVMCCallConv
         );
         expectBoolFunc = module_.llvmValue.addFunction(
@@ -411,7 +412,7 @@ public:
     void memsetZero(LLVMValueRef ptr, int len) {
         auto i8Ptr = builder.bitcast(ptr, bytePointerType());
         auto args = [
-            i8Ptr, constI8(0), constI32(len), constI32(0),  constI1(0)
+            i8Ptr, constI8(0), constI32(len), constI1(0)
         ];
 
         builder.ccall(memsetFunc, args);
