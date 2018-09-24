@@ -30,11 +30,11 @@ public:
                 remove(f);
             }
         }
-        /// Remove ALL Defines
-        auto defines = new Array!Define;
-        module_.selectDescendents!Define(defines);
+        /// Remove ALL Aliases
+        auto defines = new Array!Alias;
+        module_.selectDescendents!Alias(defines);
         foreach(d; defines) {
-            log("\t define %s", d.name);
+            log("\t alias %s", d.name);
             d.detach();
         }
         /// Remove named structs that are not referenced or are template blueprints

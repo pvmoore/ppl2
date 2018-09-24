@@ -4,14 +4,14 @@ import ppl2.internal;
 
 public:
 //=============================================================================
-void defineRequired(string moduleName, string defineName) {
+void aliasOrStructRequired(string moduleName, string defineName) {
     string key = "%s|%s".format(moduleName, defineName);
 
     if(g_definesRequested.contains(key)) return;
     g_definesRequested.add(key);
 
     Task t = {
-        Task.Enum.DEFINE,
+        Task.Enum.TYPE,
         moduleName,
         defineName
     };
@@ -32,7 +32,7 @@ void functionRequired(string moduleName, string funcName) {
 }
 //=============================================================================
 struct Task {
-    enum Enum { FUNC, DEFINE }
+    enum Enum { FUNC, TYPE }
     Enum type;
 
     string moduleName;

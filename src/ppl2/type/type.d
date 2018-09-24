@@ -40,33 +40,33 @@ pragma(inline,true) {
     final bool isArray() const { return getEnum()==ARRAY; }
     final bool isFunction() const {  return getEnum()==FUNCTION; }
 
-    final bool isDefine() const {
-        if(this.as!Define !is null) return true;
+    final bool isAlias() const {
+        if(this.as!Alias !is null) return true;
         auto ptr = this.as!PtrType;
-        return ptr && ptr.decoratedType.isDefine;
+        return ptr && ptr.decoratedType.isAlias;
     }
     final getBasicType() {
         auto basic = this.as!BasicType; if(basic) return basic;
-        auto def   = this.as!Define; if(def) return def.type.getBasicType;
+        auto def   = this.as!Alias; if(def) return def.type.getBasicType;
         auto ptr   = this.as!PtrType; if(ptr) return ptr.decoratedType().getBasicType;
         return null;
     }
-    final Define getDefine() {
-        auto def = this.as!Define; if(def) return def;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getDefine;
+    final Alias getAlias() {
+        auto def = this.as!Alias; if(def) return def;
+        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getAlias;
         return null;
     }
     final FunctionType getFunctionType() {
         if(getEnum != Type.FUNCTION) return null;
         auto f   = this.as!FunctionType; if(f) return f;
-        auto def = this.as!Define; if(def) return def.type.getFunctionType;
+        auto def = this.as!Alias; if(def) return def.type.getFunctionType;
         auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getFunctionType;
         assert(false, "How did we get here?");
     }
     final NamedStruct getNamedStruct() {
         if(getEnum!=Type.NAMED_STRUCT) return null;
         auto ns  = this.as!NamedStruct; if(ns) return ns;
-        auto def = this.as!Define; if(def) return def.type.getNamedStruct;
+        auto def = this.as!Alias; if(def) return def.type.getNamedStruct;
         auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType.getNamedStruct;
         assert(false, "How did we get here?");
     }
@@ -74,14 +74,14 @@ pragma(inline,true) {
         if(!isStruct) return null;
         auto st  = this.as!AnonStruct; if(st) return st;
         auto ns  = this.as!NamedStruct; if(ns) return ns.type;
-        auto def = this.as!Define; if(def) return def.type.getAnonStruct;
+        auto def = this.as!Alias; if(def) return def.type.getAnonStruct;
         auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType.getAnonStruct;
         assert(false, "How did we get here?");
     }
     final ArrayType getArrayType() {
         if(getEnum != Type.ARRAY) return null;
         auto a   = this.as!ArrayType; if(a) return a;
-        auto def = this.as!Define; if(def) return def.type.getArrayType;
+        auto def = this.as!Alias; if(def) return def.type.getArrayType;
         auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getArrayType;
         assert(false, "How did we get here?");
     }

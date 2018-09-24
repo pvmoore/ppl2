@@ -17,7 +17,7 @@ public:
     override Type getType() {
         if(!ptrType) {
             auto t = PtrType.of(valueType, 1);
-            if(!valueType.isDefine) ptrType = t;
+            if(!valueType.isAlias) ptrType = t;
             return t;
         }
         return ptrType;

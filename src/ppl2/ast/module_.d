@@ -100,18 +100,18 @@ public:
         return getFunctions("new")[0];
     }
     ///
-    /// Find a define at the module scope.
+    /// Find a Alias at the module scope.
     ///
-    Define getDefine(string name) {
+    Alias getAlias(string name) {
         foreach(c; children) {
-            if(!c.isDefine) continue;
-            auto def = c.as!Define;
+            if(!c.isAlias) continue;
+            auto def = c.as!Alias;
             if(def.name==name) return def;
         }
         return null;
     }
-    Define[] getDefines() {
-        return children[].filter!(it=>it.isDefine).array.to!(Define[]);
+    Alias[] getAliass() {
+        return children[].filter!(it=>it.isAlias).array.to!(Alias[]);
     }
     NamedStruct getNamedStruct(string name) {
         foreach(c; children) {

@@ -1,13 +1,23 @@
 # Todo
 ## High Priority
-- Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. This may involve adding an array [T*,long length] struct to hold these dynamic arrays
-- Change struct/array literals to [int[]: 1,2,3], [Map: a=1,b=2], [List: 1,2]. If no type is specified then assume array if types are implicitly the same or struct otherwise
+- Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. 
+  This may involve adding an array [T*,long length] struct to hold these dynamic arrays
+- Change struct/array literals to [int[]: 1,2,3], [Map: a=1,b=2], [List: 1,2]. 
+  If no type is specified then assume array if types are implicitly the same or struct otherwise
 - Attributes eg (* inline). (* expect true) (* notnull)
-
+- Select expression:
+```
+var r = select(x) {
+    1 { 10 }
+    2 { 90+i }
+    else { 0 }
+}
+```
 ## Medium Priority
-- Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... (#size already implemented)
+- Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... 
+  (#size already implemented)
 - import c = core.c
-    - c::memset(..)  // maybe re-use use Dot with a flag
+    - c::memset(..)  // maybe re-use Dot with a flag
 
 ## Low Priority
 - LiteralMap (requires core.map implementation)
@@ -16,15 +26,15 @@
 - Is half data type worth using?
 - Built-in vector types eg float4, int2 etc...
 - More constant folding and dce (calls and functions)
-- Allow block of raw LLVM IR eg.
 - Run DScanner to highlight unused functions etc
+- Multi level struct access
+- Allow block of raw LLVM IR eg.
 ```
 IR { // or LLVM or similar
     %a = alloca i32
     ; etc...
 }
 ```
-- Multi level struct access
 ## Template enhancements
 - Allow template const parameter values eg
 ```

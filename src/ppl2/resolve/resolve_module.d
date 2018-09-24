@@ -68,28 +68,28 @@ public:
         }
         watch.stop();
     }
-    void resolveDefine(string defineName) {
+    void resolveAliasOrStruct(string AliasName) {
         watch.start();
-        log("Resolving %s define|struct '%s'", module_, defineName);
+        log("Resolving %s Alias|struct '%s'", module_, AliasName);
 
-        module_.recurse!Define((it) {
-            if(it.name==defineName) {
+        module_.recurse!Alias((it) {
+            if(it.name==AliasName) {
                 if(it.parent.isModule) {
-                    log("\t  Adding Define root %s", it);
+                    log("\t  Adding Alias root %s", it);
                     //module_.addActiveRoot(it);
                 }
                 module_.addActiveRoot(it);
                 it.numRefs++;
 
-                /// Could be a chain of defines in different modules
+                /// Could be a chain of Aliases in different modules
                 if(it.isImport) {
-                    dd("chain", defineName);
-                    defineRequired(it.moduleName, it.name);
+                    dd("chain", AliasName);
+                    aliasOrStructRequired(it.moduleName, it.name);
                 }
             }
         });
         module_.recurse!NamedStruct((it) {
-            if(it.name==defineName) {
+            if(it.name==AliasName) {
                 if(it.parent.isModule) {
                     log("\t  Adding NamedStruct root %s", it);
                     //module_.addActiveRoot(it);
@@ -409,7 +409,7 @@ public:
     void visit(Constructor n) {
         resolveType(n, n.type);
     }
-    void visit(Define n) {
+    void visit(Alias n) {
         resolveType(n, n.type);
     }
     void visit(Dot n) {
@@ -1008,9 +1008,9 @@ private:
             if(f.isTemplateBlueprint) return;
             if(f.isImport) return;
         }
-        if(m.isDefine) {
-            auto d = m.as!Define;
-            if(!d.type.isDefine) return;
+        if(m.isAlias) {
+            auto d = m.as!Alias;
+            if(!d.type.isAlias) return;
         }
 
         //dd("resolve", typeid(m), m.nid);
@@ -1038,26 +1038,26 @@ private:
         }
     }
     ///
-    /// If type is a Define then we need to resolve it
+    /// If type is a Alias then we need to resolve it
     ///
     void resolveType(ASTNode node, ref Type type) {
-        if(!type.isDefine) return;
+        if(!type.isAlias) return;
 
-        auto def = type.getDefine;
+        auto def = type.getAlias;
 
         /// Handle import
         if(def.isImport) {
             auto m = PPL2.getModule(def.moduleName);
             if(m.isParsed) {
-                auto externDef = m.getDefine(def.name);
+                auto externDef = m.getAlias(def.name);
                 if(externDef) {
-                    /// Switch to the external Define
+                    /// Switch to the external Alias
                     def  = externDef;
                     type = PtrType.of(externDef, type.getPtrDepth);
                 } else {
                     auto ns = m.getNamedStruct(def.name);
                     if(ns) {
-                        /// Define is resolved
+                        /// Alias is resolved
                         type = PtrType.of(ns, type.getPtrDepth);
                         return;
                     }
@@ -1070,7 +1070,7 @@ private:
             }
         }
 
-        /// Handle template proxy Define
+        /// Handle template proxy Alias
         if(def.isTemplateProxy) {
 
             /// Ensure template params are resolved
@@ -1079,7 +1079,7 @@ private:
             }
 
             /// Resolve until we have the NamedStruct
-            if(def.templateProxyType.isDefine) {
+            if(def.templateProxyType.isAlias) {
                 resolveType(node, def.templateProxyType);
             }
             if(!def.templateProxyType.isNamedStruct) {
@@ -1108,8 +1108,8 @@ private:
             return;
         }
 
-        if(def.type.isKnown || def.type.isDefine) {
-            /// Switch to the defined type
+        if(def.type.isKnown || def.type.isAlias) {
+            /// Switch to the Aliasd type
             type = PtrType.of(def.type, type.getPtrDepth);
         } else {
             typesWaiting++;

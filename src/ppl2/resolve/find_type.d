@@ -3,7 +3,7 @@ module ppl2.resolve.find_type;
 import ppl2.internal;
 
 ///
-/// Look for a Define or NamedStruct with given name starting from node.
+/// Look for a Alias or NamedStruct with given name starting from node.
 ///
 /// It is expected that this function is used during the parse phase so that
 /// is why we treat all nodes within a literal function as possible targets.
@@ -13,7 +13,7 @@ import ppl2.internal;
 Type findType(string name, ASTNode node) {
 
     pragma(inline,true) Type find(ASTNode n) {
-        auto def = n.as!Define;
+        auto def = n.as!Alias;
         if(def && def.name==name) return def;
 
         auto ns = n.as!NamedStruct;
@@ -77,16 +77,16 @@ Type findType(string name, ASTNode node, Module module_, Type[] templateParams) 
     auto type = findType(name, node);
     if(!type) return null;
 
-    assert(type.isDefine || type.isNamedStruct);
+    assert(type.isAlias || type.isNamedStruct);
 
-    auto def = type.getDefine;
-    auto ns  = type.getNamedStruct;
-    assert(def !is null || ns !is null);
+    auto alias_ = type.getAlias;
+    auto ns     = type.getNamedStruct;
+    assert(alias_ !is null || ns !is null);
 
-    if(def) {
-        defineRequired(def.moduleName, def.name);
+    if(alias_) {
+        aliasOrStructRequired(alias_.moduleName, alias_.name);
     } else {
-        defineRequired(ns.moduleName, ns.name);
+        aliasOrStructRequired(ns.moduleName, ns.name);
     }
 
     if(templateParams.length>0) {
@@ -99,14 +99,14 @@ Type findType(string name, ASTNode node, Module module_, Type[] templateParams) 
             }
         }
 
-        /// Create a template proxy Define which can
+        /// Create a template proxy Alias which can
         /// be replaced later by the concrete NamedStruct
-        auto proxy                = makeNode!Define(node);
+        auto proxy                = makeNode!Alias(node);
         proxy.name                = module_.makeTemporary("templateProxy");
         proxy.type                = TYPE_UNKNOWN;
         proxy.moduleName          = module_.canonicalName;
         proxy.isImport            = false;
-        proxy.templateProxyType   = (ns ? ns : def).as!Type;
+        proxy.templateProxyType   = (ns ? ns : alias_).as!Type;
         proxy.templateProxyParams = templateParams;
 
         type = proxy;

@@ -162,7 +162,7 @@ testOperatorOverloading = {
             assert b.x==1 and b.y==1 and b.z==1
         }
         structs = {
-            define Vec = Vector<int>
+            alias Vec = Vector<int>
 
             var a1 = Vec(1) + Vec(1,2,3)
             assert a1 == Vec(2,3,4)

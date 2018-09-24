@@ -156,7 +156,7 @@ private:
                 if(t.isKeyword("struct")) {
                     t.next;
                     module_.exportedTypes.add(t.value);
-                } else if(t.isKeyword("define")) {
+                } else if(t.isKeyword("alias")) {
                     t.next;
                     module_.exportedTypes.add(t.value);
                 } else if(t.isKeyword("extern")) {

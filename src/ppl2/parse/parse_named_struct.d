@@ -33,8 +33,8 @@ public:
         //dd("parseNamedStruct", t.value);
         if(type) {
             dd("redefinition", type);
-            if(type.isDefine) {
-                if(type.getDefine.isTemplateProxy) {
+            if(type.isAlias) {
+                if(type.getAlias.isTemplateProxy) {
                     /// Allow template proxy as this is what we are replacing
                 } else {
                     throw new CompilerError(Err.DUPLICATE_DEFINITION, n,

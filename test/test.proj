@@ -1,0 +1,15 @@
+
+[general]
+name = "test"
+
+excludeFiles       = ["blah"]
+excludeDirectories = ["blah2"]
+
+[state]
+current_file    = "test.p2"
+current_line    = 1
+current_column  = 5
+
+[release]
+opt-level = 3
+    

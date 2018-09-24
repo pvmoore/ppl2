@@ -30,10 +30,10 @@ public
     T a
 ]
 
-define AnInt = int
-define IntPtrPtr = IntPtr*
-define ANiceRose = OrangeRose
-define BlueRose = RedRose<bool>
+alias AnInt = int
+alias IntPtrPtr = IntPtr*
+alias ANiceRose = OrangeRose
+alias BlueRose = RedRose<bool>
 
 importedFunc = {
 

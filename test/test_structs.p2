@@ -41,6 +41,10 @@ public
     retThis = {
         return this
     }
+    static foobar = { int a ->
+        // to be implemented:
+        // eg. Fruit.foobar(10)
+    }
 ]
 struct Colour = [
     // new() function created automatically

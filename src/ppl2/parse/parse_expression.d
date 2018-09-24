@@ -671,7 +671,7 @@ private:
         if(!con.type) {
             errorMissingType(t, t.value);
         }
-        if(!con.type.isDefine && !con.type.isNamedStruct) {
+        if(!con.type.isAlias && !con.type.isNamedStruct) {
             errorBadSyntax(t, "Expecting a struct name here");
         }
 

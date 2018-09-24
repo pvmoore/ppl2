@@ -1,8 +1,8 @@
-module ppl2.type.define;
+module ppl2.type.alias_;
 
 import ppl2.internal;
 
-final class Define : Statement, Type {
+final class Alias : Statement, Type {
     string name;
     string moduleName;
     int moduleNID;
@@ -22,7 +22,7 @@ final class Define : Statement, Type {
 
 /// ASTNode
     override bool isResolved() { return false; }
-    final override NodeID id() const { return NodeID.DEFINE; }
+    final override NodeID id() const { return NodeID.ALIAS; }
     override Type getType() { return type; }
 /// Type
     final int getEnum() const { return type.getEnum(); }
@@ -36,6 +36,6 @@ final class Define : Statement, Type {
     override string toString() {
         string val = "%s".format(getType.prettyString);
         string imp = isImport ? " (IMPORT)" : "";
-        return "Define[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
+        return "Alias[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
     }
 }

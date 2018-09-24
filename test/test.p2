@@ -3,9 +3,7 @@
 
 /* main = {
 
-
 } */
-
 
 import test_imports
 import test_literals
@@ -24,12 +22,12 @@ import test_if
 import test_loop
 import test_template_functions
 
-define AA = int
-define BB = AA*     // int*
-define CC = BB      // int*
-define DD = CC*     // int**
+alias AA = int
+alias BB = AA*     // int*
+alias CC = BB      // int*
+alias DD = CC*     // int**
 DD dd               // int**
-define EE = IntPtrPtr*
+alias EE = IntPtrPtr*
 EE ee               // int***
 
 struct Gold = []
@@ -63,9 +61,9 @@ struct Animal = [
     }
 ]
 
-define GreyWolf  = Wolf
-define AnimalPtr = Animal*
-define IntPtr    = int*
+alias GreyWolf  = Wolf
+alias AnimalPtr = Animal*
+alias IntPtr    = int*
 
 dothings = { int a, Cat cat ->
     int local
@@ -74,7 +72,7 @@ dothings = { int a, Cat cat ->
 
 int boop = 1
 
-define Unref = int
+alias Unref = int
 
 Unref unr = 77
 
@@ -222,7 +220,7 @@ main = {
     testAccess()
 
     testGroovyStyleCall = {
-        println("Test ... Groovy stype function calls")
+        println("Test ... Groovy type function calls")
         blah = { {void->void} closure ->
             closure()
         }
@@ -294,14 +292,14 @@ bool yop
     //var v0 =
     ptr:0
 
-    define Wazzer = float
-    define Zipper = Wazzer
-    define Zippers = Zipper*
+    alias Wazzer = float
+    alias Zipper = Wazzer
+    alias Zippers = Zipper*
 
     //Wazzer myWazzer
     //Zipper zipper
     //Zippers zips
-    */
+    */////////////////////////////////////////////////////////////////
 
 
 
@@ -332,7 +330,7 @@ Dog = [
 
 ]
 Dog dog = [1,2]
-*/
+*///////////////////////////////////////////////
 
 
 /*
@@ -361,7 +359,7 @@ main = {
 
     ff()
 }
-*/
+*///////////////////////////////////////////////
 
 /*
 public
@@ -387,7 +385,7 @@ public              // read and write outside this module
     // This is a struct variable with an implicit this*
     // {SS* this, int foo -> int}
     func = { int foo ->
-        define R = float
+        alias R = float
         return 0
     }
 ]
@@ -438,4 +436,4 @@ min = <T> { T a, T b ->
 min = <T> { T a, T b, T c ->
     return 0
 }
-*/
+*///////////////////////////////////////////////

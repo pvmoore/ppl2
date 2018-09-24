@@ -114,8 +114,8 @@ private:
                     case FUNC:
                         mod.resolver.resolveFunction(t.elementName);
                         break;
-                    case DEFINE:
-                        mod.resolver.resolveDefine(t.elementName);
+                    case TYPE:
+                        mod.resolver.resolveAliasOrStruct(t.elementName);
                         break;
                 }
             }

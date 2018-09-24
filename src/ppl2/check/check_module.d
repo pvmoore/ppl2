@@ -118,7 +118,7 @@ public:
     void visit(Continue n) {
 
     }
-    void visit(Define n) {
+    void visit(Alias n) {
         if(n.type.isAnonStruct) {
 
         }

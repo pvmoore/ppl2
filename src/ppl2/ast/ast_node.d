@@ -17,7 +17,7 @@ enum NodeID {
     COMPOSITE,
     CONSTRUCTOR,
     CONTINUE,
-    DEFINE,
+    ALIAS,
     DOT,
     FUNC_TYPE,
     FUNCTION,
@@ -75,7 +75,7 @@ bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
 bool isComposite(inout ASTNode n) { return n.id()==NodeID.COMPOSITE; }
-bool isDefine(inout ASTNode n) { return n.id()==NodeID.DEFINE; }
+bool isAlias(inout ASTNode n) { return n.id()==NodeID.ALIAS; }
 bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }
 bool isExpression(inout ASTNode n) { return n.as!Expression !is null; }
 bool isFunction(inout ASTNode n) { return n.id()==NodeID.FUNCTION; }

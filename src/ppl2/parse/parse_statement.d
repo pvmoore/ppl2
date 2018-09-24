@@ -42,8 +42,8 @@ public:
             case "continue":
                 parseContinue(t, parent);
                 return;
-            case "define":
-                parseDefine(t, parent);
+            case "alias":
+                parseAlias(t, parent);
                 return;
             case "extern":
                 parseExtern(t, parent);
@@ -72,6 +72,9 @@ public:
                 return;
             case "return":
                 parseReturn(t, parent);
+                return;
+            case "static":
+                parseFunction(t, parent);
                 return;
             case "struct":
                 namedStructParser().parse(t, parent);
@@ -229,7 +232,7 @@ private: //=====================================================================
             imp.add(fn);
         }
         foreach(d; imp.mod.exportedTypes.values) {
-            auto def        = makeNode!Define(t);
+            auto def        = makeNode!Alias(t);
             def.name        = d;
             def.type        = TYPE_UNKNOWN;
             def.moduleName  = imp.moduleName;
@@ -239,18 +242,15 @@ private: //=====================================================================
         }
     }
     ///
-    /// define            ::= define_struct | define_non_struct
-    /// define_struct     ::= identifier "=" [ template_args ] type
-    /// define_non_struct ::= "define" identifier "=" type
-    /// template_args     ::= "<" identifier { "," identifier } ">"
+    /// alias ::= "alias" identifier "=" type
     ///
-    void parseDefine(Tokens t, ASTNode parent) {
+    void parseAlias(Tokens t, ASTNode parent) {
 
-        auto def = makeNode!Define(t);
+        auto def = makeNode!Alias(t);
         parent.add(def);
 
-        /// "define"
-        t.skip("define");
+        /// "alias"
+        t.skip("alias");
 
         /// identifier
         def.name = t.value;
@@ -267,7 +267,7 @@ private: //=====================================================================
         def.moduleName = module_.canonicalName;
     }
     ///
-    /// function::= identifier "=" [ template params] expr_function_literal
+    /// function::= [ "static" ] identifier "=" [ template params] expr_function_literal
     ///
     void parseFunction(Tokens t, ASTNode parent) {
 
@@ -275,6 +275,11 @@ private: //=====================================================================
         parent.add(f);
 
         auto ns = f.getAncestor!NamedStruct;
+
+        if(t.value=="static") {
+            f.isStatic = true;
+            t.next;
+        }
 
         /// name
         f.name       = t.value;

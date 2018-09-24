@@ -35,7 +35,7 @@ public:
 
         module_.parser.appendTokens(ns, tokens);
 
-        defineRequired(module_.canonicalName, mangledName);
+        aliasOrStructRequired(module_.canonicalName, mangledName);
     }
     ///
     /// Extract several function templates
