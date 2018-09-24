@@ -30,7 +30,8 @@ DD dd               // int**
 alias EE = IntPtrPtr*
 EE ee               // int***
 
-struct Gold = []
+// declare for later
+struct Gold
 
 struct Silver = [
     Gold* gold

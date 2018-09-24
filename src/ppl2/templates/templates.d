@@ -25,7 +25,7 @@ public:
         extractedStructs.add(mangledName);
 
         if(templateTypes.length != ns.blueprint.numTemplateParams) {
-            throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, requestingNode,
+            throw new CompilerError(requestingNode,
                 "Expecting %s template parameters".format(ns.blueprint.numTemplateParams));
         }
 
@@ -48,7 +48,7 @@ public:
         foreach(f; funcs) {
 
             if(call.templateTypes.length != f.blueprint.numTemplateParams) {
-                throw new CompilerError(Err.TEMPLATE_INCORRECT_NUM_PARAMS, call,
+                throw new CompilerError(call,
                     "Expecting %s template parameters".format(f.blueprint.numTemplateParams));
             }
 

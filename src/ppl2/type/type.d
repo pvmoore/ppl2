@@ -52,37 +52,37 @@ pragma(inline,true) {
         return null;
     }
     final Alias getAlias() {
-        auto def = this.as!Alias; if(def) return def;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getAlias;
+        auto alias_ = this.as!Alias; if(alias_) return alias_;
+        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getAlias;
         return null;
     }
     final FunctionType getFunctionType() {
         if(getEnum != Type.FUNCTION) return null;
-        auto f   = this.as!FunctionType; if(f) return f;
-        auto def = this.as!Alias; if(def) return def.type.getFunctionType;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getFunctionType;
+        auto f      = this.as!FunctionType; if(f) return f;
+        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getFunctionType;
+        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getFunctionType;
         assert(false, "How did we get here?");
     }
     final NamedStruct getNamedStruct() {
         if(getEnum!=Type.NAMED_STRUCT) return null;
-        auto ns  = this.as!NamedStruct; if(ns) return ns;
-        auto def = this.as!Alias; if(def) return def.type.getNamedStruct;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType.getNamedStruct;
+        auto ns     = this.as!NamedStruct; if(ns) return ns;
+        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getNamedStruct;
+        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType.getNamedStruct;
         assert(false, "How did we get here?");
     }
     final AnonStruct getAnonStruct() {
         if(!isStruct) return null;
-        auto st  = this.as!AnonStruct; if(st) return st;
-        auto ns  = this.as!NamedStruct; if(ns) return ns.type;
-        auto def = this.as!Alias; if(def) return def.type.getAnonStruct;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType.getAnonStruct;
+        auto st     = this.as!AnonStruct; if(st) return st;
+        auto ns     = this.as!NamedStruct; if(ns) return ns.type;
+        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getAnonStruct;
+        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType.getAnonStruct;
         assert(false, "How did we get here?");
     }
     final ArrayType getArrayType() {
         if(getEnum != Type.ARRAY) return null;
-        auto a   = this.as!ArrayType; if(a) return a;
-        auto def = this.as!Alias; if(def) return def.type.getArrayType;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getArrayType;
+        auto a      = this.as!ArrayType; if(a) return a;
+        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getArrayType;
+        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getArrayType;
         assert(false, "How did we get here?");
     }
     /// Return the non pointer version of this type

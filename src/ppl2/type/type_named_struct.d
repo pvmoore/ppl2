@@ -16,6 +16,14 @@ public:
     int numRefs;
     Access access = Access.PUBLIC;
 
+    /// Set to true if no body is specified.
+    /// A full definition is expected later in the file.
+    /// eg.
+    /// struct Gold // this is declaration only
+    /// // ...
+    /// struct Gold = [ ... ]
+    bool isDeclarationOnly;
+
 /// Template stuff
     TemplateBlueprint blueprint;
     bool isTemplateBlueprint() { return blueprint !is null; }

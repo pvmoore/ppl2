@@ -38,7 +38,7 @@ public:
         stringSet.clear();
         foreach(i, a; n.paramNames) {
             if(stringSet.contains(a)) {
-                throw new CompilerError(Err.DUPLICATE_PARAMETER_NAME, n.getParam(i), "Duplicate parameter name");
+                throw new CompilerError(n.getParam(i), "Duplicate parameter name");
             }
             stringSet.add(a);
         }
@@ -92,7 +92,7 @@ public:
 
         /// Ensure we have the correct number of arguments
         if(paramTypes.length != argTypes.length) {
-            throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
+            throw new CompilerError(n,
                 "Expecting %s arguments, not %s".format(paramTypes.length, argTypes.length));
         }
 
@@ -133,7 +133,7 @@ public:
         switch(n.name) {
             case "operator<>":
                 if(retType.isPtr || !retType.isInt) {
-                    throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, n,
+                    throw new CompilerError(n,
                         "operator<> must return int");
                 }
                 break;
@@ -141,7 +141,7 @@ public:
                 if(n.params.numParams==2) {
                     /// get
                     if(retType.isValue && retType.isVoid) {
-                        throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, n,
+                        throw new CompilerError(n,
                             "operator:(this,int) must not return void");
                     }
                 } else if(n.params.numParams==3) {
@@ -166,7 +166,7 @@ public:
             if(access.isReadOnly && moduleNID!=module_.nid) {
                 auto a = n.getAncestor!Binary;
                 if(a && a.op.isAssign && n.isAncestor(a.left)) {
-                    throw new CompilerError(Err.VAR_ACCESS_IS_READONLY, n,
+                    throw new CompilerError(n,
                         "Attempting to modify readonly property");
                 }
             }
@@ -174,7 +174,7 @@ public:
 
         void checkPrivateAccess(Access access, int moduleNID) {
             if(access.isPrivate && moduleNID!=module_.nid) {
-                throw new CompilerError(Err.VAR_ACCESS_IS_PRIVATE, n,
+                throw new CompilerError( n,
                     "Attempting to access private property");
             }
         }
@@ -195,13 +195,13 @@ public:
         if(n.isExpr) {
             /// Type must not be void
             if(n.type.isVoid && n.type.isValue) {
-                throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_NOT_BE_VOID, n,
+                throw new CompilerError(n,
                     "If must not have void result");
             }
 
             /// Both then and else are required
             if(!n.hasThen || !n.hasElse) {
-                throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_HAVE_THEN_AND_ELSE, n,
+                throw new CompilerError(n,
                     "If must have both a then and an else result");
             }
 
@@ -209,7 +209,7 @@ public:
             auto array = new Array!Return;
             n.selectDescendents!Return(array);
             if(array.length>0) {
-                throw new CompilerError(Err.IF_USED_AS_RESULT_MUST_NOT_RETURN, array[0],
+                throw new CompilerError(array[0],
                     "An if used as a result cannot return");
             }
         }
@@ -248,7 +248,7 @@ public:
             }
         } else {
             if(n.isStructIndex) {
-                throw new CompilerError(Err.INDEX_STRUCT_INDEX_MUST_BE_CONST, n,
+                throw new CompilerError(n,
                     "Struct index must be a const number");
             }
 
@@ -267,7 +267,7 @@ public:
     void visit(LiteralArray n) {
         /// Check for too many values
         if(n.length() > n.type.countAsInt()) {
-            throw new CompilerError(Err.ARRAY_LITERAL_TOO_MANY_VALUES, n,
+            throw new CompilerError(n,
                 "Too many values specified (%s > %s)".format(n.length(), n.type.countAsInt()));
         }
 
@@ -322,7 +322,7 @@ public:
 
         /// Check for too many values
         if(n.numElements > struct_.numMemberVariables) {
-            throw new CompilerError(Err.STRUCT_LITERAL_TOO_MANY_VALUES, n,
+            throw new CompilerError(n,
             "Too many values specified");
         }
 
@@ -336,13 +336,13 @@ public:
             stringSet.clear();
             foreach(i, name; n.names) {
                 if(stringSet.contains(name)) {
-                    throw new CompilerError(Err.STRUCT_LITERAL_DUPLICATE_NAME, n.children[i],
+                    throw new CompilerError(n.children[i],
                         "Struct member %s initialised more than once".format(name));
                 }
                 stringSet.add(name);
                 auto v = struct_.getMemberVariable(name);
                 if(!v) {
-                    throw new CompilerError(Err.STRUCT_LITERAL_MEMBER_NOT_FOUND, n.children[i],
+                    throw new CompilerError(n.children[i],
                         "Struct does not have member %s".format(name));
                 }
             }
@@ -381,7 +381,7 @@ public:
         stringSet.clear();
         foreach(v; module_.getVariables()) {
             if(stringSet.contains(v.name)) {
-                throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, v,
+                throw new CompilerError(v,
                     "Global variable %s declared more than once".format(v.name));
             }
             stringSet.add(v.name);
@@ -392,7 +392,7 @@ public:
         stringSet.clear();
         foreach(v; n.type.getMemberVariables()) {
             if(v.name.length==0) {
-                throw new CompilerError(Err.VAR_MUST_HAVE_A_NAME, v,
+                throw new CompilerError(v,
                     "Named struct variable must have a name");
             }
         }
@@ -429,7 +429,7 @@ public:
             foreach(v; vars) {
                 if(v.name) {
                     if(stringSet.contains(v.name))
-                        throw new CompilerError(Err.DUPLICATE_STRUCT_MEMBER_NAME, v,
+                        throw new CompilerError(v,
                             "Struct %s has duplicate member %s".format(n.name, v.name));
                     stringSet.add(v.name);
                 }
@@ -438,12 +438,12 @@ public:
             if(n.type.isAnonStruct) {
                 foreach(v; struct_.children) {
                     if(!v.isVariable) {
-                        throw new CompilerError(Err.ANON_STRUCT_CONTAINS_NON_VARIABLE, n,
+                        throw new CompilerError(n,
                             "An anonymous struct must only contain variable declarations");
                     } else {
                         auto var = cast(Variable)v;
                         if(var.hasInitialiser) {
-                            throw new CompilerError(Err.ANON_STRUCT_CONTAINS_INITIALISER, n,
+                            throw new CompilerError(n,
                             "An anonymous struct must not have variable initialisation");
                         }
                     }
@@ -461,10 +461,10 @@ public:
                     auto var = res.var;
                     bool sameScope = var.parent==n.parent;
                     if (sameScope) {
-                        throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
+                        throw new CompilerError(n,
                         "Variable %s declared more than once in this scope".format(n.name));
                     }
-                    throw new CompilerError(Err.VAR_DUPLICATE_DECLARATION, n,
+                    throw new CompilerError(n,
                     "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line));
                 } else {
                     /// check function?

@@ -37,21 +37,23 @@ public:
                 if(type.getAlias.isTemplateProxy) {
                     /// Allow template proxy as this is what we are replacing
                 } else {
-                    throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
+                    throw new CompilerError(n,
                         "Type %s already defined".format(t.value));
                 }
             } else if(type.isNamedStruct) {
                 auto ns = type.getNamedStruct;
-                if(ns.type.numMemberVariables==0) {
+
+                if(ns.isDeclarationOnly) {
                     /// Re-use previous definition
+                    ns.isDeclarationOnly = false;
+
                     n.detach();
 
-                    ns.removeAt(0);
                     n = ns;
                     log("Re-using redefined struct %s", n.name);
 
                 } else {
-                    throw new CompilerError(Err.DUPLICATE_DEFINITION, n,
+                    throw new CompilerError(n,
                         "Struct %s already defined".format(t.value));
                 }
             }
@@ -60,6 +62,14 @@ public:
         /// name
         n.name = t.value;
         t.next;
+
+        ///
+        /// Stop here if this is just a declaration
+        ///
+        if(t.type!=TT.EQUALS) {
+            n.isDeclarationOnly = true;
+            return;
+        }
 
         bool isModuleScope = parent.isModule ||
                             (parent.isComposite && parent.as!Composite.parent.isModule);
@@ -81,7 +91,7 @@ public:
             while(t.type!=TT.RANGLE) {
 
                 if(typeDetector().isType(t, n)) {
-                    throw new CompilerError(Err.TEMPLATE_PARAM_NAME_IS_TYPE, t,
+                    throw new CompilerError(t,
                         "Template param name cannot be a type");
                 }
 
@@ -155,7 +165,7 @@ private:
 
             /// Don't allow user to add their own return
             if(bdy.getReturns().length > 0) {
-                throw new CompilerError(Err.FUNCTION_INCORRECT_RETURN_TYPE, bdy.getReturns()[0],
+                throw new CompilerError(bdy.getReturns()[0],
                     "Constructor should not include a return statement");
             }
 

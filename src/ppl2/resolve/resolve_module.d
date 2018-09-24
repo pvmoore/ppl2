@@ -83,7 +83,6 @@ public:
 
                 /// Could be a chain of Aliases in different modules
                 if(it.isImport) {
-                    dd("chain", AliasName);
                     aliasOrStructRequired(it.moduleName, it.name);
                 }
             }
@@ -109,7 +108,7 @@ public:
 
     }
     void visit(ArrayType n) {
-        resolveType(n, n.subtype);
+        resolveAlias(n, n.subtype);
     }
     void visit(As n) {
         auto lt = n.leftType();
@@ -252,7 +251,7 @@ public:
         if(!n.isResolved) {
             n.loop = n.getAncestor!Loop;
             if(n.loop is null) {
-                throw new CompilerError(Err.BREAK_MUST_BE_INSIDE_A_LOOP, n,
+                throw new CompilerError(n,
                     "Break statement must be inside a loop");
             }
         }
@@ -281,7 +280,7 @@ public:
                 Type prevType = prev.getType;
 
                 if(prevType.isKnown) { //  && n.argTypes().areKnown
-                    if(!prevType.isStruct) throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
+                    if(!prevType.isStruct) throw new CompilerError(prev,
                         "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
 
                     AnonStruct struct_ = prevType.getAnonStruct();
@@ -355,7 +354,7 @@ public:
                 //dd("!!!", n.target, n.paramNames, n.target.paramNames());
 
                 if(n.paramNames.length != n.target.paramNames().length) {
-                    throw new CompilerError(Err.CALL_INCORRECT_NUM_ARGS, n,
+                    throw new CompilerError(n,
                         "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length));
                 }
 
@@ -366,7 +365,7 @@ public:
                 foreach(int i, name; n.paramNames) {
                     auto index = targetNames.indexOf(name);
                     if(index==-1) {
-                        throw new CompilerError(Err.CALL_INVALID_PARAM_NAME, n,
+                        throw new CompilerError(n,
                             "Parameter name %s not found".format(name));
                     }
                     args[index] = n.arg(i);
@@ -389,7 +388,7 @@ public:
         }
     }
     void visit(Calloc n) {
-        resolveType(n, n.valueType);
+        resolveAlias(n, n.valueType);
     }
     void visit(Closure n) {
 
@@ -401,16 +400,16 @@ public:
         if(!n.isResolved) {
             n.loop = n.getAncestor!Loop;
             if(n.loop is null) {
-                throw new CompilerError(Err.CONTINUE_MUST_BE_INSIDE_A_LOOP, n,
+                throw new CompilerError(n,
                     "Continue statement must be inside a loop");
             }
         }
     }
     void visit(Constructor n) {
-        resolveType(n, n.type);
+        resolveAlias(n, n.type);
     }
     void visit(Alias n) {
-        resolveType(n, n.type);
+        resolveAlias(n, n.type);
     }
     void visit(Dot n) {
 
@@ -428,7 +427,7 @@ public:
 
                 auto res = identifierResolver.findFirst(n.name, n);
                 if(!res.found) {
-                    throw new CompilerError(Err.IDENTIFIER_NOT_FOUND, n,
+                    throw new CompilerError(n,
                         "%s not found".format(n.name));
                 }
 
@@ -540,7 +539,7 @@ public:
 
 
                     if(!prevType.isStruct) {
-                        throw new CompilerError(Err.MEMBER_NOT_FOUND, prev,
+                        throw new CompilerError(prev,
                             "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev));
                     }
 
@@ -575,7 +574,7 @@ public:
 
                 auto t = getBestFit(thenType, elseType);
                 if(!t) {
-                    throw new CompilerError(Err.IF_TYPES_NO_NOT_MATCH, n,
+                    throw new CompilerError(n,
                         "%s and %s are incompatible as if result".format(thenType, elseType));
                 }
 
@@ -700,7 +699,7 @@ public:
                 auto type = parentType.getArrayType;
                 if(type) {
                     if(!type.isArray) {
-                        throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
+                        throw new CompilerError(n,
                             "Cannot cast array literal to %s".format(type.prettyString));
                     }
                     n.type = type;
@@ -728,7 +727,7 @@ public:
         //
         //        foreach(i, t; n.elementTypes()) {
         //            if(!t.canImplicitlyCastTo(eleType)) {
-        //                throw new CompilerError(Err.BAD_IMPLICIT_CAST, n.children[i],
+        //                throw new CompilerError(n.children[i],
         //                    "Expecting an array of %s. Cannot implicitly cast %s to %s".format(eleType, t, eleType));
         //            }
         //        }
@@ -805,7 +804,7 @@ public:
     }
     void visit(LiteralString n) {
         if(n.type.isUnknown) {
-            resolveType(n, n.type);
+            resolveAlias(n, n.type);
         }
     }
     void visit(LiteralStruct n) {
@@ -856,7 +855,7 @@ public:
             }
             if(type && type.isKnown) {
                 if(!type.isAnonStruct) {
-                    throw new CompilerError(Err.BAD_IMPLICIT_CAST, n,
+                    throw new CompilerError(n,
                         "Cannot cast struct literal to %s".format(type.prettyString));
                 }
                 n.type = type;
@@ -890,7 +889,7 @@ public:
         //}
     }
     void visit(TypeExpr n) {
-        resolveType(n, n.type);
+        resolveAlias(n, n.type);
     }
     void visit(Unary n) {
 
@@ -925,7 +924,7 @@ public:
     }
     void visit(Variable n) {
 
-        resolveType(n, n.type);
+        resolveAlias(n, n.type);
 
         if(n.type.isUnknown) {
 
@@ -965,7 +964,7 @@ public:
             //if(n.isGlobal() || n.isStructMember()) {
             //    dd(n.name, n.type);
             //
-            //    throw new CompilerError(Err.VAR_MUST_HAVE_EXPLICIT_TYPE, n,
+            //    throw new CompilerError(n,
             //      "Globals or struct member variables must have explicit type");
             //}
         }
@@ -1040,7 +1039,7 @@ private:
     ///
     /// If type is a Alias then we need to resolve it
     ///
-    void resolveType(ASTNode node, ref Type type) {
+    void resolveAlias(ASTNode node, ref Type type) {
         if(!type.isAlias) return;
 
         auto def = type.getAlias;
@@ -1061,7 +1060,7 @@ private:
                         type = PtrType.of(ns, type.getPtrDepth);
                         return;
                     }
-                    throw new CompilerError(Err.IMPORT_NOT_FOUND, module_,
+                    throw new CompilerError(module_,
                         "Import %s not found in module %s".format(def.name, def.moduleName));
                 }
             } else {
@@ -1075,12 +1074,12 @@ private:
 
             /// Ensure template params are resolved
             foreach(ref t; def.templateProxyParams) {
-                resolveType(node, t);
+                resolveAlias(node, t);
             }
 
             /// Resolve until we have the NamedStruct
             if(def.templateProxyType.isAlias) {
-                resolveType(node, def.templateProxyType);
+                resolveAlias(node, def.templateProxyType);
             }
             if(!def.templateProxyType.isNamedStruct) {
                 typesWaiting++;

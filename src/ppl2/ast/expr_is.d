@@ -56,7 +56,7 @@ public:
                 /// type as long as they are the same size
 
                 if(leftType.size != rightType.size) {
-                    throw new CompilerError(Err.IS_BOTH_SIDES_MUST_BE_SAME_SIZE, this,
+                    throw new CompilerError(this,
                         "Both sides of value 'is' value expression should be the same size "~
                         "(%s -> %s)".format(leftType.size, rightType.size));
                 }
@@ -72,7 +72,7 @@ public:
                 }
 
             } else if(!leftType.isPtr || !rightType.isPtr) {
-                throw new CompilerError(Err.IS_BOTH_SIDES_MUST_BE_POINTERS, this,
+                throw new CompilerError(this,
                     "Both sides if 'is' expression should be pointer types");
             }
         } else {

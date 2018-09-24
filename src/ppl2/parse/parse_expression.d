@@ -131,7 +131,7 @@ private:
                 //errorBadSyntax(t, "Syntax error");
                 writefln("BAD LHS %s", t.get);
                 parent.getModule.dumpToConsole();
-                throw new CompilerError(Err.BAD_LHS_EXPR, t, "Bad LHS");
+                throw new CompilerError(t, "Bad LHS");
         }
     }
     void parseRHS(Tokens t, ASTNode parent) {
@@ -218,7 +218,7 @@ private:
                 default:
                     writefln("BAD RHS %s", t.get);
                     parent.getModule.dumpToConsole();
-                    throw new CompilerError(Err.BAD_RHS_EXPR, t, "Bad RHS");
+                    throw new CompilerError(t, "Bad RHS");
             }
         }
     }
@@ -274,7 +274,7 @@ private:
         } else {
             b.op = parseOperator(t);
             if(b.op==Operator.NOTHING) {
-                throw new CompilerError(Err.INVALID_OPERATOR, t, "Invalid operator");
+                throw new CompilerError(t, "Invalid operator");
             }
         }
 
@@ -383,7 +383,7 @@ private:
             ///
             /// This is a construtor call. We don't currently allow this
             ///
-            throw new CompilerError(Err.CALL_CONSTRUCTOR_CALLS_DISALLOWED, c,
+            throw new CompilerError(c,
                 "Explicit constructor calls not allowed");
         }
 
@@ -439,14 +439,14 @@ private:
                 if (t.peek(1).type==TT.EQUALS) {
                     /// paramname = expr
                     if (composite.numChildren>1 && c.paramNames.length==0) {
-                        throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
+                        throw new CompilerError(c,
                         "Mixing named and un-named constructor arguments");
                     }
                     if (c.paramNames.contains(t.value)) {
-                        throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
+                        throw new CompilerError(t, "Duplicate call param name");
                     }
                     if (t.value=="this") {
-                        throw new CompilerError(Err.CALL_PARAM_CAN_NOT_BE_CALLED_THIS, t,
+                        throw new CompilerError(t,
                         "'this' cannot be used as a parameter name");
                     }
                     c.paramNames ~= t.value;
@@ -458,7 +458,7 @@ private:
 
                 } else {
                     if (c.paramNames.length>0) {
-                        throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, c,
+                        throw new CompilerError(c,
                         "Mixing named and un-named constructor arguments");
                     }
 
@@ -722,7 +722,7 @@ private:
                 /// paramname = expr
 
                 if(composite.numChildren>1 && call.paramNames.length==0) {
-                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, con,
+                    throw new CompilerError(con,
                         "Mixing named and un-named constructor arguments");
                 }
 
@@ -732,10 +732,10 @@ private:
                 }
 
                 if(call.paramNames.contains(t.value)) {
-                    throw new CompilerError(Err.CALL_DUPLICATE_PARAM_NAME, t, "Duplicate call param name");
+                    throw new CompilerError(t, "Duplicate call param name");
                 }
                 if(t.value=="this") {
-                    throw new CompilerError(Err.CALL_PARAM_CAN_NOT_BE_CALLED_THIS, t,
+                    throw new CompilerError(t,
                         "'this' cannot be used as a parameter name");
                 }
 
@@ -748,7 +748,7 @@ private:
 
             } else {
                 if(call.paramNames.length>0) {
-                    throw new CompilerError(Err.CALL_MIXING_NAMED_AND_UNNAMED, con,
+                    throw new CompilerError(con,
                         "Mixing named and un-named constructor arguments");
                 }
                 parse(t, composite);

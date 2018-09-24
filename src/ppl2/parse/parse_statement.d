@@ -202,7 +202,7 @@ private: //=====================================================================
             import std.file : exists;
             if(!exists(Module.getFullPath(moduleName))) {
                 t.resetToMark();
-                throw new CompilerError(Err.MODULE_DOES_NOT_EXIST, t,
+                throw new CompilerError(t,
                     "Module %s does not exist".format(moduleName));
             }
             t.discardMark();
@@ -212,7 +212,7 @@ private: //=====================================================================
         imp.moduleName = collectModuleName();
 
         if(findImport(imp.moduleName, imp)) {
-            throw new CompilerError(Err.IMPORT_DUPLICATE, imp, "Module %s already imported".format(imp.moduleName));
+            throw new CompilerError(imp, "Module %s already imported".format(imp.moduleName));
         }
 
         /// Trigger the loading of the module
@@ -246,25 +246,25 @@ private: //=====================================================================
     ///
     void parseAlias(Tokens t, ASTNode parent) {
 
-        auto def = makeNode!Alias(t);
-        parent.add(def);
+        auto alias_ = makeNode!Alias(t);
+        parent.add(alias_);
 
         /// "alias"
         t.skip("alias");
 
         /// identifier
-        def.name = t.value;
+        alias_.name = t.value;
         t.next;
 
         /// =
         t.skip(TT.EQUALS);
 
         /// type
-        def.type = typeParser().parse(t, def);
-        //dd("def", def.name, "type=", def.type, "root=", def.getRootType);
+        alias_.type = typeParser().parse(t, alias_);
+        //dd("alias_", alias_.name, "type=", alias_.type, "root=", alias_.getRootType);
 
-        def.isImport   = false;
-        def.moduleName = module_.canonicalName;
+        alias_.isImport   = false;
+        alias_.moduleName = module_.canonicalName;
     }
     ///
     /// function::= [ "static" ] identifier "=" [ template params] expr_function_literal
@@ -314,7 +314,7 @@ private: //=====================================================================
             while(t.type!=TT.RANGLE) {
 
                 if(typeDetector().isType(t, f)) {
-                    throw new CompilerError(Err.TEMPLATE_PARAM_NAME_IS_TYPE, t,
+                    throw new CompilerError(t,
                         "Template param name cannot be a type");
                 }
 

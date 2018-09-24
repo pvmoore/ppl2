@@ -86,7 +86,7 @@ private:
         /// Ensure no more than one module new() function exists
         auto fns = module_.getFunctions("new");
         if(fns.length>1) {
-            throw new CompilerError(Err.MULTIPLE_MODULE_INITS, fns[1],
+            throw new CompilerError(fns[1],
                 "Multiple module 'new' functions are not allowed");
         }
         bool hasModuleInit = fns.length==1;
@@ -117,10 +117,10 @@ private:
             /// Check for a program entry point
             auto mainfns = module_.getFunctions("main");
             if(mainfns.length > 1) {
-                throw new CompilerError(Err.MULTIPLE_ENTRY_POINTS, mainfns[1],
+                throw new CompilerError(mainfns[1],
                     "Multiple program entry points found");
             } else if(mainfns.length==0) {
-                throw new CompilerError(Err.NO_PROGRAM_ENTRY_POINT, module_,
+                throw new CompilerError(module_,
                     "No program entry point found");
             }
 

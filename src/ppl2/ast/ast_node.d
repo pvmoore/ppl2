@@ -5,6 +5,7 @@ import ppl2.internal;
 //=============================================================================== NodeID
 enum NodeID {
     ADDRESS_OF,
+    ALIAS,
     ANON_STRUCT,
     ARRAY,
     AS,
@@ -17,7 +18,6 @@ enum NodeID {
     COMPOSITE,
     CONSTRUCTOR,
     CONTINUE,
-    ALIAS,
     DOT,
     FUNC_TYPE,
     FUNCTION,

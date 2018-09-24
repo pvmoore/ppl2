@@ -56,7 +56,7 @@ public:
         auto lit = n.expr().as!LiteralNumber;
         if(lit) {
             if(lit.value.getBool()==false) {
-                throw new CompilerError(Err.ASSERT_FAILED, n, "Assertion failed");
+                throw new CompilerError(n, "Assertion failed");
             }
 
             fold(n, lit);

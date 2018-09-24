@@ -70,7 +70,7 @@ public:
                 index++;
             }
             if(parseCharLiteral(buf[1..$])==-1) {
-                throw new CompilerError(Err.INVALID_CHAR, module_, line, col, buf[1..$]);
+                throw new CompilerError(module_, line, col, buf[1..$]);
             }
 
             buf.add(peek());

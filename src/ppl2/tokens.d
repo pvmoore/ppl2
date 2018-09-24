@@ -89,12 +89,12 @@ public:
         pos -= numToMove;
     }
     void skip(TT t) {
-        if(type()!=t) throw new CompilerError(Err.BAD_SYNTAX, this,
+        if(type()!=t) throw new CompilerError(this,
                                     "Expecting %s".format(t));
         next();
     }
     void skip(string kw) {
-        if(value()!=kw) throw new CompilerError(Err.BAD_SYNTAX, this,
+        if(value()!=kw) throw new CompilerError(this,
                                     "Expecting %s".format(kw));
         next();
     }
@@ -106,7 +106,7 @@ public:
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
         //throw new Error("!!");
-        throw new CompilerError(Err.BAD_SYNTAX, this,
+        throw new CompilerError(this,
                     "Expecting one of %s".format(types));
     }
     bool hasNext() {

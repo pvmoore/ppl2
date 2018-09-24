@@ -67,7 +67,7 @@ final class LiteralArray : Expression {
             if(parent.parent.isVariable) {
                 auto var = parent.parent.as!Variable;
                 if(var.isImplicit) {
-                    throw new CompilerError(Err.ARRAY_LITERAL_CANNOT_INFER_TYPE, this,
+                    throw new CompilerError(this,
                         "Cannot infer type if no array values are specified");
                 }
             }
@@ -153,7 +153,7 @@ private:
         foreach(e; et[1..$]) {
             t = getBestFit(t, e);
             if(t is null) {
-                throw new CompilerError(Err.BAD_IMPLICIT_CAST, this,
+                throw new CompilerError(this,
                     "Array has no common type");
             }
         }

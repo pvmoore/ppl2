@@ -11,7 +11,7 @@ final class Alias : Statement, Type {
     Type type;
 
 /// template stuff
-    Type templateProxyType;     /// Define or NamedStruct
+    Type templateProxyType;     /// Alias or NamedStruct
     Type[] templateProxyParams;
 
     this() {
@@ -31,7 +31,7 @@ final class Alias : Statement, Type {
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
     LLVMTypeRef getLLVMType()            { assert(false); }
-    string prettyString()                { return "Define %s=%s".format(name,type.prettyString); }
+    string prettyString()                { return "Alias %s=%s".format(name,type.prettyString); }
     //=======================================================================================
     override string toString() {
         string val = "%s".format(getType.prettyString);

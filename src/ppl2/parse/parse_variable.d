@@ -55,7 +55,7 @@ public:
         if(t.type==TT.IDENTIFIER && !t.get.templateType) {
             v.name = t.value;
             if(v.name=="this") {
-                throw new CompilerError(Err.VAR_CAN_NOT_BE_CALLED_THIS, t,
+                throw new CompilerError(t,
                     "'this' is a reserved word");
             }
             t.next;
@@ -72,11 +72,11 @@ public:
 
             } else {
                 if(v.isImplicit) {
-                    throw new CompilerError(Err.VAR_WITHOUT_INITIALISER, v,
+                    throw new CompilerError(v,
                         "Implicitly typed variable requires initialisation");
                 }
                 if(v.isConst) {
-                    throw new CompilerError(Err.CONST_VAR_WITHOUT_INITIALISER, v,
+                    throw new CompilerError(v,
                         "Const variable must be initialised");
                 }
             }

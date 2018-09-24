@@ -161,7 +161,7 @@ public:
                 } else {
                     msg = "Function %s(%s) not found".format(call.name, call.argTypes.prettyString);
                 }
-                throw new CompilerError(Err.FUNCTION_NOT_FOUND, call, msg);
+                throw new CompilerError(call, msg);
             }
             if(overloads.length > 1) {
                 throw new AmbiguousCall(call, call.name, call.argTypes, overloads);
@@ -250,7 +250,7 @@ public:
             }
             msg = msg.format(ns.getUniqueName, call.name, argsStr);
 
-            throw new CompilerError(Err.FUNCTION_NOT_FOUND, call, msg);
+            throw new CompilerError(call, msg);
 
         } else if(overloads.length > 1) {
             throw new AmbiguousCall(call, call.name, call.argTypes(), overloads);
@@ -423,7 +423,7 @@ private:
         }
 
         if(overloads.length==0) {
-            //throw new CompilerError(Err.FUNCTION_NOT_FOUND, call,
+            //throw new CompilerError(call,
             //    "Function template %s not found".format(call.name));
             return true;
         }
