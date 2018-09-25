@@ -32,11 +32,12 @@ EE ee               // int***
 
 // declare for later
 struct Gold
+struct Gold // ok
 
 struct Silver = [
     Gold* gold
 ]
-struct Gold = [
+struct Gold = [ // definition
     Silver* silver
 ]
 Gold gold

@@ -13,7 +13,7 @@ public:
     string moduleName;      /// canonical name of module (!=this.getModule.canonicalName if isImport)
     int moduleNID;          /// nid of module (!=this.getModule.nid if isImport)
     Access access = Access.PUBLIC;
-    bool isStatic = false;
+    bool isStatic;
 
     Operator op = Operator.NOTHING; /// Set if this is an operator overload
 

@@ -69,6 +69,48 @@ public:
         return getUniqueName();
     }
     //========================================================================================
+    Function[] getMemberFunctions() {
+        return type.children[].filter!(it=>it.id==NodeID.FUNCTION)
+                         .map!(it=>cast(Function)it)
+                         .filter!(it=>it.isStatic==false)
+                         .array;
+    }
+    Function[] getMemberFunctions(string name) {
+        return getMemberFunctions().filter!(it=>name==it.name).array;
+    }
+    int getMemberIndex(Function var) {
+        foreach(int i, v; getMemberFunctions()) {
+            if(var is v) return i;
+        }
+        return -1;
+    }
+    bool hasDefaultConstructor() {
+        return getDefaultConstructor() !is null;
+    }
+    bool hasOperatorOverload(Operator op) {
+        string name = "operator";
+        if(op==Operator.NEG) {
+            name ~= " neg";
+        } else {
+            name ~= op.value;
+        }
+        return getMemberFunctions(name).length > 0;
+    }
+    Function getDefaultConstructor() {
+        foreach(f; getConstructors()) {
+            if(f.isDefaultConstructor) return f;
+        }
+        return null;
+    }
+    Function[] getConstructors() {
+        return getMemberFunctions("new");
+    }
+    Function[] getInnerFunctions() {
+        auto array = new Array!Function;
+        recursiveCollect!Function(array, f=>f.isInner);
+        return array[];
+    }
+    //========================================================================================
     bool isAtModuleScope() {
         return parent.isModule;
     }

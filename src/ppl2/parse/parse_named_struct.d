@@ -32,7 +32,7 @@ public:
 
         //dd("parseNamedStruct", t.value);
         if(type) {
-            dd("redefinition", type);
+            //dd("redefinition", type);
             if(type.isAlias) {
                 if(type.getAlias.isTemplateProxy) {
                     /// Allow template proxy as this is what we are replacing
@@ -123,9 +123,9 @@ public:
             auto anonStruct = n.type;
 
             addDefaultConstructor(t, n, anonStruct);
-            addImplicitReturnThis(anonStruct);
-            addCallToDefaultConstructor(anonStruct);
-            moveInitCodeInsideDefaultConstructor(anonStruct);
+            addImplicitReturnThis(n);
+            addCallToDefaultConstructor(n);
+            moveInitCodeInsideDefaultConstructor(n, anonStruct);
 
         }
 
@@ -133,10 +133,9 @@ public:
             t.endAccessScope();
         }
     }
-private:
     /// If there is no default constructor 'new()' then create one
     void addDefaultConstructor(Tokens t, NamedStruct ns, AnonStruct anonStruct) {
-        auto defCons = anonStruct.getDefaultConstructor();
+        auto defCons = ns.getDefaultConstructor();
         if(!defCons) {
 
             defCons            = makeNode!Function(t);
@@ -157,8 +156,8 @@ private:
         }
     }
     /// Add implicit return 'this' at the end of all constructors
-    void addImplicitReturnThis(AnonStruct anonStruct) {
-        auto allCons = anonStruct.getConstructors();
+    void addImplicitReturnThis(NamedStruct ns) {
+        auto allCons = ns.getConstructors();
         foreach(c; allCons) {
             auto bdy = c.getBody();
             assert(bdy);
@@ -174,8 +173,8 @@ private:
         }
     }
     /// Every non-default constructor should start with a call to the default constructor
-    void addCallToDefaultConstructor(AnonStruct anonStruct) {
-        auto allCons = anonStruct.getConstructors();
+    void addCallToDefaultConstructor(NamedStruct ns) {
+        auto allCons = ns.getConstructors();
         foreach(c; allCons) {
             if(!c.isDefaultConstructor) {
                 auto bdy = c.getBody();
@@ -192,8 +191,8 @@ private:
         }
     }
     /// Move struct variable initialisers into the default constructor
-    void moveInitCodeInsideDefaultConstructor(AnonStruct anonStruct) {
-        auto initFunc = anonStruct.getDefaultConstructor();
+    void moveInitCodeInsideDefaultConstructor(NamedStruct ns, AnonStruct anonStruct) {
+        auto initFunc = ns.getDefaultConstructor();
         assert(initFunc);
 
         foreach_reverse(v; anonStruct.getMemberVariables()) {

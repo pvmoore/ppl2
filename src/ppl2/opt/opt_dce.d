@@ -49,7 +49,7 @@ public:
                 ns.detach();
             } else {
                 /// The struct is referenced but some of the functions may not be
-                foreach(f; ns.type.getMemberFunctions()) {
+                foreach(f; ns.getMemberFunctions()) {
                     if(f.numRefs==0) {
                         log("\t  unreferenced func %s.%s", ns.name, f.name);
                         f.detach();

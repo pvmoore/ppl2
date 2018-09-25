@@ -56,6 +56,8 @@ final class LiteralGenerator {
     void generate(LiteralFunction n, LLVMValueRef llvmValue) {
         assert(llvmValue);
 
+        auto f = n.parent.as!Function;
+
         auto type       = n.type.getFunctionType;
         auto paramTypes = type.paramTypes();
         auto numParams  = paramTypes.length;

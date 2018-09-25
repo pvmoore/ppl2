@@ -15,6 +15,7 @@ final class Variable : Statement {
     string name;
     bool isConst;
     bool isImplicit;    /// true if this is a "var"
+    bool isStatic;
     int numRefs;
     int moduleNID;      /// module.nid of enclosing module
     Access access = Access.PUBLIC;

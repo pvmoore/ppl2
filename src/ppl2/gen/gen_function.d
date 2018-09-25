@@ -14,7 +14,7 @@ void generateImportedFunctionDeclarations(Module module_) {
 }
 void generateLocalStructMemberFunctionDeclarations(Module module_) {
     foreach(s; module_.getAllNamedStructs()) {
-        foreach(f; s.type.getMemberFunctions()) {
+        foreach(f; s.getMemberFunctions()) {
             generateFunctionDeclaration(module_, f);
         }
     }
@@ -32,7 +32,7 @@ void generateInnerFunctionBodies(Module module_, LiteralGenerator literalGen) {
 }
 void generateLocalStructMemberFunctionBodies(Module module_, LiteralGenerator literalGen) {
     foreach(s; module_.getAllNamedStructs()) {
-        foreach(f; s.type.getMemberFunctions()) {
+        foreach(f; s.getMemberFunctions()) {
             auto litFunc = f.getBody();
             literalGen.generate(litFunc, f.llvmValue);
         }

@@ -43,7 +43,9 @@ final class NodeBuilder {
             if(f.isStructMember) {
                 auto struct_ = f.parent.as!AnonStruct;
                 assert(struct_);
-                call.target.set(f, struct_.getMemberIndex(f));
+                auto ns = struct_.parent.as!NamedStruct;
+                assert(ns);
+                call.target.set(f, ns.getMemberIndex(f));
             } else {
                 call.target.set(f);
             }

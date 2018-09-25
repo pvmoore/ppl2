@@ -195,7 +195,7 @@ public:
 
         //dd("structFind looking for", call.name);
 
-        auto fns = struct_.getMemberFunctions(call.name);
+        auto fns = ns.getMemberFunctions(call.name);
         auto var = struct_.getMemberVariable(call.name);
 
         /// Filter
@@ -465,8 +465,7 @@ private:
     void extractTemplates(NamedStruct ns, Call call, string mangledName) {
         assert(call.isTemplated);
 
-        AnonStruct struct_ = ns.type;
-        auto fns = struct_.getMemberFunctions(call.name);
+        auto fns = ns.getMemberFunctions(call.name);
 
         Function[][string] toExtract;
 

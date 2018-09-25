@@ -285,6 +285,8 @@ public:
 
                     AnonStruct struct_ = prevType.getAnonStruct();
                     assert(struct_);
+                    NamedStruct ns = struct_.parent.as!NamedStruct;
+                    assert(ns);
 
                     if(n.name!="new" && !n.implicitThisArgAdded) {
                         /// Rewrite this call so that prev becomes the 1st argument (thisptr)
@@ -315,7 +317,7 @@ public:
                         /// If we get here then we have 1 good match
 
                         if(callable.isFunction) {
-                            n.target.set(callable.func, struct_.getMemberIndex(callable.func));
+                            n.target.set(callable.func, ns.getMemberIndex(callable.func));
                         }
                         if(callable.isVariable) {
                             n.target.set(callable.var, struct_.getMemberIndex(callable.var));
@@ -439,8 +441,10 @@ public:
                     if(func.isStructMember) {
                         auto struct_ = n.getAncestor!AnonStruct();
                         assert(struct_);
+                        auto ns = struct_.parent.as!NamedStruct;
+                        assert(ns);
 
-                        n.target.set(func, struct_.getMemberIndex(func));
+                        n.target.set(func, ns.getMemberIndex(func));
                     } else {
                         /// Global, local or parameter
                         n.target.set(func);

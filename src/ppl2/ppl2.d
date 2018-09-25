@@ -46,11 +46,11 @@ public:
             writefln("Base path .... %s", getConfig().basePath);
             writefln("Target path .. %s", getConfig().targetPath);
             writefln("Target exe ... %s", getConfig().targetExe);
+            writefln("");
 
             g_mainModuleCanonicalName = Module.getCanonicalName(mainFile);
 
-            /// We know we need the module initialiser and the program entry point
-            functionRequired(g_mainModuleCanonicalName, "new");
+            /// We know we need the program entry point
             functionRequired(g_mainModuleCanonicalName, "main");
 
             ///============================ Start

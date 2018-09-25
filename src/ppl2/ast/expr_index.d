@@ -20,9 +20,9 @@ final class Index : Expression {
         }
         if(exprType().isNamedStruct) {
             /// Check if we are waiting to be rewritten to operator:
-            auto struct_ = exprType().getAnonStruct;
-            assert(struct_);
-            if(struct_.getMemberFunctions("operator:")) return false;
+            auto ns = exprType().getNamedStruct;
+            assert(ns);
+            if(ns.getMemberFunctions("operator:")) return false;
         }
         /// Struct index must be a const number
         return index().isResolved && index().isA!LiteralNumber;
@@ -36,14 +36,15 @@ final class Index : Expression {
 
         auto t       = exprType();
         auto struct_ = t.getAnonStruct;
+        auto ns      = t.getNamedStruct;
         auto array   = t.getArrayType;
 
         if(t.isPtr) {
             return PtrType.of(t, -1);
         }
         if(t.isNamedStruct) {
-            assert(struct_);
-            if(struct_.hasOperatorOverload(Operator.INDEX)) {
+            assert(ns);
+            if(ns.hasOperatorOverload(Operator.INDEX)) {
                 /// This will be replaced with an operator overload later
                 return TYPE_UNKNOWN;
             }

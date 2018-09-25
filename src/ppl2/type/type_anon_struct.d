@@ -81,9 +81,10 @@ public:
         return false;
     }
     Variable[] getMemberVariables() {
-        return cast(Variable[])
-            children[].filter!(it=>cast(Variable)it !is null)
-                      .array;
+        return children[].filter!(it=>it.id==NodeID.VARIABLE)
+                         .map!(it=>cast(Variable)it)
+                         .filter!(it=>it.isStatic==false)
+                         .array;
     }
     int numMemberVariables() {
         return getMemberVariables().length.as!int;
@@ -95,30 +96,11 @@ public:
     Variable getMemberVariable(int index) {
         return getMemberVariables()[index];
     }
-    Function[] getMemberFunctions() {
-        return cast(Function[])
-            children[].filter!(it=>cast(Function)it !is null)
-                      .array;
-    }
-    Function[] getMemberFunctions(string name) {
-        return getMemberFunctions().filter!(it=>name==it.name).array;
-    }
     int getMemberIndex(Variable var) {
         foreach(int i, v; getMemberVariables()) {
             if(var is v) return i;
         }
         return -1;
-    }
-    int getMemberIndex(Function var) {
-        foreach(int i, v; getMemberFunctions()) {
-            if(var is v) return i;
-        }
-        return -1;
-    }
-    Function[] getInnerFunctions() {
-        auto array = new Array!Function;
-        recursiveCollect!Function(array, f=>f.isInner);
-        return array[];
     }
     //===============================================================
     Type[] memberVariableTypes() {
@@ -128,28 +110,6 @@ public:
     }
     LLVMTypeRef[] getLLVMTypes() {
         return memberVariableTypes.map!(it=>it.getLLVMType()).array;
-    }
-    //===============================================================
-    bool hasDefaultConstructor() {
-        return getDefaultConstructor() !is null;
-    }
-    bool hasOperatorOverload(Operator op) {
-        string name = "operator";
-        if(op==Operator.NEG) {
-            name ~= " neg";
-        } else {
-            name ~= op.value;
-        }
-        return getMemberFunctions(name).length > 0;
-    }
-    Function getDefaultConstructor() {
-        foreach(f; getConstructors()) {
-            if(f.isDefaultConstructor) return f;
-        }
-        return null;
-    }
-    Function[] getConstructors() {
-        return getMemberFunctions("new");
     }
     //===============================================================
     override string toString() {

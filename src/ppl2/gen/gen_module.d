@@ -74,9 +74,7 @@ public:
         rhs = lhs;
     }
     void visit(AnonStruct n) {
-        foreach(f; n.getMemberFunctions()) {
-            f.visit!ModuleGenerator(this);
-        }
+
     }
     void visit(As n) {
         n.left.visit!ModuleGenerator(this);
@@ -272,7 +270,7 @@ public:
         loopGen.generate(n);
     }
     void visit(NamedStruct n) {
-        /// Nothing to do
+
     }
     void visit(Parameters n) {
         auto litFunc   = n.getLiteralFunction();
