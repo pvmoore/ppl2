@@ -74,7 +74,6 @@ public:
         this.collector         = new OverloadCollector(module_);
         this.implicitTemplates = new ImplicitTemplates(module_);
     }
-
     /// Assume:
     ///     call.argTypes may not yet be known
     ///
@@ -173,9 +172,9 @@ public:
     }
     /// Assume:
     ///     NamedStruct is known
-    ///     call.argTypes are known
+    ///     call.argTypes may not yet be known
     ///
-    Callable structFind(Call call, NamedStruct ns) {
+    Callable structFind(Call call, NamedStruct ns, bool static_=false) {
         AnonStruct struct_ = ns.type;
         assert(ns);
         assert(struct_);
@@ -194,16 +193,34 @@ public:
         }
 
         //dd("structFind looking for", call.name);
+        Function[] fns;
+        Variable var;
 
-        auto fns = ns.getMemberFunctions(call.name);
-        auto var = struct_.getMemberVariable(call.name);
+        if(static_) {
+            fns = ns.getStaticFunctions(call.name);
+            var = ns.getStaticVariable(call.name);
+
+            /// Ensure these functions are resolved
+            //foreach(f; fns) {
+            //    dd("    requesting function", f.name);
+            //    functionRequired(f.getModule.canonicalName, f.name);
+            //}
+
+        } else {
+            fns = ns.getMemberFunctions(call.name);
+            var = struct_.getMemberVariable(call.name);
+        }
 
         /// Filter
         overloads.clear();
         foreach(f; fns) overloads.add(Callable(f));
         if(var && var.isFunctionPtr) overloads.add(Callable(var));
 
+        //dd("   overloads:", overloads);
+
         int numRemoved = removeInvisible();
+
+        //dd("   numRemoved:", numRemoved);
 
         /// From this point onwards we need the resolved types
         if(!call.argTypes.areKnown) {
@@ -217,6 +234,8 @@ public:
 
         /// Try to filter the results down to one match
         filterOverloads(call);
+
+        //dd("    after filter:", overloads);
 
         if(overloads.length==0) {
 
@@ -254,6 +273,13 @@ public:
 
         } else if(overloads.length > 1) {
             throw new AmbiguousCall(call, call.name, call.argTypes(), overloads);
+        }
+
+        //dd("    returning", overloads[0], overloads[0].resultReady);
+
+        /// Ensure static function is resolved
+        if(static_ && overloads[0].isFunction) {
+            functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
         }
 
         return overloads[0];

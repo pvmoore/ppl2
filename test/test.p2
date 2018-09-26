@@ -1,9 +1,11 @@
 
 //import c = core.c
 
-/* main = {
+/*
+main = {
 
-} */
+} 
+*/
 
 import test_imports
 import test_literals
@@ -21,6 +23,7 @@ import test_calls
 import test_if
 import test_loop
 import test_template_functions
+import test_statics
 
 alias AA = int
 alias BB = AA*     // int*
@@ -59,7 +62,7 @@ struct Animal = [
     Goal g
     [int,bool] anon
     bark = { // Animal* this
-
+        assert true
     }
 ]
 
@@ -123,6 +126,7 @@ main = {
     testLoop()
     testTemplateFunctions()
     testOperatorOverloading()
+    testStatics()
 
     testGlobals = {
         assert dd is int**
@@ -141,6 +145,9 @@ main = {
         Animal** animal2
         AnimalPtr animalPtr
         IntPtr ip
+        
+        var animal3 = Animal()
+        animal3.bark()
 
         Cat cat
         Dog* dog = Dog*()
@@ -253,7 +260,6 @@ main = {
     testConsole()
 }
 bool yop
-
 
 
 

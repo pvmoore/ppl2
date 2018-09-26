@@ -43,7 +43,8 @@ public:
         module_.llvmValue = llvm.createModule(module_.canonicalName);
 
         generateGlobalStrings();
-        generateGlobalVariables();
+        generateLocalGlobalVariables(module_);
+        generateImportedGlobalDeclarations(module_);
 
         generateImportedStructDeclarations(module_);
         generateLocalStructDeclarations(module_);
@@ -376,14 +377,6 @@ public:
             foreach(sl; array) {
                 sl.llvmValue = llvmValue;
             }
-        }
-    }
-    void generateGlobalVariables() {
-        foreach(n; module_.getVariables()) {
-            auto g = module_.llvmValue.addGlobal(n.type.getLLVMType(), n.name);
-            g.setInitialiser(constAllZeroes(n.type.getLLVMType()));
-            g.setLinkage(LLVMLinkage.LLVMInternalLinkage);
-            n.llvmValue = g;
         }
     }
     void generateIntrinsicFuncDeclarations() {

@@ -21,10 +21,13 @@ string mangle(Function f) {
     if(f.isExtern || f.isProgramEntry) return f.name;
 
     string name  = f.name;
+
     if(f.isStructMember) {
         auto struct_ = f.getAncestor!AnonStruct();
         if(struct_.isNamed) {
-            name = struct_.parent.as!NamedStruct.getUniqueName ~ "." ~ name;
+            if(!f.isStatic) {
+                name = struct_.parent.as!NamedStruct.getUniqueName ~ "." ~ name;
+            }
         }
     }
 

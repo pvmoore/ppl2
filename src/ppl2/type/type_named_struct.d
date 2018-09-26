@@ -69,6 +69,31 @@ public:
         return getUniqueName();
     }
     //========================================================================================
+    Variable[] getStaticVariables() {
+        string prefix = "%s::".format(getUniqueName());
+        return getModule().getVariables()
+                          .filter!(it=>it.isStatic)
+                          .filter!(it=>it.name.startsWith(prefix))
+                          .array;
+    }
+    Variable getStaticVariable(string name) {
+        name = "%s::%s".format(getUniqueName(), name);
+        auto r = getStaticVariables().filter!(it=>it.name==name).takeOne;
+        return r.empty ? null : r.front;
+    }
+    ////========================================================================================
+    Function[] getStaticFunctions() {
+        string prefix = "%s::".format(getUniqueName());
+        return getModule().getFunctions()
+                          .filter!(it=>it.isStatic)
+                          .filter!(it=>it.name.startsWith(prefix))
+                          .array;
+    }
+    Function[] getStaticFunctions(string name) {
+        name = "%s::%s".format(getUniqueName(), name);
+        return getStaticFunctions().filter!(it=>name==it.name).array;
+    }
+    //========================================================================================
     Function[] getMemberFunctions() {
         return type.children[].filter!(it=>it.id==NodeID.FUNCTION)
                          .map!(it=>cast(Function)it)

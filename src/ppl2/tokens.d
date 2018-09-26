@@ -89,13 +89,11 @@ public:
         pos -= numToMove;
     }
     void skip(TT t) {
-        if(type()!=t) throw new CompilerError(this,
-                                    "Expecting %s".format(t));
+        if(type()!=t) throw new CompilerError(this, "Expecting %s".format(t));
         next();
     }
     void skip(string kw) {
-        if(value()!=kw) throw new CompilerError(this,
-                                    "Expecting %s".format(kw));
+        if(value()!=kw) throw new CompilerError(this, "Expecting %s".format(kw));
         next();
     }
     bool typeIn(TT[] types...) {
@@ -106,8 +104,7 @@ public:
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
         //throw new Error("!!");
-        throw new CompilerError(this,
-                    "Expecting one of %s".format(types));
+        throw new CompilerError(this, "Expecting one of %s".format(types));
     }
     bool hasNext() {
         return pos < tokens.length;
@@ -240,6 +237,7 @@ enum TT {
     USHR,
 
     COLON,          // :
+    DBL_COLON,      // ::
     PLUS,           // +
     MINUS,          // -
     DIV,            // /
@@ -300,6 +298,7 @@ string toString(TT t) {
 
         map[EQUALS] = "=";
         map[COLON] = ":";
+        map[DBL_COLON] = "::";
         map[PLUS] = "+";
         map[MINUS] = "-";
         map[DIV] = "/";

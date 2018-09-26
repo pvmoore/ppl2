@@ -126,7 +126,7 @@ public:
             addImplicitReturnThis(n);
             addCallToDefaultConstructor(n);
             moveInitCodeInsideDefaultConstructor(n, anonStruct);
-
+            moveStaticsToModuleScope(n, anonStruct);
         }
 
         if(isModuleScope) {
@@ -164,8 +164,7 @@ public:
 
             /// Don't allow user to add their own return
             if(bdy.getReturns().length > 0) {
-                throw new CompilerError(bdy.getReturns()[0],
-                    "Constructor should not include a return statement");
+                throw new CompilerError(bdy.getReturns()[0], "Constructor should not include a return statement");
             }
 
             auto ret = builder().return_(builder().identifier("this"));
@@ -190,7 +189,7 @@ public:
             }
         }
     }
-    /// Move struct variable initialisers into the default constructor
+    /// Move struct member variable initialisers into the default constructor
     void moveInitCodeInsideDefaultConstructor(NamedStruct ns, AnonStruct anonStruct) {
         auto initFunc = ns.getDefaultConstructor();
         assert(initFunc);
@@ -200,6 +199,43 @@ public:
                 /// Arguments should always be at index 0 so add these at index 1
                 initFunc.getBody().insertAt(1, v.initialiser);
             }
+        }
+    }
+    ///
+    /// All static variables and functions will be moved to module scope
+    /// using a new naming scheme -> "structname::varname"
+    /// From here on they will be treated as globals
+    ///
+    void moveStaticsToModuleScope(NamedStruct ns, AnonStruct anonStruct) {
+        Variable[] getStaticVariables() {
+            return anonStruct.children[].filter!(it=>it.id==NodeID.VARIABLE)
+                             .map!(it=>cast(Variable)it)
+                             .filter!(it=>it.isStatic==true)
+                             .array;
+        }
+        Function[] getStaticFunctions() {
+            return anonStruct.children[].filter!(it=>it.id==NodeID.FUNCTION)
+                             .map!(it=>cast(Function)it)
+                             .filter!(it=>it.isStatic==true)
+                             .array;
+        }
+        foreach(v; getStaticVariables()) {
+            string mangled = "%s::%s".format(ns.getUniqueName, v.name);
+            v.name = mangled;
+            //v.isStatic = false;
+
+            v.detach();
+            module_.add(v);
+            dd("--> moved static var", v.access, v.name);
+        }
+        foreach(f; getStaticFunctions()) {
+            string mangled = "%s::%s".format(ns.getUniqueName, f.name);
+            f.resetName(mangled);
+            //f.isStatic = false;
+
+            f.detach();
+            module_.add(f);
+            dd("--> moved static func", f.access, f.name);
         }
     }
 }

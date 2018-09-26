@@ -48,7 +48,7 @@ private:
                 parseTypeExpr(t, parent);
                 return;
             }
-            if(nextTok.type==TT.DOT) {
+            if(nextTok.type==TT.DOT || nextTok.type==TT.DBL_COLON) {
                 parseTypeExpr(t, parent);
                 return;
             }
@@ -206,6 +206,7 @@ private:
                     parent = attachAndRead(t, parent, parseIndex(t, parent), false);
                     break;
                 case TT.DOT:
+                case TT.DBL_COLON:
                     parent = attachAndRead(t, parent, parseDot(t));
                     break;
                 case TT.IDENTIFIER:
@@ -283,13 +284,19 @@ private:
         return b;
     }
     ///
-    /// dot_expr ::= expression "." expression
+    /// dot_expr ::= expression ("." | "::") expression
     ///
     Expression parseDot(Tokens t) {
 
         auto d = makeNode!Dot(t);
 
-        t.skip(TT.DOT);
+        if(t.type==TT.DOT) {
+            t.skip(TT.DOT);
+            d.dotType = Dot.DotType.MEMBER;
+        } else {
+            t.skip(TT.DBL_COLON);
+            d.dotType = Dot.DotType.STATIC;
+        }
 
         return d;
     }

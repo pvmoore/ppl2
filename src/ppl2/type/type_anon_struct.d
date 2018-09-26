@@ -80,14 +80,14 @@ public:
         }
         return false;
     }
+    int numMemberVariables() {
+        return getMemberVariables().length.as!int;
+    }
     Variable[] getMemberVariables() {
         return children[].filter!(it=>it.id==NodeID.VARIABLE)
                          .map!(it=>cast(Variable)it)
                          .filter!(it=>it.isStatic==false)
                          .array;
-    }
-    int numMemberVariables() {
-        return getMemberVariables().length.as!int;
     }
     Variable getMemberVariable(string name) {
         auto r = getMemberVariables().filter!(it=>name==it.name).takeOne;
@@ -97,6 +97,7 @@ public:
         return getMemberVariables()[index];
     }
     int getMemberIndex(Variable var) {
+        assert(!var.isStatic);
         foreach(int i, v; getMemberVariables()) {
             if(var is v) return i;
         }

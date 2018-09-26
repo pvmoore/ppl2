@@ -31,13 +31,13 @@ final class Variable : Statement {
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isNamedStructMember() {
-        return parent.isAnonStruct && parent.as!AnonStruct.isNamed;
+        return !isStatic && parent.isAnonStruct && parent.as!AnonStruct.isNamed;
     }
     bool isAnonStructMember() {
-        return parent.isAnonStruct && !parent.as!AnonStruct.isNamed;
+        return !isStatic && parent.isAnonStruct && !parent.as!AnonStruct.isNamed;
     }
     bool isStructMember() const {
-        return parent.isAnonStruct;
+        return !isStatic && parent.isAnonStruct;
     }
     bool isGlobal() const {
         return parent.isModule;
@@ -86,14 +86,16 @@ final class Variable : Statement {
     }
 
     override string toString() {
-        string acc = "[%s]".format(access);
+        string mod = isStatic ? "static " : "";
+        mod ~= isConst ? "const ":"";
+
         string loc = isParameter ? "PARAM" :
                      isLocal ? "LOCAL" :
                      isGlobal ? "GLOBAL" : "STRUCT";
-        string c = isConst ? "const ":"";
+
         if(name) {
-            return "Variable[refs=%s] '%s' (type=%s%s) (%s) %s".format(numRefs, name, c, type.prettyString, loc, acc);
+            return "'%s' Variable[refs=%s] (type=%s%s) %s %s".format(name, numRefs, mod, type.prettyString, loc, access);
         }
-        return "Variable[refs=%s] %s(type=%s) (%s) %s".format(numRefs, c, type.prettyString, loc, acc);
+        return "Variable[refs=%s] (type=%s%s) %s %s".format(numRefs, mod, type.prettyString, loc, access);
     }
 }

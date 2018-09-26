@@ -258,8 +258,9 @@ public:
     }
     void visit(Call n) {
         if(!n.target.isResolved) {
-
             bool isTemplated = n.isTemplated;
+
+
 
             if(n.isStartOfChain()) {
 
@@ -279,21 +280,37 @@ public:
                 assert(prev);
                 Type prevType = prev.getType;
 
-                if(prevType.isKnown) { //  && n.argTypes().areKnown
-                    if(!prevType.isStruct) throw new CompilerError(prev,
-                        "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
+                if(!prevType.isKnown) return;
 
-                    AnonStruct struct_ = prevType.getAnonStruct();
-                    assert(struct_);
-                    NamedStruct ns = struct_.parent.as!NamedStruct;
-                    assert(ns);
+                auto dot = n.parent.as!Dot;
+                assert(dot);
 
+                // todo - fixme when we have module::name
+                if(!prevType.isStruct) throw new CompilerError(prev,
+                    "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
+
+
+                AnonStruct struct_ = prevType.getAnonStruct();
+                assert(struct_);
+                NamedStruct ns = struct_.parent.as!NamedStruct;
+                assert(ns);
+
+                if(dot.isStaticAccess) {
+                    auto callable = callResolver.structFind(n, ns, true);
+                    if(callable.resultReady) {
+                        /// If we get here then we have 1 good match
+                        if(callable.isFunction) {
+                            n.target.set(callable.func);
+                        }
+                        if(callable.isVariable) {
+                            n.target.set(callable.var);
+                        }
+                    }
+                } else {
                     if(n.name!="new" && !n.implicitThisArgAdded) {
                         /// Rewrite this call so that prev becomes the 1st argument (thisptr)
 
-                        auto dot   = n.parent.as!Dot;
                         auto dummy = TypeExpr.make(prevType);
-                        assert(dot);
 
                         dot.replaceChild(prev, dummy);
 
@@ -311,7 +328,7 @@ public:
                         rewrites++;
                     }
 
-                    auto callable = callResolver.structFind(n, prevType.getNamedStruct);
+                    auto callable = callResolver.structFind(n, ns);
 
                     if(callable.resultReady) {
                         /// If we get here then we have 1 good match
@@ -414,7 +431,7 @@ public:
         resolveAlias(n, n.type);
     }
     void visit(Dot n) {
-
+        n.resolve();
     }
     void visit(Function n) {
 
@@ -423,138 +440,165 @@ public:
 
     }
     void visit(Identifier n) {
-        if(!n.target.isResolved) {
 
-            if(n.isStartOfChain()) {
+        void findLocalOrGlobal() {
+            auto res = identifierResolver.findFirst(n.name, n);
+            if(!res.found) {
+                throw new CompilerError(n, "%s not found".format(n.name));
+            }
 
-                auto res = identifierResolver.findFirst(n.name, n);
-                if(!res.found) {
-                    throw new CompilerError(n,
-                        "%s not found".format(n.name));
-                }
+            if(res.isFunc) {
+                auto func = res.func;
 
-                if(res.isFunc) {
-                    auto func = res.func;
+                functionRequired(func.moduleName, func.name);
 
-                    functionRequired(func.moduleName, func.name);
+                if(func.isStructMember) {
+                    auto struct_ = n.getAncestor!AnonStruct();
+                    assert(struct_);
+                    auto ns = struct_.parent.as!NamedStruct;
+                    assert(ns);
 
-                    if(func.isStructMember) {
-                        auto struct_ = n.getAncestor!AnonStruct();
-                        assert(struct_);
-                        auto ns = struct_.parent.as!NamedStruct;
-                        assert(ns);
-
-                        n.target.set(func, ns.getMemberIndex(func));
-                    } else {
-                        /// Global, local or parameter
-                        n.target.set(func);
-                    }
+                    n.target.set(func, ns.getMemberIndex(func));
                 } else {
-                    Variable var = res.isVar ? res.var : null;
-
-                    if(var.isStructMember) {
-                        auto struct_ = n.getAncestor!AnonStruct();
-                        assert(struct_);
-
-                        n.target.set(var, struct_.getMemberIndex(var));
-                    } else {
-                        /// Global, local or parameter
-                        n.target.set(var);
-                    }
-
-                    /// If var is unknown we need to do some detective work...
-                    if(var.type.isUnknown && n.parent.isA!Binary) {
-                        auto bin = n.parent.as!Binary;
-                        if (bin.op == Operator.ASSIGN) {
-                            auto opposite = bin.otherSide(n);
-                            if (opposite && opposite.getType.isKnown) {
-                                var.setType(opposite.getType);
-                            }
-                        }
-                    }
+                    /// Global, local or parameter
+                    n.target.set(func);
                 }
             } else {
-                /// Find the struct
-                Expression prev = n.prevLink();
-                Type prevType   = prev.getType;
+                Variable var = res.isVar ? res.var : null;
 
-                if(prevType.isKnown) {
-
-                    /// Current structure:
-                    ///
-                    /// Dot
-                    ///    prev
-                    ///    ptr
-                    ///
-                    auto dot = n.parent.as!Dot;
-                    assert(dot);
-
-                    /// Properties:
-                    switch(n.name) {
-                        case "length":
-                            if(prevType.isArray) {
-                                int len = prevType.getArrayType.countAsInt();
-                                dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
-                                rewrites++;
-                                return;
-                            } else if(prevType.isAnonStruct) {
-                                int len = prevType.getAnonStruct.numMemberVariables();
-                                dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
-                                rewrites++;
-                            }
-                            break;
-                        case "subtype":
-                            if(prevType.isArray) {
-                                dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
-                                rewrites++;
-                                return;
-                            }
-                            break;
-                        case "ptr": {
-                            auto b = module_.builder(n);
-                            As as;
-                            if(prevType.isArray) {
-                                as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
-                            } else if(prevType.isAnonStruct) {
-                                as = b.as(b.addressOf(prev), PtrType.of(prevType.getAnonStruct, 1));
-                            } else {
-                                break;
-                            }
-                            if(prevType.isPtr) {
-                                assert(false, "array is a pointer. handle this %s %s %s".format(prevType, module_.canonicalName, n.line));
-                            }
-                            /// As
-                            ///   AddressOf
-                            ///      prev
-                            ///   type*
-                            dot.parent.replaceChild(dot, as);
-                            rewrites++;
-                            return;
-                        }
-                        case "#size": {
-                            int size = prevType.size();
-                            dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
-                            rewrites++;
-                            return;
-                        }
-                        default:
-                            break;
-                    }
-
-
-                    if(!prevType.isStruct) {
-                        throw new CompilerError(prev,
-                            "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev));
-                    }
-
-                    AnonStruct struct_ = prevType.getAnonStruct();
+                if(var.isStructMember) {
+                    auto struct_ = n.getAncestor!AnonStruct();
                     assert(struct_);
 
-                    auto var = struct_.getMemberVariable(n.name);
-                    if(var) {
-                        n.target.set(var, struct_.getMemberIndex(var));
+                    n.target.set(var, struct_.getMemberIndex(var));
+                } else {
+                    /// Global, local or parameter
+                    n.target.set(var);
+                }
+
+                /// If var is unknown we need to do some detective work...
+                if(var.type.isUnknown && n.parent.isA!Binary) {
+                    auto bin = n.parent.as!Binary;
+                    if (bin.op == Operator.ASSIGN) {
+                        auto opposite = bin.otherSide(n);
+                        if (opposite && opposite.getType.isKnown) {
+                            var.setType(opposite.getType);
+                        }
                     }
                 }
+            }
+        }
+        void findStructMember() {
+            Expression prev = n.prevLink();
+            Type prevType   = prev.getType;
+
+            if(!prevType.isKnown) return;
+
+            /// Current structure:
+            ///
+            /// Dot
+            ///    prev
+            ///    ptr
+            ///
+            auto dot = n.parent.as!Dot;
+            assert(dot);
+
+            /// Properties:
+            switch(n.name) {
+                case "length":
+                    if(prevType.isArray) {
+                        int len = prevType.getArrayType.countAsInt();
+                        dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                        rewrites++;
+                        return;
+                    } else if(prevType.isAnonStruct) {
+                        int len = prevType.getAnonStruct.numMemberVariables();
+                        dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                        rewrites++;
+                        return;
+                    }
+                    break;
+                case "subtype":
+                    if(prevType.isArray) {
+                        dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
+                        rewrites++;
+                        return;
+                    }
+                    break;
+                case "ptr": {
+                    if(!dot.isMemberAccess()) break;
+
+                    auto b = module_.builder(n);
+                    As as;
+                    if(prevType.isArray) {
+                        as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
+                    } else if(prevType.isAnonStruct) {
+                        as = b.as(b.addressOf(prev), PtrType.of(prevType.getAnonStruct, 1));
+                    } else {
+                        break;
+                    }
+                    if(prevType.isPtr) {
+                        assert(false, "array is a pointer. handle this %s %s %s".format(prevType, module_.canonicalName, n.line));
+                    }
+                    /// As
+                    ///   AddressOf
+                    ///      prev
+                    ///   type*
+                    dot.parent.replaceChild(dot, as);
+                    rewrites++;
+                    return;
+                }
+                case "#size": {
+                    int size = prevType.size();
+                    dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
+                    rewrites++;
+                    return;
+                }
+                default:
+                    break;
+            }
+
+
+            // fixme when we do module::name
+            if(!prevType.isStruct) {
+                throw new CompilerError(prev,
+                    "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev));
+            }
+
+            AnonStruct struct_ = prevType.getAnonStruct();
+            assert(struct_);
+            NamedStruct ns = prevType.getNamedStruct;
+
+            if(dot.isStaticAccess) {
+                assert(ns);
+
+                auto var = ns.getStaticVariable(n.name);
+                if(var) {
+                    if(var.access.isPrivate && var.getModule.nid != module_.nid) {
+                        throw new CompilerError(n, "%s is external and private".format(var.name));
+                    }
+                    n.target.set(var);
+                }
+            } else {
+                auto var = struct_.getMemberVariable(n.name);
+                if (var) {
+                    n.target.set(var, struct_.getMemberIndex(var));
+                } else {
+                    /// If this is a static var then show a nice error
+                    //auto ns = struct_.parent.as!NamedStruct;
+                    //if(ns && (var = ns.getStaticVariable(n.name))!is null) {
+                    //    throw new CompilerError(prev, "struct %s does not have member %s. Did you mean %s::%s ?"
+                    //        .format(ns.name, n.name, ns.name, n.name));
+                    //}
+                }
+            }
+        }
+
+        if(!n.target.isResolved) {
+            if(n.isStartOfChain()) {
+                findLocalOrGlobal();
+            } else {
+                findStructMember();
             }
         }
     }

@@ -13,7 +13,7 @@ import std.array     : Appender, appender, array, join;
 import std.range     : takeOne;
 import std.datetime.stopwatch  : StopWatch;
 import std.algorithm.iteration : each, map, filter, sum;
-import std.algorithm.searching : any, all, count;
+import std.algorithm.searching : any, all, count, startsWith;
 import std.algorithm.sorting   : sort;
 
 import common : Array, Set, Queue, Stack, StringBuffer,
@@ -80,6 +80,7 @@ import ppl2.gen.gen_loop;
 import ppl2.gen.gen_if;
 import ppl2.gen.gen_module;
 import ppl2.gen.gen_struct;
+import ppl2.gen.gen_variable;
 
 import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;

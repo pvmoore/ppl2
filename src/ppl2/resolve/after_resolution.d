@@ -21,12 +21,13 @@ public:
 
         foreach(mod; modules) {
 
-            /// Move global var initialisers to module new()
+            /// Move global var initialisers into module new()
             auto initFunc = mod.getInitFunction();
+            auto initBody = initFunc.getBody();
             foreach_reverse(v; mod.getVariables()) {
                 if(v.hasInitialiser) {
                     /// Arguments should always be the 1st child of body so we insert at 1
-                    initFunc.getBody().insertAt(1, v.initialiser);
+                    initBody.insertAt(1, v.initialiser);
                 }
             }
 

@@ -86,8 +86,7 @@ private:
         /// Ensure no more than one module new() function exists
         auto fns = module_.getFunctions("new");
         if(fns.length>1) {
-            throw new CompilerError(fns[1],
-                "Multiple module 'new' functions are not allowed");
+            throw new CompilerError(fns[1], "Multiple module 'new' functions are not allowed");
         }
         bool hasModuleInit = fns.length==1;
         bool isMainModule  = module_.canonicalName==g_mainModuleCanonicalName;
@@ -111,17 +110,16 @@ private:
             lit.type = type;
             initFunc.add(lit);
         }
+
         if(isMainModule) {
             g_mainModuleNID = module_.nid;
 
             /// Check for a program entry point
             auto mainfns = module_.getFunctions("main");
             if(mainfns.length > 1) {
-                throw new CompilerError(mainfns[1],
-                    "Multiple program entry points found");
+                throw new CompilerError(mainfns[1], "Multiple program entry points found");
             } else if(mainfns.length==0) {
-                throw new CompilerError(module_,
-                    "No program entry point found");
+                throw new CompilerError(module_, "No program entry point found");
             }
 
             /// Add an external ref to the entry function

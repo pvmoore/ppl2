@@ -1,0 +1,100 @@
+
+import test_statics2
+
+private 
+
+struct A = [
+public
+    int m = 1
+    static int s = 2    
+    //const int T = 4           // fixme
+    //const static int S = 9    // fixme
+    
+    foo = { /* A* this */ 
+        return 1
+    }
+    static bar = {
+        return 2
+    }
+    static bar2 = { int v -> 
+        return 3
+    }
+readonly
+    int rm = 3
+    static int rs = 4
+    
+    rfoo = { /* A* this */ 
+        return 4
+    }
+    static rbar = {
+        return 5
+    }
+    static rbar2 = { int v -> 
+        return 6
+    }
+private
+    int pm = 5
+    static int ps = 6
+    
+    pfoo = { /* A* this */ 
+        return 7
+    }
+    static pbar = {
+        return 8
+    }
+    static pbar2 = { int v -> 
+        return 9
+    }
+]
+
+//static int globalStatic // not allowed
+//globalFoo = { static int a -> } not allowed
+
+public testStatics = {
+    testLocal = {
+        var a = A()
+        // member access
+        assert a.m == 1
+        assert a.foo() == 1
+        
+        // static access
+        //var ss = a.s      // not allowed
+        assert A::s == 2
+        assert A::rs == 4
+        assert A::ps == 6   
+        assert A::#size == 12
+        assert A::bar() == 2
+        assert A::bar2(8) == 3
+        assert A::rbar() == 5
+        assert A::rbar2(5) == 6
+        assert A::pbar() == 8
+        assert A::pbar2(10) == 9
+        
+        //A::foo()         // not allowed - (fixme.needs better error msg)
+        //a.bar()           // not allowed
+        //[static int] anon // not allowed
+        //static int nope   // not allowed
+        //globalFoo(1)
+    }
+    testExternal = {
+        var a = Static()
+        // member access
+        assert a.m == 10
+        assert a.foo() == 10
+        
+        // static access
+        assert Static::s == 20
+        assert Static::rs == 40
+        //assert Static::ps == 60     // private external
+        assert Static::#size == 12
+        
+        assert Static::bar() == 20
+        assert Static::bar2(1) == 30
+        assert Static::rbar() == 50
+        assert Static::rbar2(5) == 60
+        //assert Static::pbar() == 80       // private external
+        //assert Static::pbar2(10) == 90    // private external
+    }
+    testLocal()
+    testExternal()
+} 

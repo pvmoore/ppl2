@@ -74,7 +74,15 @@ public:
                 parseReturn(t, parent);
                 return;
             case "static":
-                parseFunction(t, parent);
+                /// static type name
+                /// static type name =
+                /// static name = {
+                /// static name = <
+                if(t.peek(2).type==TT.EQUALS) {
+                    parseFunction(t, parent);
+                } else {
+                    varParser().parse(t, parent);
+                }
                 return;
             case "struct":
                 namedStructParser().parse(t, parent);
@@ -341,8 +349,8 @@ private: //=====================================================================
             t.expect(TT.LCURLY);
             exprParser().parse(t, f);
 
-            /// Add implicit this* as 1st parameter if this is a struct member function
-            if(ns) {
+            /// Add implicit this* parameter if this is a non-static struct member function
+            if(ns && !f.isStatic) {
                 f.params.addThisParameter(ns);
             }
         }

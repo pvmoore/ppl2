@@ -19,8 +19,9 @@ public:
     /// Return the offset of the end of the type.
     /// Return -1 if there is no type at current position.
     /// eg.
-    /// int   // returns 0
-    /// int** // returns 2
+    /// int        // returns 0
+    /// int**      // returns 2
+    /// static int // returns 1
     ///
     int endOffset(Tokens t, ASTNode node, int offset = 0) {
         t.markPosition();
@@ -29,6 +30,8 @@ public:
         bool found      = false;
 
         t.next(offset);
+
+        if("static"==t.value) t.next;
 
         if(t.type==TT.LSQBRACKET) {
             found = possibleArrayOrAnonStruct(t, node);

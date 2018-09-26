@@ -99,6 +99,9 @@ bool areResolved(Expression[] nodes) { return nodes.all!(it=>it.isResolved); }
 bool areResolved(Variable[] nodes) { return nodes.all!(it=>it.isResolved); }
 
 abstract class ASTNode {
+private:
+    Module module_;
+public:
     Array!ASTNode children;
     ASTNode parent;
     int line   = -1;
@@ -118,6 +121,12 @@ abstract class ASTNode {
 
     bool hasChildren() const { return children.length > 0; }
     int numChildren() const { return cast(int)children.length; }
+    Module getModule() {
+        if(!module_) {
+            module_ = findModule();
+        }
+        return module_;
+    }
 
     auto addToFront(ASTNode child) {
         child.detach();
@@ -218,19 +227,13 @@ abstract class ASTNode {
         }
     }
     void dump(FileLogger l, string indent="") {
-        //dd("line", line, typeid(this));
-        //dd(this);
+        //dd(this.id, "line", line);
         l.log("[% 4s] %s", this.line, indent ~ description());
         foreach(ch; children) {
             ch.dump(l, indent ~ "   ");
         }
     }
     //=================================================================================
-    Module getModule() {
-        if(this.isA!Module) return this.as!Module;
-        if(parent) return parent.getModule();
-        throw new Exception("We are not attached to a module!!");
-    }
     inout Container getContainer() {
         auto c = cast(Container)parent;
         if(c) return c;
@@ -324,5 +327,11 @@ abstract class ASTNode {
         ASTNode foo = cast(ASTNode)o;
         assert(nid && foo.nid);
         return foo && foo.nid==nid;
+    }
+private:
+    Module findModule() {
+        if(this.isA!Module) return this.as!Module;
+        if(parent) return parent.findModule();
+        throw new Exception("We are not attached to a module!!");
     }
 }

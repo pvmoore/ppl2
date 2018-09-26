@@ -267,7 +267,12 @@ public:
                     }
                     break;
                 case ':':
-                    addToken(TT.COLON);
+                    if(peek(1)==':') {
+                        addToken(TT.DBL_COLON, 2);
+                        index++;
+                    } else {
+                        addToken(TT.COLON);
+                    }
                     break;
                 case ';':
                     addToken(TT.SEMICOLON);

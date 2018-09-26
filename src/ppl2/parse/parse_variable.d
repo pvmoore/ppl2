@@ -27,9 +27,18 @@ public:
 
         v.moduleNID = module_.nid;
 
+        /// Allow "static const" or "const static"
+        if("static"==t.value) {
+            t.next;
+            v.isStatic = true;
+        }
         if("const"==t.value) {
             t.next;
             v.isConst = true;
+        }
+        if("static"==t.value) {
+            t.next;
+            v.isStatic = true;
         }
 
         if(t.isKeyword("var")) {

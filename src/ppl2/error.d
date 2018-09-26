@@ -108,8 +108,7 @@ void displayUnresolved(Module[] modules) {
 
             foreach(n; nodes) with(NodeID) {
                 bool r = n.id==IDENTIFIER ||
-                         n.id==LITERAL_FUNCTION ||
-                         n.id==VARIABLE ;
+                         n.id==LITERAL_FUNCTION;
                 if(r) {
                     prettyErrorMsg(m, n.line, n.column, "Unresolved symbol");
                 } else {

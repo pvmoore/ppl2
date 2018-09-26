@@ -222,14 +222,33 @@ public:
         }
         return set.values;
     }
+    Variable[] getImportedStaticVariables() {
+        auto array = new Array!ASTNode;
+        recursiveCollect(array, it=>
+            it.id()==NodeID.IDENTIFIER &&
+            it.as!Identifier.target.isVariable() &&
+            it.as!Identifier.target.targetModule.nid != nid &&
+            it.as!Identifier.target.getVariable().isStatic
+        );
+        /// De-dup
+        auto set = new Set!Variable;
+        foreach(v; array) {
+            set.add(v.as!Identifier.target.getVariable());
+        }
+        return set.values;
+    }
+    ///
+    /// Find and return all variables defined in other modules.
+    /// These should all be non-private statics.
+    ///
+    Variable[] getImportedVariables() {
+        return null;
+    }
     Function[] getInnerFunctions() {
         auto array = new Array!Function;
         recursiveCollect!Function(array, f=>f.isInner);
         return array[];
     }
-    //Function[] getExternalFunctions() {
-    //    return getFunctions().filter!(it=>it.isExtern).array;
-    //}
     ///
     ///  Dump module info to the log.
     ///

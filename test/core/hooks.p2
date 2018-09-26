@@ -3,7 +3,7 @@ public
 
 __assert = { bool result, byte* moduleName, int line ->
     if(not result) {
-        print("!! ASSERTION FAILED ")
+        print("ASSERTION FAILED in ")
         print(moduleName)
         print(":")
         println(line)

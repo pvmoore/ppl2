@@ -82,6 +82,10 @@ public:
         }
         assert(false, "Non extern function %s has no LiteralFunction".format(name));
     }
+    void resetName(string newName) {
+        this.name = newName;
+        this._uniqueName = null;
+    }
     string getUniqueName() {
         if(!_uniqueName) {
             _uniqueName = .mangle(this);
@@ -95,7 +99,8 @@ public:
     }
 
     override string toString() {
-        string acc = "[%s] ".format(access);
+        string mod = isStatic ? "static " : "";
+
         string loc = isExtern ? "EXTERN" :
                      isImport ? "IMPORT" :
                      isInner ? "INNER" :
@@ -104,6 +109,6 @@ public:
         if(isTemplateBlueprint()) {
             s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
         }
-        return "'%s' %s Function[refs=%s,%s] (%s) %s".format(name, s, numRefs, numExternalRefs, loc, acc);
+        return "'%s' %s%sFunction[refs=%s,%s] %s %s".format(name, mod, s, numRefs, numExternalRefs, loc, access);
     }
 }

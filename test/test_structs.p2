@@ -1,14 +1,15 @@
 /**
  *  Test accessing struct members.
  */
-
 struct Fruit = [
 private
     int a
 readonly
     int b = 1   // This initialisation will be moved to 'new' func
+    //short b // duplicate
 public
     bool isABanana
+    //static int ss = 3
 
     new = { /* Fruit* this */
         // All struct var initialisers will be put in here
@@ -41,10 +42,8 @@ public
     retThis = {
         return this
     }
-    static foobar = { int a ->
-        // to be implemented:
-        // eg. Fruit.foobar(10)
-    }
+    //static foobar = { int a ->
+    //}
 ]
 struct Colour = [
     // new() function created automatically
@@ -67,6 +66,8 @@ public testStructs = {
 
     t.foo()
     //t.boo(3.1)
+    
+    //Fruit::foobar(1)
 
     t.retThis().foo()
 

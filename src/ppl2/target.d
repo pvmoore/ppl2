@@ -116,10 +116,13 @@ public:
         return getType.getFunctionType.paramTypes();
     }
     override string toString() {
-        string s = isSet && targetModule.nid != module_.nid ? targetModule.canonicalName~"." : "";
-        s ~= var?var.name : func?func.name: "";
-        string i = module_.nid == targetModule.nid ? "" : " (import)";
-        return "Target: %s %s %s%s".format(ttype, s, getType, i);
+        if(isSet) {
+            string s = targetModule.nid != module_.nid ? targetModule.canonicalName~"." : "";
+            s ~= var?var.name : func?func.name: "";
+            string i = module_.nid == targetModule.nid ? "" : " (import)";
+            return "Target: %s %s %s%s".format(ttype, s, getType, i);
+        }
+        return "Target: not set";
     }
 private:
     void addRef() {

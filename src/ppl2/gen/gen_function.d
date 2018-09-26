@@ -12,6 +12,7 @@ void generateImportedFunctionDeclarations(Module module_) {
         generateFunctionDeclaration(module_, f);
     }
 }
+
 void generateLocalStructMemberFunctionDeclarations(Module module_) {
     foreach(s; module_.getAllNamedStructs()) {
         foreach(f; s.getMemberFunctions()) {
@@ -66,7 +67,7 @@ void generateClosureDeclaration(Module m, Closure c) {
 
     func.setLinkage(LLVMLinkage.LLVMInternalLinkage);
 }
-void generateFunctionDeclaration(Module module_, Function f) {
+private void generateFunctionDeclaration(Module module_, Function f) {
     auto type = f.getType.getFunctionType;
     auto func = module_.llvmValue.addFunction(
         f.getUniqueName(),
