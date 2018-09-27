@@ -94,9 +94,13 @@ final class TemplateBlueprint {
         }
         return tokens;
     }
-    Token[] extractFunction(string mangledName, Type[] types) {
-        /// mangledName = {
-        Token[] tokens = [
+    Token[] extractFunction(string mangledName, Type[] types, bool isStatic) {
+        /// [static] mangledName = {
+
+        Token[] tokens;
+        if(isStatic) tokens ~= tok("static");
+
+        tokens ~= [
             tok(mangledName),
             tok(TT.EQUALS)
         ] ~ this.tokens.dup;

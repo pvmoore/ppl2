@@ -222,16 +222,17 @@ public:
         foreach(v; getStaticVariables()) {
             string mangled = "%s::%s".format(ns.getUniqueName, v.name);
             v.name = mangled;
-            //v.isStatic = false;
 
             v.detach();
             module_.add(v);
-            dd("--> moved static var", v.access, v.name);
+            dd("--> moved static var", v.access, v.name, v.hasInitialiser);
+
+            /// All global variables are active
+            module_.addActiveRoot(v);
         }
         foreach(f; getStaticFunctions()) {
             string mangled = "%s::%s".format(ns.getUniqueName, f.name);
             f.resetName(mangled);
-            //f.isStatic = false;
 
             f.detach();
             module_.add(f);

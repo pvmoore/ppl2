@@ -80,6 +80,7 @@ enum Operator : Op {
     BOOL_AND = Op(22, 11, "and"),
     BOOL_OR  = Op(23, 11, "or"),
 
+    /// assignments below here
     ADD_ASSIGN     = Op(24, 14, "+="),
     SUB_ASSIGN     = Op(25, 14, "-="),
     MUL_ASSIGN     = Op(26, 14, "*="),

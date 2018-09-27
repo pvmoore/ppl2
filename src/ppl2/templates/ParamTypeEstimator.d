@@ -2,7 +2,7 @@ module ppl2.templates.ParamTypeEstimator;
 
 import ppl2.internal;
 
-const VERBOSE = false;
+private const VERBOSE = false;
 
 pragma(inline, true) private void chat(A...)(lazy string fmt, lazy A args) {
     static if(VERBOSE)

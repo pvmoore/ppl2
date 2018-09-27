@@ -46,6 +46,17 @@ private
         return 9
     }
 ]
+struct B = <T> [
+    T m = 1
+    static T s = 2
+    
+    orange = <G> { G g -> return 6 }
+    
+    static foo = { return 3 }
+    static foo = { int a -> return 4 } 
+    
+    static yellow = <K> { K k -> return 5 }
+]
 
 //static int globalStatic // not allowed
 //globalFoo = { static int a -> } not allowed
@@ -69,6 +80,17 @@ public testStatics = {
         assert A::rbar2(5) == 6
         assert A::pbar() == 8
         assert A::pbar2(10) == 9
+        
+        var b = B<int>()
+        // member access
+        assert b.m == 1
+        assert b.orange<float>(3.14) == 6
+        // static access
+        assert B<int>::#size == 4
+        assert B<int>::s == 2
+        assert B<int>::foo() == 3
+        assert B<int>::foo(7) == 4
+        assert B<int>::yellow<float>(3.14) == 5
         
         //A::foo()         // not allowed - (fixme.needs better error msg)
         //a.bar()           // not allowed
@@ -94,6 +116,17 @@ public testStatics = {
         assert Static::rbar2(5) == 60
         //assert Static::pbar() == 80       // private external
         //assert Static::pbar2(10) == 90    // private external
+        
+        var b = Statics2<int>()
+        // member access
+        assert b.m == 1
+        assert b.orange<float>(3.14) == 6
+        // static access
+        assert Statics2<int>::#size == 4
+        assert Statics2<int>::s == 2
+        assert Statics2<int>::foo() == 3
+        assert Statics2<int>::foo(7) == 4
+        assert Statics2<int>::yellow<float>(3.14) == 5
     }
     testLocal()
     testExternal()

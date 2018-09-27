@@ -222,6 +222,10 @@ public:
         }
         return set.values;
     }
+    ///
+    /// Find and return all variables defined in other modules.
+    /// These should all be non-private statics.
+    ///
     Variable[] getImportedStaticVariables() {
         auto array = new Array!ASTNode;
         recursiveCollect(array, it=>
@@ -236,13 +240,6 @@ public:
             set.add(v.as!Identifier.target.getVariable());
         }
         return set.values;
-    }
-    ///
-    /// Find and return all variables defined in other modules.
-    /// These should all be non-private statics.
-    ///
-    Variable[] getImportedVariables() {
-        return null;
     }
     Function[] getInnerFunctions() {
         auto array = new Array!Function;

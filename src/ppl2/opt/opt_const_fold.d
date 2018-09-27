@@ -108,6 +108,8 @@ public:
         }
     }
     void visit(Identifier n) {
+        if(!n.isResolved) return;
+
         auto type = n.target.getType;
         auto var  = n.target.getVariable;
 
@@ -190,6 +192,10 @@ private:
         p.replaceChild(replaceMe, withMe);
         nodesFolded++;
 
+        //if(module_.canonicalName=="test_statics") {
+        //    dd("=======> folded", replaceMe.line, replaceMe, "child=", replaceMe.hasChildren ? replaceMe.first : null);
+        //    dd("withMe=", withMe);
+        //}
         /// Ensure active roots remain valid
         module_.addActiveRoot(withMe);
     }

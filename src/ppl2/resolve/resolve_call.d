@@ -2,6 +2,7 @@ module ppl2.resolve.resolve_call;
 
 import ppl2.internal;
 import common : contains;
+
 ///
 /// Resolve a call.                                                                    
 ///                                                                                    
@@ -174,7 +175,9 @@ public:
     ///     NamedStruct is known
     ///     call.argTypes may not yet be known
     ///
-    Callable structFind(Call call, NamedStruct ns, bool static_=false) {
+    Callable structFind(Call call, NamedStruct ns, bool isStatic=false) {
+        chat("structFind %s", call.name);
+
         AnonStruct struct_ = ns.type;
         assert(ns);
         assert(struct_);
@@ -185,20 +188,29 @@ public:
         }
 
         if(call.isTemplated && !call.name.contains("<")) {
+            chat("%s is templated", call.name);
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
 
-            extractTemplates(ns, call, mangledName);
+            //if(isStatic) {
+            //    mangledName = "%s::%s".format(ns.getUniqueName, mangledName);
+            //}
+
+            extractTemplates(ns, call, mangledName, isStatic);
             call.name = mangledName;
             return CALLABLE_NOT_READY;
         }
 
-        //dd("structFind looking for", call.name);
+        chat("structFind looking for %s, static=%s", call.name, isStatic);
+
         Function[] fns;
         Variable var;
 
-        if(static_) {
+        if(isStatic) {
             fns = ns.getStaticFunctions(call.name);
             var = ns.getStaticVariable(call.name);
+
+            chat("    adding static funcs %s", fns);
+            //chat("    adding static var %s", var);
 
             /// Ensure these functions are resolved
             //foreach(f; fns) {
@@ -216,11 +228,11 @@ public:
         foreach(f; fns) overloads.add(Callable(f));
         if(var && var.isFunctionPtr) overloads.add(Callable(var));
 
-        //dd("   overloads:", overloads);
+        chat("   overloads: %s", overloads);
 
         int numRemoved = removeInvisible();
 
-        //dd("   numRemoved:", numRemoved);
+        chat("   numRemoved: %s", numRemoved);
 
         /// From this point onwards we need the resolved types
         if(!call.argTypes.areKnown) {
@@ -235,7 +247,7 @@ public:
         /// Try to filter the results down to one match
         filterOverloads(call);
 
-        //dd("    after filter:", overloads);
+        chat("    after filter: %s", overloads);
 
         if(overloads.length==0) {
 
@@ -278,7 +290,7 @@ public:
         //dd("    returning", overloads[0], overloads[0].resultReady);
 
         /// Ensure static function is resolved
-        if(static_ && overloads[0].isFunction) {
+        if(isStatic && overloads[0].isFunction) {
             functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
         }
 
@@ -488,10 +500,20 @@ private:
     ///
     /// Extract one or more struct function templates
     ///
-    void extractTemplates(NamedStruct ns, Call call, string mangledName) {
+    void extractTemplates(NamedStruct ns, Call call, string mangledName, bool isStatic=false) {
         assert(call.isTemplated);
 
-        auto fns = ns.getMemberFunctions(call.name);
+        chat("    extracting templates %s -> %s num template params=%s",
+            call.name, mangledName, call.templateTypes.length);
+
+        Function[] fns;
+
+        if(isStatic) {
+            fns = ns.getStaticFunctions(call.name);
+            mangledName = "%s::%s".format(ns.getUniqueName, mangledName);
+        } else {
+            fns = ns.getMemberFunctions(call.name);
+        }
 
         Function[][string] toExtract;
 
@@ -502,6 +524,8 @@ private:
             /// Extract this one
             toExtract[f.moduleName] ~= f;
         }
+
+        chat("    toExtract = %s", toExtract);
 
         foreach(k,v; toExtract) {
             auto m = PPL2.getModule(k);
@@ -569,5 +593,10 @@ private:
         }
 
         return CALLABLE_NOT_READY;
+    }
+    void chat(A...)(lazy string fmt, lazy A args) {
+        //if(module_.canonicalName=="test_statics") {
+        //    dd(format(fmt, args));
+        //}
     }
 }

@@ -29,19 +29,24 @@ public:
                 "Expecting %s template parameters".format(ns.blueprint.numTemplateParams));
         }
 
-        //dd("Extracting struct template", ns.name, mangledName, module_.canonicalName);
-
         auto tokens = ns.blueprint.extractStruct(mangledName, templateTypes);
 
         module_.parser.appendTokens(ns, tokens);
 
         aliasOrStructRequired(module_.canonicalName, mangledName);
+
+        //if(module_.canonicalName=="test_statics") {
+        //    dd("Extracted struct template", ns.name, mangledName, module_.canonicalName);
+        //    dd("~~~", tokens.toString);
+        //}
     }
     ///
     /// Extract several function templates
     ///
     void extract(Function[] funcs, Call call, string mangledName) {
         assert(funcs.all!(f=>f.moduleName==module_.canonicalName));
+
+        //dd("    extracting", call.name, mangledName, funcs);
 
         auto keys = new Set!string;
 
@@ -61,14 +66,16 @@ public:
                 key = ns.getUniqueName ~ "." ~ mangledName;
             }
 
+            //dd("    key=", key);
+
             if(extractedFunctions.contains(key)) return;
 
             //extractedFunctions.add(key);
             keys.add(key);
 
-            //dd("Extracting function template", f.name, mangledName, ns ? "(struct "~ns.name~")" : "", module_.canonicalName);
+            //dd("    Extracting function template", f.name, ",", mangledName, ns ? "(struct "~ns.name~")" : "", module_.canonicalName);
 
-            auto tokens = f.blueprint.extractFunction(mangledName, call.templateTypes);
+            auto tokens = f.blueprint.extractFunction(mangledName, call.templateTypes, f.isStatic);
             //dd("  tokens=", tokens.toString);
 
             module_.parser.appendTokens(f, tokens);

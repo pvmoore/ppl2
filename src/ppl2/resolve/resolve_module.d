@@ -260,8 +260,6 @@ public:
         if(!n.target.isResolved) {
             bool isTemplated = n.isTemplated;
 
-
-
             if(n.isStartOfChain()) {
 
                 auto callable = callResolver.standardFind(n);
@@ -1080,7 +1078,7 @@ private:
             addedModuleScopeElements = true;
 
             foreach(n; module_.getVariables()) {
-                module_.activeRoots.add(n);
+                module_.addActiveRoot(n);
             }
         }
     }

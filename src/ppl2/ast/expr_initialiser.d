@@ -43,7 +43,7 @@ public:
     }
 
     override string toString() {
-        return "Initialiser (type=%s)".format(getType);
+        return "Initialiser var=%s, type=%s".format(var.name, getType);
     }
 private:
     void convertToAssignment() {
