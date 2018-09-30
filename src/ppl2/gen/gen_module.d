@@ -43,8 +43,9 @@ public:
         module_.llvmValue = llvm.createModule(module_.canonicalName);
 
         generateGlobalStrings();
-        generateLocalGlobalVariables(module_);
-        generateImportedGlobalDeclarations(module_);
+        generateLocalGlobalVariableDeclarations(module_);
+        generateLocalStaticVariableDeclarations(module_);
+        generateImportedStaticVariableDeclarations(module_);
 
         generateImportedStructDeclarations(module_);
         generateLocalStructDeclarations(module_);
@@ -53,7 +54,7 @@ public:
         generateStandardFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
         generateClosureDeclarations(module_);
-        generateLocalStructMemberFunctionDeclarations(module_);
+        generateLocalStructFunctionDeclarations(module_);
         generateInnerFunctionDeclarations(module_);
 
         generateLocalStructMemberFunctionBodies(module_, literalGen);

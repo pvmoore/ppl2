@@ -420,12 +420,12 @@ public:
                 errorVarInitMustBeConst(n);
             }
         }
-        if(n.isStatic) {
-            import common : contains;
-            if(!n.name.contains("::")) {
-                throw new CompilerError(n, "Static variables are not allowed at this scope");
-            }
-        }
+        //if(n.isStatic) {
+        //    import common : contains;
+        //    if(!n.name.contains("::")) {
+        //        throw new CompilerError(n, "Static variables are not allowed at this scope");
+        //    }
+        //}
 
         if(n.type.isStruct) {
             /// Check that member names are unique

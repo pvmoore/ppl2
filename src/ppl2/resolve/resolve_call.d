@@ -510,7 +510,7 @@ private:
 
         if(isStatic) {
             fns = ns.getStaticFunctions(call.name);
-            mangledName = "%s::%s".format(ns.getUniqueName, mangledName);
+            //mangledName = "%s::%s".format(ns.getUniqueName, mangledName);
         } else {
             fns = ns.getMemberFunctions(call.name);
         }

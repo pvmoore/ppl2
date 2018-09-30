@@ -25,9 +25,9 @@ string mangle(Function f) {
     if(f.isStructMember) {
         auto struct_ = f.getAncestor!AnonStruct();
         if(struct_.isNamed) {
-            if(!f.isStatic) {
-                name = struct_.parent.as!NamedStruct.getUniqueName ~ "." ~ name;
-            }
+            string sep = ".";
+            if(f.isStatic) sep = "::";
+            name = struct_.parent.as!NamedStruct.getUniqueName ~ sep ~ name;
         }
     }
 

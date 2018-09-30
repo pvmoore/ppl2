@@ -62,16 +62,17 @@ struct B = <T> [
 //globalFoo = { static int a -> } not allowed
 
 public testStatics = {
-    testLocal = {
+	testLocal = {
         var a = A()
         // member access
         assert a.m == 1
         assert a.foo() == 1
-        
+    
         // static access
         //var ss = a.s      // not allowed
-        assert A::s == 2
-        assert A::rs == 4
+        
+		assert A::s == 2
+		assert A::rs == 4
         assert A::ps == 6   
         assert A::#size == 12
         assert A::bar() == 2

@@ -105,9 +105,9 @@ public:
     }
     //===============================================================
     Type[] memberVariableTypes() {
-        return children[].filter!(it=>it.id() == NodeID.VARIABLE)
-                         .map!(it=>(cast(Variable)it).type)
-                         .array;
+        return getMemberVariables()
+                    .map!(it=>(cast(Variable)it).type)
+                    .array;
     }
     LLVMTypeRef[] getLLVMTypes() {
         return memberVariableTypes.map!(it=>it.getLLVMType()).array;

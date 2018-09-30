@@ -13,13 +13,17 @@ void generateImportedFunctionDeclarations(Module module_) {
     }
 }
 
-void generateLocalStructMemberFunctionDeclarations(Module module_) {
-    foreach(s; module_.getAllNamedStructs()) {
-        foreach(f; s.getMemberFunctions()) {
+void generateLocalStructFunctionDeclarations(Module module_) {
+    foreach(ns; module_.getAllNamedStructs()) {
+        foreach(f; ns.getMemberFunctions()) {
+            generateFunctionDeclaration(module_, f);
+        }
+        foreach(f; ns.getStaticFunctions()) {
             generateFunctionDeclaration(module_, f);
         }
     }
 }
+
 void generateInnerFunctionDeclarations(Module module_) {
     foreach(f; module_.getInnerFunctions()) {
         generateFunctionDeclaration(module_, f);
@@ -32,8 +36,12 @@ void generateInnerFunctionBodies(Module module_, LiteralGenerator literalGen) {
     }
 }
 void generateLocalStructMemberFunctionBodies(Module module_, LiteralGenerator literalGen) {
-    foreach(s; module_.getAllNamedStructs()) {
-        foreach(f; s.getMemberFunctions()) {
+    foreach(ns; module_.getAllNamedStructs()) {
+        foreach(f; ns.getMemberFunctions()) {
+            auto litFunc = f.getBody();
+            literalGen.generate(litFunc, f.llvmValue);
+        }
+        foreach(f; ns.getStaticFunctions()) {
             auto litFunc = f.getBody();
             literalGen.generate(litFunc, f.llvmValue);
         }
@@ -67,7 +75,8 @@ void generateClosureDeclaration(Module m, Closure c) {
 
     func.setLinkage(LLVMLinkage.LLVMInternalLinkage);
 }
-private void generateFunctionDeclaration(Module module_, Function f) {
+private:
+void generateFunctionDeclaration(Module module_, Function f) {
     auto type = f.getType.getFunctionType;
     auto func = module_.llvmValue.addFunction(
         f.getUniqueName(),

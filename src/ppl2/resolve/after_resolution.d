@@ -21,9 +21,18 @@ public:
 
         foreach(mod; modules) {
 
-            /// Move global var initialisers into module new()
             auto initFunc = mod.getInitFunction();
             auto initBody = initFunc.getBody();
+
+            /// Move static var initialisers into module new()
+            foreach(ns; mod.getAllNamedStructs) {
+                foreach_reverse(v; ns.getStaticVariables) {
+                    if(v.hasInitialiser) {
+                        initBody.insertAt(1, v.initialiser);
+                    }
+                }
+            }
+            /// Move global var initialisers into module new()
             foreach_reverse(v; mod.getVariables()) {
                 if(v.hasInitialiser) {
                     /// Arguments should always be the 1st child of body so we insert at 1

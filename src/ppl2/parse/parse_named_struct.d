@@ -126,7 +126,6 @@ public:
             addImplicitReturnThis(n);
             addCallToDefaultConstructor(n);
             moveInitCodeInsideDefaultConstructor(n, anonStruct);
-            moveStaticsToModuleScope(n, anonStruct);
         }
 
         if(isModuleScope) {
@@ -199,44 +198,6 @@ public:
                 /// Arguments should always be at index 0 so add these at index 1
                 initFunc.getBody().insertAt(1, v.initialiser);
             }
-        }
-    }
-    ///
-    /// All static variables and functions will be moved to module scope
-    /// using a new naming scheme -> "structname::varname"
-    /// From here on they will be treated as globals
-    ///
-    void moveStaticsToModuleScope(NamedStruct ns, AnonStruct anonStruct) {
-        Variable[] getStaticVariables() {
-            return anonStruct.children[].filter!(it=>it.id==NodeID.VARIABLE)
-                             .map!(it=>cast(Variable)it)
-                             .filter!(it=>it.isStatic==true)
-                             .array;
-        }
-        Function[] getStaticFunctions() {
-            return anonStruct.children[].filter!(it=>it.id==NodeID.FUNCTION)
-                             .map!(it=>cast(Function)it)
-                             .filter!(it=>it.isStatic==true)
-                             .array;
-        }
-        foreach(v; getStaticVariables()) {
-            string mangled = "%s::%s".format(ns.getUniqueName, v.name);
-            v.name = mangled;
-
-            v.detach();
-            module_.add(v);
-            dd("--> moved static var", v.access, v.name, v.hasInitialiser);
-
-            /// All global variables are active
-            module_.addActiveRoot(v);
-        }
-        foreach(f; getStaticFunctions()) {
-            string mangled = "%s::%s".format(ns.getUniqueName, f.name);
-            f.resetName(mangled);
-
-            f.detach();
-            module_.add(f);
-            dd("--> moved static func", f.access, f.name);
         }
     }
 }
