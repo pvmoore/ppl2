@@ -164,7 +164,7 @@ public:
         if(!n.isResolved) {
 
             /// This should eventually be imported implicitly
-            assert(findImport("core.hooks", n));
+            assert(findImport("core::hooks", n));
 
             /// Wait until we know what the type is
             Type type = n.expr().getType();
@@ -1030,7 +1030,7 @@ public:
 
         //dd("DUMP MODULE", module_);
 
-        auto f = new FileLogger(getConfig().targetPath~"ast/" ~ module_.canonicalName~".ast");
+        auto f = new FileLogger(getConfig().targetPath~"ast/" ~ module_.fileName~".ast");
         scope(exit) f.close();
 
         module_.dump(f);

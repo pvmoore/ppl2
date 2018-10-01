@@ -183,13 +183,13 @@ private:
         }
 
         __gshared static string[] IMPORTS = [
-            "core.core",
-            "core.c",
-            "core.hooks",
-            "core.list",
-            "core.string",
-            "core.console",
-            "core.unsigned",
+            "core::core",
+            "core::c",
+            "core::hooks",
+            "core::list",
+            "core::string",
+            "core::console",
+            "core::unsigned",
         ];
 
         foreach(s; IMPORTS) {

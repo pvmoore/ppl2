@@ -25,8 +25,6 @@ public:
         auto v = makeNode!Variable(t);
         parent.add(v);
 
-        v.moduleNID = module_.nid;
-
         /// Allow "static const" or "const static"
         if("static"==t.value) {
             t.next;

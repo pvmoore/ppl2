@@ -36,7 +36,6 @@ struct Callable {
     string[] paramNames()      { return getType.getFunctionType.paramNames; }
     Type[] paramTypes()        { return getType.getFunctionType.paramTypes; }
     Module getModule()         { return func ? func.getModule : var.getModule; }
-    int moduleNID()            { return func ? func.moduleNID : var.moduleNID; }
     bool isStructMember()      { return func ? func.isStructMember : var.isStructMember; }
     bool isTemplateBlueprint() { return func ? func.isTemplateBlueprint : false; }
     bool isPrivate()           { return (func ? func.access : var.access).isPrivate; }
@@ -305,7 +304,7 @@ private:
 
         int count = 0;
         foreach(callable; overloads[].dup) {
-            if(callable.moduleNID() != thisNID) {
+            if(callable.getModule.nid != thisNID) {
                 if(callable.isPrivate) {
                     overloads.remove(callable);
                     count++;

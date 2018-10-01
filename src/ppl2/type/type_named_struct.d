@@ -5,6 +5,7 @@ import common : contains;
 ///
 ///
 ///
+
 final class NamedStruct : ASTNode, Type {
 private:
     string _uniqueName;

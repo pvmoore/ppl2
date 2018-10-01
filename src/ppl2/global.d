@@ -27,7 +27,7 @@ __gshared Set!string g_definesRequested;    /// key = moduleName|defineName
 __gshared Set!string g_functionsRequested;  /// key = moduleName|funcName
 
 __gshared Set!string g_uniqueFunctionNames;
-__gshared Set!string g_uniqueStructNames;
+__gshared Set!string g_uniqueStructAndModuleNames;
 
 __gshared int[string] g_builtinTypes;
 __gshared string[int] g_typeToString;
@@ -59,7 +59,7 @@ shared static this() {
     g_functionsRequested = new Set!string;
 
     g_uniqueFunctionNames = new Set!string;
-    g_uniqueStructNames = new Set!string;
+    g_uniqueStructAndModuleNames = new Set!string;
 
     g_builtinTypes["var"]    = Type.UNKNOWN;
     g_builtinTypes["bool"]   = Type.BOOL;

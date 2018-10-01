@@ -7,11 +7,11 @@ private:
     Module module_;
 
     NamedStructParser namedStructParser() { return module_.namedStructParser; }
-    VariableParser varParser() { return module_.varParser; }
-    TypeParser typeParser() { return module_.typeParser; }
-    TypeDetector typeDetector() { return module_.typeDetector; }
-    ExpressionParser exprParser() { return module_.exprParser; }
-    NodeBuilder builder() { return module_.nodeBuilder; }
+    VariableParser varParser()            { return module_.varParser; }
+    TypeParser typeParser()               { return module_.typeParser; }
+    TypeDetector typeDetector()           { return module_.typeDetector; }
+    ExpressionParser exprParser()         { return module_.exprParser; }
+    NodeBuilder builder()                 { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -184,7 +184,8 @@ private: //=====================================================================
         f.externType = typeParser().parse(t, f);
     }
     ///
-    /// import::= "import" module_name [ "as" identifier ]
+    /// import      ::= "import" [identifier "="] module_path
+    /// module_path ::= identifier { "::" identifier }
     ///
     void parseImport(Tokens t, ASTNode parent) {
 
@@ -199,9 +200,9 @@ private: //=====================================================================
             t.markPosition();
             t.next;
 
-            while(t.type==TT.DOT) {
+            while(t.type==TT.DBL_COLON) {
                 t.next;
-                moduleName ~= ".";
+                moduleName ~= "::";
                 moduleName ~= t.value;
                 t.next;
             }

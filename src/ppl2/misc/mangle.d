@@ -4,17 +4,17 @@ import ppl2.internal;
 
 string mangle(NamedStruct ns) {
     string name = ns.name;
-    if(g_uniqueStructNames.contains(name)) {
+    if(g_uniqueStructAndModuleNames.contains(name)) {
         name = ns.moduleName ~ "." ~ name;
     }
 
     int i = 2;
     string prefix = name;
-    while(g_uniqueStructNames.contains(name)) {
+    while(g_uniqueStructAndModuleNames.contains(name)) {
         name = "%s%s".format(prefix, i);
         i++;
     }
-    g_uniqueStructNames.add(name);
+    g_uniqueStructAndModuleNames.add(name);
     return name;
 }
 string mangle(Function f) {

@@ -1,12 +1,14 @@
 module ppl2.ast.module_;
 
 import ppl2.internal;
+import std.array : replace;
 
 final class Module : ASTNode, Container {
 private:
     int tempCounter;
 public:
     string canonicalName;
+    string fileName;
     int numRefs;
     Set!string exportedTypes;     /// name of each exported types
     Set!string exportedFunctions; /// name of each exported functions
@@ -40,7 +42,9 @@ public:
         this.canonicalName     = canonicalName;
         this.exportedTypes     = new Set!string;
         this.exportedFunctions = new Set!string;
+        this.fileName          = canonicalName.replace("::", ".");
 
+        addUniqueName(canonicalName);
         log("Creating new Module(%s)", canonicalName);
 
         parser            = new ModuleParser(this);
@@ -279,6 +283,12 @@ public:
     ///
     static string getFullPath(string canonicalName) {
         import std.array;
-        return getConfig().basePath ~ canonicalName.replace(".", "/") ~ ".p2";
+        return getConfig().basePath ~ canonicalName.replace("::", "/") ~ ".p2";
+    }
+    static void addUniqueName(string canonicalName) {
+        string name = canonicalName;
+        auto i = canonicalName.lastIndexOf("::");
+        if(i!=-1) name = canonicalName[i+2..$];
+        g_uniqueStructAndModuleNames.add(name);
     }
 }

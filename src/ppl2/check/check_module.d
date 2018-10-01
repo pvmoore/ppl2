@@ -182,8 +182,8 @@ public:
 
         if(n.target.isMemberVariable) {
             auto var = n.target.getVariable;
-            checkPrivateAccess(var.access, var.moduleNID);
-            checkReadOnlyAssignment(var.access, var.moduleNID);
+            checkPrivateAccess(var.access, var.getModule.nid);
+            checkReadOnlyAssignment(var.access, var.getModule.nid);
         }
         if(n.target.isMemberFunction) {
             auto func = n.target.getFunction;
