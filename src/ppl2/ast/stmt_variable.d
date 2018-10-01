@@ -23,7 +23,7 @@ final class Variable : Statement {
 
     override bool isResolved() { return type.isKnown; }
     override NodeID id() const { return NodeID.VARIABLE; }
-    override Type getType() { return type; }
+    override Type getType()    { return type; }
 
     bool isLocal() const {
         return parent.isLiteralFunction || parent.isIf || parent.isLoop;
