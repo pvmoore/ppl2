@@ -1,5 +1,5 @@
 
-public ////////////////////////////////////////
+public
 
 testCalls = {
     a = {
@@ -11,7 +11,8 @@ testCalls = {
 
     //a()   // ambiguous
     //b(3)  // ambiguous
-    assert 2 == b(3 as int) // b(int) exact match
+    
+	assert 2 == b(3 as int) // b(int) exact match
     assert 3 == b(3.1)      // b(float)
     assert 3 == b(p1=3.1)
     assert 4 == b(1,2)
@@ -20,6 +21,27 @@ testCalls = {
     assert 5 == c(7,8)
     assert 5 == c(a=7, b=8)
     assert 5 == c(b=7, a=9)
+	
+	
+    testGroovyStyleCall = {
+        println("Test ... Groovy type function calls")
+        // declarations
+		blah = { {void->void} closure ->
+            closure()
+        }
+        blah = { int a, {void->void} closure ->
+            closure()
+        }
+        blah = <T> { {T->void} closure ->
+            closure(1)
+        }
+		//calls
+        blah()      { println("hello") }
+        blah(1)     { println("hello2") }
+        blah<int>   { a-> println("hello3") }
+		blah<int>() { a-> println("hello4") }
+    }
+    testGroovyStyleCall()
 }
 
 private ///////////////////////////////////////

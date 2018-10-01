@@ -129,6 +129,35 @@ public testStatics = {
         assert Statics2<int>::foo(7) == 4
         assert Statics2<int>::yellow<float>(3.14) == 5
     }
+	testNameClashes = {
+		a = {
+			struct J1 {
+				static int a
+			}
+			J1 j1
+		}
+		b = {
+			struct J1 {
+				static int a
+			}
+			J1 j1
+		}
+		c = {
+			struct J1 {
+				static int a
+			}
+			J1 j1
+		}
+		a()
+		b()
+		c()
+		struct test_statics {
+			static bool boo
+		}
+		test_statics t
+		t::boo = true
+	}
     testLocal()
     testExternal()
+	testNameClashes()
 } 

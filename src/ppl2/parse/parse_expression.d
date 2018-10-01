@@ -78,8 +78,11 @@ private:
             if(t.peek(1).type==TT.LCURLY) {
                 /// Groovy-style call with funcptr arg
                 /// func { a-> }
-                parseCall(t, parent);
-                return;
+                if(parent.isDot) {
+                    parseCall(t, parent);
+                    return;
+                }
+                errorBadSyntax(t, "Add brackets to call eg. %s() { ...".format(t.value));
             }
             if(t.peek(1).type==TT.LANGLE) {
                 /// Could be a call or a Binary name < expr

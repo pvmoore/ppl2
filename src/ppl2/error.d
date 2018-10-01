@@ -184,7 +184,6 @@ void constructorCannotCallNonDefaultConstructor(ASTNode n) {
     throw new CompilerError(n,
         "Cannot call non-default constructor from within a constructor");
 }
-
 void errorArrayLiteralMixedInitialisation(Tokens t) {
     throw new CompilerError(t,
     "Array literals must be either all indexes or all non-indexes");

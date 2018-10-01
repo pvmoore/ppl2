@@ -228,32 +228,6 @@ main = {
     import test_access
     testAccess()
 
-    testGroovyStyleCall = {
-        println("Test ... Groovy type function calls")
-        blah = { {void->void} closure ->
-            closure()
-        }
-        blah = { int a, {void->void} closure ->
-            closure()
-        }
-        blah = <T> { {T->void} closure ->
-            closure(1)
-        }
-        blah {
-            println("hello")
-        }
-        blah() {
-            println("hello2")
-        }
-        blah(1) {
-            println("hello3")
-        }
-        blah<int> { a->
-            println("hello4")
-        }
-    }
-    testGroovyStyleCall()
-
     import test_list
     testList()
     import test_console
@@ -329,45 +303,13 @@ bool yop
 
 ////////////////////////////////////////////////////////////////////////////
 /*
-Dog = [
+alias Dog = [
     int a
     int b
-
-    var f = { int c -> return true }
-
-
 ]
 Dog dog = [1,2]
 *///////////////////////////////////////////////
 
-
-/*
-{void->int} ff = {
-    return 1
-}
-
-module = {
-
-}
-
-doit = {
-
-}
-
-bool flag = true
-var ch = '\n'
-
-main = {
-    int a
-    int b = 1
-    //var c = 2
-
-    // to resolve
-    int d = a+b
-
-    ff()
-}
-*///////////////////////////////////////////////
 
 /*
 public

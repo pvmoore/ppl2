@@ -1,4 +1,11 @@
 # Todo
+- Change function declaration syntax to 
+```
+funcname {
+
+}
+```
+
 ## High Priority
 - Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. 
   This may involve adding an array [T*,long length] struct to hold these dynamic arrays
