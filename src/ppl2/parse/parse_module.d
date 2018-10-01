@@ -135,7 +135,7 @@ private:
     ///
     void extractExports(Token[] tokens) {
         watch.start();
-        log("Parser: Extracting exports");
+        log("Parser: %s Extracting exports", module_.canonicalName);
         auto t = new Tokens(module_, tokens);
 
         bool public_ = false;

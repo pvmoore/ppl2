@@ -1,7 +1,7 @@
 
 public
 
-struct string = [
+struct string {
 public
     byte* ptr
 readonly
@@ -19,4 +19,4 @@ readonly
     operator[] = { int index->
         return ptr[index]
     }
-]
+}

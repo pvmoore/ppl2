@@ -1,6 +1,6 @@
 
 private
-struct Vector = <T> [
+struct Vector <T> {
     T x
     T y
     T z
@@ -85,7 +85,7 @@ struct Vector = <T> [
         var v = operator+(2)
         assert v.x==2 and v.y==2 and v.z==2
     }
-]
+}
 
 public
 testOperatorOverloading = {

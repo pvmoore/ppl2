@@ -1,9 +1,9 @@
 
 public
 
-struct RedRose = <T> [
+struct RedRose <T> {
     T a
-]
+}
 
 alias OrangeRose = RedRose<double>
 alias IntPtr = int*

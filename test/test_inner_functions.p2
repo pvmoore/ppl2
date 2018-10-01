@@ -2,7 +2,7 @@
 int globalVar1
 globalFunc1 = {}
 
-struct Struct = [
+struct Struct {
     // Can see struct scope + module scope
     int memberVar1
     memberFunc = { // Struct* this
@@ -41,7 +41,7 @@ struct Struct = [
     }
     memberFunc2 = {}
     int memberVar2
-]
+}
 
 func = { // {->}
     // Can see this scope and module scope

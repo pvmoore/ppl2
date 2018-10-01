@@ -78,6 +78,11 @@ public:
                 /// static type name =
                 /// static name = {
                 /// static name = <
+                //if(t.peek(2).type==TT.LCURLY) {
+                //    parseFunction(t, parent);
+                //} else if(t.peek(2).type==TT.LANGLE) {
+                //    parseFunction(t, parent);
+                //} else
                 if(t.peek(2).type==TT.EQUALS) {
                     parseFunction(t, parent);
                 } else {
@@ -105,9 +110,13 @@ public:
             errorBadSyntax(t, "Parenthesis not allowed here");
         }
 
+        //if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) {
+        //    parseFunction(t, parent);
+        //    return;
+        //}
 
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
-            /// Could be a function, a named struct or a binary expression
+            /// Could be a function or a binary expression
 
             if(t.peek(2).type==TT.LCURLY || t.peek(2).type==TT.LANGLE) {
                 /// name = {
@@ -339,7 +348,7 @@ private: //=====================================================================
 
             int start = t.index;
             int end   = t.findEndOfBlock(TT.LCURLY);
-            f.blueprint.setTokens(ns, t.get(start, start+end).dup);
+            f.blueprint.setFunctionTokens(ns, t.get(start, start+end).dup);
             t.next(end+1);
 
             //dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);

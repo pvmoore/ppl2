@@ -33,9 +33,9 @@ testArrays = {
         var b = a[0]
     }
     namedStructOfArray = {
-        struct SOA = [
+        struct SOA {
             [int:5] array
-        ]
+        }
         [SOA:2] soa = [: SOA(),SOA()]
         assert soa.length==2
         assert soa[0] is SOA

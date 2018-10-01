@@ -37,12 +37,12 @@ EE ee               // int***
 struct Gold
 struct Gold // ok
 
-struct Silver = [
+struct Silver {
     Gold* gold
-]
-struct Gold = [ // definition
+}
+struct Gold { // definition
     Silver* silver
-]
+}
 Gold gold
 
 // Module init function
@@ -52,11 +52,11 @@ new = {
     boop += 7
 }
 
-struct Goal = [
+struct Goal {
     int scorer
-]
+}
 
-struct Animal = [
+struct Animal {
     int age
     [int:4] s
     Goal g
@@ -64,7 +64,7 @@ struct Animal = [
     bark = { // Animal* this
         assert true
     }
-]
+}
 
 alias GreyWolf  = Wolf
 alias AnimalPtr = Animal*
@@ -85,12 +85,12 @@ unreferencedFunc = {
     [bool,bool] a
 }
 
-struct Thingy = [
+struct Thingy {
     int a
     {void->int} b = { return 1 }
 
     //new = { Thingy* this }    // implicit
-]
+}
 
 myfunc = { bool flag ->
     return flag
@@ -102,10 +102,10 @@ someArrays = {
     var a3 = [: 3=999]
 }
 
-struct Array = <A,B> [
+struct Array <A,B> {
     A a
     B b
-]
+}
 
 main = {
     import test_operator_overloading
@@ -193,9 +193,9 @@ main = {
         //assert r2.b==2
     }
     test3 = {
-        struct Listy = <T> [
+        struct Listy <T> {
             T length
-        ]
+        }
 
         Listy<int> list = Listy<int>()
         Array<int,float> array

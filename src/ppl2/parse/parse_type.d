@@ -121,6 +121,7 @@ public:
 
             if(t.type==TT.COMMA) t.next;
         }
+        /// ]
         t.skip(TT.RSQBRACKET);
 
         if(!addToNode) {

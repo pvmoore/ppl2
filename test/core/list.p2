@@ -1,7 +1,7 @@
 
 public
 
-struct List = <T> [
+struct List <T> {
 public
     T* array
     int arrayLength
@@ -85,4 +85,4 @@ private
             assert array
         }
     }
-]
+}

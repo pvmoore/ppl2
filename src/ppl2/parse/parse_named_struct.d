@@ -6,9 +6,9 @@ final class NamedStructParser {
 private:
     Module module_;
 
-    TypeParser typeParser()     { return module_.typeParser; }
-    TypeDetector typeDetector() { return module_.typeDetector; }
-    NodeBuilder builder()       { return module_.nodeBuilder; }
+    StatementParser stmtParser() { return module_.stmtParser; }
+    TypeDetector typeDetector()  { return module_.typeDetector; }
+    NodeBuilder builder()        { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -66,7 +66,7 @@ public:
         ///
         /// Stop here if this is just a declaration
         ///
-        if(t.type!=TT.EQUALS) {
+        if(t.type!=TT.LANGLE && t.type!=TT.LCURLY) {
             n.isDeclarationOnly = true;
             return;
         }
@@ -76,9 +76,6 @@ public:
         if(isModuleScope) {
             t.startAccessScope();
         }
-
-        /// =
-        t.skip(TT.EQUALS);
 
         if(t.type==TT.LANGLE) {
             /// This is a template
@@ -103,12 +100,12 @@ public:
             }
             t.skip(TT.RANGLE);
 
-            /// [
-            t.expect(TT.LSQBRACKET);
+            /// {
+            t.expect(TT.LCURLY);
 
             int start = t.index;
-            int end   = t.findEndOfBlock(TT.LSQBRACKET);
-            n.blueprint.setTokens(null, t.get(start, start+end).dup);
+            int end   = t.findEndOfBlock(TT.LCURLY);
+            n.blueprint.setStructTokens(null, t.get(start, start+end).dup);
             t.next(end+1);
 
             //dd("Struct template decl", n.name, n.blueprint.paramNames, n.blueprint.tokens.toString);
@@ -116,8 +113,7 @@ public:
         } else {
             /// This is a concrete struct
 
-            /// anon struct
-            n.type = typeParser.parse(t, n).as!AnonStruct;
+            n.type = parseBody(t, n);
 
             /// Do some house-keeping
             auto anonStruct = n.type;
@@ -131,6 +127,24 @@ public:
         if(isModuleScope) {
             t.endAccessScope();
         }
+    }
+    AnonStruct parseBody(Tokens t, ASTNode node) {
+        /// {
+        auto s = makeNode!AnonStruct(t);
+        node.add(s);
+
+        t.skip(TT.LCURLY);
+
+        /// Statements
+        while(t.type!=TT.RCURLY) {
+
+            stmtParser().parse(t, s);
+
+            if(t.type==TT.COMMA) t.next;
+        }
+        /// }
+        t.skip(TT.RCURLY);
+        return s;
     }
     /// If there is no default constructor 'new()' then create one
     void addDefaultConstructor(Tokens t, NamedStruct ns, AnonStruct anonStruct) {

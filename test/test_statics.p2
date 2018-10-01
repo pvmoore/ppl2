@@ -3,7 +3,7 @@ import test_statics2
 
 private 
 
-struct A = [
+struct A {
 public
     int m = 1
     static int s = 2    
@@ -45,8 +45,8 @@ private
     static pbar2 = { int v -> 
         return 9
     }
-]
-struct B = <T> [
+}
+struct B <T> {
     T m = 1
     static T s = 2
     
@@ -56,7 +56,7 @@ struct B = <T> [
     static foo = { int a -> return 4 } 
     
     static yellow = <K> { K k -> return 5 }
-]
+}
 
 //static int globalStatic // not allowed
 //globalFoo = { static int a -> } // not allowed

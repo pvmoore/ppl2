@@ -3,7 +3,7 @@ import test_imports
 
 public
 
-struct M1 = [
+struct M1 {
     foo = { int a->
         return 10
     }
@@ -40,8 +40,8 @@ struct M1 = [
         assert 40 == foo0(1, 1, [1,1])
         assert 50 == foo0(1, {int a, int b -> return a+b})
     }
-]
-struct M2 = <T> [
+}
+struct M2 <T> {
     T t
     foo = <F> { F a ->
         return 100
@@ -52,8 +52,8 @@ struct M2 = <T> [
     foo = { float f ->
         return 102
     }
-]
-//struct BadTemplate = <int> []
+}
+//struct BadTemplate <int> {}
 
 testTemplateFunctions = {
     globals = {

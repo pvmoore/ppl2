@@ -1,7 +1,7 @@
 
 public
 
-struct Access = [
+struct Access {
 // private
     int a
     foo = {}
@@ -23,9 +23,9 @@ private
     foo3 = {}
     foo3 = <T> { T t -> }
 public
-]
+}
 
-struct Access2 = <T> [
+struct Access2 <T> {
 // private
     T a
     foo = {}
@@ -36,7 +36,7 @@ public
     foo1 = <U> { U u -> }
 readonly
     T c
-]
+}
 
 testAccess2 = {
     // Access within same module is ok

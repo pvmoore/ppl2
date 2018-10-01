@@ -1,6 +1,6 @@
 
 
-struct S = [
+struct S {
 private
     int a
 readonly
@@ -31,10 +31,10 @@ public
     new = { float a, int b ->
 
     }
-]
-struct S2 = [
+}
+struct S2 {
     // new function created automatically
-]
+}
 
 public
 testConstructors = {

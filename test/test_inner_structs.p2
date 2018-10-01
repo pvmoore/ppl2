@@ -8,9 +8,9 @@ public
 
 int g1
 
-struct A = [
+struct A {
     int a
-    struct B = [
+    struct B {
         int b
         foo = { /* B* this */
             closure = {
@@ -21,9 +21,9 @@ struct A = [
             }
         }
         int b2
-    ]
+    }
     int a2
-]
+}
 
 int g2
 

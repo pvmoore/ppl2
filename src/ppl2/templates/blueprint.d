@@ -25,63 +25,68 @@ final class TemplateBlueprint {
         }
         return -1;
     }
-    void setTokens(NamedStruct ns, Token[] tokens) {
+    void setStructTokens(NamedStruct ns, Token[] tokens) {
         this.tokens = tokens;
         assert(tokens.length>0);
+        assert(tokens[0].type==TT.LCURLY);
+        assert(tokens[$-1].type==TT.RCURLY);
+    }
+    void setFunctionTokens(NamedStruct ns, Token[] tokens) {
+        this.tokens = tokens;
+        assert(tokens.length>0);
+        assert(tokens[0].type==TT.LCURLY);
+        assert(tokens[$-1].type==TT.RCURLY);
 
-        if(tokens[0].type==TT.LCURLY) {
-            isFunction = true;
+        isFunction = true;
 
-            /// Add this* as first parameter if this is a struct function template
-            if(ns) {
-                Token[] this_ = [tok("__this*", PtrType.of(ns, 1)), tok("this")];
-                argTokens = this_ ~ argTokens;
-            }
-
-            auto nav = new Tokens(null, tokens);
-            nav.next;
-            int arrow = nav.findInScope(TT.RT_ARROW);
-            if(arrow==-1) return;
-
-            nav.setLength(nav.index+arrow);
-
-            int start = nav.index;
-
-            int sq = 0, curly = 0;
-
-            while(nav.hasNext) {
-                switch(nav.type) {
-                    case TT.LCURLY: curly++; nav.next; break;
-                    case TT.RCURLY: curly--; nav.next; break;
-                    case TT.LSQBRACKET: sq++; nav.next; break;
-                    case TT.RSQBRACKET: sq--; nav.next; break;
-                    case TT.COMMA:
-                        if(curly==0 && sq==0) {
-                            argTokens ~= nav.get(start, nav.index-1);
-                            nav.next;
-                            start = nav.index;
-                        } else {
-                            nav.next;
-                        }
-                        break;
-                    default:
-                        nav.next;
-                        break;
-                }
-            }
-            if(start != nav.index) {
-                argTokens ~= nav.get(start, nav.index-1);
-            }
-
-            //dd("  argTokens=", argTokens.map!(it=>it.toString).join(", "), "(%s params)".format(argTokens.length));
+        /// Add this* as first parameter if this is a struct function template
+        if(ns) {
+            Token[] this_ = [tok("__this*", PtrType.of(ns, 1)), tok("this")];
+            argTokens = this_ ~ argTokens;
         }
+
+        auto nav = new Tokens(null, tokens);
+        nav.next;
+        int arrow = nav.findInScope(TT.RT_ARROW);
+        if(arrow==-1) return;
+
+        nav.setLength(nav.index+arrow);
+
+        int start = nav.index;
+
+        int sq = 0, curly = 0;
+
+        while(nav.hasNext) {
+            switch(nav.type) {
+                case TT.LCURLY: curly++; nav.next; break;
+                case TT.RCURLY: curly--; nav.next; break;
+                case TT.LSQBRACKET: sq++; nav.next; break;
+                case TT.RSQBRACKET: sq--; nav.next; break;
+                case TT.COMMA:
+                    if(curly==0 && sq==0) {
+                        argTokens ~= nav.get(start, nav.index-1);
+                        nav.next;
+                        start = nav.index;
+                    } else {
+                        nav.next;
+                    }
+                    break;
+                default:
+                    nav.next;
+                    break;
+            }
+        }
+        if(start != nav.index) {
+            argTokens ~= nav.get(start, nav.index-1);
+        }
+
+        //dd("  argTokens=", argTokens.map!(it=>it.toString).join(", "), "(%s params)".format(argTokens.length));
     }
     Token[] extractStruct(string mangledName, Type[] types) {
-        /// struct mangledName =
+        /// struct mangledName
         Token[] tokens = [
             tok("struct"),
-            tok(mangledName),
-            tok(TT.EQUALS)
+            tok(mangledName)
         ] ~ this.tokens.dup;
 
         foreach(ref t; tokens) {

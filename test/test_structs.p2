@@ -1,7 +1,7 @@
 /**
  *  Test accessing struct members.
  */
-struct Fruit = [
+struct Fruit {
 private
     int a
 readonly
@@ -21,7 +21,7 @@ public
         boo(inc=1)
     }
     bar = { /* Fruit* this, */ int a ->
-        struct Vegetable = [bool isGreen]
+        struct Vegetable {bool isGreen}
         isABanana = true
         return a
     }
@@ -44,8 +44,8 @@ public
     }
     //static foobar = { int a ->
     //}
-]
-struct Colour = [
+}
+struct Colour {
     // new() function created automatically
 
     new = {}
@@ -55,7 +55,7 @@ struct Colour = [
     new = { int thing, bool a, int b ->
 
     }
-]
+}
 
 int global = 99
 
