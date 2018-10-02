@@ -1,7 +1,7 @@
 
 public
 
-testList = {
+testList {
     println("Test ... List<T>")
 
     List<int> list

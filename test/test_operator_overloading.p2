@@ -5,92 +5,92 @@ struct Vector <T> {
     T y
     T z
 
-    new = { T a, T b, T c -> x=a y=b z=c }
-    new = { T a -> x=a y=a z=a }
+    new { T a, T b, T c -> x=a y=b z=c }
+    new { T a -> x=a y=a z=a }
 
-    operator+ = { T s -> return Vector<T>(x+s, y+s, z+s) }
-    operator- = { T s -> return Vector<T>(x-s, y-s, z-s) }
-    operator* = { T s -> return Vector<T>(x*s, y*s, z*s) }
-    operator/ = { T s -> return Vector<T>(x/s, y/s, z/s) }
-    operator% = { T s -> return Vector<T>(x%s, y%s, z%s) }
-    operator<< = { T s -> return Vector<T>(x<<s, y<<s, z<<s) }
-    operator>> = { T s -> return Vector<T>(x>>s, y>>s, z>>s) }
-    operator>>> = { T s -> return Vector<T>(x>>>s, y>>>s, z>>>s) }
-    operator| = { T s -> return Vector<T>(x|s, y|s, z|s) }
-    operator& = { T s -> return Vector<T>(x&s, y&s, z&s) }
-    operator^ = { T s -> return Vector<T>(x^s, y^s, z^s) }
+    operator+   { T s -> return Vector<T>(x+s, y+s, z+s) }
+    operator-   { T s -> return Vector<T>(x-s, y-s, z-s) }
+    operator*   { T s -> return Vector<T>(x*s, y*s, z*s) }
+    operator/   { T s -> return Vector<T>(x/s, y/s, z/s) }
+    operator%   { T s -> return Vector<T>(x%s, y%s, z%s) }
+    operator<<  { T s -> return Vector<T>(x<<s, y<<s, z<<s) }
+    operator>>  { T s -> return Vector<T>(x>>s, y>>s, z>>s) }
+    operator>>> { T s -> return Vector<T>(x>>>s, y>>>s, z>>>s) }
+    operator|   { T s -> return Vector<T>(x|s, y|s, z|s) }
+    operator&   { T s -> return Vector<T>(x&s, y&s, z&s) }
+    operator^   { T s -> return Vector<T>(x^s, y^s, z^s) }
 
-    operator<> = { T s ->
+    operator<> { T s ->
         return if(x==s or y==s or z==s) 0 else
                if(x<s or y<s or z<s) -1 else 1
     }
 
-    operator neg = { return Vector<T>(-x,-y,-z) }
+    operator neg { return Vector<T>(-x,-y,-z) }
 
     // get
-    operator[] = { int index ->
+    operator[] { int index ->
         return if(index==0) x else
                if(index==1) y else z
     }
     // set
-    operator[] = { int index, T value ->
+    operator[] { int index, T value ->
         @(if(index==0) &x else
           if(index==1) &y else &z) = value
     }
 
-    operator+ = { Vector<T> v -> return Vector<T>(x+v.x, y+v.y, z+v.z) }
-    operator- = { Vector<T> v -> return Vector<T>(x-v.x, y-v.y, z-v.z) }
-    operator* = { Vector<T> v -> return Vector<T>(x*v.x, y*v.y, z*v.z) }
-    operator/ = { Vector<T> v -> return Vector<T>(x/v.x, y/v.y, z/v.z) }
-    operator% = { Vector<T> v -> return Vector<T>(x%v.x, y%v.y, z%v.z) }
-    operator<< = { Vector<T> v -> return Vector<T>(x<<v.x, y<<v.y, z<<v.z) }
-    operator>> = { Vector<T> v -> return Vector<T>(x>>v.x, y>>v.y, z>>v.z) }
-    operator>>> = { Vector<T> v -> return Vector<T>(x>>>v.x, y>>>v.y, z>>>v.z) }
-    operator| = { Vector<T> v -> return Vector<T>(x|v.x, y|v.y, z|v.z) }
-    operator& = { Vector<T> v -> return Vector<T>(x&v.x, y&v.y, z&v.z) }
-    operator^ = { Vector<T> v -> return Vector<T>(x^v.x, y^v.y, z^v.z) }
+    operator+   { Vector<T> v -> return Vector<T>(x+v.x, y+v.y, z+v.z) }
+    operator-   { Vector<T> v -> return Vector<T>(x-v.x, y-v.y, z-v.z) }
+    operator*   { Vector<T> v -> return Vector<T>(x*v.x, y*v.y, z*v.z) }
+    operator/   { Vector<T> v -> return Vector<T>(x/v.x, y/v.y, z/v.z) }
+    operator%   { Vector<T> v -> return Vector<T>(x%v.x, y%v.y, z%v.z) }
+    operator<<  { Vector<T> v -> return Vector<T>(x<<v.x, y<<v.y, z<<v.z) }
+    operator>>  { Vector<T> v -> return Vector<T>(x>>v.x, y>>v.y, z>>v.z) }
+    operator>>> { Vector<T> v -> return Vector<T>(x>>>v.x, y>>>v.y, z>>>v.z) }
+    operator|   { Vector<T> v -> return Vector<T>(x|v.x, y|v.y, z|v.z) }
+    operator&   { Vector<T> v -> return Vector<T>(x&v.x, y&v.y, z&v.z) }
+    operator^   { Vector<T> v -> return Vector<T>(x^v.x, y^v.y, z^v.z) }
 
-    operator<> = { Vector<T> v ->
+    operator<> { Vector<T> v ->
         return if(x==v.x and y==v.y and z==v.z) 0 else
                if(x<v.x) -1 else
                if(y<v.y) -1 else
                if(z<v.z) -1 else 1
     }
 
-    operator+=  = { T s -> x += s y += s z += s }
-    operator-=  = { T s -> x -= s y -= s z -= s }
-    operator*=  = { T s -> x *= s y *= s z *= s }
-    operator/=  = { T s -> x /= s y /= s z /= s }
-    operator%=  = { T s -> x %= s y %= s z %= s }
-    operator<<= = { T s -> x <<= s y <<= s z <<= s }
-    operator>>= = { T s -> x >>= s y >>= s z >>= s }
-    operator>>>= = { T s -> x >>>= s y >>>= s z >>>= s }
-    operator|= = { T s -> x |= s y |= s z |= s }
-    operator&= = { T s -> x &= s y &= s z &= s }
-    operator^= = { T s -> x ^= s y ^= s z ^= s }
+    operator+=   { T s -> x += s y += s z += s }
+    operator-=   { T s -> x -= s y -= s z -= s }
+    operator*=   { T s -> x *= s y *= s z *= s }
+    operator/=   { T s -> x /= s y /= s z /= s }
+    operator%=   { T s -> x %= s y %= s z %= s }
+    operator<<=  { T s -> x <<= s y <<= s z <<= s }
+    operator>>=  { T s -> x >>= s y >>= s z >>= s }
+    operator>>>= { T s -> x >>>= s y >>>= s z >>>= s }
+    operator|=   { T s -> x |= s y |= s z |= s }
+    operator&=   { T s -> x &= s y &= s z &= s }
+    operator^=   { T s -> x ^= s y ^= s z ^= s }
 
-    operator+= = { Vector<T> v -> x+=v.x y+=v.y z+=v.z }
-    operator-= = { Vector<T> v -> x-=v.x y-=v.y z-=v.z }
-    operator*= = { Vector<T> v -> x*=v.x y*=v.y z*=v.z }
-    operator/= = { Vector<T> v -> x/=v.x y/=v.y z/=v.z }
-    operator%= = { Vector<T> v -> x%=v.x y%=v.y z%=v.z }
-    operator<<= = { Vector<T> v ->  x<<=v.x  y<<=v.y  z<<=v.z }
-    operator>>= = { Vector<T> v ->  x>>=v.x  y>>=v.y  z>>=v.z }
-    operator>>>= = { Vector<T> v -> x>>>=v.x y>>>=v.y z>>>=v.z }
-    operator|= = { Vector<T> v -> x|=v.x y|=v.y z|=v.z }
-    operator&= = { Vector<T> v -> x&=v.x y&=v.y z&=v.z }
-    operator^= = { Vector<T> v -> x^=v.x y^=v.y z^=v.z }
+    operator+=   { Vector<T> v -> x+=v.x y+=v.y z+=v.z }
+    operator-=   { Vector<T> v -> x-=v.x y-=v.y z-=v.z }
+    operator*=   { Vector<T> v -> x*=v.x y*=v.y z*=v.z }
+    operator/=   { Vector<T> v -> x/=v.x y/=v.y z/=v.z }
+    operator%=   { Vector<T> v -> x%=v.x y%=v.y z%=v.z }
+    operator<<=  { Vector<T> v ->  x<<=v.x  y<<=v.y  z<<=v.z }
+    operator>>=  { Vector<T> v ->  x>>=v.x  y>>=v.y  z>>=v.z }
+    operator>>>= { Vector<T> v -> x>>>=v.x y>>>=v.y z>>>=v.z }
+    operator|=   { Vector<T> v -> x|=v.x y|=v.y z|=v.z }
+    operator&=   { Vector<T> v -> x&=v.x y&=v.y z&=v.z }
+    operator^=   { Vector<T> v -> x^=v.x y^=v.y z^=v.z }
 
-    test = {
+    test {
         var v = operator+(2)
         assert v.x==2 and v.y==2 and v.z==2
     }
 }
 
 public
-testOperatorOverloading = {
-    value = {
-        scalars = {
+testOperatorOverloading {
+    value {
+        scalars {
             Vector<int> v
             assert v.x==0 and v.y==0 and v.z==0
 
@@ -161,7 +161,7 @@ testOperatorOverloading = {
             b ^= 0b111
             assert b.x==1 and b.y==1 and b.z==1
         }
-        structs = {
+        structs {
             alias Vec = Vector<int>
 
             var a1 = Vec(1) + Vec(1,2,3)
@@ -196,13 +196,13 @@ testOperatorOverloading = {
         var vv = Vector<float>().operator+(1)
         assert vv.x==1 and vv.y==1 and vv.z==1
     }
-    ptr = {
+    ptr {
         var v = Vector<float>*()
         assert v.x==0 and v.y==0 and v.z==0
 
         var v3 = v.operator+(1)
     }
-    internal = {
+    internal {
         var v = Vector<float>()
         v.test()
     }

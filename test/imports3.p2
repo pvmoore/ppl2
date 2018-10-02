@@ -1,7 +1,7 @@
 
 public
 
-i3func = {
+i3func {
     return 77
 }
 

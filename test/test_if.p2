@@ -1,8 +1,8 @@
 
 public
 
-testIf = {
-    ifStatements = {
+testIf {
+    ifStatements {
         var i = 0
 
         if(true) {
@@ -21,7 +21,7 @@ testIf = {
         }
         assert i == 4
     }
-    ifExpressions = {
+    ifExpressions {
         var r = if(true) 3 else 4
         assert r == 3
         assert r is int
@@ -29,7 +29,7 @@ testIf = {
         r = if(2>=3) 5 else if(4<3) 6 else 8
         assert r == 8
     }
-    initExpression = {
+    initExpression {
         int r
 
         if(var a = 1; a > 2) {
@@ -52,7 +52,7 @@ testIf = {
                 } else 3
         assert x == 2
     }
-    multipleInitExpr = {
+    multipleInitExpr {
         int a = 0
         var r = false
         if(var b = 0, a = 1; a==1) {

@@ -4,41 +4,41 @@ public
 struct Access {
 // private
     int a
-    foo = {}
-    foo = <T> { T t -> }
+    foo {}
+    foo <T> { T t -> }
 readonly
     int b
-    foo1 = {
+    foo1 {
         // i can see private member
         a
         a += 1
     }
-    foo1 = <T> { T t -> }
+    foo1 <T> { T t -> }
 public
     int c
-    foo2 = {}
-    foo2 = <T> { T t -> }
+    foo2 {}
+    foo2 <T> { T t -> }
 private
     int d
-    foo3 = {}
-    foo3 = <T> { T t -> }
+    foo3 {}
+    foo3 <T> { T t -> }
 public
 }
 
 struct Access2 <T> {
 // private
     T a
-    foo = {}
-    foo = <U> { U u -> }
+    foo {}
+    foo <U> { U u -> }
 public
     T b
-    foo1 = {}
-    foo1 = <U> { U u -> }
+    foo1 {}
+    foo1 <U> { U u -> }
 readonly
     T c
 }
 
-testAccess2 = {
+testAccess2 {
     // Access within same module is ok
     Access a
 

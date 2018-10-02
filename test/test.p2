@@ -2,7 +2,7 @@
 //import c = core::c
 
 /*
-main = {
+main {
 
 } 
 */
@@ -46,7 +46,7 @@ struct Gold { // definition
 Gold gold
 
 // Module init function
-new = {
+new {
     // All module variable initialisation
     // code will be put in here
     boop += 7
@@ -61,7 +61,7 @@ struct Animal {
     [int:4] s
     Goal g
     [int,bool] anon
-    bark = { // Animal* this
+    bark { // Animal* this
         assert true
     }
 }
@@ -70,7 +70,7 @@ alias GreyWolf  = Wolf
 alias AnimalPtr = Animal*
 alias IntPtr    = int*
 
-dothings = { int a, Cat cat ->
+dothings { int a, Cat cat ->
     int local
     return cat
 }
@@ -81,7 +81,7 @@ alias Unref = int
 
 Unref unr = 77
 
-unreferencedFunc = {
+unreferencedFunc {
     [bool,bool] a
 }
 
@@ -92,11 +92,11 @@ struct Thingy {
     //new = { Thingy* this }    // implicit
 }
 
-myfunc = { bool flag ->
+myfunc { bool flag ->
     return flag
 }
 
-someArrays = {
+someArrays {
     [int:5] array
     var a2 = [: 1,2]
     var a3 = [: 3=999]
@@ -107,7 +107,7 @@ struct Array <A,B> {
     B b
 }
 
-main = {
+main {
     import test_operator_overloading
 
     testLiterals()
@@ -128,11 +128,11 @@ main = {
     testOperatorOverloading()
     testStatics()
 
-    testGlobals = {
+    testGlobals {
         assert dd is int**
         assert ee is int***
     }
-    test0 = {
+    test0 {
         int a1 = 3
         int b1 = a1 - 2
 
@@ -171,10 +171,10 @@ main = {
         dd1 = dog
         dd1 = null
     }
-    test1 = {
+    test1 {
         {void->int} b = { return 1 }
     }
-    test2 = {
+    test2 {
         {void->[int a,int b]} f = {
             return [1,2]
         }
@@ -192,7 +192,7 @@ main = {
         // reinterpret cast int to float won't be 2
         //assert r2.b==2
     }
-    test3 = {
+    test3 {
         struct Listy <T> {
             T length
         }
@@ -204,13 +204,13 @@ main = {
         Listy<BlueRose> blueList
         Listy<Listy<int>> listoflist
     }
-    test4 = {
+    test4 {
         //float2 v2
         //float3 v3
         //float4 v4
         //float8 v8
     }
-    testInnerImport = {
+    testInnerImport {
         import imports3
 
         assert 77 == i3func()

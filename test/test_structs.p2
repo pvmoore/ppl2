@@ -11,35 +11,35 @@ public
     bool isABanana
     //static int ss = 3
 
-    new = { /* Fruit* this */
+    new { /* Fruit* this */
         // All struct var initialisers will be put in here
         // This will be called before properties are set manually during initialisation
 
         b += 3
     }
-    foo = { /* Fruit* this */
+    foo { /* Fruit* this */
         boo(inc=1)
     }
-    bar = { /* Fruit* this, */ int a ->
+    bar { /* Fruit* this, */ int a ->
         struct Vegetable {bool isGreen}
         isABanana = true
         return a
     }
-    baz = { /* Fruit* this, */ bool sing ->
+    baz { /* Fruit* this, */ bool sing ->
         int loc
-        localFunc = { /* Fruit* this, */
+        localFunc { /* Fruit* this, */
             // inner func
         }
 
         z += 1
     }
     int z
-    boo = { /* Fruit* this, */ float inc ->
+    boo { /* Fruit* this, */ float inc ->
 
 
         this.a += 1
     }
-    retThis = {
+    retThis {
         return this
     }
     //static foobar = { int a ->
@@ -48,18 +48,18 @@ public
 struct Colour {
     // new() function created automatically
 
-    new = {}
-    new = { int a ->
+    new {}
+    new { int a ->
 
     }
-    new = { int thing, bool a, int b ->
+    new { int thing, bool a, int b ->
 
     }
 }
 
 int global = 99
 
-public testStructs = {
+public testStructs {
     Fruit t
 
     t.a += 2

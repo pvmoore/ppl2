@@ -10,7 +10,8 @@ bool isOperatorOverloadFunction(Tokens t) {
 
     int end;
     if(isOperatorOverloadableType(t, 1, end)) {
-        return t.peek(end+1).type==TT.LCURLY;
+        if(t.peek(end).type==TT.LCURLY) return true;
+        return t.peek(end).type==TT.EQUALS && t.peek(end+1).type==TT.LCURLY;
     }
 
     t.next;

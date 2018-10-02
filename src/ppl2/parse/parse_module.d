@@ -160,10 +160,13 @@ private:
                 } else if(t.isKeyword("extern")) {
                     t.next;
                     module_.exportedFunctions.add(t.value);
-                } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS && t.peek(2).type==TT.LCURLY) {
+                } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) {
                     module_.exportedFunctions.add(t.value);
-                } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS && t.peek(2).type==TT.LANGLE) {
-                    module_.exportedFunctions.add(t.value);
+                } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
+                    int end;
+                    if(isTemplateParams(t, 1, end) && t.peek(end+1).type==TT.LCURLY) {
+                        module_.exportedFunctions.add(t.value);
+                    }
                 }
             }
             t.next;

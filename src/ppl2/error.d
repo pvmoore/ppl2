@@ -45,7 +45,7 @@ final class AmbiguousCall : CompilerError {
 }
 //======================================================================
 void warn(Tokens n, string msg) {
-   writefln("\nWarn: [%s Line %s] %s", n.module_.getPath(), n.line, msg);
+   writefln("WARN [%s Line %s] %s", n.module_.getPath(), n.line, msg);
 }
 //======================================================================
 void prettyErrorMsg(CompilerError e) {

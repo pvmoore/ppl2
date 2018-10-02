@@ -69,7 +69,9 @@ private:
             return;
         }
 
-        /// Call
+        /// name (
+        /// name.name {
+        /// name <
         if(t.type==TT.IDENTIFIER) {
             if(t.peek(1).type==TT.LBRACKET) {
                 parseCall(t, parent);
@@ -82,7 +84,6 @@ private:
                     parseCall(t, parent);
                     return;
                 }
-                errorBadSyntax(t, "Add brackets to call eg. %s() { ...".format(t.value));
             }
             if(t.peek(1).type==TT.LANGLE) {
                 /// Could be a call or a Binary name < expr

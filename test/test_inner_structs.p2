@@ -12,8 +12,8 @@ struct A {
     int a
     struct B {
         int b
-        foo = { /* B* this */
-            closure = {
+        foo { /* B* this */
+            closure {
                 int c
 
 
@@ -27,7 +27,7 @@ struct A {
 
 int g2
 
-testInnerStructs = {
+testInnerStructs {
     A a
     A.B ab
     //A::B ab ?

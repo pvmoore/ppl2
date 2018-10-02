@@ -1,7 +1,7 @@
 
 public
 
-testConsole = {
+testConsole {
     println("Test ... Console")
 
     println(12345)

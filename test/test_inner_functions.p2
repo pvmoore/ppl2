@@ -1,11 +1,11 @@
 
 int globalVar1
-globalFunc1 = {}
+globalFunc1 {}
 
 struct Struct {
     // Can see struct scope + module scope
     int memberVar1
-    memberFunc = { // Struct* this
+    memberFunc { // Struct* this
         // Struct member func
         // Can see this scope, Struct scope and module scope
 
@@ -20,7 +20,7 @@ struct Struct {
         globalFunc1()
         globalFunc2()
 
-        inner = { // Struct* this
+        inner { // Struct* this
             // Can see this scope, Struct scope and module scope
 
             int innerVar1
@@ -39,16 +39,16 @@ struct Struct {
 
         int memberFuncVar2
     }
-    memberFunc2 = {}
+    memberFunc2 {}
     int memberVar2
 }
 
-func = { // {->}
+func { // {->}
     // Can see this scope and module scope
 
     int funcVar1
 
-    f1 = {
+    f1 {
         // Can see this scope and module scope
         int f1var
 
@@ -65,11 +65,11 @@ func = { // {->}
     globalVar1
     globalVar2
 
-    inner = {
+    inner {
         // Can see this scope and module scope
 
         int innerVar1
-        f3 = {}
+        f3 {}
 
         innerVar1
         //innerVar2 // nope
@@ -85,7 +85,7 @@ func = { // {->}
         int innerVar2
     }
     int funcVar2
-    f2 = {}
+    f2 {}
 
     funcVar2
 
@@ -93,12 +93,12 @@ func = { // {->}
 }
 
 int globalVar2
-globalFunc2 = {
-    inner = {}
+globalFunc2 {
+    inner {}
     inner()
 }
 
-testClosures = {
+testClosures {
     var closure1 = { int a -> return 2 }
     var closure2 = { int a -> return 3 }
     {int->int} funcptr = closure2
@@ -108,7 +108,7 @@ testClosures = {
     assert 3 == funcptr(1)
 }
 
-public testInnerFunctions = {
+public testInnerFunctions {
     testClosures()
 
     Struct s

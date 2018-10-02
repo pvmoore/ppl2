@@ -76,14 +76,11 @@ public:
             case "static":
                 /// static type name
                 /// static type name =
-                /// static name = {
-                /// static name = <
-                //if(t.peek(2).type==TT.LCURLY) {
-                //    parseFunction(t, parent);
-                //} else if(t.peek(2).type==TT.LANGLE) {
-                //    parseFunction(t, parent);
-                //} else
-                if(t.peek(2).type==TT.EQUALS) {
+                /// static name {
+                /// static name <
+                if(t.peek(2).type==TT.LCURLY) {
+                    parseFunction(t, parent);
+                } else if(t.peek(2).type==TT.LANGLE) {
                     parseFunction(t, parent);
                 } else {
                     varParser().parse(t, parent);
@@ -110,24 +107,18 @@ public:
             errorBadSyntax(t, "Parenthesis not allowed here");
         }
 
-        //if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) {
-        //    parseFunction(t, parent);
-        //    return;
-        //}
-
-        if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.EQUALS) {
-            /// Could be a function or a binary expression
-
-            if(t.peek(2).type==TT.LCURLY || t.peek(2).type==TT.LANGLE) {
-                /// name = {
-                /// name = <
-                parseFunction(t, parent);
-            } else {
-                /// name = expr
-                noExprAllowedAtModuleScope();
-                exprParser.parse(t, parent);
-            }
+        /// name {
+        if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) {
+            parseFunction(t, parent);
             return;
+        }
+        /// name <T> {
+        if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
+            int end;
+            if(isTemplateParams(t, 1, end) && t.peek(end+1).type==TT.LCURLY) {
+                parseFunction(t, parent);
+                return;
+            }
         }
 
         int eot = typeDetector().endOffset(t, parent);
@@ -285,7 +276,7 @@ private: //=====================================================================
         alias_.moduleName = module_.canonicalName;
     }
     ///
-    /// function::= [ "static" ] identifier "=" [ template params] expr_function_literal
+    /// function::= [ "static" ] identifier [ template params] expr_function_literal
     ///
     void parseFunction(Tokens t, ASTNode parent) {
 
@@ -319,7 +310,10 @@ private: //=====================================================================
         f.access = t.access()==Access.PRIVATE ? Access.PRIVATE : Access.PUBLIC;
 
         /// =
-        t.skip(TT.EQUALS);
+        if(t.type==TT.EQUALS) {
+            t.skip(TT.EQUALS);
+            assert(false, "shouldn't get here");
+        }
 
         /// Function template
         if(t.type==TT.LANGLE) {

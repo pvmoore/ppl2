@@ -1,9 +1,9 @@
 
 public
 
-testLiteralStruct = {
+testLiteralStruct {
 
-    test1 = {
+    test1 {
         // zero initialised
         [bool a, int b, float c] s
 
@@ -19,7 +19,7 @@ testLiteralStruct = {
         assert s[1]==0
         assert s[2]==0.0f
     }
-    test2 = {
+    test2 {
         // user initialised
         [int a, double b] s = [1,2]
 
@@ -32,7 +32,7 @@ testLiteralStruct = {
         assert s[0]==1
         assert s[1]==2d
     }
-    test3 = {
+    test3 {
         [int a, float b, bool c] s = [1, 3.1, true]
 
         assert s.a==1
@@ -44,7 +44,7 @@ testLiteralStruct = {
         assert s[2]==true
 
     }
-    test4 = {
+    test4 {
         // partial initialisation
         [double a, int b, bool c] s = [3.1d]
 
@@ -52,7 +52,7 @@ testLiteralStruct = {
         assert s.b==0
         assert s.c==false
     }
-    test5  = {
+    test5 {
         // empty struct literals
         [int] s = []
         assert s is [int]
@@ -67,7 +67,7 @@ testLiteralStruct = {
         //assert #length(s2)==0
         //assert #size(s2)==0
     }
-    test6 = {
+    test6 {
         // implicit [byte,byte]
         var s = [7,8]
         assert s[0] is int
@@ -78,7 +78,7 @@ testLiteralStruct = {
         assert s2[0] is byte
         assert s2[1] is int
     }
-    test7 = {
+    test7 {
         // s is [bool, float, long]
         var s = [true,2f,3L]
         s = [true]
@@ -87,7 +87,7 @@ testLiteralStruct = {
         assert s[1] == 0f
         assert s[2] == 0L
     }
-    test8 = {
+    test8 {
         // standalone
         [7,8]
 
@@ -96,10 +96,10 @@ testLiteralStruct = {
         assert s is int
         assert s==10
     }
-    test9 = { [int] a ->
+    test9 { [int] a ->
         assert(a[0]==66)
     }
-    shouldNotCompile = {
+    shouldNotCompile {
         // error mixing initialisation
         //[int a,int b] ss = [a=4, 3]
 

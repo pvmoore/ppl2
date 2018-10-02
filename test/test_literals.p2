@@ -1,7 +1,7 @@
 
-new = {}
+new {}
 
-public testLiterals = {
+public testLiterals {
     booleans()
     integers()
     realNumbers()
@@ -10,14 +10,14 @@ public testLiterals = {
 }
 private
 
-booleans = {
+booleans {
     bool b
     bool b2 = true
 
     bool b3 = true
     //assert 1==0  // fails
 }
-integers = {
+integers {
     byte by
     byte by2 = 100 as byte
 
@@ -30,7 +30,7 @@ integers = {
     long l
     long l2 = 45
 }
-realNumbers = {
+realNumbers {
     half h
     half h2 = 3.14h
     half h3 = 3
@@ -46,11 +46,11 @@ realNumbers = {
     double d4 = 3
     double d5 = 3.14d
 }
-chars = {
+chars {
     int ch1 = 'a'
     int ch2 = '\n'
 }
-strings = {
+strings {
     string s    // set to an empty string
     string s1 = "hello"
     var s2    = r"there"

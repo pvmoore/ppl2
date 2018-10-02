@@ -35,30 +35,30 @@ alias IntPtrPtr = IntPtr*
 alias ANiceRose = OrangeRose
 alias BlueRose = RedRose<bool>
 
-importedFunc = {
+importedFunc {
 
 }
 
 // global function templates
-tfunc = <T> { T a ->
+tfunc <T> { T a ->
     return 200
 }
-tfunc = <A,B> { A a, B b ->
+tfunc <A,B> { A a, B b ->
     return 202
 }
-tfunc = { float f ->
+tfunc { float f ->
     return 201
 }
 struct M3 <T> {
 public
     T t
-    foo = { T a ->
+    foo { T a ->
         return 270
     }
-    foo = <A> { A a, T t ->
+    foo <A> { A a, T t ->
         return 271
     }
-    foo = <A,B> { A a, B b ->
+    foo <A,B> { A a, B b ->
         return 272
     }
 }

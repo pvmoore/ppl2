@@ -10,39 +10,39 @@ public
     //const int T = 4           // fixme
     //const static int S = 9    // fixme
     
-    foo = { /* A* this */ 
+    foo { /* A* this */ 
         return 1
     }
-    static bar = {
+    static bar {
         return 2
     }
-    static bar2 = { int v -> 
+    static bar2 { int v -> 
         return 3
     }
 readonly
     int rm = 3
     static int rs = 4
     
-    rfoo = { /* A* this */ 
+    rfoo { /* A* this */ 
         return 4
     }
-    static rbar = {
+    static rbar {
         return 5
     }
-    static rbar2 = { int v -> 
+    static rbar2 { int v -> 
         return 6
     }
 private
     int pm = 5
     static int ps = 6
     
-    pfoo = { /* A* this */ 
+    pfoo { /* A* this */ 
         return 7
     }
-    static pbar = {
+    static pbar {
         return 8
     }
-    static pbar2 = { int v -> 
+    static pbar2 { int v -> 
         return 9
     }
 }
@@ -50,19 +50,19 @@ struct B <T> {
     T m = 1
     static T s = 2
     
-    orange = <G> { G g -> return 6 }
+    orange <G> { G g -> return 6 }
     
-    static foo = { return 3 }
-    static foo = { int a -> return 4 } 
+    static foo { return 3 }
+    static foo { int a -> return 4 } 
     
-    static yellow = <K> { K k -> return 5 }
+    static yellow <K> { K k -> return 5 }
 }
 
 //static int globalStatic // not allowed
-//globalFoo = { static int a -> } // not allowed
+//globalFoo { static int a -> } // not allowed
 
-public testStatics = {
-	testLocal = {
+public testStatics {
+	testLocal {
         var a = A()
         // member access
         assert a.m == 1
@@ -99,7 +99,7 @@ public testStatics = {
         //static int nope   // not allowed
         //globalFoo(1)
     }
-    testExternal = {
+    testExternal {
         var a = Static()
         // member access
         assert a.m == 10
@@ -129,20 +129,20 @@ public testStatics = {
         assert Statics2<int>::foo(7) == 4
         assert Statics2<int>::yellow<float>(3.14) == 5
     }
-	testNameClashes = {
-		a = {
+	testNameClashes {
+		a {
 			struct J1 {
 				static int a
 			}
 			J1 j1
 		}
-		b = {
+		b {
 			struct J1 {
 				static int a
 			}
 			J1 j1
 		}
-		c = {
+		c {
 			struct J1 {
 				static int a
 			}

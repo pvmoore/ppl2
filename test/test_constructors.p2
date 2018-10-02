@@ -8,7 +8,7 @@ readonly
 public
     bool flag
 
-    new = { /*S* this*/
+    new { /*S* this*/
         // All struct var initialisers will be put in here
         // This will be called before properties are set manually during initialisation
 
@@ -16,19 +16,19 @@ public
         flag = true
     }
     // rename me
-    new = { /*S* this,*/ int value ->
+    new { /*S* this,*/ int value ->
         this.a = value
     }
-    new = { /*S* this,*/ bool flag, short sh ->
+    new { /*S* this,*/ bool flag, short sh ->
         this.b    = sh
         this.flag = flag
     }
-    new = { float a, double b, int c ->
+    new { float a, double b, int c ->
         this.a    = a as int
         this.b    = b as int
         this.flag = c as bool
     }
-    new = { float a, int b ->
+    new { float a, int b ->
 
     }
 }
@@ -37,7 +37,7 @@ struct S2 {
 }
 
 public
-testConstructors = {
+testConstructors {
     S s         // zero initialise
     assert s.a==0
     assert s.b==0
@@ -87,5 +87,4 @@ testConstructors = {
     assert s9.a == 0
     assert s9.b == 3
     assert s9.flag == true
-
 }

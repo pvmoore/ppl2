@@ -3,7 +3,7 @@ import test_access2
 
 public
 
-testAccess = {
+testAccess {
     testAccess2()
 
     Access a

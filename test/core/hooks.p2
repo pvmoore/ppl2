@@ -1,7 +1,7 @@
 
 public
 
-__assert = { bool result, byte* moduleName, int line ->
+__assert { bool result, byte* moduleName, int line ->
     if(not result) {
         print("ASSERTION FAILED in ")
         print(moduleName)

@@ -1,11 +1,11 @@
 
 public
 
-testCalls = {
-    a = {
+testCalls {
+    a {
         return 0
     }
-    c = { int a, int b ->
+    c { int a, int b ->
         return 5
     }
 
@@ -23,38 +23,37 @@ testCalls = {
     assert 5 == c(b=7, a=9)
 	
 	
-    testGroovyStyleCall = {
+    testGroovyStyleCall {
         println("Test ... Groovy type function calls")
         // declarations
-		blah = { {void->void} closure ->
+		blah { {void->void} closure ->
             closure()
         }
-        blah = { int a, {void->void} closure ->
+        blah { int a, {void->void} closure ->
             closure()
         }
-        blah = <T> { {T->void} closure ->
+        blah <T> { {T->void} closure ->
             closure(1)
         }
 		//calls
         blah()      { println("hello") }
         blah(1)     { println("hello2") }
-        blah<int>   { a-> println("hello3") }
-		blah<int>() { a-> println("hello4") }
+		blah<int>() { a-> println("hello3") }
     }
     testGroovyStyleCall()
 }
 
 private ///////////////////////////////////////
 
-a = {
+a {
     return 1
 }
-b = { int p1 ->
+b { int p1 ->
     return 2
 }
-b = { float p1 ->
+b { float p1 ->
     return 3
 }
-b = { int p1, float p2 ->
+b { int p1, float p2 ->
     return 4
 }

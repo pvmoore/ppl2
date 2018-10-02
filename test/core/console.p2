@@ -1,22 +1,22 @@
 
 public
 
-println = {bool b -> print(b) putchar(10) }
-println = {long n -> print(n) putchar(10) }
-println = {string s ->
+println {bool b -> print(b) putchar(10) }
+println {long n -> print(n) putchar(10) }
+println {string s ->
     print(s.ptr, s.length)
     putchar(10)
 }
-println = {byte* ptr,long len ->
+println {byte* ptr,long len ->
     print(ptr,len)
     putchar(10)
 }
 //
-print = { bool b ->
+print { bool b ->
     if(b) print("true")
     else print("false")
 }
-print = { long n ->
+print { long n ->
     List<byte> list
 
     if(n<0) {
@@ -33,14 +33,14 @@ print = { long n ->
         putchar(ch)
     }
 }
-print = { string s ->
+print { string s ->
     print(s.ptr, s.length)
 }
-print = { byte* bytes ->
+print { byte* bytes ->
     if(not bytes) return
     print(bytes, strlen(bytes))
 }
-print = { byte* bytes, long length ->
+print { byte* bytes, long length ->
     if(not bytes) return
     loop(long i; i<length; i+=1) {
         putchar(bytes[i])

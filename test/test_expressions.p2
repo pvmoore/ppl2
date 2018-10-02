@@ -1,7 +1,7 @@
 
 public
 
-testExpressions = {
+testExpressions {
     var a = 2
     var a2 = 10 <> a and true
 

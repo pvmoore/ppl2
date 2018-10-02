@@ -8,72 +8,72 @@ public
 readonly
     int length
 public
-    new = { int reserve ->
+    new { int reserve ->
         expand(reserve)
     }
-    ptr = { return array }
-    empty = {
+    ptr { return array }
+    empty {
         return length==0
     }
-    add = { T value ->
+    add { T value ->
         expand(1)
         array[length] = value
         length += 1
         return this
     }
-    operator[] = { int index->
+    operator[] { int index->
         return array[index]
     }
-    operator[] = { int index, T value ->
+    operator[] { int index, T value ->
         array[index] = value
     }
-    operator<> = { List<T> other ->
+    operator<> { List<T> other ->
         if(length <> other.length) return false
         return memcmp(array, other.array, length*T.#size)==0
     }
-    first = {
+    first {
         assert length > 0
         return array[0]
     }
-    last = {
+    last {
         assert length > 0
         return array[length-1]
     }
-    each = { {T->void} closure ->
+    each { {T->void} closure ->
         loop(int i; i<length; i+=1) {
             closure(array[i])
         }
     }
-    each = { {int,T->void} closure ->
+    each { {int,T->void} closure ->
         loop(int i; i<length; i+=1) {
             closure(i,array[i])
         }
     }
-    eachReverse = { {T->void} closure ->
+    eachReverse { {T->void} closure ->
         loop(int i = length-1; i>=0; i-=1) {
             closure(array[i])
         }
     }
-    eachReverse = { {int,T->void} closure ->
+    eachReverse { {int,T->void} closure ->
         loop(int i = length-1; i>=0; i-=1) {
             closure(i, array[i])
         }
     }
-    removeAt = { int index ->
+    removeAt { int index ->
 
     }
-    insertAt = { int index, T value ->
+    insertAt { int index, T value ->
         return this
     }
-    clear = {
+    clear {
         length = 0
         return this
     }
-    pack = {
+    pack {
         return this
     }
 private
-    expand = { int required ->
+    expand { int required ->
         if(required < 1) return
         if(not array) {
             arrayLength = required + 7

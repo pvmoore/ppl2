@@ -7,16 +7,16 @@ public
 readonly
     long length
 
-    new = { byte* ptr, long len ->
+    new { byte* ptr, long len ->
         this.ptr    = ptr
         this.length = len
     }
 
-    empty = {
+    empty {
         return length==0
     }
 
-    operator[] = { int index->
+    operator[] { int index->
         return ptr[index]
     }
 }

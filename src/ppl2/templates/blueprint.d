@@ -106,8 +106,7 @@ final class TemplateBlueprint {
         if(isStatic) tokens ~= tok("static");
 
         tokens ~= [
-            tok(mangledName),
-            tok(TT.EQUALS)
+            tok(mangledName)
         ] ~ this.tokens.dup;
 
         foreach(ref t; tokens) {

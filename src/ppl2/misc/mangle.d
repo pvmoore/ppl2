@@ -4,9 +4,6 @@ import ppl2.internal;
 
 string mangle(NamedStruct ns) {
     string name = ns.name;
-    //if(g_uniqueStructAndModuleNames.contains(name)) {
-    //    name = ns.moduleName ~ "::" ~ name;
-    //}
 
     int i = 2;
     string prefix = name;
@@ -36,10 +33,6 @@ string mangle(Function f) {
         params = "(%s)".format(mangle(f.params().paramTypes()));
     }
 
-    if(g_uniqueFunctionNames.contains(name ~ params)) {
-        if(f.isGlobal) name = f.moduleName ~ "::" ~ name;
-    }
-
     name ~= params;
 
     if(!g_uniqueFunctionNames.contains(name)) {
@@ -50,7 +43,7 @@ string mangle(Function f) {
     int i = 2;
     string prefix = name;
     while(g_uniqueFunctionNames.contains(name)) {
-        name = "%s%s".format(prefix, i);
+        name = "%s_%s".format(prefix, i);
         i++;
     }
     g_uniqueFunctionNames.add(name);
