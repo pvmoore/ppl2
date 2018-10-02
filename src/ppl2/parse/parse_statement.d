@@ -189,65 +189,70 @@ private: //=====================================================================
     ///
     void parseImport(Tokens t, ASTNode parent) {
 
-        auto imp = makeNode!Import(t);
-        parent.add(imp);
-
         /// "import"
         t.next;
 
-        string collectModuleName() {
-            string moduleName = t.value;
-            t.markPosition();
-            t.next;
+        while(true) {
+            auto imp = makeNode!Import(t);
+            parent.add(imp);
 
-            while(t.type==TT.DBL_COLON) {
+            string collectModuleName() {
+                string moduleName = t.value;
+                t.markPosition();
                 t.next;
-                moduleName ~= "::";
-                moduleName ~= t.value;
-                t.next;
-            }
 
-            /// Check that the import exists
-            import std.file : exists;
-            if(!exists(Module.getFullPath(moduleName))) {
-                t.resetToMark();
-                throw new CompilerError(t,
+                while(t.type==TT.DBL_COLON) {
+                    t.next;
+                    moduleName ~= "::";
+                    moduleName ~= t.value;
+                    t.next;
+                }
+
+                /// Check that the import exists
+                import std.file : exists;
+                if (!exists(Module.getFullPath(moduleName))) {
+                    t.resetToMark();
+                    throw new CompilerError(t,
                     "Module %s does not exist".format(moduleName));
+                }
+                t.discardMark();
+                return moduleName;
             }
-            t.discardMark();
-            return moduleName;
-        }
 
-        imp.moduleName = collectModuleName();
+            imp.moduleName = collectModuleName();
 
-        if(findImport(imp.moduleName, imp)) {
-            throw new CompilerError(imp, "Module %s already imported".format(imp.moduleName));
-        }
+            if (findImport(imp.moduleName, imp)) {
+                throw new CompilerError(imp, "Module %s already imported".format(imp.moduleName));
+            }
 
-        /// Trigger the loading of the module
-        imp.mod = PPL2.getModule(imp.moduleName);
+            /// Trigger the loading of the module
+            imp.mod = PPL2.getModule(imp.moduleName);
 
-        if(t.isKeyword("as")) {
-            assert(false, "import modulename as alias");
-        }
+            if (t.isKeyword("as")) {
+                assert(false, "import modulename as alias");
+            }
 
-        /// For each exported function and type, add proxies to this module
-        foreach(f; imp.mod.exportedFunctions.values) {
-            auto fn       = makeNode!Function(t);
-            fn.name       = f;
-            fn.moduleName = imp.moduleName;
-            fn.moduleNID  = imp.mod.nid;
-            fn.isImport   = true;
-            imp.add(fn);
-        }
-        foreach(d; imp.mod.exportedTypes.values) {
-            auto def        = makeNode!Alias(t);
-            def.name        = d;
-            def.type        = TYPE_UNKNOWN;
-            def.moduleName  = imp.moduleName;
-            def.moduleNID   = imp.mod.nid;
-            def.isImport    = true;
-            imp.add(def);
+            /// For each exported function and type, add proxies to this module
+            foreach (f; imp.mod.exportedFunctions.values) {
+                auto fn       = makeNode!Function(t);
+                fn.name       = f;
+                fn.moduleName = imp.moduleName;
+                fn.moduleNID  = imp.mod.nid;
+                fn.isImport   = true;
+                imp.add(fn);
+            }
+            foreach (d; imp.mod.exportedTypes.values) {
+                auto def        = makeNode!Alias(t);
+                def.name        = d;
+                def.type        = TYPE_UNKNOWN;
+                def.moduleName  = imp.moduleName;
+                def.moduleNID   = imp.mod.nid;
+                def.isImport    = true;
+                imp.add(def);
+            }
+            if(t.type==TT.COMMA) {
+                t.next;
+            } else break;
         }
     }
     ///

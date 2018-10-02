@@ -7,23 +7,12 @@ main {
 } 
 */
 
-import test_imports
-import test_literals
-import test_arrays
-import test_expressions
-import test_structs
-import test_casting
-import test_inner_functions
-import test_consts
-import test_constructors
-import test_meta
-import test_literal_struct
-import test_unreferenced_module
-import test_calls
-import test_if
-import test_loop
-import test_template_functions
-import test_statics
+import test_imports, test_literals
+import test_arrays, test_expressions, test_structs
+import test_casting, test_inner_functions, test_consts
+import test_constructors, test_meta, test_literal_struct
+import test_unreferenced_module, test_calls, test_if
+import test_loop, test_template_functions, test_statics
 
 alias AA = int
 alias BB = AA*     // int*
