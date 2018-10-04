@@ -1,5 +1,10 @@
 # Todo
 
+- in getImportedNamedStructs, try just going through all nodes and calling
+  gettype. any named structs from another module 
+  put in a set and bob's your uncle
+  
+
 ## High Priority
 - Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. 
   This may involve adding an array [T*,long length] struct to hold these dynamic arrays
@@ -17,8 +22,7 @@ var r = select(x) {
 ## Medium Priority
 - Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... 
   (#size already implemented)
-- import c = core.c
-    - c::memset(..)  // maybe re-use Dot with a flag
+  Maybe do these as builtin funcs instead of properties
 
 ## Low Priority
 - LiteralMap (requires core.map implementation)

@@ -38,13 +38,16 @@ public:
                 t.next;
                 type = new BasicType(p);
             }
-            /// Is it a NamedStruct or Define?
-            if(type is null) {
-                type = parseDefine(t, node);
-            }
             if(type is null) {
                 type = t.get.templateType;
                 if(type) t.next;
+            }
+            if(type is null) {
+                type = parseImportAlias(t, node);
+            }
+            /// Is it a NamedStruct or Alias?
+            if(type is null) {
+                type = parseAliasOrNamedStruct(t, node);
             }
         }
 
@@ -63,44 +66,54 @@ public:
         }
         return type;
     }
-    Type parseDefine(Tokens t, ASTNode node) {
+private:
+    Type parseAliasOrNamedStruct(Tokens t, ASTNode node) {
 
         /// Get the name
         string name = t.value;
         t.markPosition();
         t.next;
 
-        Type[] templateParams;
+        Type[] templateParams = collectTemplateParams(t, node);
 
-        /// Collect any template params
-        if(t.type==TT.LANGLE) {
-            t.next;
-
-            while(t.type!=TT.RANGLE) {
-
-                t.markPosition();
-
-                auto tt = parse(t, node);
-                if(!tt) {
-                    t.resetToMark();
-                    errorMissingType(t);
-                }
-                t.discardMark();
-
-                templateParams ~= tt;
-
-                t.expect(TT.COMMA, TT.RANGLE);
-                if(t.type==TT.COMMA) t.next;
-            }
-            t.skip(TT.RANGLE);
+        auto type = findType(name, node);
+        if(type && templateParams.length>0) {
+            type = findTemplateType(type, node, module_, templateParams);
         }
-
-        auto type = findType(name, node, module_, templateParams);
 
         if(!type) {
             t.resetToMark();
-            return null;
         }
+        return type;
+    }
+    Type parseImportAlias(Tokens t, ASTNode node) {
+
+        auto imp = findImportByAlias(t.value ,node);
+        if(!imp) return null;
+        if(t.peek(1).type!=TT.DBL_COLON) return null;
+
+        t.next(2);
+
+        /// Assuming for now that inner structs don't exist,
+        /// these are the only valid types:
+
+        /// imp::  alias
+        /// imp::  alias<>
+
+        string name = t.value;
+        t.next;
+
+        Type type = imp.getAlias(name);
+        if(!type) errorMissingType(t, t.value);
+
+        Type[] templateParams = collectTemplateParams(t, node);
+        if(templateParams.length>0) {
+            type = findTemplateType(type, node, module_, templateParams);
+        } else {
+            auto alias_ = type.as!Alias;
+            aliasOrStructRequired(alias_.moduleName, alias_.name);
+        }
+
         return type;
     }
     ///
@@ -208,5 +221,32 @@ public:
         }
 
         return PtrType.of(f, 1);
+    }
+    Type[] collectTemplateParams(Tokens t, ASTNode node) {
+        if(t.type!=TT.LANGLE) return null;
+
+        Type[] templateParams;
+
+        t.skip(TT.LANGLE);
+
+        while(t.type!=TT.RANGLE) {
+
+            t.markPosition();
+
+            auto tt = parse(t, node);
+            if(!tt) {
+                t.resetToMark();
+                errorMissingType(t);
+            }
+            t.discardMark();
+
+            templateParams ~= tt;
+
+            t.expect(TT.COMMA, TT.RANGLE);
+            if(t.type==TT.COMMA) t.next;
+        }
+        t.skip(TT.RANGLE);
+
+        return templateParams;
     }
 }

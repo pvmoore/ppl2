@@ -138,6 +138,9 @@ public:
     void visit(LiteralNull n) {
 
     }
+    void visit(ModuleAlias n) {
+
+    }
     void visit(Parenthesis n) {
         assert(n.numChildren==1);
 

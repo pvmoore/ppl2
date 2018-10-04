@@ -1,6 +1,4 @@
 
-//import c = core::c
-
 /*
 main {
 
@@ -116,6 +114,7 @@ main {
     testTemplateFunctions()
     testOperatorOverloading()
     testStatics()
+	testImports()
 
     testGlobals {
         assert dd is int**
@@ -200,7 +199,7 @@ main {
         //float8 v8
     }
     testInnerImport {
-        import imports3
+        import test_imports3
 
         assert 77 == i3func()
         I3Object obj = I3Object()

@@ -271,6 +271,9 @@ public:
     void visit(Loop n) {
         loopGen.generate(n);
     }
+    void visit(ModuleAlias n) {
+
+    }
     void visit(NamedStruct n) {
 
     }

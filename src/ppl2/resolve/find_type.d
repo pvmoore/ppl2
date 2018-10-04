@@ -12,7 +12,7 @@ import ppl2.internal;
 ///
 Type findType(string name, ASTNode node) {
 
-    pragma(inline,true) Type find(ASTNode n) {
+    Type find(ASTNode n) {
         auto def = n.as!Alias;
         if(def && def.name==name) return def;
 
@@ -46,7 +46,7 @@ Type findType(string name, ASTNode node) {
         /// Check all module level nodes
         foreach(n; node.children) {
             auto t = find(n);
-            if(t) return t;
+            if(t) return found(t);
         }
         return null;
 
@@ -54,7 +54,7 @@ Type findType(string name, ASTNode node) {
         /// Check all scope level nodes
         foreach(n; node.children) {
             auto t = find(n);
-            if(t) return t;
+            if(t) return found(t);
         }
         /// Recurse up the tree
         return findType(name, node.parent);
@@ -63,7 +63,7 @@ Type findType(string name, ASTNode node) {
     /// Check nodes that appear before 'node' in current scope
     foreach(n; node.prevSiblings()) {
         auto t = find(n);
-        if(t) return t;
+        if(t) return found(t);
     }
     /// Recurse up the tree
     return findType(name, node.parent);
@@ -72,15 +72,47 @@ Type findType(string name, ASTNode node) {
 ///
 /// A more advanced findType function that handles template params
 ///
-Type findType(string name, ASTNode node, Module module_, Type[] templateParams) {
+Type findTemplateType(Type untemplatedType, ASTNode node, Module module_, Type[] templateParams) {
 
-    auto type = findType(name, node);
-    if(!type) return null;
+    auto type = untemplatedType;
 
-    assert(type.isAlias || type.isNamedStruct);
+    assert(templateParams.length>0);
+    assert(type && type.isAlias || type.isNamedStruct);
 
     auto alias_ = type.getAlias;
     auto ns     = type.getNamedStruct;
+    assert(alias_ !is null || ns !is null);
+
+    found(type);
+
+    if(ns && templateParams.areKnown) {
+        string name2      = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
+        auto concreteType = findType(name2, node);
+        if(concreteType) {
+            /// We found the concrete impl
+            return concreteType;
+        }
+    }
+
+    /// Create a template proxy Alias which can
+    /// be replaced later by the concrete NamedStruct
+    auto proxy                = makeNode!Alias(node);
+    proxy.name                = module_.makeTemporary("templateProxy");
+    proxy.type                = TYPE_UNKNOWN;
+    proxy.moduleName          = module_.canonicalName;
+    proxy.isImport            = false;
+    proxy.templateProxyType   = type;
+    proxy.templateProxyParams = templateParams;
+
+    type = proxy;
+
+    //dd("!!template proxy =", ns ? "NS:" ~ ns.name : "Def:" ~ def.name, templateParams);
+
+    return type;
+}
+private Type found(Type t) {
+    auto alias_ = t.getAlias;
+    auto ns     = t.getNamedStruct;
     assert(alias_ !is null || ns !is null);
 
     if(alias_) {
@@ -88,31 +120,5 @@ Type findType(string name, ASTNode node, Module module_, Type[] templateParams) 
     } else {
         aliasOrStructRequired(ns.moduleName, ns.name);
     }
-
-    if(templateParams.length>0) {
-        if(ns && templateParams.areKnown) {
-            string name2      = ns.name ~ "<" ~ mangle(templateParams) ~ ">";
-            auto concreteType = findType(name2, node);
-            if(concreteType) {
-                /// We found the concrete impl
-                return concreteType;
-            }
-        }
-
-        /// Create a template proxy Alias which can
-        /// be replaced later by the concrete NamedStruct
-        auto proxy                = makeNode!Alias(node);
-        proxy.name                = module_.makeTemporary("templateProxy");
-        proxy.type                = TYPE_UNKNOWN;
-        proxy.moduleName          = module_.canonicalName;
-        proxy.isImport            = false;
-        proxy.templateProxyType   = (ns ? ns : alias_).as!Type;
-        proxy.templateProxyParams = templateParams;
-
-        type = proxy;
-
-        //dd("!!template proxy =", ns ? "NS:" ~ ns.name : "Def:" ~ def.name, templateParams);
-    }
-
-    return type;
+    return t;
 }

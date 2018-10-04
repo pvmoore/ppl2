@@ -387,6 +387,9 @@ public:
             stringSet.add(v.name);
         }
     }
+    void visit(ModuleAlias n) {
+
+    }
     void visit(NamedStruct n) {
         /// All variables must have a name
         stringSet.clear();

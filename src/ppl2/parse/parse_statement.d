@@ -184,8 +184,9 @@ private: //=====================================================================
         f.externType = typeParser().parse(t, f);
     }
     ///
-    /// import      ::= "import" [identifier "="] module_path
-    /// module_path ::= identifier { "::" identifier }
+    /// import       ::= "import" [identifier "="] module_paths
+    /// module_path  ::= identifier { "::" identifier }
+    /// module_paths ::= module_path { "," module-path }
     ///
     void parseImport(Tokens t, ASTNode parent) {
 
@@ -210,7 +211,7 @@ private: //=====================================================================
 
                 /// Check that the import exists
                 import std.file : exists;
-                if (!exists(Module.getFullPath(moduleName))) {
+                if(!exists(Module.getFullPath(moduleName))) {
                     t.resetToMark();
                     throw new CompilerError(t,
                     "Module %s does not exist".format(moduleName));
@@ -219,18 +220,24 @@ private: //=====================================================================
                 return moduleName;
             }
 
+            if(t.peek(1).type==TT.EQUALS) {
+                /// module_alias = canonicalName
+                imp.aliasName = t.value;
+                t.next(2);
+
+                if(findImportByAlias(imp.aliasName, imp)) {
+                    throw new CompilerError(imp, "Module alias %s already found in this scope".format(imp.aliasName));
+                }
+            }
+
             imp.moduleName = collectModuleName();
 
-            if (findImport(imp.moduleName, imp)) {
+            if(findImportByCanonicalName(imp.moduleName, imp)) {
                 throw new CompilerError(imp, "Module %s already imported".format(imp.moduleName));
             }
 
             /// Trigger the loading of the module
             imp.mod = PPL2.getModule(imp.moduleName);
-
-            if (t.isKeyword("as")) {
-                assert(false, "import modulename as alias");
-            }
 
             /// For each exported function and type, add proxies to this module
             foreach (f; imp.mod.exportedFunctions.values) {
@@ -250,6 +257,7 @@ private: //=====================================================================
                 def.isImport    = true;
                 imp.add(def);
             }
+
             if(t.type==TT.COMMA) {
                 t.next;
             } else break;

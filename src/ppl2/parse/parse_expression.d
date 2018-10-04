@@ -25,7 +25,7 @@ public:
 private:
     void parseLHS(Tokens t, ASTNode parent) {
 
-        //dd("lhs", t.get, "parent=", parent.id);
+        //dd("lhs", t.get, "parent=", parent.id)
 
         /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);
@@ -92,6 +92,12 @@ private:
                     parseCall(t, parent);
                     return;
                 }
+            }
+            auto node = parent.hasChildren ? parent.last : parent;
+            auto imp = findImportByAlias(t.value, node);
+            if(imp) {
+                parseModuleAlias(t, parent, imp);
+                return;
             }
 
             parseIdentifier(t, parent);
@@ -946,6 +952,16 @@ private:
             if(t.type==TT.COMMA) t.next;
         }
         t.skip(TT.RSQBRACKET);
+    }
+    void parseModuleAlias(Tokens t, ASTNode parent, Import imp) {
+
+        auto alias_ = makeNode!ModuleAlias(t);
+        alias_.mod  = imp.mod;
+        alias_.imp  = imp;
+
+        parent.add(alias_);
+
+        t.next;
     }
 }
 

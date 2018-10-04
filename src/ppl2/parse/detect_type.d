@@ -22,6 +22,7 @@ public:
     /// int        // returns 0
     /// int**      // returns 2
     /// static int // returns 1
+    /// imp::Type  // returns 2
     ///
     int endOffset(Tokens t, ASTNode node, int offset = 0) {
         t.markPosition();
@@ -59,11 +60,16 @@ public:
                 }
 
             }
+            /// Template type?
             if(!found) {
                 if(t.get.templateType) {
                     t.next;
                     found = true;
                 }
+            }
+            /// import alias? imp::Type
+            if(!found) {
+                found = possibleAlias(t, node);
             }
         }
 
@@ -94,7 +100,7 @@ private:
         /// First token must be a type
         if(!isType(t, node)) return false;
 
-        if(t.type==TT.COLON) errorBadSyntax(t, "Deprectaed array declaration");
+        if(t.type==TT.COLON) errorBadSyntax(t, "Deprecated array declaration");
 
         t.next(end);
 
@@ -170,5 +176,40 @@ private:
         t.next(eot + 2);
 
         return t.index() == scopeEnd + 1;
+    }
+    /// imp::Type<int>*
+    bool possibleAlias(Tokens t, ASTNode node) {
+
+        if(t.peek(1).type!=TT.DBL_COLON) return false;
+
+        Import imp = findImportByAlias(t.value, node);
+        if(!imp) return false;
+
+        if(!imp.getAlias(t.peek(2).value)) return false;
+
+        int i = 3;
+
+        if(t.peek(i).type==TT.LANGLE) {
+            i = t.findEndOfBlock(TT.LANGLE, i);
+            if(i==-1) return false;
+            i++;
+        }
+
+        /// We now have:
+        ///   'imp::Type' or
+        ///   'imp::Type<...>'
+        ///
+        /// Since we don't currently support externally-accessible
+        /// inner classes, if the next type is ::
+        /// it must be one of:
+        ///   imp::Type::staticvar
+        ///   imp::Type::staticfunc(
+        ///
+        /// in which case this is not a type.
+
+        if(t.peek(i).type==TT.DBL_COLON) return false;
+
+        t.next(i);
+        return true;
     }
 }

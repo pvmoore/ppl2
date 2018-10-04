@@ -75,6 +75,14 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
     void showMessageWithLine() {
         writefln("\nError: [%s Line %s] %s", filename, line, msg);
     }
+    string convertTabsToSpaces(string s) {
+        auto buf = appender!(string);
+        foreach(ch; s) {
+            if(ch=='\t') buf ~= "    ";
+            else buf ~= ch;
+        }
+        return buf.data;
+    }
 
     if(line==-1 || col==-1) {
         showMessageWithoutLine();
@@ -95,9 +103,11 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
     string spaces;
     for(int i=0; i<col; i++) { spaces ~= " "; }
 
+    auto errorLineStr = convertTabsToSpaces(lines[line-1]);
+
     writefln("\n%s|", spaces);
     writefln("%sv", spaces);
-    writefln("%s", lines[line-1]);
+    writefln("%s", errorLineStr);
 }
 //==============================================================================================
 void displayUnresolved(Module[] modules) {
@@ -107,10 +117,10 @@ void displayUnresolved(Module[] modules) {
         if(nodes.length>0) {
 
             foreach(n; nodes) with(NodeID) {
-                bool r = n.id==IDENTIFIER ||
-                         n.id==LITERAL_FUNCTION;
+                bool r = n.id==IDENTIFIER;
                 if(r) {
-                    prettyErrorMsg(m, n.line, n.column, "Unresolved symbol");
+                    string name = n.as!Identifier.name;
+                    prettyErrorMsg(m, n.line, n.column, "Unresolved symbol: %s".format(name));
                 } else {
                     writefln("Unresolved %s", n.id);
                 }

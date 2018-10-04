@@ -19,8 +19,8 @@ abstract class Expression : Statement {
     /// Get the previous link in the chain. Assumes there is one.
     ///
     Expression prevLink() {
-        assert(!isStartOfChain());
-        assert(parent.isDot);
+        if(!parent.isDot) return null;
+        if(isStartOfChain()) return null;
 
         auto prev = prevSibling();
         if(prev) {

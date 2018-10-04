@@ -31,6 +31,12 @@ public:
         bool isCharLiteral() {
             return buf[0]=='\'';
         }
+        int getColumn(long col) {
+            return cast(int)
+                text[indexSOL..indexSOL+col]
+                        .map!(it=>it=='\t' ? 4 : 1)
+                        .sum();
+        }
         void addToken(TT t = TT.NONE, int length=1) {
             if(buf.length>0) {
                 auto type = TT.IDENTIFIER;
@@ -40,7 +46,8 @@ public:
 
                 auto value = buf.toString().idup;
                 auto start = index-cast(int)value.length;
-                auto column = start-indexSOL;
+                auto column = getColumn(start-indexSOL);
+
                 tokens ~= Token(type, value, start, index-1, line, column);
                 buf.clear();
             }

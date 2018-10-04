@@ -77,9 +77,15 @@ public:
     /// Assume:
     ///     call.argTypes may not yet be known
     ///
-    Callable standardFind(Call call) {
+    Callable standardFind(Call call, ModuleAlias modAlias=null) {
 
-        NamedStruct ns = call.getAncestor!NamedStruct;
+        /// Come back when all root level Composites have been removed
+        //if(module_.containsComposites) {
+        //    return CALLABLE_NOT_READY;
+        //}
+
+        NamedStruct ns = call.isStartOfChain() ?
+                            call.getAncestor!NamedStruct : null;
 
         if(call.isTemplated && !call.name.contains("<")) {
             /// We can't do anything until the template types are known
@@ -93,7 +99,7 @@ public:
                 extractTemplates(ns, call, mangledName);
             }
 
-            if(extractTemplates(call, mangledName)) {
+            if(extractTemplates(call, modAlias, mangledName)) {
                 call.name = mangledName;
             }
             return CALLABLE_NOT_READY;
@@ -106,7 +112,7 @@ public:
 
         //dd("looking for", call.name);
 
-        if(collector.collect(call.name, call, overloads)) {
+        if(collector.collect(call, modAlias, overloads)) {
 
             int numRemoved = removeInvisible();
 
@@ -130,6 +136,7 @@ public:
 
                 /// Return this result as it's the only one and check it later
                 /// to make sure the types match
+
                 return r;
             }
 
@@ -189,10 +196,6 @@ public:
         if(call.isTemplated && !call.name.contains("<")) {
             chat("%s is templated", call.name);
             string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
-
-            //if(isStatic) {
-            //    mangledName = "%s::%s".format(ns.getUniqueName, mangledName);
-            //}
 
             extractTemplates(ns, call, mangledName, isStatic);
             call.name = mangledName;
@@ -289,7 +292,7 @@ public:
         //dd("    returning", overloads[0], overloads[0].resultReady);
 
         /// Ensure static function is resolved
-        if(isStatic && overloads[0].isFunction) {
+        if(/*isStatic && */overloads[0].isFunction) {
             functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
         }
 
@@ -395,7 +398,7 @@ private:
         }
         /// Only try to select an exact match if we have checked
         /// the arg types and failed to find a distinct match
-        if(overloads.length > 1) {
+        if(overloads.length > 1 && call.numArgs()>0) {
             selectExactMatch(call, overloads);
         }
     }
@@ -408,6 +411,7 @@ private:
     ///     all overloads match the call implicitly
     ///
     void selectExactMatch(Call call, Array!Callable overloads) {
+        assert(overloads.length>0);
         import common : indexOf;
 
         lp:foreach(callable; overloads[]) {
@@ -451,11 +455,11 @@ private:
     ///     - Create one proxy Function within this module using the mangled name
     ///     - Extract the tokens in the other module
     ///
-    bool extractTemplates(Call call, string mangledName) {
+    bool extractTemplates(Call call, ModuleAlias modAlias, string mangledName) {
         assert(call.isTemplated);
 
         /// Find the template(s)
-        if(!collector.collect(call.name, call, overloads)) {
+        if(!collector.collect(call, modAlias, overloads)) {
             return false;
         }
 
@@ -490,7 +494,12 @@ private:
                 proxy.name       = mangledName;
                 proxy.moduleName = m.canonicalName;
                 proxy.isImport   = true;
-                module_.add(proxy);
+
+                if(modAlias) {
+                    modAlias.imp.add(proxy);
+                } else {
+                    module_.add(proxy);
+                }
             }
         }
 

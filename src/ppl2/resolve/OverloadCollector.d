@@ -18,15 +18,26 @@ public:
     /// Return true - if results contains the full overload set and all types are known,
     ///       false - if we are waiting for imports or some types are waiting to be known.
     ///
-    bool collect(string name, ASTNode startNode, Array!Callable results) {
-        this.name             = name;
-        this.ready            = true;
-        this.results          = results;
+    bool collect(Call call, ModuleAlias modAlias, Array!Callable results) {
+        this.name     = call.name;
+        this.ready    = true;
+        this.results  = results;
         this.results.clear();
-        subCollect(startNode);
+
+        if(modAlias) {
+            subCollect(modAlias.imp);
+        } else {
+            subCollect(call);
+        }
         return ready;
     }
 private:
+    /// Collect from an aliased import
+    void subCollect(Import imp) {
+        foreach(f; imp.getFunctions(name)) {
+            check(f);
+        }
+    }
     void subCollect(ASTNode node) {
         auto nid = node.id();
 
@@ -95,7 +106,6 @@ private:
                                 addFunction(fn);
                             }
                         } else {
-                            /// Bring the import in and start parsing it
                             functionRequired(f.moduleName, name);
                             ready = false;
                         }
@@ -112,6 +122,8 @@ private:
                 break;
             case IMPORT:
                 auto imp = n.as!Import;
+                /// Ignore alias imports
+                if(imp.hasAliasName) break;
                 foreach(ch; imp.children[]) {
                     check(ch);
                 }

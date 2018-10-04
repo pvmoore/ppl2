@@ -13,6 +13,7 @@ public
     foo { /* A* this */ 
         return 1
     }
+	static foo { return 99 }
     static bar {
         return 2
     }
@@ -81,7 +82,8 @@ public testStatics {
         assert A::rbar2(5) == 6
         assert A::pbar() == 8
         assert A::pbar2(10) == 9
-        
+        assert A::foo() == 99
+		
         var b = B<int>()
         // member access
         assert b.m == 1

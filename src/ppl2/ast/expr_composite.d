@@ -30,6 +30,8 @@ final class Composite : Expression {
         return TYPE_VOID;
     }
 
+    bool isPlaceholder() { return usage==Usage.PLACEHOLDER; }
+
     override string toString() {
         return "Composite %s %s(type=%s)".format(usage, nid, getType);
     }

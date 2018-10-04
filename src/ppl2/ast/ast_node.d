@@ -37,6 +37,7 @@ enum NodeID {
     LOOP,
     META_FUNCTION,
     MODULE,
+    MODULE_ALIAS,
     NAMED_STRUCT,
     PARAMETERS,
     PARENTHESIS,

@@ -163,8 +163,8 @@ public:
     void visit(Assert n) {
         if(!n.isResolved) {
 
-            /// This should eventually be imported implicitly
-            assert(findImport("core::hooks", n));
+            /// This should be imported implicitly
+            assert(findImportByCanonicalName("core::hooks", n));
 
             /// Wait until we know what the type is
             Type type = n.expr().getType();
@@ -259,6 +259,7 @@ public:
     void visit(Call n) {
         if(!n.target.isResolved) {
             bool isTemplated = n.isTemplated;
+            Expression prev  = n.prevLink();
 
             if(n.isStartOfChain()) {
 
@@ -273,17 +274,26 @@ public:
                     }
                 }
 
+            } else if(prev.id==NodeID.MODULE_ALIAS) {
+                ///
+                auto modAlias = prev.as!ModuleAlias;
+
+                auto callable = callResolver.standardFind(n, modAlias);
+                if(callable.resultReady) {
+                    /// If we get here then we have 1 good match
+                    assert(callable.isFunction);
+                    n.target.set(callable.func);
+                }
             } else {
-                Expression prev = n.prevLink();
                 assert(prev);
                 Type prevType = prev.getType;
+                assert(prevType);
 
                 if(!prevType.isKnown) return;
 
                 auto dot = n.parent.as!Dot;
                 assert(dot);
 
-                // todo - fixme when we have module::name
                 if(!prevType.isStruct) throw new CompilerError(prev,
                     "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
 
@@ -442,7 +452,7 @@ public:
         void findLocalOrGlobal() {
             auto res = identifierResolver.findFirst(n.name, n);
             if(!res.found) {
-                throw new CompilerError(n, "%s not found".format(n.name));
+                throw new CompilerError(n, "identifier %s not found".format(n.name));
             }
 
             if(res.isFunc) {
@@ -912,6 +922,9 @@ public:
 
     }
     void visit(Module n) {
+
+    }
+    void visit(ModuleAlias n) {
 
     }
     void visit(NamedStruct n) {

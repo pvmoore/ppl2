@@ -104,7 +104,7 @@ public:
         return getFunctions("new")[0];
     }
     ///
-    /// Find a Alias at the module scope.
+    /// Find an Alias at the module scope.
     ///
     Alias getAlias(string name) {
         foreach(c; children) {
@@ -114,7 +114,7 @@ public:
         }
         return null;
     }
-    Alias[] getAliass() {
+    Alias[] getAliases() {
         return children[].filter!(it=>it.isAlias).array.to!(Alias[]);
     }
     NamedStruct getNamedStruct(string name) {
@@ -160,15 +160,15 @@ public:
         return cast(Variable[])children[].filter!(it=>it.id()==NodeID.VARIABLE).array;
     }
     ///
-    /// Find all AnonStructs at module scope.
+    /// Return true if there are Composites at root level which signifies
+    /// that a template function has just been added
     ///
-    //Type[] getAnonStructs() {
-    //    auto array = new Array!ASTNode;
-    //    recursiveCollect(array,
-    //        it => it.getType.isAnonStruct
-    //    );
-    //    return cast(Type[])array[].map!(it=>it.getType).array;
-    //}
+    bool containsComposites() {
+        foreach(ch; children) {
+            if(ch.isComposite) return true;
+        }
+        return false;
+    }
     //================================================================================
     NamedStruct[] getImportedNamedStructs() {
         NamedStruct[string] structs;
@@ -195,6 +195,20 @@ public:
         );
         foreach(v; array) {
             auto ns = v.as!Variable.type.getNamedStruct;
+            if(ns.getModule.nid != nid) structs[ns.getUniqueName] = ns;
+        }
+        array.clear();
+
+        /// Collect external static references
+        /// eg. var v = EType<int>::v
+        ///             ^^^^^^^^^^
+        recursiveCollect(array, it=>
+            it.id==NodeID.DOT &&
+            it.as!Dot.isStaticAccess &&
+            it.as!Dot.getType.isNamedStruct
+        );
+        foreach(d; array) {
+            auto ns = d.as!Dot.getType.getNamedStruct;
             if(ns.getModule.nid != nid) structs[ns.getUniqueName] = ns;
         }
 
