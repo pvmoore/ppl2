@@ -172,58 +172,14 @@ public:
     //================================================================================
     NamedStruct[] getImportedNamedStructs() {
         NamedStruct[string] structs;
-        /// Collect Identifiers with external targets
-        auto array = new Array!ASTNode;
-        recursiveCollect(array, it=>
-            it.id()==NodeID.IDENTIFIER &&
-            it.as!Identifier.target.isVariable() &&
-            it.as!Identifier.target.targetModule.nid != nid
-        );
-        foreach(id; array[].as!(Identifier[])) {
-            auto var     = id.target.getVariable();
-            auto struct_ = var.type.getNamedStruct;
-            if(struct_) {
-                structs[struct_.getUniqueName] = struct_;
+
+        recurse((ASTNode it) {
+            auto ns = it.getType.getNamedStruct;
+            if(ns && ns.getModule.nid!=nid) {
+                structs[ns.getUniqueName] = ns;
             }
-        }
-        array.clear();
+        });
 
-        /// Collect struct Variables
-        recursiveCollect(array, it=>
-            it.id()==NodeID.VARIABLE &&
-            it.as!Variable.type.isNamedStruct
-        );
-        foreach(v; array) {
-            auto ns = v.as!Variable.type.getNamedStruct;
-            if(ns.getModule.nid != nid) structs[ns.getUniqueName] = ns;
-        }
-        array.clear();
-
-        /// Collect external static references
-        /// eg. var v = EType<int>::v
-        ///             ^^^^^^^^^^
-        recursiveCollect(array, it=>
-            it.id==NodeID.DOT &&
-            it.as!Dot.isStaticAccess &&
-            it.as!Dot.getType.isNamedStruct
-        );
-        foreach(d; array) {
-            auto ns = d.as!Dot.getType.getNamedStruct;
-            if(ns.getModule.nid != nid) structs[ns.getUniqueName] = ns;
-        }
-
-        /// Collect structs from arguments of imported functions
-        auto types = new Array!Type;
-        foreach(f; getImportedFunctions()) {
-            types.clear();
-            f.getType.getChildTypes(types);
-            foreach(t; types) {
-                auto struct_ = t.getNamedStruct;
-                if(struct_) {
-                    structs[struct_.getUniqueName] = struct_;
-                }
-            }
-        }
         return structs.values;
     }
     Function[] getImportedFunctions() {

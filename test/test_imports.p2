@@ -37,10 +37,15 @@ testImports {
 	assert 21 == imp::Badger<int>::bar(10)
 	assert 23 == imp::Badger<double>::baz<bool>(3.1, true)
 	
+	imp::Badger<int>::b = 80
+	imp::Badger<float>::b = 81
+	assert imp::Badger<int>::b == 80
+	imp::Badger<float>::b == 81
+	
 	imp::Skunk<imp::Rabbit*> skunkRabbit
 	imp::Skunk<imp::Rabbit*>* skunkRabbit2
 	
-	var skr = imp::Skunk<imp::Rabbit>::a
+	var skr = imp::Skunk<imp::Rabbit>::a 
 }
 
 bool isit = false
