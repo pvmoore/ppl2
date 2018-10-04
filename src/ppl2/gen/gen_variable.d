@@ -16,7 +16,7 @@ void generateLocalGlobalVariableDeclarations(Module module_) {
     }
 }
 void generateLocalStaticVariableDeclarations(Module module_) {
-    foreach(ns; module_.getAllNamedStructs) {
+    foreach(ns; module_.getNamedStructsRecurse) {
         foreach(v; ns.getStaticVariables) {
             string name = "%s::%s".format(ns.getUniqueName, v.name);
             auto g = module_.llvmValue.addGlobal(v.type.getLLVMType(), name);

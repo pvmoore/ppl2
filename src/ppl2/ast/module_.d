@@ -83,7 +83,9 @@ public:
         activeRoots.add(node.getRoot);
     }
 
-    NodeBuilder builder(ASTNode n) { return nodeBuilder.forNode(n); }
+    NodeBuilder builder(ASTNode n) {
+        return nodeBuilder.forNode(n);
+    }
 
     override bool isResolved() { return true; }
     override NodeID id() const { return NodeID.MODULE; }
@@ -107,25 +109,24 @@ public:
     /// Find an Alias at the module scope.
     ///
     Alias getAlias(string name) {
-        foreach(c; children) {
-            if(!c.isAlias) continue;
-            auto def = c.as!Alias;
-            if(def.name==name) return def;
-        }
-        return null;
+        return getAliases()
+            .filter!(it=>it.name==name)
+            .frontOrNull!Alias;
     }
     Alias[] getAliases() {
-        return children[].filter!(it=>it.isAlias).array.to!(Alias[]);
+        return children[]
+            .filter!(it=>it.isAlias)
+            .map!(it=>cast(Alias)it)
+            .array;
     }
     NamedStruct getNamedStruct(string name) {
-        foreach(c; children) {
-            if(!c.isNamedStruct) continue;
-            auto ns = c.as!NamedStruct;
-            if(ns.name==name) return ns;
-        }
-        return null;
+        return children[]
+            .filter!(it=>it.id==NodeID.NAMED_STRUCT)
+            .map!(it=>cast(NamedStruct)it)
+            .filter!(it=>it.name==name)
+            .frontOrNull!NamedStruct;
     }
-    NamedStruct[] getAllNamedStructs() {
+    NamedStruct[] getNamedStructsRecurse() {
         auto array = new Array!NamedStruct;
         selectDescendents!NamedStruct(array);
         return array[];
@@ -134,30 +135,27 @@ public:
     /// Find all functions with given name at module scope.
     ///
     Function[] getFunctions(string name) {
-        Function[] array;
-        foreach(c; children) {
-            if(c.id()!=NodeID.FUNCTION) continue;
-            auto f = cast(Function)c;
-            if(f.name==name) array ~= f;
-        }
-        return array;
+        return getFunctions()
+            .filter!(it=>it.name==name)
+            .array;
     }
     ///
     /// Find all functions at module scope.
     ///
     Function[] getFunctions() {
-        Function[] array;
-        foreach(c; children) {
-            if(c.id()!=NodeID.FUNCTION) continue;
-            array ~= c.as!Function;
-        }
-        return array;
+        return children[]
+            .filter!(it=>it.id()==NodeID.FUNCTION)
+            .map!(it=>cast(Function)it)
+            .array;
     }
     ///
     /// Find all Variables at module scope.
     ///
     Variable[] getVariables() {
-        return cast(Variable[])children[].filter!(it=>it.id()==NodeID.VARIABLE).array;
+        return children[]
+            .filter!(it=>it.id()==NodeID.VARIABLE)
+            .map!(it=>cast(Variable)it)
+            .array;
     }
     ///
     /// Return true if there are Composites at root level which signifies

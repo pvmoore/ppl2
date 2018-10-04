@@ -25,7 +25,7 @@ public:
             auto initBody = initFunc.getBody();
 
             /// Move static var initialisers into module new()
-            foreach(ns; mod.getAllNamedStructs) {
+            foreach(ns; mod.getNamedStructsRecurse) {
                 foreach_reverse(v; ns.getStaticVariables) {
                     if(v.hasInitialiser) {
                         initBody.insertAt(1, v.initialiser);

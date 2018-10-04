@@ -1,9 +1,6 @@
-# Todo
+# Todo  
 
-- in getImportedNamedStructs, try just going through all nodes and calling
-  gettype. any named structs from another module 
-  put in a set and bob's your uncle
-  
+- move core to ppl2/stdlib/core directory
 
 ## High Priority
 - Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. 
@@ -33,6 +30,11 @@ var r = select(x) {
 - More constant folding and dce (calls and functions)
 - Run DScanner to highlight unused functions etc
 - Multi level struct access
+```
+// assume they are always static
+A::B ab = A::B()
+a::B::a = 3
+```
 - Allow block of raw LLVM IR eg.
 ```
 IR { // or LLVM or similar

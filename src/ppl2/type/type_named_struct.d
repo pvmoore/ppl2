@@ -78,8 +78,9 @@ public:
                    .array;
     }
     Variable getStaticVariable(string name) {
-        auto r = getStaticVariables().filter!(it=>it.name==name).takeOne;
-        return r.empty ? null : r.front;
+        return getStaticVariables()
+            .filter!(it=>it.name==name)
+            .frontOrNull!Variable;
     }
     ////========================================================================================
     Function[] getStaticFunctions() {
@@ -90,17 +91,22 @@ public:
                    .array;
     }
     Function[] getStaticFunctions(string name) {
-        return getStaticFunctions().filter!(it=>name==it.name).array;
+        return getStaticFunctions()
+                    .filter!(it=>name==it.name)
+                    .array;
     }
     //========================================================================================
     Function[] getMemberFunctions() {
-        return type.children[].filter!(it=>it.id==NodeID.FUNCTION)
-                         .map!(it=>cast(Function)it)
-                         .filter!(it=>it.isStatic==false)
-                         .array;
+        return type.children[]
+                   .filter!(it=>it.id==NodeID.FUNCTION)
+                   .map!(it=>cast(Function)it)
+                   .filter!(it=>it.isStatic==false)
+                   .array;
     }
     Function[] getMemberFunctions(string name) {
-        return getMemberFunctions().filter!(it=>name==it.name).array;
+        return getMemberFunctions()
+                    .filter!(it=>name==it.name)
+                    .array;
     }
     int getMemberIndex(Function var) {
         foreach(int i, v; getMemberFunctions()) {

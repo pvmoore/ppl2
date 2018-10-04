@@ -3,6 +3,11 @@ module ppl2.misc.util;
 import ppl2.internal;
 import std.conv : to;
 
+/// filter!(..).frontOrNull!Thing()
+T frontOrNull(T,Range)(Range r) {
+    return r.empty ? null : r.front;
+}
+
 T min(T)(T a, T b) {
     return a < b ? a : b;
 }

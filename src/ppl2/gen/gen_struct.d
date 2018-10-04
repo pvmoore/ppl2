@@ -8,7 +8,7 @@ void generateImportedStructDeclarations(Module module_) {
     }
 }
 void generateLocalStructDeclarations(Module module_) {
-    foreach(s; module_.getAllNamedStructs()) {
+    foreach(s; module_.getNamedStructsRecurse()) {
         setTypes(s.getLLVMType(), s.type.getLLVMTypes(), true);
     }
 }

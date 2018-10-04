@@ -90,8 +90,9 @@ public:
                          .array;
     }
     Variable getMemberVariable(string name) {
-        auto r = getMemberVariables().filter!(it=>name==it.name).takeOne;
-        return r.empty ? null : r.front;
+        return getMemberVariables()
+                    .filter!(it=>name==it.name)
+                    .frontOrNull!Variable;
     }
     Variable getMemberVariable(int index) {
         return getMemberVariables()[index];
@@ -110,7 +111,9 @@ public:
                     .array;
     }
     LLVMTypeRef[] getLLVMTypes() {
-        return memberVariableTypes.map!(it=>it.getLLVMType()).array;
+        return memberVariableTypes()
+                    .map!(it=>it.getLLVMType())
+                    .array;
     }
     //===============================================================
     override string toString() {
