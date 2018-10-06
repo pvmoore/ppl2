@@ -68,6 +68,15 @@ public:
         moduleNameLiteral.value = canonicalName;
         addLiteralString(moduleNameLiteral);
     }
+    override bool isResolved() { return true; }
+    override NodeID id() const { return NodeID.MODULE; }
+
+    string getPath() {
+        return getFullPath(canonicalName);
+    }
+    bool isMainModule() {
+        return nid==g_mainModuleNID;
+    }
 
     void addLiteralString(LiteralString s) {
         literalStrings[s.value] ~= s;
@@ -87,15 +96,6 @@ public:
         return nodeBuilder.forNode(n);
     }
 
-    override bool isResolved() { return true; }
-    override NodeID id() const { return NodeID.MODULE; }
-
-    string getPath() {
-        return getFullPath(canonicalName);
-    }
-    bool isMainModule() {
-        return nid==g_mainModuleNID;
-    }
     string makeTemporary(string prefix) {
         return "__%s%s".format(prefix, tempCounter++);
     }
@@ -238,20 +238,38 @@ public:
         return "Module[refs=%s] %s".format(numRefs, canonicalName);
     }
     //==============================================================================
+    /// Assumes path is normalised
     static string getCanonicalName(string path) {
-        /// Assumes path is normalised
         import std.array;
         import std.path;
 
         auto rel = path[getConfig().basePath.length..$];
         return rel.stripExtension.replace("/", ".").replace("\\", ".");
     }
+    /// eg. "core::console" -> ["core", "console"]
+    static string[] splitCanonicalName(string canonicalName) {
+        assert(canonicalName);
+        import std.array;
+        return canonicalName.split("::");
+    }
     ///
     /// Return the full path including the module filename and extension
     ///
     static string getFullPath(string canonicalName) {
         import std.array;
-        return getConfig().basePath ~ canonicalName.replace("::", "/") ~ ".p2";
+
+        string baseModuleName = splitCanonicalName(canonicalName)[0];
+        string path = getConfig().basePath;
+
+        foreach(lib; getConfig().libs) {
+            if(lib.baseModuleName==baseModuleName) {
+                path = lib.absPath;
+            }
+        }
+
+        assert(path.endsWith("/"));
+
+        return path ~ canonicalName.replace("::", "/") ~ ".p2";
     }
     static void addUniqueName(string canonicalName) {
         string name = canonicalName;

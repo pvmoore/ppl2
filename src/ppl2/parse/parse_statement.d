@@ -213,8 +213,7 @@ private: //=====================================================================
                 import std.file : exists;
                 if(!exists(Module.getFullPath(moduleName))) {
                     t.resetToMark();
-                    throw new CompilerError(t,
-                    "Module %s does not exist".format(moduleName));
+                    throw new CompilerError(t, "Module %s does not exist".format(moduleName));
                 }
                 t.discardMark();
                 return moduleName;

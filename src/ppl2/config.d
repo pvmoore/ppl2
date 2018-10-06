@@ -11,6 +11,11 @@ void setConfig(Config c) {
     g_config = c;
 }
 
+struct Lib {
+    string baseModuleName;  // "core"
+    string absPath;
+}
+
 final class Config {
 public:
     string mainFile;
@@ -29,11 +34,14 @@ public:
     bool nullChecks    = true;
     bool enableAsserts = true;
 
+    Lib[string] libs;   // key = baseModuleName
+
     this(string mainFilePath) {
         import std.path;
         import std.array;
 
         setToDebug();
+        addLibs();
 
         auto normalisedPath = cast(string)mainFilePath.asNormalizedPath.array;
 
@@ -66,5 +74,9 @@ private:
     void setToRelease() {
         nullChecks    = false;
         enableAsserts = false;
+    }
+    void addLibs() {
+        libs["core"] = Lib("core", "./libs/");
+        libs["std"]  = Lib("std", "./libs/");
     }
 }

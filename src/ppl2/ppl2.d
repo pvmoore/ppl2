@@ -47,6 +47,11 @@ public:
             writefln("Target path .. %s", getConfig().targetPath);
             writefln("Target exe ... %s", getConfig().targetExe);
             writefln("");
+            writefln("Dependencies {");
+            foreach(lib; getConfig().libs) {
+                writefln("\t%s \t %s", lib.baseModuleName, lib.absPath);
+            }
+            writefln("}\n");
 
             g_mainModuleCanonicalName = Module.getCanonicalName(mainFile);
 
