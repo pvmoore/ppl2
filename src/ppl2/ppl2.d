@@ -41,17 +41,11 @@ public:
             auto mainFile = getConfig().mainFile;
 
             writefln("\nPPL %s", VERSION);
-            writefln("Options ...... %s", "");
             writefln("Main file .... %s", getConfig().mainFile);
             writefln("Base path .... %s", getConfig().basePath);
             writefln("Target path .. %s", getConfig().targetPath);
             writefln("Target exe ... %s", getConfig().targetExe);
             writefln("");
-            writefln("Dependencies {");
-            foreach(lib; getConfig().libs) {
-                writefln("\t%s \t %s", lib.baseModuleName, lib.absPath);
-            }
-            writefln("}\n");
 
             g_mainModuleCanonicalName = Module.getCanonicalName(mainFile);
 
@@ -254,6 +248,13 @@ private:
         writefln("!! Fail !!");
     }
     void success(ulong time) {
+        dumpDependencies();
+        dumpModuleReferences();
+        dumpStats(time);
+    }
+    void dumpStats(ulong time) {
+        if(!getConfig().dumpStats) return;
+
         import core.memory : GC;
 
         GC.collect();
@@ -270,12 +271,40 @@ private:
         writefln("Link time .............. %.2f ms", linker.getElapsedNanos * 1e-6);
         writefln("Total time.............. %.2f ms", time * 1e-6);
         writefln("Memory used ............ %s KB", GC.stats.usedSize / 1024);
-
-        //flushLogs();
-        foreach(m; modules.values) {
-            //writefln("- %s", m.canonicalName);
-            //writefln("%s", m.closures);
-        //    m.dumpInfo();
+    }
+    void dumpDependencies() {
+        writefln("\nDependencies {");
+        foreach (lib; getConfig().libs) {
+            writefln("\t%s \t %s", lib.baseModuleName, lib.absPath);
         }
+        writefln("}");
+    }
+    void dumpModuleReferences() {
+        writefln("\nModule outgoing references {");
+        Module[][Module] refs;
+        foreach(m; modules.values.sort) {
+            auto mods = m.getReferencedModules();
+            writefln("% 25s: [%s] %s", m.canonicalName, mods.length, mods.map!(it=>it.canonicalName).join(", "));
+            refs[m] = mods;
+
+            foreach(r; mods) {
+                refs.update(r, {return [m]; }, (ref Module[] it) { return it ~ m; });
+            }
+
+                    //aa.update(key, {
+                    //    newer = new C;
+                    //    return newer;
+                    //}, (ref C c) {
+                    //    older = c;
+                    //    newer = new C;
+                    //    return newer;
+                    //});
+        }
+        writefln("}\nModule incoming references {");
+        foreach(m; modules.values.sort) {
+            auto v = refs[m];
+            writefln("% 25s: [%s] %s", m.canonicalName, v.length, v.map!(it=>it.canonicalName).join(", "));
+        }
+        writefln("}");
     }
 }

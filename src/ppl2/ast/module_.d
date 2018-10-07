@@ -219,6 +219,23 @@ public:
         return array[];
     }
     ///
+    /// Return a list of all modules referenced from this module
+    ///
+    Module[] getReferencedModules() {
+        auto m = new Set!Module;
+        foreach(ns; getImportedNamedStructs()) {
+            m.add(ns.getModule);
+        }
+        foreach(v; getImportedStaticVariables()) {
+            m.add(v.getModule);
+        }
+        foreach(f; getImportedFunctions()) {
+            m.add(f.getModule);
+        }
+        m.remove(this);
+        return m.values;
+    }
+    ///
     ///  Dump module info to the log.
     ///
     //void dumpInfo() {
@@ -234,6 +251,12 @@ public:
     //    writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
     //}
 
+    override int opCmp(Object o) const {
+        import std.algorithm.comparison;
+        Module other = cast(Module)o;
+        return nid==other.nid ? 0 :
+               cmp(canonicalName, other.canonicalName);
+    }
     override string toString() const {
         return "Module[refs=%s] %s".format(numRefs, canonicalName);
     }

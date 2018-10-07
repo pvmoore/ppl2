@@ -329,6 +329,11 @@ public:
         assert(nid && foo.nid);
         return foo && foo.nid==nid;
     }
+    override int opCmp(Object o) const {
+        ASTNode other = cast(ASTNode)o;
+        return nid==other.nid ? 0 :
+               nid < other.nid ? -1 : 1;
+    }
 private:
     Module findModule() {
         if(this.isA!Module) return this.as!Module;

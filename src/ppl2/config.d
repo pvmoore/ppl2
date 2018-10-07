@@ -34,6 +34,10 @@ public:
     bool nullChecks    = true;
     bool enableAsserts = true;
 
+    bool dumpStats        = true;
+    bool dumpDependencies = true;
+    bool dumpModuleRefs   = true;
+
     Lib[string] libs;   // key = baseModuleName
 
     this(string mainFilePath) {

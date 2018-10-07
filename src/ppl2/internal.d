@@ -12,6 +12,7 @@ import std.typecons  : Tuple, tuple;
 import std.array     : Appender, appender, array, join;
 import std.range     : takeOne;
 import std.datetime.stopwatch  : StopWatch;
+
 import std.algorithm.iteration : each, map, filter, sum;
 import std.algorithm.searching : any, all, count, startsWith;
 import std.algorithm.sorting   : sort;

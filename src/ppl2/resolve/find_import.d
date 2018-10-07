@@ -21,6 +21,7 @@ Import findImportByCanonicalName(string canonicalName, ASTNode node) {
     return null;
 }
 Import findImportByAlias(string alias_, ASTNode node) {
+
     /// Check nodes that appear before 'node' in current scope
     foreach(n; node.prevSiblings()) {
         auto imp = n.as!Import;
