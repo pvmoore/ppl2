@@ -200,6 +200,14 @@ struct Token {
     int line;
     int column;
     Type templateType;
+
+    int length() const { return endIndex-startIndex+1; }
+
+    string toString() {
+        string t  = type==TT.IDENTIFIER ? "'"~value~"'" : "%s".format(type);
+        string tt = templateType ? " "~type.toString() : "";
+        return "%s %s:%s L:%s C:%s%s".format(t, startIndex, endIndex, line, column, tt);
+    }
 }
 Token copyToken(Token t) {
     return Token(
@@ -274,9 +282,9 @@ enum TT {
     BOOL_EQ,        // ==
     COMPARE,        // <>
 }
-string toString(Token[] tokens) {
-    return tokens.map!(it=>it.type==TT.IDENTIFIER ? it.value : it.type.toString).join(" ");
-}
+//string toString(Token[] tokens) {
+//    return tokens.map!(it=>it.type==TT.IDENTIFIER ? it.value : it.type.toString).join(" ");
+//}
 string toString(TT t) {
     __gshared static string[TT] map;
     if(map.length==0) with(TT) {

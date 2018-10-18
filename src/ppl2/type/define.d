@@ -22,11 +22,12 @@ final class Alias : Statement, Type {
 
 /// ASTNode
     override bool isResolved() { return false; }
-    final override NodeID id() const { return NodeID.ALIAS; }
-    override Type getType() { return type; }
+    override NodeID id() const { return NodeID.ALIAS; }
+    override Type getType()    { return type; }
+
 /// Type
     final int getEnum() const { return type.getEnum(); }
-    final bool isKnown() { return false; }
+    final bool isKnown()      { return false; }
 
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }

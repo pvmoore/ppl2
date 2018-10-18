@@ -24,3 +24,22 @@ bool writeOBJ(LLVMWrapper llvm, Module m) {
     }
     return true;
 }
+void writeJson(Module m) {
+    if(!getConfig().writeAST) return;
+
+    m.resolver.writeAST();
+
+    //string path = getConfig().targetPath~"ast/" ~ m.fileName~".json";
+
+    //auto output = JsonWriter.toString(m);
+
+    //
+    //JSONValue root;
+    //m.writeJson(root);
+    //
+    //auto output = root.toJSON(true, JSONOptions.none);
+    //
+    //import std.stdio : File;
+    //scope f = File(path, "w");
+    //f.write(output);
+}

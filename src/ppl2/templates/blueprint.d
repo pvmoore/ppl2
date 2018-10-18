@@ -136,7 +136,7 @@ final class TemplateBlueprint {
     }
     override string toString() {
         if(isFunction) {
-            return "(%s)".format(argTokens.map!(it=>it.toString).join(", "));
+            return "(%s)".format(argTokens.map!(it=>"%s".format(it)).join(", "));
         }
         return super.toString();
     }

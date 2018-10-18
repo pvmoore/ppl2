@@ -11,6 +11,7 @@ import std.conv      : to;
 import std.typecons  : Tuple, tuple;
 import std.array     : Appender, appender, array, join;
 import std.range     : takeOne;
+import std.json      : JSONValue, toJSON, JSONOptions;
 import std.datetime.stopwatch  : StopWatch;
 
 import std.algorithm.iteration : each, map, filter, sum;
@@ -18,10 +19,11 @@ import std.algorithm.searching : any, all, count, startsWith;
 import std.algorithm.sorting   : sort;
 
 import common : Array, Set, Queue, Stack, StringBuffer,
-                as, isA, firstNotNull, flushConsole, endsWith,
+                as, dynamicDispatch, isA, firstNotNull, flushConsole, endsWith,
                 removeChars, repeat, visit;
 
 import llvm.all;
+import ppl2;
 
 import ppl2.access;
 import ppl2.config;
@@ -31,7 +33,7 @@ import ppl2.ppl2;
 import ppl2.global;
 import ppl2.operator;
 import ppl2.target;
-import ppl2.tokens;
+//import ppl2.tokens;
 
 import ppl2.ast.ast_node;
 import ppl2.ast.expression;
@@ -87,7 +89,8 @@ import ppl2.gen.gen_variable;
 import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;
 
-import ppl2.misc.lexer;
+import ppl2.misc.JsonWriter;
+//import ppl2.misc.lexer;
 import ppl2.misc.linker;
 import ppl2.misc.misc_logging;
 import ppl2.misc.mangle;
@@ -128,12 +131,3 @@ import ppl2.type.type_anon_struct;
 import ppl2.type.type_named_struct;
 import ppl2.type.type_ptr;
 
-// Debug logging
-void dd(A...)(A args) {
-    import std.stdio : writef;
-    foreach(a; args) {
-        writef("%s ", a);
-    }
-    writefln("");
-    flushConsole();
-}

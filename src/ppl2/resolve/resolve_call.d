@@ -173,6 +173,13 @@ public:
                 throw new AmbiguousCall(call, call.name, call.argTypes, overloads);
             }
 
+            assert(overloads.length==1);
+
+            /// Add the function to the resolution set
+            if(overloads[0].isFunction) {
+                functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
+            }
+
             return overloads[0];
         }
         return CALLABLE_NOT_READY;
@@ -289,10 +296,12 @@ public:
             throw new AmbiguousCall(call, call.name, call.argTypes(), overloads);
         }
 
-        //dd("    returning", overloads[0], overloads[0].resultReady);
+        //chat("    returning", overloads[0], overloads[0].resultReady);
 
-        /// Ensure static function is resolved
-        if(/*isStatic && */overloads[0].isFunction) {
+        assert(overloads.length==1);
+
+        /// Add the static function to the resolution set
+        if(isStatic && overloads[0].isFunction) {
             functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
         }
 

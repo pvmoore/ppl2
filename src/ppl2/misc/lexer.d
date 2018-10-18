@@ -9,14 +9,21 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    Token[] tokenise(string text) {
-        log("Tokenising %s", module_.canonicalName);
-        auto tokens   = appender!(Token[]);
+    Token[] tokenise(string text, Array!Token tokens = null, bool throwException = true) {
+        if(!tokens) {
+            tokens = new Array!Token(256);
+        } else {
+            tokens.clear();
+        }
         auto buf      = new StringBuffer;
         auto index    = 0;
         auto line     = 1;
         auto indexSOL = 0;   /// char index at start of line
 
+        char peek(int offset=0) {
+            if(index+offset >= text.length) return 0;
+            return text[index+offset];
+        }
         bool isNumber() {
             auto firstChar = buf[0];
             return firstChar =='-' || (firstChar >= '0' && firstChar <= '9');
@@ -31,12 +38,6 @@ public:
         bool isCharLiteral() {
             return buf[0]=='\'';
         }
-        int getColumn(long col) {
-            return cast(int)
-                text[indexSOL..indexSOL+col]
-                        .map!(it=>it=='\t' ? 4 : 1)
-                        .sum();
-        }
         void addToken(TT t = TT.NONE, int length=1) {
             if(buf.length>0) {
                 auto type = TT.IDENTIFIER;
@@ -46,45 +47,58 @@ public:
 
                 auto value = buf.toString().idup;
                 auto start = index-cast(int)value.length;
-                auto column = getColumn(start-indexSOL);
+                auto column = start-indexSOL;
 
-                tokens ~= Token(type, value, start, index-1, line, column);
+                tokens.add(Token(type, value, start, index-1, line, column));
                 buf.clear();
             }
             if(t!=TT.NONE) {
-                tokens ~= Token(t, null, index, index+length-1, line, index-indexSOL);
+                tokens.add(Token(t, null, index, index+length-1, line, index-indexSOL));
             }
         }
-
-        char peek(int offset=0) {
-            if(index+offset >= text.length) return 0;
-            return text[index+offset];
-        }
         void addCharLiteral() {
-            /// assume peek(0) == '
             addToken();
 
             auto col = index-indexSOL;
 
+            assert(peek()=='\'');
             buf.add(peek());
             index++;
+
             while(index<text.length && peek()!='\'') {
                 buf.add(peek());
-                if(peek()=='\\') {
+                if (peek()=='\\') {
                     buf.add(peek(1));
                     index++;
                 }
                 index++;
             }
-            if(parseCharLiteral(buf[1..$])==-1) {
-                throw new CompilerError(module_, line, col, buf[1..$]);
+            bool err = false;
+            if(index>=text.length) {
+                if(throwException)
+                    throw new CompilerError(module_, line, col, "Missing end quote '");
+                err = true;
+            }
+            if(!err && parseCharLiteral(buf[1..$])==-1) {
+                if(throwException)
+                    throw new CompilerError(module_, line, col, "Bad character literal");
+                err = true;
+            }
+            if(err) {
+                addToken();
+                return;
             }
 
+            assert(peek()=='\'');
             buf.add(peek());
+            index++;
             addToken();
+            index--;
         }
         void addStringLiteral() {
             /// assume src[pos] == "
+
+            auto col = index-indexSOL;
 
             /// Handle possible prefix
             if(buf.length==1 && buf[0]=='r') {
@@ -93,9 +107,11 @@ public:
                 addToken();
             }
 
+            assert(peek()=='\"');
             buf.add(peek());
             index++;
-            while(index<text.length && peek()!='\"') { // "
+
+            while(index<text.length && peek()!='\"') {
                 buf.add(peek());
                 if(peek()=='\\') {
                     buf.add(peek(1));
@@ -103,8 +119,19 @@ public:
                 }
                 index++;
             }
+            if(index>=text.length) {
+                if(throwException)
+                    throw new CompilerError(module_, line, col, "Missing end quote \"");
+
+                addToken();
+                return;
+            }
+
+            assert(peek()=='\"');
             buf.add(peek());
+            index++;
             addToken();
+            index--;
         }
 
         for(index=0; index<text.length; index++) {
@@ -335,11 +362,9 @@ public:
                     break;
             }
         }
-        log("... found %s tokens", tokens.data.length);
-        dumpTokens(tokens.data);
-        return tokens.data;
+        addToken();
+        return tokens[];
     }
-private:
     void dumpTokens(Token[] tokens) {
         if(!getConfig().logTokens) return;
 

@@ -48,6 +48,8 @@ __gshared Callable CALLABLE_NOT_READY;
 __gshared const TRUE  = -1;
 __gshared const FALSE = 0;
 
+__gshared Set!string g_keywords;
+
 shared static this() {
     g_getModuleMutex = new Mutex;
 
@@ -131,4 +133,23 @@ shared static this() {
     g_ttToOperator[TT.USHR_ASSIGN] = Operator.USHR_ASSIGN;
     g_ttToOperator[TT.EQUALS] = Operator.ASSIGN;
 
+    g_keywords = new Set!string;
+    g_keywords.add([
+        "alias", "and", "as", "assert",
+        "bool", "break", "byte",
+        "const", "continue",
+        "double",
+        "else",
+        "false", "float",
+        "half",
+        "if", "import", "int", "is",
+        "long", "loop",
+        "not", "null",
+        "operator", "or",
+        "private", "public",
+        "readonly", "return",
+        "short", "static", "struct",
+        "this", "true",
+        "var", "void"
+    ]);
 }

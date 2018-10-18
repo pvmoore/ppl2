@@ -3,6 +3,7 @@ public
 
 testList {
     println("Test ... List<T>")
+    println(r"hello")
 
     List<int> list
 
@@ -20,7 +21,7 @@ testList {
         .add(9)
 
     print(list.length)
-    print(list.arrayLength)
+    //print(list.arrayLength)
 
     print(list[3])
     list[3] = 90

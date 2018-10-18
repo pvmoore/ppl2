@@ -30,6 +30,7 @@ public:
 
     bool writeASM = true;
     bool writeOBJ = true;
+    bool writeAST = true;
 
     bool nullChecks    = true;
     bool enableAsserts = true;

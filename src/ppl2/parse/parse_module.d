@@ -27,12 +27,15 @@ public:
     void readContents() {
         watch.start();
         import std.file : read;
-        this.contents = cast(string)read(module_.getPath());
+        this.contents = convertTabsToSpaces(cast(string)read(module_.getPath()));
         log("Parser: Reading %s -> %s bytes", module_.getPath(), contents.length);
         watch.stop();
     }
     void tokenise() {
-        auto tokens      = getImplicitImportsTokens() ~ lexer.tokenise(contents);
+        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(contents);
+        log("... found %s tokens", tokens.length);
+        lexer.dumpTokens(tokens);
+
         this.navs       ~= new Tokens(module_, tokens);
         this.startNodes ~= module_;
         extractExports(tokens);

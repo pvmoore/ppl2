@@ -142,6 +142,7 @@ private:
     void dumpAST() {
         foreach(m; modules) {
             m.resolver.writeAST();
+            writeJson(m);
         }
     }
     int parseModules() {
@@ -290,15 +291,6 @@ private:
             foreach(r; mods) {
                 refs.update(r, {return [m]; }, (ref Module[] it) { return it ~ m; });
             }
-
-                    //aa.update(key, {
-                    //    newer = new C;
-                    //    return newer;
-                    //}, (ref C c) {
-                    //    older = c;
-                    //    newer = new C;
-                    //    return newer;
-                    //});
         }
         writefln("}\nModule incoming references {");
         foreach(m; modules.values.sort) {

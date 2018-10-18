@@ -32,7 +32,7 @@ public:
             }
 
             chat("\t\tCall type  = %s", callType);
-            chat("\t\tArg tokens = %s", tokens.toString);
+            chat("\t\tArg tokens = %s", tokens);
 
             int tokenIndex = 0;
             matchProxiesToTypes(TYPE_UNKNOWN, [callType], tokens, tokenIndex);
@@ -72,7 +72,7 @@ public:
     {
         chat(depth~"... matching");
         chat(depth~"types  = %s", types);
-        chat(depth~"tokens = %s", argTokens.toString);
+        chat(depth~"tokens = %s", argTokens);
 
         auto typeIndex = 0;
 

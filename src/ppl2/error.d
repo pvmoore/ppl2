@@ -75,14 +75,6 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
     void showMessageWithLine() {
         writefln("\nError: [%s Line %s] %s", filename, line, msg);
     }
-    string convertTabsToSpaces(string s) {
-        auto buf = appender!(string);
-        foreach(ch; s) {
-            if(ch=='\t') buf ~= "    ";
-            else buf ~= ch;
-        }
-        return buf.data;
-    }
 
     if(line==-1 || col==-1) {
         showMessageWithoutLine();
@@ -122,7 +114,7 @@ void displayUnresolved(Module[] modules) {
                     string name = n.as!Identifier.name;
                     prettyErrorMsg(m, n.line, n.column, "Unresolved symbol: %s".format(name));
                 } else {
-                    writefln("Unresolved %s", n.id);
+                    writefln("Unresolved %s: %s", n.id, n);
                 }
             }
         }

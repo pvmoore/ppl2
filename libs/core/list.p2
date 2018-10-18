@@ -2,7 +2,7 @@
 public
 
 struct List <T> {
-public
+private
     T* array
     int arrayLength
 readonly

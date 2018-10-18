@@ -106,7 +106,6 @@ private:
                                 addFunction(fn);
                             }
                         } else {
-                            functionRequired(f.moduleName, name);
                             ready = false;
                         }
                     } else {

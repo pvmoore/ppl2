@@ -33,7 +33,7 @@ pragma(inline,true) {
     final bool isBool() const { return getEnum()==BOOL; }
     final bool isReal() const { int e = getEnum(); return e==HALF || e==FLOAT || e==DOUBLE; }
     final bool isInteger() const { int e = getEnum(); return e==BYTE || e==SHORT || e==INT || e==LONG; }
-    final bool isBasicType() { return this.getBasicType !is null; }
+    final bool isBasicType() { return getEnum() <= VOID && getEnum()!=UNKNOWN; }
     final bool isStruct() const { return isNamedStruct() || isAnonStruct(); }
     final bool isNamedStruct() const { return getEnum==NAMED_STRUCT; }
     final bool isAnonStruct() const { return getEnum==ANON_STRUCT; }

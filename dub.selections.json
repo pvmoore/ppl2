@@ -2,6 +2,13 @@
 	"fileVersion": 1,
 	"versions": {
 		"common": "~master",
-		"llvm": "~master"
+		"derelict-ft": "1.1.3",
+		"derelict-gl3": "1.0.24",
+		"derelict-sdl2": "2.0.2",
+		"derelict-util": "2.0.6",
+		"dlangui": "0.9.180",
+		"dsfml": "2.1.1",
+		"llvm": "~master",
+		"x11": "1.0.21"
 	}
 }

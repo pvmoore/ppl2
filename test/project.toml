@@ -6,12 +6,12 @@ excludeFiles       = ["blah"]
 excludeDirectories = ["blah2"]
 
 [state]
-current_file    = "test.p2"
-current_line    = 1
-current_column  = 5
+currentFile    = "test.p2"
+currentLine    = 1
+currentColumn  = 5
 
 [release]
-opt-level = 3
+optLevel = 3
     
 [dependencies]
     

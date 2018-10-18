@@ -18,9 +18,26 @@ buildType "release" {
 
 configuration "test" {
 	mainSourceFile "src/main.d"
+	excludedSourceFiles "src/ide_main.d" "src/bench.d" "src/ide/*"
+
 	targetType "executable"
 	targetName "ppl2"
 }
+configuration "bench" {
+	mainSourceFile "src/bench.d"
+	excludedSourceFiles "src/main.d" "src/ide_main.d" "src/ide/*"
 
-dependency "llvm" version="~master"
+	targetType "executable"
+	targetName "bench"
+}
+configuration "ide" {
+	mainSourceFile "src/ide_main.d"
+	excludedSourceFiles "src/main.d" "src/bench.d"
+
+	targetType "executable"
+	targetName "ide"
+}
+
 dependency "common" version="~master"
+dependency "llvm" version="~master"
+dependency "dlangui" version="~>0.9.180"
