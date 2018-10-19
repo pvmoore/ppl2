@@ -5,6 +5,8 @@ main {
 } 
 */
 
+var s = ""
+
 import test_imports, test_literals
 import test_arrays, test_expressions, test_structs
 import test_casting, test_inner_functions, test_consts

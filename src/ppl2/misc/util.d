@@ -8,13 +8,6 @@ T frontOrNull(T,Range)(Range r) {
     return r.empty ? null : r.front;
 }
 
-T min(T)(T a, T b) {
-    return a < b ? a : b;
-}
-T max(T)(T a, T b) {
-    return a > b ? a: b;
-}
-
 bool isDigit(char c) {
     return c>='0' && c<='9';
 }

@@ -7,6 +7,12 @@ import ppl2.tokens;
 
 import ppl2.misc.lexer;
 
+T min(T)(T a, T b) {
+    return a < b ? a : b;
+}
+T max(T)(T a, T b) {
+    return a > b ? a: b;
+}
 
 // Debug logging
 void dd(A...)(A args) {

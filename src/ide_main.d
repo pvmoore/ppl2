@@ -13,7 +13,7 @@ extern (C) int UIAppMain(string[] args) {
     currentTheme().fontSize = 14;
     currentTheme().fontFace = "Segoe UI";
 
-    FontManager.fontGamma   = 1.5;
+    FontManager.fontGamma   = 2.0;
     FontManager.hintingMode = HintingMode.Normal;
     FontManager.minAnitialiasedFontSize = 0;
 

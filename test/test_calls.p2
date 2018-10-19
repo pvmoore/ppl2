@@ -1,6 +1,12 @@
 
 public
 
+// line comment
+/* 
+
+    multiline comment 
+*/
+
 testCalls {
     a {
         return 0

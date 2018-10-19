@@ -25,15 +25,24 @@ public:
         import dlangui.dml.dmlhighlight;
         DMLSyntaxSupport dml;
 
-        setTokenHightlightColor(TokenCategory.Comment, 0x008000);
+        //0x00d0d0 cyan
+        // 0x008000 green
+
+        setTokenHightlightColor(TokenCategory.Comment, 0x707070);
+        setTokenHightlightColor(TokenCategory.Comment_SingleLine, 0x907070);
+        setTokenHightlightColor(TokenCategory.Comment_MultyLine, 0x909070);
+
         setTokenHightlightColor(TokenCategory.Keyword, 0xAD83D7);
-        setTokenHightlightColor(TokenCategory.String, 0xa33535);
-        setTokenHightlightColor(TokenCategory.Character, 0x00d0d0);
+        setTokenHightlightColor(TokenCategory.String, 0x008000);
+        setTokenHightlightColor(TokenCategory.Character, 0xd0d000);
         setTokenHightlightColor(TokenCategory.Integer, 0xd0d000);
         setTokenHightlightColor(TokenCategory.Float, 0xd0d000);
         setTokenHightlightColor(TokenCategory.Error, 0xFF0000);
         setTokenHightlightColor(TokenCategory.Op, 0xc7c7c7);
+
+        setTokenHightlightColor(TokenCategory.Identifier, 0xffffff);
         setTokenHightlightColor(TokenCategory.Identifier_Class, 0xffffff);
+        setTokenHightlightColor(TokenCategory.Identifier+5, 0xffaa44); /// function declarations
 
         useSpacesForTabs = true;
         showLineNumbers = true;

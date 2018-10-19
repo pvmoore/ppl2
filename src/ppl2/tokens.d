@@ -195,26 +195,22 @@ public:
 struct Token {
     TT type;
     string value;
-    int startIndex;
-    int endIndex;
+    int length;
     int line;
     int column;
     Type templateType;
 
-    int length() const { return endIndex-startIndex+1; }
-
     string toString() {
         string t  = type==TT.IDENTIFIER ? "'"~value~"'" : "%s".format(type);
         string tt = templateType ? " "~type.toString() : "";
-        return "%s %s:%s L:%s C:%s%s".format(t, startIndex, endIndex, line, column, tt);
+        return "%s Len:%s L:%s C:%s%s".format(t, length, line, column, tt);
     }
 }
 Token copyToken(Token t) {
     return Token(
         t.type,
         t.value,
-        t.startIndex,
-        t.endIndex,
+        t.length,
         t.line,
         t.column,
         t.templateType
@@ -227,6 +223,8 @@ enum TT {
     STRING,
     CHAR,
     NUMBER,
+    LINE_COMMENT,
+    MULTILINE_COMMENT,
 
     LCURLY,
     RCURLY,
@@ -281,6 +279,9 @@ enum TT {
 
     BOOL_EQ,        // ==
     COMPARE,        // <>
+}
+bool isComment(TT t) {
+    return t==TT.LINE_COMMENT || t==TT.MULTILINE_COMMENT;
 }
 //string toString(Token[] tokens) {
 //    return tokens.map!(it=>it.type==TT.IDENTIFIER ? it.value : it.type.toString).join(" ");

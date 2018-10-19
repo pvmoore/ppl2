@@ -4,8 +4,10 @@ public:
 
 import std.stdio  : writefln;
 import std.format : format;
-import std.array  : array, replace;
+import std.array  : array, replace, appender;
 import std.string : lastIndexOf;
+
+import std.algorithm.searching : any;
 
 import common;
 import dlangui;

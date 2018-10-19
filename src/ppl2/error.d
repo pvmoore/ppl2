@@ -73,7 +73,7 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
         writefln("\nError: [%s] %s", filename, msg);
     }
     void showMessageWithLine() {
-        writefln("\nError: [%s Line %s] %s", filename, line, msg);
+        writefln("\nError: [%s Line %s:%s] %s", filename, line+1, col, msg);
     }
 
     if(line==-1 || col==-1) {
@@ -85,7 +85,7 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
 
     auto lines = File(filename, "rb").byLineCopy().array;
 
-    if(lines.length<=line-1) {
+    if(lines.length<=line) {
         showMessageWithoutLine();
         return;
     }
@@ -95,7 +95,7 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
     string spaces;
     for(int i=0; i<col; i++) { spaces ~= " "; }
 
-    auto errorLineStr = convertTabsToSpaces(lines[line-1]);
+    auto errorLineStr = convertTabsToSpaces(lines[line]);
 
     writefln("\n%s|", spaces);
     writefln("%sv", spaces);

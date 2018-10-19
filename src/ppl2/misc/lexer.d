@@ -9,20 +9,35 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    Token[] tokenise(string text, Array!Token tokens = null, bool throwException = true) {
-        if(!tokens) {
-            tokens = new Array!Token(256);
-        } else {
-            tokens.clear();
-        }
-        auto buf      = new StringBuffer;
-        auto index    = 0;
-        auto line     = 1;
-        auto indexSOL = 0;   /// char index at start of line
+    Token[] tokenise(string text, bool throwExceptions, bool includeComments) {
+        auto tokens  = new Array!Token(256);
+        auto buf     = new StringBuffer;
+        int index    = 0;
+        int line     = 0;
+        int indexSOL = 0;   /// char index at start of line
+        auto stack   = new Stack!int;
 
         char peek(int offset=0) {
             if(index+offset >= text.length) return 0;
             return text[index+offset];
+        }
+        bool isEOL() {
+            return (peek()==13 && peek(1)==10) || peek()==10;
+        }
+        bool handleEOL() {
+            if(peek()==13 && peek(1)==10) {
+                /// EOL windows
+                line++;
+                index++;
+                indexSOL = index+1;
+                return true;
+            } else if(peek()==10) {
+                /// EOL unix/macOS
+                line++;
+                indexSOL = index+1;
+                return true;
+            }
+            return false;
         }
         bool isNumber() {
             auto firstChar = buf[0];
@@ -40,20 +55,26 @@ public:
         }
         void addToken(TT t = TT.NONE, int length=1) {
             if(buf.length>0) {
-                auto type = TT.IDENTIFIER;
-                if(isStringLiteral()) type = TT.STRING;
-                else if(isCharLiteral()) type = TT.CHAR;
-                else if(isNumber()) type = TT.NUMBER;
+                TT type;
+
+                if(t.isComment)                 type = t;
+                else if(isStringLiteral())      type = TT.STRING;
+                else if(isCharLiteral())        type = TT.CHAR;
+                else if(isNumber())             type = TT.NUMBER;
+                else type = TT.IDENTIFIER;
+
+                assert(includeComments ? true : !type.isComment);
 
                 auto value = buf.toString().idup;
-                auto start = index-cast(int)value.length;
-                auto column = start-indexSOL;
+                int start  = index-cast(int)value.length;
+                int column = start-indexSOL;
+                assert(column>=0);
 
-                tokens.add(Token(type, value, start, index-1, line, column));
+                tokens.add(Token(type, value, index-start, line, column));
                 buf.clear();
             }
-            if(t!=TT.NONE) {
-                tokens.add(Token(t, null, index, index+length-1, line, index-indexSOL));
+            if(t!=TT.NONE && !t.isComment) {
+                tokens.add(Token(t, null, length, line, index-indexSOL));
             }
         }
         void addCharLiteral() {
@@ -75,12 +96,12 @@ public:
             }
             bool err = false;
             if(index>=text.length) {
-                if(throwException)
+                if(throwExceptions)
                     throw new CompilerError(module_, line, col, "Missing end quote '");
                 err = true;
             }
             if(!err && parseCharLiteral(buf[1..$])==-1) {
-                if(throwException)
+                if(throwExceptions)
                     throw new CompilerError(module_, line, col, "Bad character literal");
                 err = true;
             }
@@ -120,7 +141,7 @@ public:
                 index++;
             }
             if(index>=text.length) {
-                if(throwException)
+                if(throwExceptions)
                     throw new CompilerError(module_, line, col, "Missing end quote \"");
 
                 addToken();
@@ -133,6 +154,83 @@ public:
             addToken();
             index--;
         }
+        void addLineComment() {
+            assert(peek()=='/' && peek(1)=='/');
+            /*
+            // line comment */
+            addToken();
+
+            stack.push(index);
+            index++;
+
+            while(index<text.length) {
+                index++;
+                if(isEOL()) {
+                    if(includeComments) {
+                        buf.add(text[stack.pop()..index]);
+                        addToken(TT.LINE_COMMENT);
+                    }
+                    handleEOL();
+                    break;
+                }
+            }
+            if(index>=text.length) {
+                /// We ran out of text before the EOL
+                if(includeComments) {
+                    buf.add(text[stack.pop()..index]);
+                    addToken(TT.LINE_COMMENT);
+                }
+            }
+            stack.clear();
+        }
+        void addMultilineComment() {
+            assert(peek()=='/' && peek(1)=='*');
+
+            addToken();
+
+            stack.push(index);
+            //index++;
+
+            //dd("addMultilineComment index:", index, "line:", line, "text:'%s'".format(text));
+
+            while(index<text.length) {
+                index++;
+
+                if(peek()=='*' && peek(1)=='/') {
+                    index++;
+
+                    if(includeComments) {
+                        assert(stack.length==1);
+                        index++;
+
+                        buf.add(text[stack.pop()..index]);
+                        addToken(TT.MULTILINE_COMMENT);
+
+                        index--;
+                    }
+                    break;
+                }
+                if(isEOL()) {
+                    if(includeComments) {
+                        assert(stack.length==1);
+
+                        buf.add(text[stack.pop()..index]);
+                        addToken(TT.MULTILINE_COMMENT);
+
+                    }
+                    handleEOL();
+                    stack.push(index+1);
+                }
+            }
+            if(index>=text.length) {
+                /// We ran out of text before the end of the comment
+                if(includeComments) {
+                    buf.add(text[stack.pop()..index]);
+                    addToken(TT.MULTILINE_COMMENT);
+                }
+            }
+            stack.clear();
+        }
 
         for(index=0; index<text.length; index++) {
             auto ch = text[index];
@@ -140,42 +238,13 @@ public:
             if(ch<33) {
                 /// whitespace
                 addToken();
-
-                if(ch==10 || ch==13) {
-                    line++;
-                    if(peek(1)==10) index++;
-                    indexSOL = index+1;
-                }
+                handleEOL();
             } else switch(ch) {
                 case '/':
                     if(peek(1)=='/') {
-                        /*
-                        // line comment */
-                        addToken();
-                        index++;
-
-                        while(index<text.length) {
-                            index++;
-                            if(peek(0)==13 || peek(0)==10) {
-                                line++;
-                                if(peek(1)==10) index++;
-                                indexSOL = index+1;
-                                break;
-                            }
-                        }
+                        addLineComment();
                     } else if(peek(1)=='*') {
-                        /// multiline comment
-                        addToken();
-                        index++;
-
-                        while(index<text.length) {
-                            index++;
-                            if (peek(0)==10) line++;
-                            if (peek(0)=='*' && peek(1)=='/') {
-                                index++;
-                                break ;
-                            }
-                        }
+                        addMultilineComment();
                     } else if(peek(1)=='=') {
                         addToken(TT.DIV_ASSIGN, 2);
                         index++;
