@@ -29,8 +29,8 @@ public:
         // 0x008000 green
 
         setTokenHightlightColor(TokenCategory.Comment, 0x707070);
-        setTokenHightlightColor(TokenCategory.Comment_SingleLine, 0x907070);
-        setTokenHightlightColor(TokenCategory.Comment_MultyLine, 0x909070);
+        setTokenHightlightColor(TokenCategory.Comment_SingleLine, 0x504040);
+        setTokenHightlightColor(TokenCategory.Comment_MultyLine, 0x405040);
 
         setTokenHightlightColor(TokenCategory.Keyword, 0xAD83D7);
         setTokenHightlightColor(TokenCategory.String, 0x008000);

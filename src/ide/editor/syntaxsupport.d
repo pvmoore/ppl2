@@ -8,10 +8,12 @@ private:
         bool opensMLComment;
         bool opensDQuote;
         string content;
+        bool opensSomething() {
+            return opensMLComment || opensDQuote;
+        }
     }
     EditableContent _content;
     ppl2.Lexer lexer;
-    long prevNumLines = -1;
     Array!LineInfo lineInfo;
 public:
     this() {
@@ -59,38 +61,69 @@ public:
     void updateHighlight(dstring[] lines, TokenPropString[] props, int startLine, int endLine) {
         assert(lines.length == props.length);
         assert(startLine!=endLine);
+        assert(endLine!=0);
+
         writefln("====================================================");
         writefln("updateHighlight [%s lines total] highlight lines %s..%s (%s lines)",
             lines.length,
             startLine, endLine-1,
             endLine-startLine);
 
-        bool lineOpensMLComment(int i) {
-            bool prevMLComment = i>0 && lineInfo[i-1].opensMLComment;
-            string text;
-            if(prevMLComment) {
-                text = "/*" ~ lines[i].toUTF8;
-            } else {
-                text = lines[i].toUTF8;
-            }
-            ppl2.Token[] toks = lexer.tokenise(text, true);
-            if(prevMLComment) {
-                if(toks.length==0) return true;
-            } else {
-                if(toks.length==0) return false;
-            }
-
-            return toks[$-1].type==ppl2.TT.MULTILINE_COMMENT &&
-                  !toks[$-1].value.endsWith("*/");
-        }
-        bool lineOpensDQuote(int i) {
-            if(i>0 && lineInfo[i-1].opensDQuote) {
-
-            }
-            return false;
-        }
         void updateLineInfo() {
             //writefln("updateLineInfo %s %s", lineInfo.length, lines.length); flushConsole();
+
+            int countDQuotes(string line) {
+                int count = 0;
+                for(auto i=0; i<line.length; i++) {
+                    auto c = line[i];
+
+                    if(c=='\\' && i<line.length-1 && line[i+1]=='\"') {
+                        i++;
+                    } else if(c=='\"') {
+                        count++;
+                    }
+                }
+                return count;
+            }
+            void parseLine(int i) {
+                bool prevMLComment = i>0 && lineInfo[i-1].opensMLComment;
+                bool prevDQuote    = i>0 && lineInfo[i-1].opensDQuote;
+                /// They can't both be true
+                assert(prevMLComment==false || prevDQuote==false);
+
+                string text;
+                if(prevMLComment) {
+                    text = "/*" ~ lines[i].toUTF8;
+                } else if(prevDQuote) {
+                    text = "\"" ~ lines[i].toUTF8;
+                } else {
+                    text = lines[i].toUTF8;
+                }
+                auto toks = lexer.tokenise!true(text);
+                //ppl2.dd("toks=", toks, toks.length>0 ? "'"~toks[0].value~"'" : "");
+
+                bool opensMLComment = false;
+                bool opensDQuote    = false;
+                if(toks.length==0) {
+                    opensMLComment = prevMLComment;
+                    opensDQuote    = prevDQuote;
+                } else {
+                    auto last = toks[$-1];
+                    opensMLComment = last.type==ppl2.TT.MULTILINE_COMMENT && !last.value.endsWith("*/");
+
+                    if(last.type==ppl2.TT.STRING) {
+                        if(!last.value.endsWith("\"")) {
+                            opensDQuote = true;
+                        } else {
+                            /// line ends with "
+                            int numQuotes = countDQuotes(last.value);
+                            opensDQuote = numQuotes==1;
+                        }
+                    }
+                }
+                lineInfo[i].opensMLComment = opensMLComment;
+                lineInfo[i].opensDQuote    = opensDQuote;
+            }
 
             if(lineInfo.length < lines.length) {
                 /// Add lines from startLine
@@ -104,34 +137,32 @@ public:
                 }
             }
             assert(lineInfo.length==lines.length);
-        }
-        updateLineInfo();
 
-        bool startLineOpensMLComment = startLine > 0 && lineInfo[startLine].opensMLComment;
-        //writefln("comment[%s]=%s", startLine, startLineOpensMLComment);
+            bool startLineOpensMLComment = startLine > 0 && lineInfo[startLine].opensMLComment;
+            bool startLineOpensDQuote    = startLine > 0 && lineInfo[startLine].opensDQuote;
+            //writefln("open[%s]=%s", startLine, startLineOpensSomething);
 
-        foreach(int i; startLine..endLine) {
-            lineInfo[i].opensMLComment = lineOpensMLComment(i);
-            lineInfo[i].opensDQuote    = lineOpensDQuote(i);
-
-            //writefln("[%s] comment = %s", i, lineInfo[i].opensMLComment);
-        }
-        bool openQuoteChanged = lineInfo[endLine-1].opensMLComment != startLineOpensMLComment;
-        if(openQuoteChanged) {
-            foreach(int i; endLine..cast(int)lines.length) {
-                lineInfo[i].opensMLComment = lineOpensMLComment(i);
-                lineInfo[i].opensDQuote    = lineOpensDQuote(i);
-
-                //writefln("[%s] comment = %s", i, lineInfo[i].opensMLComment);
-
-                if(lineInfo[i].opensMLComment==startLineOpensMLComment) {
-                    break;
-                }
-                endLine++;
+            foreach(int i; startLine..endLine) {
+                parseLine(i);
             }
-        }
-        writefln("%s..%s", startLine, endLine-1);
+            bool changed = (lineInfo[endLine-1].opensMLComment != startLineOpensMLComment ||
+                            lineInfo[endLine-1].opensDQuote != startLineOpensDQuote);
+            if(changed) {
+                /// A multiline comment or quote was started or ended.
+                foreach(int i; endLine..cast(int)lines.length) {
+                    parseLine(i);
 
+                    if(lineInfo[i].opensMLComment==startLineOpensMLComment &&
+                       lineInfo[i].opensDQuote==startLineOpensDQuote)
+                    {
+                        /// We are done
+                        break;
+                    }
+                    endLine++;
+                }
+            }
+            writefln("%s..%s", startLine, endLine-1);
+        }
         TokenCategory getCategory(ppl2.Token t, int j, ppl2.Token[] toks) {
             bool isFuncDecl() {
                 if(j>=toks.length-1) return false;
@@ -169,13 +200,17 @@ public:
             }
         }
 
-        bool prevLineOpensMLComment = startLine > 0 && lineInfo[startLine-1].opensMLComment;
-        int lineOffset = startLine + (prevLineOpensMLComment ? -1 : 0);
+        updateLineInfo();
+        bool prevLineOpensSomething = startLine > 0 && lineInfo[startLine-1].opensSomething;
+        int lineOffset              = startLine + (prevLineOpensSomething ? -1 : 0);
 
         string data;
-        if(prevLineOpensMLComment || endLine-startLine>1) {
+        if(prevLineOpensSomething || endLine-startLine>1) {
             auto buf = appender!dstring;
-            if(prevLineOpensMLComment) buf ~= "/*\n"d;
+            if(prevLineOpensSomething) {
+                if (lineInfo[startLine-1].opensDQuote) buf ~= "\"\n"d;
+                if (lineInfo[startLine-1].opensMLComment) buf ~= "/*\n"d;
+            }
             foreach (j; startLine..endLine) {
                 buf ~= lines[j] ~ "\n"d;
             }
@@ -184,7 +219,7 @@ public:
             data = lines[startLine].toUTF8;
         }
         ppl2.dd("-------------");
-        ppl2.Token[] toks = lexer.tokenise(data, true);
+        ppl2.Token[] toks = lexer.tokenise!true(data);
         ppl2.dd("tokens:", "%s".format(toks));
         //ppl2.dd("data:'%s'".format(data));
 
@@ -201,7 +236,7 @@ public:
 
             /// Update tokens to appropriate category
             foreach(int j, tok; toks) {
-                //ppl2.dd("line:", i, "tok", tok, j, "attribs:",attribs.length, prevLineOpensMLComment);
+                //ppl2.dd("line:", i, "tok", tok, j, "attribs:",attribs.length);
                 if(tok.line+lineOffset==i) {
 
                     auto c = getCategory(tok, j, toks);

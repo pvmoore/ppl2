@@ -9,21 +9,23 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    /// text   - the text to tokenise
     /// forIDE - if true: - include comments,
     ///                   - not throw exceptions
     ///                   - package multiline strings 1 per line
     ///
-    Token[] tokenise(string text, bool forIDE = false) {
-        auto tokens          = new Array!Token(256);
-        auto buf             = new StringBuffer;
-        int index            = 0;
-        int line             = 0;
-        int indexSOL         = 0;   /// char index at start of line
-        auto stack           = new Stack!int;
-        auto throwExceptions = !forIDE;
-        auto includeComments = forIDE;
+    /// text   - the text to tokenise
+    ///
+    Token[] tokenise(bool forIDE=false)(string text) {
+        auto tokens           = new Array!Token(256);
+        auto buf              = new StringBuffer;
+        int index             = 0;
+        int line              = 0;
+        int indexSOL          = 0;   /// char index at start of line
+        auto stack            = new Stack!int;
 
+        ///======================================================================================
+        /// Local helper functions
+        ///======================================================================================
         char peek(int offset=0) {
             if(index+offset >= text.length) return 0;
             return text[index+offset];
@@ -64,7 +66,7 @@ public:
             if(buf.length>0) {
                 TT type;
 
-                if(t.isComment)                 type = t;
+                if(t.isComment || t.isString)   type = t;
                 else if(isStringLiteral())      type = TT.STRING;
                 else if(isCharLiteral())        type = TT.CHAR;
                 else if(isNumber())             type = TT.NUMBER;
@@ -80,16 +82,17 @@ public:
                 tokens.add(Token(type, value, index-start, line, column));
                 buf.clear();
             }
-            if(t!=TT.NONE && !t.isComment) {
+            if(t!=TT.NONE && !t.isComment && !t.isString) {
                 tokens.add(Token(t, null, length, line, index-indexSOL));
             }
         }
         void addCharLiteral() {
+            assert(peek()=='\'');
+
             addToken();
 
             auto col = index-indexSOL;
 
-            assert(peek()=='\'');
             buf.add(peek());
             index++;
 
@@ -103,14 +106,14 @@ public:
             }
             bool err = false;
             if(index>=text.length) {
-                if(throwExceptions)
+                static if(!forIDE) {
                     throw new CompilerError(module_, line, col, "Missing end quote '");
-                err = true;
+                } else err = true;
             }
             if(!err && parseCharLiteral(buf[1..$])==-1) {
-                if(throwExceptions)
+                static if(!forIDE) {
                     throw new CompilerError(module_, line, col, "Bad character literal");
-                err = true;
+                } else err = true;
             }
             if(err) {
                 addToken();
@@ -124,42 +127,81 @@ public:
             index--;
         }
         void addStringLiteral() {
-            /// assume src[pos] == "
-
-            auto col = index-indexSOL;
-
-            /// Handle possible prefix
-            if(buf.length==1 && buf[0]=='r') {
-                /// Include the 'r' in the string
-            } else {
-                addToken();
-            }
-
             assert(peek()=='\"');
-            buf.add(peek());
-            index++;
 
-            while(index<text.length && peek()!='\"') {
+            static if(forIDE) {
+                /// IDE version
+
+                /// Handle possible prefix
+                if(buf.length==1 && buf[0]=='r') {
+                    /// Include the 'r' in the string
+                } else {
+                    addToken();
+                }
+
+                assert(peek()=='\"');
                 buf.add(peek());
-                if(peek()=='\\') {
-                    buf.add(peek(1));
+                index++;
+
+                while(index<text.length && peek()!='\"') {
+                    if(isEOL()) {
+                        addToken(TT.STRING);
+                        handleEOL();
+                    } else {
+                        buf.add(peek());
+                        if(peek()=='\\') {
+                            if(peek(1)>31) {
+                                buf.add(peek(1));
+                                index++;
+                            }
+                        }
+                    }
                     index++;
                 }
+                if(index>=text.length) {
+                    ///  We ran out of text before the end quote
+                    addToken(TT.STRING);
+                } else {
+                    assert(peek()=='\"');
+                    buf.add(peek());
+                    index++;
+                    addToken(TT.STRING);
+                    index--;
+                }
+            } else {
+                /// Compiler version
+                auto startLine   = line;
+                auto startColumn = index-indexSOL;
+
+                /// Handle possible prefix
+                if(buf.length==1 && buf[0]=='r') {
+                    /// Include the 'r' in the string
+                } else {
+                    addToken();
+                }
+
+                assert(peek()=='\"');
+                buf.add(peek());
                 index++;
-            }
-            if(index>=text.length) {
-                if(throwExceptions)
-                    throw new CompilerError(module_, line, col, "Missing end quote \"");
 
+                while(index<text.length && peek()!='\"') {
+                    buf.add(peek());
+                    if(peek()=='\\') {
+                        buf.add(peek(1));
+                        index++;
+                    }
+                    index++;
+                }
+                if(index>=text.length) {
+                    ///  We ran out of text before the end quote
+                    throw new CompilerError(module_, startLine, startColumn, "Missing end quote \"");
+                }
+                assert(peek()=='\"');
+                buf.add(peek());
+                index++;
                 addToken();
-                return;
+                index--;
             }
-
-            assert(peek()=='\"');
-            buf.add(peek());
-            index++;
-            addToken();
-            index--;
         }
         void addLineComment() {
             assert(peek()=='/' && peek(1)=='/');
@@ -167,46 +209,54 @@ public:
             // line comment */
             addToken();
 
-            stack.push(index);
-            index++;
-
-            while(index<text.length) {
+            static if(forIDE) {
+                /// IDE version
+                stack.push(index);
                 index++;
-                if(isEOL()) {
-                    if(includeComments) {
+                while(index<text.length) {
+                    index++;
+                    if(isEOL()) {
                         buf.add(text[stack.pop()..index]);
                         addToken(TT.LINE_COMMENT);
+
+                        handleEOL();
+                        break;
                     }
-                    handleEOL();
-                    break;
                 }
-            }
-            if(index>=text.length) {
-                /// We ran out of text before the EOL
-                if(includeComments) {
+                if(index>=text.length) {
+                    /// We ran out of text before the EOL
                     buf.add(text[stack.pop()..index]);
                     addToken(TT.LINE_COMMENT);
                 }
+                stack.clear();
+
+            } else {
+                /// Compiler version
+                index++;
+                while(index<text.length) {
+                    index++;
+                    if(isEOL()) {
+                        handleEOL();
+                        break;
+                    }
+                }
             }
-            stack.clear();
         }
         void addMultilineComment() {
             assert(peek()=='/' && peek(1)=='*');
 
             addToken();
 
-            stack.push(index);
-            //index++;
+            static if(forIDE) {
+                /// IDE version
+                stack.push(index);
 
-            //dd("addMultilineComment index:", index, "line:", line, "text:'%s'".format(text));
-
-            while(index<text.length) {
-                index++;
-
-                if(peek()=='*' && peek(1)=='/') {
+                while(index<text.length) {
                     index++;
 
-                    if(includeComments) {
+                    if(peek()=='*' && peek(1)=='/') {
+                        index++;
+
                         assert(stack.length==1);
                         index++;
 
@@ -214,30 +264,50 @@ public:
                         addToken(TT.MULTILINE_COMMENT);
 
                         index--;
+                        break;
                     }
-                    break;
-                }
-                if(isEOL()) {
-                    if(includeComments) {
+                    if(isEOL()) {
                         assert(stack.length==1);
 
                         buf.add(text[stack.pop()..index]);
                         addToken(TT.MULTILINE_COMMENT);
 
+                        handleEOL();
+                        stack.push(index+1);
                     }
-                    handleEOL();
-                    stack.push(index+1);
                 }
-            }
-            if(index>=text.length) {
-                /// We ran out of text before the end of the comment
-                if(includeComments) {
+                if(index>=text.length) {
+                    /// We ran out of text before the end of the comment
                     buf.add(text[stack.pop()..index]);
                     addToken(TT.MULTILINE_COMMENT);
                 }
+                stack.clear();
+
+            } else {
+                /// Compiler version
+                auto startLine   = line;
+                auto startColumn = index-indexSOL;
+
+                while(index<text.length) {
+                    index++;
+
+                    if(peek()=='*' && peek(1)=='/') {
+                        index++;
+                        break;
+                    }
+                    if(isEOL()) {
+                        handleEOL();
+                    }
+                }
+                if(index>=text.length) {
+                    /// We ran out of text before the end of the comment
+                    throw new CompilerError(module_, startLine, startColumn, "Missing end of comment");
+                }
             }
-            stack.clear();
         }
+        ///======================================================================================
+        /// End of of local helper functions
+        ///======================================================================================
 
         for(index=0; index<text.length; index++) {
             auto ch = text[index];
@@ -450,18 +520,3 @@ public:
         }
     }
 }
-//=========================================================================================
-string toSimpleString(Token[] tokens) {
-    auto buf = new StringBuffer;
-    foreach(i, t; tokens) {
-        if(t.type==TT.IDENTIFIER) {
-            buf.add(t.value);
-        } else {
-            buf.add(t.type.toString());
-        }
-        buf.add(" ");
-    }
-    return buf.toString();
-}
-
-

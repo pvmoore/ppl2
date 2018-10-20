@@ -283,9 +283,9 @@ enum TT {
 bool isComment(TT t) {
     return t==TT.LINE_COMMENT || t==TT.MULTILINE_COMMENT;
 }
-//string toString(Token[] tokens) {
-//    return tokens.map!(it=>it.type==TT.IDENTIFIER ? it.value : it.type.toString).join(" ");
-//}
+bool isString(TT t) {
+    return t==TT.STRING;
+}
 string toString(TT t) {
     __gshared static string[TT] map;
     if(map.length==0) with(TT) {
