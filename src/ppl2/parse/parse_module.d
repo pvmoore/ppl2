@@ -32,7 +32,7 @@ public:
         watch.stop();
     }
     void tokenise() {
-        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(contents, true, false);
+        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(contents);
         log("... found %s tokens", tokens.length);
         lexer.dumpTokens(tokens);
 

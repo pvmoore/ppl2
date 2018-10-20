@@ -9,13 +9,20 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    Token[] tokenise(string text, bool throwExceptions, bool includeComments) {
-        auto tokens  = new Array!Token(256);
-        auto buf     = new StringBuffer;
-        int index    = 0;
-        int line     = 0;
-        int indexSOL = 0;   /// char index at start of line
-        auto stack   = new Stack!int;
+    /// text   - the text to tokenise
+    /// forIDE - if true: - include comments,
+    ///                   - not throw exceptions
+    ///                   - package multiline strings 1 per line
+    ///
+    Token[] tokenise(string text, bool forIDE = false) {
+        auto tokens          = new Array!Token(256);
+        auto buf             = new StringBuffer;
+        int index            = 0;
+        int line             = 0;
+        int indexSOL         = 0;   /// char index at start of line
+        auto stack           = new Stack!int;
+        auto throwExceptions = !forIDE;
+        auto includeComments = forIDE;
 
         char peek(int offset=0) {
             if(index+offset >= text.length) return 0;
@@ -63,7 +70,7 @@ public:
                 else if(isNumber())             type = TT.NUMBER;
                 else type = TT.IDENTIFIER;
 
-                assert(includeComments ? true : !type.isComment);
+                assert(forIDE ? true : !type.isComment);
 
                 auto value = buf.toString().idup;
                 int start  = index-cast(int)value.length;

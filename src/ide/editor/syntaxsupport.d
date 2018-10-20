@@ -7,14 +7,16 @@ private:
     struct LineInfo {
         bool opensMLComment;
         bool opensDQuote;
+        string content;
     }
-    LineInfo[] lineInfo;
     EditableContent _content;
     ppl2.Lexer lexer;
     long prevNumLines = -1;
+    Array!LineInfo lineInfo;
 public:
     this() {
-        this.lexer = new ppl2.Lexer(null);
+        this.lexer    = new ppl2.Lexer(null);
+        this.lineInfo = new Array!LineInfo(1024);
     }
     EditableContent content() {
         return _content;
@@ -56,6 +58,8 @@ public:
 
     void updateHighlight(dstring[] lines, TokenPropString[] props, int startLine, int endLine) {
         assert(lines.length == props.length);
+        assert(startLine!=endLine);
+        writefln("====================================================");
         writefln("updateHighlight [%s lines total] highlight lines %s..%s (%s lines)",
             lines.length,
             startLine, endLine-1,
@@ -69,7 +73,7 @@ public:
             } else {
                 text = lines[i].toUTF8;
             }
-            ppl2.Token[] toks = lexer.tokenise(text, false, true);
+            ppl2.Token[] toks = lexer.tokenise(text, true);
             if(prevMLComment) {
                 if(toks.length==0) return true;
             } else {
@@ -85,29 +89,42 @@ public:
             }
             return false;
         }
+        void updateLineInfo() {
+            //writefln("updateLineInfo %s %s", lineInfo.length, lines.length); flushConsole();
 
-        ///// update lineInfo array
-        if(lineInfo.length!=lines.length) {
-            lineInfo.length = lines.length;
+            if(lineInfo.length < lines.length) {
+                /// Add lines from startLine
+                for(int i=startLine; lineInfo.length < lines.length; i++) {
+                    lineInfo.insertAt(i, LineInfo());
+                }
+            } else if(lineInfo.length > lines.length) {
+                /// Remove lines from startLine
+                while(lineInfo.length > lines.length) {
+                    lineInfo.removeAt(startLine+1);
+                }
+            }
+            assert(lineInfo.length==lines.length);
         }
+        updateLineInfo();
 
+        bool startLineOpensMLComment = startLine > 0 && lineInfo[startLine].opensMLComment;
+        //writefln("comment[%s]=%s", startLine, startLineOpensMLComment);
 
-        bool prev = lineInfo[endLine-1].opensMLComment;
-        writefln("prev=%s", prev);
         foreach(int i; startLine..endLine) {
             lineInfo[i].opensMLComment = lineOpensMLComment(i);
             lineInfo[i].opensDQuote    = lineOpensDQuote(i);
 
             //writefln("[%s] comment = %s", i, lineInfo[i].opensMLComment);
         }
-        if(lineInfo[endLine-1].opensMLComment != prev) {
+        bool openQuoteChanged = lineInfo[endLine-1].opensMLComment != startLineOpensMLComment;
+        if(openQuoteChanged) {
             foreach(int i; endLine..cast(int)lines.length) {
                 lineInfo[i].opensMLComment = lineOpensMLComment(i);
                 lineInfo[i].opensDQuote    = lineOpensDQuote(i);
 
                 //writefln("[%s] comment = %s", i, lineInfo[i].opensMLComment);
 
-                if(lineInfo[i].opensMLComment==prev) {
+                if(lineInfo[i].opensMLComment==startLineOpensMLComment) {
                     break;
                 }
                 endLine++;
@@ -152,13 +169,6 @@ public:
             }
         }
 
-        /// Cheat. If a line has been added or removed, re-highlight the whole lot
-        //if(lines.length!=prevNumLines) {
-        //    prevNumLines = lines.length;
-        //    startLine = 0;
-        //    endLine   = cast(int)lines.length;
-        //}
-
         bool prevLineOpensMLComment = startLine > 0 && lineInfo[startLine-1].opensMLComment;
         int lineOffset = startLine + (prevLineOpensMLComment ? -1 : 0);
 
@@ -174,7 +184,7 @@ public:
             data = lines[startLine].toUTF8;
         }
         ppl2.dd("-------------");
-        ppl2.Token[] toks = lexer.tokenise(data, false, true);
+        ppl2.Token[] toks = lexer.tokenise(data, true);
         ppl2.dd("tokens:", "%s".format(toks));
         //ppl2.dd("data:'%s'".format(data));
 
@@ -202,19 +212,12 @@ public:
                     }
                 }
             }
+            lineInfo[i].content = lines[i].toUTF8;
         }
 
-        /// If the last tokenised line contains a multiline comment then highlight everything
-        //if(foundMLComment && !tokenisingWholeFile) {
-        //    updateHighlight(lines, props, 0, cast(int)lines.length);
-        //}
-
-        //if(lastTokenIsMLComment) {
-            /// Everything from the last line to the end of the file might now be comment.
-            /// Send the rest of the file for highlighting to handle this
-        //    if(endLine != lines.length) {
-        //        updateHighlight(lines, props, ppl2.max(0, endLine-1), cast(int)lines.length);
-        //    }
-        //}
+        foreach(i; 0..lines.length) {
+            writefln("[%s] %s", i, lineInfo[i]);
+        }
+        flushConsole();
     }
 }

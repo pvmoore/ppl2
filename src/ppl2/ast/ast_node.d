@@ -131,7 +131,7 @@ public:
 
     auto addToFront(ASTNode child) {
         child.detach();
-        children.insertAt(child, 0);
+        children.insertAt(0, child);
         child.parent = this;
         return this;
     }
@@ -144,7 +144,7 @@ public:
 
     void insertAt(int index, ASTNode child) {
         child.detach();
-        children.insertAt(child, index);
+        children.insertAt(index, child);
         child.parent = this;
     }
     void remove(ASTNode child) {
