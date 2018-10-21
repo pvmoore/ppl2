@@ -14,6 +14,7 @@ public:
     int moduleNID;          /// nid of module (!=this.getModule.nid if isImport)
     Access access = Access.PUBLIC;
     bool isStatic;
+    bool isProgramEntry;    /// true if this is the program main function
 
     Operator op = Operator.NOTHING; /// Set if this is an operator overload
 
@@ -67,10 +68,6 @@ public:
     AnonStruct getStruct() {
         assert(isStructMember());
         return parent.as!AnonStruct;
-    }
-
-    bool isProgramEntry() {
-        return "main"==name && moduleName == g_mainModuleCanonicalName;
     }
     LiteralFunction getBody() {
         assert(!isExtern, "Function %s is extern".format(name));

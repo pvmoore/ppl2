@@ -1,27 +1,24 @@
 module ppl2.config;
 
 import ppl2.internal;
-///
-/// Singleton Config
-///
-Config getConfig() {
-    return g_config;
-}
-void setConfig(Config c) {
-    g_config = c;
-}
+import std.array;
+import std.path;
 
 struct Lib {
-    string baseModuleName;  // "core"
+    string baseModuleName;  // eg. "core"
     string absPath;
 }
 
 final class Config {
+    Module[/*canonicalName*/string] modules;
+    Mutex lock;
 public:
     string mainFile;
     string basePath;
     string targetPath = "test/.target/";
     string targetExe  = "test.exe";
+    string mainModuleCanonicalName;
+    Module mainModule;
 
     bool logDebug     = true;
     bool logTokens    = false;
@@ -42,8 +39,7 @@ public:
     Lib[string] libs;   // key = baseModuleName
 
     this(string mainFilePath) {
-        import std.path;
-        import std.array;
+        this.lock = new Mutex;
 
         setToDebug();
         addLibs();
@@ -56,8 +52,46 @@ public:
         if(basePath.length > 0) basePath ~= "/";
 
         generateTargetDirectories();
+        getMainModuleCanonicalName();
+
+        writefln("\nPPL %s", VERSION);
+        writefln("Main file .... %s", mainFile);
+        writefln("Base path .... %s", basePath);
+        writefln("Target path .. %s", targetPath);
+        writefln("Target exe ... %s", targetExe);
+        writefln("");
+    }
+    Module getOrCreateModule(string canonicalName) {
+        lock.lock();
+        scope(exit) lock.unlock();
+
+        auto m = modules.get(canonicalName, null);
+        if(!m) {
+            m = new Module(canonicalName, PPL2.llvmWrapper, this);
+            modules[canonicalName] = m;
+
+            if(canonicalName==mainModuleCanonicalName) {
+                m.isMainModule = true;
+                mainModule = m;
+            }
+
+            /// Get to the point where we know what the exports are
+            m.parser.readContents();
+            m.parser.tokenise();
+        }
+        return m;
+    }
+    void removeModule(string canonicalName) {
+        modules.remove(canonicalName);
+    }
+    Module[] allModules() {
+        return modules.values;
     }
 private:
+    void getMainModuleCanonicalName() {
+        auto rel = mainFile[basePath.length..$];
+        mainModuleCanonicalName = rel.stripExtension.replace("/", ".").replace("\\", ".");
+    }
     void generateTargetDirectories() {
         createTargetDir("tok/");
         createTargetDir("ast/");

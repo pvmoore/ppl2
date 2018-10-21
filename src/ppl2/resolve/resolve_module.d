@@ -1039,11 +1039,11 @@ public:
     }
     //==========================================================================
     void writeAST() {
-        if(!getConfig().logDebug) return;
+        if(!module_.config.logDebug) return;
 
         //dd("DUMP MODULE", module_);
 
-        auto f = new FileLogger(getConfig().targetPath~"ast/" ~ module_.fileName~".ast");
+        auto f = new FileLogger(module_.config.targetPath~"ast/" ~ module_.fileName~".ast");
         scope(exit) f.close();
 
         module_.dump(f);
@@ -1105,7 +1105,7 @@ private:
 
         /// Handle import
         if(def.isImport) {
-            auto m = PPL2.getModule(def.moduleName);
+            auto m = module_.config.getOrCreateModule(def.moduleName);
             if(m.isParsed) {
                 auto externDef = m.getAlias(def.name);
                 if(externDef) {
@@ -1157,7 +1157,7 @@ private:
                     t.getNamedStruct.numRefs++;
                 } else {
                     /// Extract the template
-                    auto structModule = PPL2.getModule(ns.moduleName);
+                    auto structModule = module_.config.getOrCreateModule(ns.moduleName);
                     structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
 
                     typesWaiting++;

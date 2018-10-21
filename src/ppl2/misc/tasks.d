@@ -3,6 +3,14 @@ module ppl2.misc.tasks;
 import ppl2.internal;
 
 public:
+
+final class Tasks {
+private:
+
+public:
+
+}
+
 //=============================================================================
 void aliasOrStructRequired(string moduleName, string defineName) {
     string key = "%s|%s".format(moduleName, defineName);

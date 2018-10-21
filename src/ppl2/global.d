@@ -7,20 +7,7 @@ import std.stdio : File;
 
 public:
 
-const string VERSION = "2.0.0";
-
-__gshared Mutex g_getModuleMutex;
-
-__gshared Config g_config;
-
-__gshared int g_nodeid = 1;
-__gshared int g_callableID = 1;
-
-__gshared string g_mainModuleCanonicalName;
-__gshared int g_mainModuleNID;
-
-__gshared FileLogger g_logger;
-
+/// Move these state objects elsewhere
 __gshared Queue!Task g_taskQueue;
 __gshared Set!string g_modulesRequested;    /// KEY = moduleName
 __gshared Set!string g_definesRequested;    /// key = moduleName|defineName
@@ -28,6 +15,17 @@ __gshared Set!string g_functionsRequested;  /// key = moduleName|funcName
 
 __gshared Set!string g_uniqueFunctionNames;
 __gshared Set!string g_uniqueStructAndModuleNames;
+
+
+
+
+
+const string VERSION = "2.0.0";
+
+__gshared int g_nodeid = 1;
+__gshared int g_callableID = 1;
+
+__gshared FileLogger g_logger;
 
 __gshared int[string] g_builtinTypes;
 __gshared string[int] g_typeToString;
@@ -51,8 +49,6 @@ __gshared const FALSE = 0;
 __gshared Set!string g_keywords;
 
 shared static this() {
-    g_getModuleMutex = new Mutex;
-
     g_logger = new FileLogger(".logs/log.log");
     g_taskQueue = new Queue!Task(1024);
 

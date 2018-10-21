@@ -94,7 +94,7 @@ private:
                 auto f = n.as!Function;
                 if(f.name==name) {
                     if(f.isImport) {
-                        auto m = PPL2.getModule(f.moduleName);
+                        auto m = module_.config.getOrCreateModule(f.moduleName);
                         if(m.isParsed) {
                             auto fns = m.getFunctions(name);
                             if(fns.length==0) {

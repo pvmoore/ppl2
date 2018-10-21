@@ -494,7 +494,7 @@ private:
         }
 
         foreach(k,v; toExtract) {
-            auto m = PPL2.getModule(k);
+            auto m = module_.config.getOrCreateModule(k);
             m.templates.extract(v, call, mangledName);
 
             if(m.nid!=module_.nid) {
@@ -545,7 +545,7 @@ private:
         chat("    toExtract = %s", toExtract);
 
         foreach(k,v; toExtract) {
-            auto m = PPL2.getModule(k);
+            auto m = module_.config.getOrCreateModule(k);
             m.templates.extract(v, call, mangledName);
         }
     }

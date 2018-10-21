@@ -28,8 +28,8 @@ public:
         // /WX          treat linker warnings as errors
         watch.start();
         auto runtime     = dynamicRuntime;
-        string targetObj = getConfig().targetPath ~ m.canonicalName ~ ".obj";
-        string targetExe = getConfig().targetPath ~ getConfig().targetExe;
+        string targetObj = m.config.targetPath ~ m.canonicalName ~ ".obj";
+        string targetExe = m.config.targetPath ~ m.config.targetExe;
 
         writeASM(llvm, m);
         writeOBJ(llvm, m);
@@ -52,7 +52,7 @@ public:
         int status = wait(pid);
 
         /// Delete the obj file if required
-        if(!getConfig().writeOBJ) {
+        if(!m.config.writeOBJ) {
             import std.file : remove;
             remove(targetObj);
         }

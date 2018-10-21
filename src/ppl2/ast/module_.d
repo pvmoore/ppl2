@@ -13,7 +13,9 @@ public:
     Set!string exportedTypes;     /// name of each exported types
     Set!string exportedFunctions; /// name of each exported functions
     bool isParsed;
+    bool isMainModule;            /// true if this is the first module of the project
     Set!ASTNode activeRoots;  /// Active root nodes
+    LLVMWrapper llvmWrapper;
 
     LiteralString[][string] literalStrings;
     Closure[] closures;
@@ -25,6 +27,7 @@ public:
     OptimisationDCE dce;
     ModuleGenerator gen;
     Templates templates;
+    Config config;
 
     StatementParser stmtParser;
     ExpressionParser exprParser;
@@ -37,9 +40,11 @@ public:
     LLVMModule llvmValue;
     LiteralString moduleNameLiteral;
 
-    this(string canonicalName, LLVMWrapper llvm) {
+    this(string canonicalName, LLVMWrapper llvmWrapper, Config config) {
         this.nid               = g_nodeid++;
         this.canonicalName     = canonicalName;
+        this.config            = config;
+        this.llvmWrapper       = llvmWrapper;
         this.exportedTypes     = new Set!string;
         this.exportedFunctions = new Set!string;
         this.fileName          = canonicalName.replace("::", ".");
@@ -52,7 +57,7 @@ public:
         checker           = new ModuleChecker(this);
         constFolder       = new ModuleConstantFolder(this);
         dce               = new OptimisationDCE(this);
-        gen               = new ModuleGenerator(this, llvm);
+        gen               = new ModuleGenerator(this, llvmWrapper);
         templates         = new Templates(this);
 
         stmtParser        = new StatementParser(this);
@@ -73,9 +78,6 @@ public:
 
     string getPath() {
         return getFullPath(canonicalName);
-    }
-    bool isMainModule() {
-        return nid==g_mainModuleNID;
     }
 
     void addLiteralString(LiteralString s) {
@@ -261,14 +263,6 @@ public:
         return "Module[refs=%s] %s".format(numRefs, canonicalName);
     }
     //==============================================================================
-    /// Assumes path is normalised
-    static string getCanonicalName(string path) {
-        import std.array;
-        import std.path;
-
-        auto rel = path[getConfig().basePath.length..$];
-        return rel.stripExtension.replace("/", ".").replace("\\", ".");
-    }
     /// eg. "core::console" -> ["core", "console"]
     static string[] splitCanonicalName(string canonicalName) {
         assert(canonicalName);
@@ -281,10 +275,11 @@ public:
     static string getFullPath(string canonicalName) {
         import std.array;
 
-        string baseModuleName = splitCanonicalName(canonicalName)[0];
-        string path = getConfig().basePath;
+        auto config         = PPL2.inst.config;
+        auto baseModuleName = splitCanonicalName(canonicalName)[0];
+        auto path           = config.basePath;
 
-        foreach(lib; getConfig().libs) {
+        foreach(lib; config.libs) {
             if(lib.baseModuleName==baseModuleName) {
                 path = lib.absPath;
             }

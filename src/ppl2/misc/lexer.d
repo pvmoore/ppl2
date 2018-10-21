@@ -512,9 +512,9 @@ public:
         return tokens[];
     }
     void dumpTokens(Token[] tokens) {
-        if(!getConfig().logTokens) return;
+        if(!module_.config.logTokens) return;
 
-        auto f = new FileLogger(getConfig().targetPath~"tok/"~module_.canonicalName~".tok");
+        auto f = new FileLogger(module_.config.targetPath~"tok/"~module_.canonicalName~".tok");
         foreach(i, t; tokens) {
             f.log("[%s] %s", i, t);
         }

@@ -92,7 +92,7 @@ private:
             throw new CompilerError(fns[1], "Multiple module 'new' functions are not allowed");
         }
         bool hasModuleInit = fns.length==1;
-        bool isMainModule  = module_.canonicalName==g_mainModuleCanonicalName;
+        bool isMainModule  = module_.isMainModule;
 
         /// Add a module new() function if it does not exist
         Function initFunc;
@@ -115,8 +115,6 @@ private:
         }
 
         if(isMainModule) {
-            g_mainModuleNID = module_.nid;
-
             /// Check for a program entry point
             auto mainfns = module_.getFunctions("main");
             if(mainfns.length > 1) {

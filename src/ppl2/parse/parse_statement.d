@@ -236,7 +236,7 @@ private: //=====================================================================
             }
 
             /// Trigger the loading of the module
-            imp.mod = PPL2.getModule(imp.moduleName);
+            imp.mod = module_.config.getOrCreateModule(imp.moduleName);
 
             /// For each exported function and type, add proxies to this module
             foreach (f; imp.mod.exportedFunctions.values) {
@@ -303,9 +303,10 @@ private: //=====================================================================
         }
 
         /// name
-        f.name       = t.value;
-        f.moduleName = module_.canonicalName;
-        f.moduleNID  = module_.nid;
+        f.name           = t.value;
+        f.moduleName     = module_.canonicalName;
+        f.moduleNID      = module_.nid;
+        f.isProgramEntry = module_.isMainModule && f.name=="main";
         t.next;
 
         if(f.name=="operator" && ns) {
@@ -398,7 +399,7 @@ private: //=====================================================================
         auto a = makeNode!Assert(t);
 
         /// Only add if asserts are enabled
-        if(getConfig().enableAsserts) {
+        if(module_.config.enableAsserts) {
             parent.add(a);
         }
 
