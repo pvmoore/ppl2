@@ -110,7 +110,7 @@ final class NodeBuilder {
     Constructor string_(LiteralString lit) {
         /// Create an alloca
         auto con = makeNode!Constructor(node);
-        con.type = findType("string", module_);
+        con.type = module_.typeFinder.findType("string", module_);
 
         auto var = variable(module_.makeTemporary("str"), con.type);
         con.add(var);

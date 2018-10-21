@@ -129,7 +129,7 @@ private:
         }
 
         /// Request init function resolution
-        functionRequired(module_.canonicalName, "new");
+        module_.buildState.functionRequired(module_.canonicalName, "new");
     }
     ///
     /// Look for exported functions, defines and structs

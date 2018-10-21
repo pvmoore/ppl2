@@ -26,9 +26,11 @@ import llvm.all;
 import ppl2;
 
 import ppl2.access;
+import ppl2.BuildState;
 import ppl2.config;
 import ppl2.error;
 import ppl2.interfaces;
+import ppl2.Mangler;
 import ppl2.ppl2;
 import ppl2.global;
 import ppl2.operator;
@@ -93,10 +95,8 @@ import ppl2.misc.JsonWriter;
 //import ppl2.misc.lexer;
 import ppl2.misc.linker;
 import ppl2.misc.misc_logging;
-import ppl2.misc.mangle;
 import ppl2.misc.node_builder;
 import ppl2.misc.optimiser;
-import ppl2.misc.tasks;
 import ppl2.misc.util;
 import ppl2.misc.writer;
 
@@ -111,7 +111,7 @@ import ppl2.parse.parse_variable;
 
 import ppl2.resolve.after_resolution;
 import ppl2.resolve.find_import;
-import ppl2.resolve.find_type;
+import ppl2.resolve.TypeFinder;
 import ppl2.resolve.OverloadCollector;
 import ppl2.resolve.resolve_call;
 import ppl2.resolve.resolve_identifier;

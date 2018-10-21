@@ -236,7 +236,7 @@ private: //=====================================================================
             }
 
             /// Trigger the loading of the module
-            imp.mod = module_.config.getOrCreateModule(imp.moduleName);
+            imp.mod = module_.buildState.getOrCreateModule(imp.moduleName);
 
             /// For each exported function and type, add proxies to this module
             foreach (f; imp.mod.exportedFunctions.values) {

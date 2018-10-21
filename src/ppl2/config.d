@@ -4,21 +4,18 @@ import ppl2.internal;
 import std.array;
 import std.path;
 
-struct Lib {
-    string baseModuleName;  // eg. "core"
-    string absPath;
-}
-
 final class Config {
-    Module[/*canonicalName*/string] modules;
-    Mutex lock;
 public:
+    struct Lib {
+        string baseModuleName;  // eg. "core"
+        string absPath;
+    }
+
     string mainFile;
     string basePath;
     string targetPath = "test/.target/";
     string targetExe  = "test.exe";
     string mainModuleCanonicalName;
-    Module mainModule;
 
     bool logDebug     = true;
     bool logTokens    = false;
@@ -39,8 +36,6 @@ public:
     Lib[string] libs;   // key = baseModuleName
 
     this(string mainFilePath) {
-        this.lock = new Mutex;
-
         setToDebug();
         addLibs();
 
@@ -60,32 +55,6 @@ public:
         writefln("Target path .. %s", targetPath);
         writefln("Target exe ... %s", targetExe);
         writefln("");
-    }
-    Module getOrCreateModule(string canonicalName) {
-        lock.lock();
-        scope(exit) lock.unlock();
-
-        auto m = modules.get(canonicalName, null);
-        if(!m) {
-            m = new Module(canonicalName, PPL2.llvmWrapper, this);
-            modules[canonicalName] = m;
-
-            if(canonicalName==mainModuleCanonicalName) {
-                m.isMainModule = true;
-                mainModule = m;
-            }
-
-            /// Get to the point where we know what the exports are
-            m.parser.readContents();
-            m.parser.tokenise();
-        }
-        return m;
-    }
-    void removeModule(string canonicalName) {
-        modules.remove(canonicalName);
-    }
-    Module[] allModules() {
-        return modules.values;
     }
 private:
     void getMainModuleCanonicalName() {

@@ -94,7 +94,7 @@ private:
                 auto f = n.as!Function;
                 if(f.name==name) {
                     if(f.isImport) {
-                        auto m = module_.config.getOrCreateModule(f.moduleName);
+                        auto m = module_.buildState.getOrCreateModule(f.moduleName);
                         if(m.isParsed) {
                             auto fns = m.getFunctions(name);
                             if(fns.length==0) {
@@ -144,7 +144,7 @@ private:
             if(f.getType.isUnknown) {
                 ready = false;
             }
-            functionRequired(f.moduleName, name);
+            module_.buildState.functionRequired(f.moduleName, name);
             results.add(Callable(f));
         }
     }

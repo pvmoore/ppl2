@@ -6,11 +6,12 @@ final class ExpressionParser {
 private:
     Module module_;
 
-    TypeParser typeParser() { return module_.typeParser; }
-    TypeDetector typeDetector() { return module_.typeDetector; }
+    TypeParser typeParser()      { return module_.typeParser; }
+    TypeDetector typeDetector()  { return module_.typeDetector; }
     StatementParser stmtParser() { return module_.stmtParser; }
-    VariableParser varParser() { return module_.varParser; }
-    NodeBuilder builder() { return module_.nodeBuilder; }
+    VariableParser varParser()   { return module_.varParser; }
+    TypeFinder typeFinder()      { return module_.typeFinder; }
+    NodeBuilder builder()        { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -643,7 +644,7 @@ private:
         /// Create an alloca
         auto var = makeNode!Variable(t);
         var.name = module_.makeTemporary("str");
-        var.type = findType("string", parent);
+        var.type = typeFinder.findType("string", parent);
         composite.add(var);
 
         /// Call string.new(this, byte*, int)

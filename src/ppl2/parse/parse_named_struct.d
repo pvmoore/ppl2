@@ -8,6 +8,7 @@ private:
 
     StatementParser stmtParser() { return module_.stmtParser; }
     TypeDetector typeDetector()  { return module_.typeDetector; }
+    TypeFinder typeFinder()      { return module_.typeFinder; }
     NodeBuilder builder()        { return module_.nodeBuilder; }
 public:
     this(Module module_) {
@@ -28,7 +29,7 @@ public:
         n.access     = t.access();
 
         /// Is this type already defined?
-        auto type = findType(t.value, parent);
+        auto type = typeFinder.findType(t.value, parent);
 
         //dd("parseNamedStruct", t.value);
         if(type) {

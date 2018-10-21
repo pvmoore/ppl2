@@ -1,24 +1,11 @@
 module ppl2.global;
-/**
- *  Handle all global shared initialisation and storage.
- */
+///
+/// Handle all global shared initialisation and storage.
+///
 import ppl2.internal;
 import std.stdio : File;
 
 public:
-
-/// Move these state objects elsewhere
-__gshared Queue!Task g_taskQueue;
-__gshared Set!string g_modulesRequested;    /// KEY = moduleName
-__gshared Set!string g_definesRequested;    /// key = moduleName|defineName
-__gshared Set!string g_functionsRequested;  /// key = moduleName|funcName
-
-__gshared Set!string g_uniqueFunctionNames;
-__gshared Set!string g_uniqueStructAndModuleNames;
-
-
-
-
 
 const string VERSION = "2.0.0";
 
@@ -32,7 +19,7 @@ __gshared string[int] g_typeToString;
 
 __gshared Operator[TT] g_ttToOperator;
 
-__gshared Token NO_TOKEN = Token(TT.NONE, null, -1, -1, -1);
+__gshared Token NO_TOKEN    = Token(TT.NONE, null, -1, -1, -1);
 
 __gshared Type TYPE_UNKNOWN = new BasicType(Type.UNKNOWN);
 __gshared Type TYPE_BOOL    = new BasicType(Type.BOOL);
@@ -41,23 +28,15 @@ __gshared Type TYPE_INT     = new BasicType(Type.INT);
 __gshared Type TYPE_LONG    = new BasicType(Type.LONG);
 __gshared Type TYPE_VOID    = new BasicType(Type.VOID);
 
-__gshared Callable CALLABLE_NOT_READY;
-
 __gshared const TRUE  = -1;
 __gshared const FALSE = 0;
+
+__gshared Callable CALLABLE_NOT_READY;
 
 __gshared Set!string g_keywords;
 
 shared static this() {
     g_logger = new FileLogger(".logs/log.log");
-    g_taskQueue = new Queue!Task(1024);
-
-    g_modulesRequested = new Set!string;
-    g_definesRequested = new Set!string;
-    g_functionsRequested = new Set!string;
-
-    g_uniqueFunctionNames = new Set!string;
-    g_uniqueStructAndModuleNames = new Set!string;
 
     g_builtinTypes["var"]    = Type.UNKNOWN;
     g_builtinTypes["bool"]   = Type.BOOL;

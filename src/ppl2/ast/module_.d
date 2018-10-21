@@ -28,6 +28,7 @@ public:
     ModuleGenerator gen;
     Templates templates;
     Config config;
+    BuildState buildState;
 
     StatementParser stmtParser;
     ExpressionParser exprParser;
@@ -36,20 +37,21 @@ public:
     NamedStructParser namedStructParser;
     VariableParser varParser;
     NodeBuilder nodeBuilder;
+    TypeFinder typeFinder;
 
     LLVMModule llvmValue;
     LiteralString moduleNameLiteral;
 
-    this(string canonicalName, LLVMWrapper llvmWrapper, Config config) {
+    this(string canonicalName, LLVMWrapper llvmWrapper, BuildState buildState) {
         this.nid               = g_nodeid++;
         this.canonicalName     = canonicalName;
-        this.config            = config;
+        this.buildState        = buildState;
+        this.config            = buildState.config;
         this.llvmWrapper       = llvmWrapper;
         this.exportedTypes     = new Set!string;
         this.exportedFunctions = new Set!string;
         this.fileName          = canonicalName.replace("::", ".");
 
-        addUniqueName(canonicalName);
         log("Creating new Module(%s)", canonicalName);
 
         parser            = new ModuleParser(this);
@@ -67,6 +69,7 @@ public:
         namedStructParser = new NamedStructParser(this);
         varParser         = new VariableParser(this);
         nodeBuilder       = new NodeBuilder(this);
+        typeFinder        = new TypeFinder(this);
         activeRoots       = new Set!ASTNode;
 
         moduleNameLiteral = makeNode!LiteralString;
@@ -275,7 +278,7 @@ public:
     static string getFullPath(string canonicalName) {
         import std.array;
 
-        auto config         = PPL2.inst.config;
+        auto config         = PPL2.inst.getConfig();
         auto baseModuleName = splitCanonicalName(canonicalName)[0];
         auto path           = config.basePath;
 
@@ -288,11 +291,5 @@ public:
         assert(path.endsWith("/"));
 
         return path ~ canonicalName.replace("::", "/") ~ ".p2";
-    }
-    static void addUniqueName(string canonicalName) {
-        string name = canonicalName;
-        auto i = canonicalName.lastIndexOf("::");
-        if(i!=-1) name = canonicalName[i+2..$];
-        g_uniqueStructAndModuleNames.add(name);
     }
 }

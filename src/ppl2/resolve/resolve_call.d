@@ -92,7 +92,7 @@ public:
             if(!call.templateTypes.areKnown) {
                 return CALLABLE_NOT_READY;
             }
-            string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
+            string mangledName = call.name ~ "<" ~ module_.buildState.mangler.mangle(call.templateTypes) ~ ">";
 
             /// Possible implicit this.call<...>(...)
             if(ns) {
@@ -177,7 +177,7 @@ public:
 
             /// Add the function to the resolution set
             if(overloads[0].isFunction) {
-                functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
+                module_.buildState.functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
             }
 
             return overloads[0];
@@ -202,7 +202,7 @@ public:
 
         if(call.isTemplated && !call.name.contains("<")) {
             chat("%s is templated", call.name);
-            string mangledName = call.name ~ "<" ~ mangle(call.templateTypes) ~ ">";
+            string mangledName = call.name ~ "<" ~ module_.buildState.mangler.mangle(call.templateTypes) ~ ">";
 
             extractTemplates(ns, call, mangledName, isStatic);
             call.name = mangledName;
@@ -302,7 +302,7 @@ public:
 
         /// Add the static function to the resolution set
         if(isStatic && overloads[0].isFunction) {
-            functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
+            module_.buildState.functionRequired(overloads[0].func.getModule.canonicalName, overloads[0].getName);
         }
 
         return overloads[0];
@@ -494,7 +494,7 @@ private:
         }
 
         foreach(k,v; toExtract) {
-            auto m = module_.config.getOrCreateModule(k);
+            auto m = module_.buildState.getOrCreateModule(k);
             m.templates.extract(v, call, mangledName);
 
             if(m.nid!=module_.nid) {
@@ -545,7 +545,7 @@ private:
         chat("    toExtract = %s", toExtract);
 
         foreach(k,v; toExtract) {
-            auto m = module_.config.getOrCreateModule(k);
+            auto m = module_.buildState.getOrCreateModule(k);
             m.templates.extract(v, call, mangledName);
         }
     }

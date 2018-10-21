@@ -146,7 +146,7 @@ public:
     }
     string getUniqueName() {
         if(!_uniqueName) {
-            _uniqueName = mangle(this);
+            _uniqueName = getModule().buildState.mangler.mangle(this);
         }
         return _uniqueName;
     }

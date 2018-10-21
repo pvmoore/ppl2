@@ -47,7 +47,7 @@ public:
             }
             /// Is it a NamedStruct or Define?
             if(!found) {
-                auto ty = findType(t.value, node);
+                auto ty = module_.typeFinder.findType(t.value, node);
                 if(ty) {
                     t.next;
                     found = true;

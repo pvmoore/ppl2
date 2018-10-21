@@ -83,7 +83,7 @@ public:
 
                 /// Could be a chain of Aliases in different modules
                 if(it.isImport) {
-                    aliasOrStructRequired(it.moduleName, it.name);
+                    module_.buildState.aliasOrStructRequired(it.moduleName, it.name);
                 }
             }
         });
@@ -458,7 +458,7 @@ public:
             if(res.isFunc) {
                 auto func = res.func;
 
-                functionRequired(func.moduleName, func.name);
+                module_.buildState.functionRequired(func.moduleName, func.name);
 
                 if(func.isStructMember) {
                     auto struct_ = n.getAncestor!AnonStruct();
@@ -1105,7 +1105,7 @@ private:
 
         /// Handle import
         if(def.isImport) {
-            auto m = module_.config.getOrCreateModule(def.moduleName);
+            auto m = module_.buildState.getOrCreateModule(def.moduleName);
             if(m.isParsed) {
                 auto externDef = m.getAlias(def.name);
                 if(externDef) {
@@ -1148,16 +1148,16 @@ private:
             /// We now have a NamedStruct to work with
             if(def.templateProxyParams.areKnown) {
                 auto ns            = def.templateProxyType.getNamedStruct;
-                string mangledName = ns.getUniqueName ~ "<" ~ mangle(def.templateProxyParams) ~ ">";
+                string mangledName = ns.getUniqueName ~ "<" ~ module_.buildState.mangler.mangle(def.templateProxyParams) ~ ">";
 
-                auto t = findType(mangledName, ns);
+                auto t = module_.typeFinder.findType(mangledName, ns);
                 if(t) {
                     assert(t.isNamedStruct);
                     type = PtrType.of(t, type.getPtrDepth);
                     t.getNamedStruct.numRefs++;
                 } else {
                     /// Extract the template
-                    auto structModule = module_.config.getOrCreateModule(ns.moduleName);
+                    auto structModule = module_.buildState.getOrCreateModule(ns.moduleName);
                     structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
 
                     typesWaiting++;

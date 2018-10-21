@@ -6,16 +6,16 @@ import ppl2.internal;
 ///
 final class AfterResolution {
 private:
-    Config config;
+    BuildState buildState;
     Module[] modules;
 public:
-    this(Config config) {
-        this.config  = config;
-        this.modules = config.allModules;
+    this(BuildState buildState) {
+        this.buildState = buildState;
+        this.modules    = buildState.allModules;
     }
 
     void process() {
-        auto mainModule = config.mainModule;
+        auto mainModule = buildState.mainModule;
         auto entry      = mainModule.getFunctions("main")[0];
         assert(entry);
 

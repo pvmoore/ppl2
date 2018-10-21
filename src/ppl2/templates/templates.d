@@ -33,7 +33,7 @@ public:
 
         module_.parser.appendTokens(ns, tokens);
 
-        aliasOrStructRequired(module_.canonicalName, mangledName);
+        module_.buildState.aliasOrStructRequired(module_.canonicalName, mangledName);
 
         //if(module_.canonicalName=="test_statics") {
         //    dd("Extracted struct template", ns.name, mangledName, module_.canonicalName);
@@ -80,7 +80,7 @@ public:
 
             module_.parser.appendTokens(f, tokens);
 
-            functionRequired(module_.canonicalName, mangledName);
+            module_.buildState.functionRequired(module_.canonicalName, mangledName);
         }
 
         /// Ensure these templates are not extract again with the same params

@@ -9,6 +9,7 @@ private:
     ExpressionParser exprParser() { return module_.exprParser; }
     StatementParser stmtParser()  { return module_.stmtParser; }
     VariableParser varParser()    { return module_.varParser; }
+    TypeFinder typeFinder()       { return module_.typeFinder; }
     TypeDetector typeDetector()   { return module_.typeDetector; }
 public:
     this(Module module_) {
@@ -76,9 +77,9 @@ private:
 
         Type[] templateParams = collectTemplateParams(t, node);
 
-        auto type = findType(name, node);
+        auto type = typeFinder.findType(name, node);
         if(type && templateParams.length>0) {
-            type = findTemplateType(type, node, module_, templateParams);
+            type = typeFinder.findTemplateType(type, node, templateParams);
         }
 
         if(!type) {
@@ -108,10 +109,10 @@ private:
 
         Type[] templateParams = collectTemplateParams(t, node);
         if(templateParams.length>0) {
-            type = findTemplateType(type, node, module_, templateParams);
+            type = typeFinder.findTemplateType(type, node, templateParams);
         } else {
             auto alias_ = type.as!Alias;
-            aliasOrStructRequired(alias_.moduleName, alias_.name);
+            module_.buildState.aliasOrStructRequired(alias_.moduleName, alias_.name);
         }
 
         return type;
