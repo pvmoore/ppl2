@@ -5,7 +5,7 @@ main {
 } 
 */
 
-var s = ""
+var s = "hello"
 
 import test_imports, test_literals
 import test_arrays, test_expressions, test_structs

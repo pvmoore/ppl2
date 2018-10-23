@@ -63,11 +63,11 @@ public:
         assert(startLine!=endLine);
         assert(endLine!=0);
 
-        writefln("====================================================");
-        writefln("updateHighlight [%s lines total] highlight lines %s..%s (%s lines)",
-            lines.length,
-            startLine, endLine-1,
-            endLine-startLine);
+        //writefln("====================================================");
+        //writefln("updateHighlight [%s lines total] highlight lines %s..%s (%s lines)",
+        //    lines.length,
+        //    startLine, endLine-1,
+        //    endLine-startLine);
 
         void updateLineInfo() {
             //writefln("updateLineInfo %s %s", lineInfo.length, lines.length); flushConsole();
@@ -161,7 +161,7 @@ public:
                     endLine++;
                 }
             }
-            writefln("%s..%s", startLine, endLine-1);
+            //writefln("%s..%s", startLine, endLine-1);
         }
         TokenCategory getCategory(ppl2.Token t, int j, ppl2.Token[] toks) {
             bool isFuncDecl() {
@@ -218,9 +218,9 @@ public:
         } else {
             data = lines[startLine].toUTF8;
         }
-        ppl2.dd("-------------");
+        //ppl2.dd("-------------");
         ppl2.Token[] toks = lexer.tokenise!true(data);
-        ppl2.dd("tokens:", "%s".format(toks));
+        //ppl2.dd("tokens:", "%s".format(toks));
         //ppl2.dd("data:'%s'".format(data));
 
         for(int i=startLine; i<endLine; i++) {
@@ -250,9 +250,9 @@ public:
             lineInfo[i].content = lines[i].toUTF8;
         }
 
-        foreach(i; 0..lines.length) {
-            writefln("[%s] %s", i, lineInfo[i]);
-        }
-        flushConsole();
+        //foreach(i; 0..lines.length) {
+        //    writefln("[%s] %s", i, lineInfo[i]);
+        //}
+        //flushConsole();
     }
 }

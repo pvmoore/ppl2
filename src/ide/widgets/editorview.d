@@ -10,30 +10,66 @@ public:
     this() {
         super("EDITOR-VIEW");
 
-        layoutWidth(FILL_PARENT);
-        layoutHeight(FILL_PARENT);
-
         tabChanged = (string newTabId, string oldTabId) {
-            auto t = editors[newTabId];
-            dispatchAction(new Action(ActionID.WINDOW_CAPTION_CHANGE, ""d).stringParam(t.getFilename));
+            auto oldTab = editors.get(oldTabId, null);
+            auto newTab = editors[newTabId];
+            dispatchAction(new Action(ActionID.WINDOW_CAPTION_CHANGE, ""d).stringParam(newTab.filename));
+
+            if(oldTab) oldTab.onDeactivated();
+            newTab.onActivated();
         };
         tabClose = (string tabId) {
             removeTab(tabId);
             editors.remove(tabId);
         };
     }
+    void onClosing() {
+        if(!project) return;
+
+        saveAll();
+
+        /// update the open files and caret lines
+        Project.OpenFile[] openFiles;
+        foreach(e; editors.values) {
+            openFiles ~= Project.OpenFile(e.relFilename, e.caretPos.line, e.isActive);
+        }
+        project.updateOpenFiles(openFiles);
+    }
+    void saveAll() {
+        foreach(e; editors.values) {
+            e.save(e.filename);
+        }
+    }
     void setProject(Project project) {
         this.project = project;
 
+        /// Remove all current tabs
+        foreach(i; editors.keys) {
+            removeTab(i);
 
+        }
+        editors.clear();
+
+        /// Open project tabs
+        foreach(f; project.openFiles.keys) {
+            dispatchAction(new Action(ActionID.PROJECT_VIEW_FILE_ACTIVATED, ""d).stringParam(f));
+        }
+        auto active = project.getActiveOpenFile();
+        if(active) {
+            selectTab("TAB-"~active.filename);
+        }
     }
     void loadFile(string name) {
         string filename = project.getAbsPath(name);
         assert(FQN!"std.file".exists(filename));
 
-        auto tab = tab("TAB-"~name);
-        if(!tab) {
-            addTab(makeTab(name, filename), FQN!"std.path".baseName(name).toUTF32, null, true, null);
+        //writefln("loadFile %s %s", name, filename); flushConsole();
+
+        auto openFile = project.getOpenFile(name);
+
+        auto t = tab("TAB-"~name);
+        if(!t) {
+            addTab(makeTab(name, filename, openFile), FQN!"std.path".baseName(name).toUTF32, null, true, null);
         }
         selectTab("TAB-"~name);
 
@@ -42,18 +78,14 @@ public:
         //}
     }
 private:
-    Widget makeTab(string id, string filename) {
-        auto editor = new EditorTab("TAB-"~id, filename);
-        editors["TAB-"~id] = editor;
+    Widget makeTab(string name, string filename, Project.OpenFile* info) {
+        int line = 0;
+        if(info) {
+            line = info.line;
+        }
 
-        //TabWidget subtabs = new TabWidget("TAB-"~id);
-        //subtabs.layoutWidth(FILL_PARENT).layoutHeight(FILL_PARENT);
-        //
-        //subtabs.addTab(editor, "SRC"d, null, false, null);
-        //subtabs.addTab(new TextWidget("tokens"~id, ""d), "Tokens"d, null, false, null);
-        //subtabs.addTab(new TextWidget("ast"~id, ""d), "AST"d, null, false, null);
-        //subtabs.addTab(new TextWidget("ir"~id, ""d), "IR"d, null, false, null);
-
+        auto editor = new EditorTab("TAB-"~name, name, filename, line);
+        editors["TAB-"~name] = editor;
         return editor;
     }
 }

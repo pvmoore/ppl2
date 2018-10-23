@@ -1,4 +1,6 @@
-
+/*
+    Compiler hooks
+*/
 public
 
 __assert { bool result, byte* moduleName, int line ->

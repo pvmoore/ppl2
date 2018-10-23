@@ -22,10 +22,15 @@ public:
     }
     void setProject(string mainFileRaw) {
         if(config) {
-            /// Destroy previous data
-
+            assert(false, "todo - remove previous data");
         }
         this.config = new Config(mainFileRaw);
+    }
+    ///
+    ///
+    ///
+    void rebuild(Module m) {
+        assert(false, "implement me");
     }
     void build() {
         if(!config) {

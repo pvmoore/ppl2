@@ -14,6 +14,7 @@ public:
         addTab(new TextWidget("TOKENS-TAB", ""d), "Tokens"d, null, false, null);
         addTab(new TextWidget("AST-TAB", ""d), "AST"d, null, false, null);
         addTab(new TextWidget("IR-TAB", ""d), "IR"d, null, false, null);
+        addTab(new TextWidget("List-TAB", ""d), "List"d, null, false, null);
     }
 }
 

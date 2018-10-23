@@ -7,11 +7,12 @@ private:
     MenuItem menuBar;
     StatusLine statusLine;
     Window window;
-    DockWindow projectDock, propertiesDock;
+    //DockWindow projectDock, propertiesDock;
 
     ProjectView projectView;
     EditorView editorView;
     InfoView infoView;
+    ConsoleView consoleView;
 
     Project project;
 public:
@@ -21,6 +22,19 @@ public:
     void ready() {
         loadProject();
         assert(project);
+
+        //executeInUiThread(() {
+        //    writefln("hello there ui thread %s", Thread.getThis.id); flushConsole();
+        //    //window.showMessageBox("Title"d, "Content"d, [ACTION_OK]);
+        //});
+        //window.onCanClose(() {
+        //    return true;
+        //});
+        window.onClose(() {
+            if(projectView) projectView.onClosing();
+            if(editorView) editorView.onClosing();
+            if(project) project.save();
+        });
     }
 protected:
     override MainMenu createMainMenu() {
@@ -40,15 +54,40 @@ protected:
         return new MainMenu(menuBar);
     }
     override ToolBarHost createToolbars() {
-        //ToolBarHost res = new ToolBarHost();
-        //ToolBar tb;
-        //tb = res.getOrAddToolbar("Standard");
-        //tb.addButtons(ACTION_FILE_NEW, ACTION_FILE_OPEN, ACTION_FILE_SAVE, ACTION_SEPARATOR, ACTION_DEBUG_START);
-        //
+        ToolBarHost res = new ToolBarHost();
+        ToolBar tb;
+        tb = res.getOrAddToolbar("Build");
+        tb.addButtons(
+            new Action(ActionID.TOOLBAR_TOKENISE, "Tokenise"d),
+            ACTION_SEPARATOR,
+            new Action(ActionID.TOOLBAR_PARSE, "Parse"d),
+            ACTION_SEPARATOR,
+            new Action(ActionID.TOOLBAR_RESOLVE, "Resolve"d));
+
+        assert(cast(Button)tb.child(0));
+        assert(cast(Button)tb.child(2));
+        assert(cast(Button)tb.child(4));
+
+        tb.child(0).click = (Widget src) {
+            consoleView.logln("Tokenising... %s", 99);
+            return true;
+        };
+        tb.child(2).click = (Widget src) {
+            consoleView.logln("Parsing...");
+            return true;
+        };
+        tb.child(4).click = (Widget src) {
+            consoleView.logln("Resolving...");
+            return true;
+        };
+
         //tb = res.getOrAddToolbar("Edit");
-        //tb.addButtons(ACTION_EDIT_COPY, ACTION_EDIT_PASTE, ACTION_EDIT_CUT, ACTION_SEPARATOR,
-        //ACTION_EDIT_UNDO, ACTION_EDIT_REDO, ACTION_EDIT_INDENT, ACTION_EDIT_UNINDENT);
-        return null;
+        //tb.addButtons(
+        //    new Action(ActionID.TOOLBAR_TOKENISE, "One"d),
+        //    ACTION_SEPARATOR,
+        //    new Action(ActionID.TOOLBAR_TOKENISE, "Two"d)
+        //);
+        return res;
     }
     override StatusLine createStatusLine() {
         statusLine = new StatusLine;
@@ -56,6 +95,7 @@ protected:
         return statusLine;
     }
     override bool handleAction(const Action a) {
+        writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
         if(a) {
             switch(a.id) with(ActionID) {
                 case FILE_EXIT:
@@ -78,33 +118,42 @@ protected:
         projectView = new ProjectView;
         editorView  = new EditorView;
         infoView    = new InfoView;
+        consoleView = new ConsoleView;
 
         auto dock = new DockHost("dockhost");
-
-        projectDock = new DockWindow("dockleft");
-        projectDock.bodyWidget = projectView;
-        projectDock.dockAlignment = DockAlignment.Left;
-        projectDock.child(0).child(0).text = "Project"d;
-        dock.addDockedWindow(projectDock);
-
-        propertiesDock = new DockWindow("dockright");
-        propertiesDock.bodyWidget = infoView;
-        propertiesDock.dockAlignment = DockAlignment.Right;
-        propertiesDock.child(0).child(0).text = "Info"d;
-        dock.addDockedWindow(propertiesDock);
-
+        {
+            auto d = new DockWindow("dockleft");
+            d.bodyWidget = projectView;
+            d.dockAlignment = DockAlignment.Left;
+            d.child(0).child(0).text = "Project"d;
+            dock.addDockedWindow(d);
+        }
+        {
+            auto d = new DockWindow("dockright");
+            d.bodyWidget = infoView;
+            d.dockAlignment = DockAlignment.Right;
+            d.child(0).child(0).text = "Info"d;
+            dock.addDockedWindow(d);
+        }
+        {
+            auto d = new DockWindow("dockbottom");
+            d.bodyWidget = consoleView;
+            d.dockAlignment = DockAlignment.Bottom;
+            d.child(0).child(0).text = "Console"d;
+            dock.addDockedWindow(d);
+        }
         dock.bodyWidget = editorView;
 
         return dock;
     }
 private:
     void loadProject() {
-        project = new Project;
+        project = new Project("test/");
 
         projectView.setProject(project);
         editorView.setProject(project);
 
-        //window.windowCaption = "PPL IDE :: %s :: %s"d.format(project.name, project.directory);
-        projectDock.child(0).child(0).text = "Project :: %s"d.format(project.name);
+        assert(cast(DockWindow)projectView.parent);
+        projectView.parent.child(0).child(0).text = "Project :: %s"d.format(project.name);
     }
 }

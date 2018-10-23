@@ -28,6 +28,9 @@ public:
             }
         };
     }
+    void onClosing() {
+
+    }
     void refresh() {
 
     }
@@ -55,10 +58,10 @@ public:
                 string rel = asRelativePath(e.name, directory).array.replace("\\", "/");
                 if(e.isDir) rel ~= "/";
 
-                foreach (excl; project.excludedDirs) {
+                foreach (excl; project.excludeDirectories) {
                     if(rel.startsWith(excl)) continue lp;
                 }
-                foreach (excl; project.excludedFiles) {
+                foreach (excl; project.excludeFiles) {
                     if(rel.endsWith(excl)) continue lp;
                 }
 

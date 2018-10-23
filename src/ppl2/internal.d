@@ -35,7 +35,6 @@ import ppl2.ppl2;
 import ppl2.global;
 import ppl2.operator;
 import ppl2.target;
-//import ppl2.tokens;
 
 import ppl2.ast.ast_node;
 import ppl2.ast.expression;
@@ -92,7 +91,6 @@ import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;
 
 import ppl2.misc.JsonWriter;
-//import ppl2.misc.lexer;
 import ppl2.misc.linker;
 import ppl2.misc.misc_logging;
 import ppl2.misc.node_builder;

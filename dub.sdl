@@ -41,3 +41,4 @@ configuration "ide" {
 dependency "common" version="~master"
 dependency "llvm" version="~master"
 dependency "dlangui" version="~>0.9.180"
+dependency "toml" version="~>1.0.0-rc.3"

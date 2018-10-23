@@ -17,7 +17,9 @@ extern (C) int UIAppMain(string[] args) {
     FontManager.hintingMode = HintingMode.Normal;
     FontManager.minAnitialiasedFontSize = 0;
 
-    Window window = Platform.instance.createWindow("PPL IDE", null, WindowFlag.Resizable, 1200, 600);
+    // Fullscreen
+
+    Window window = Platform.instance.createWindow("PPL IDE", null, WindowFlag.Resizable, 800, 600);
 
     auto ide = new IDE(args, window);
 
@@ -26,6 +28,7 @@ extern (C) int UIAppMain(string[] args) {
     ide.ready();
 
     window.show();
+    window.maximizeWindow();
 
     return Platform.instance.enterMessageLoop();
 }

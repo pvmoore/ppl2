@@ -2,12 +2,15 @@ module ide.internal;
 
 public:
 
+import core.thread : Thread;
+
 import std.stdio  : writefln;
 import std.format : format;
 import std.array  : array, replace, appender;
 import std.string : lastIndexOf;
 
 import std.algorithm.searching : any;
+import std.algorithm.iteration : map;
 
 import common;
 import dlangui;
@@ -20,6 +23,7 @@ import ide.util;
 
 import ide.editor.syntaxsupport;
 
+import ide.widgets.ConsoleView;
 import ide.widgets.editortab;
 import ide.widgets.editorview;
 import ide.widgets.infoview;

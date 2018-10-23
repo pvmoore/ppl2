@@ -1,18 +1,33 @@
-
-[general]
+[[general]]
 name = "test"
+targetDirectory = ".target/"
+excludeFiles = ["blah", "blah2"]
+excludeDirectories = [".target/"]
 
-excludeFiles       = ["blah"]
-excludeDirectories = ["blah2"]
-
-[state]
-currentFile    = "test.p2"
-currentLine    = 1
-currentColumn  = 5
-
-[release]
+[[release]]
 optLevel = 3
-    
-[dependencies]
-    
-    
+
+[[debug]]
+
+[[dependency]]
+lib = "thing"
+
+[[openFile]]
+name = "test.p2"
+line = 75
+active = 0
+
+[[openFile]]
+name = "test_if.p2"
+line = 8
+active = 0
+
+[[openFile]]
+name = "test_consts.p2"
+line = 27
+active = 0
+
+[[openFile]]
+name = "core/hooks.p2"
+line = 13
+active = 1
