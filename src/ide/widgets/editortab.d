@@ -21,6 +21,10 @@ public:
         contextMenu.add(new Action(ActionID.CONTEXT_MENU, "Context Menu"d));
         popupMenu = contextMenu;
 
+        //int x = 10, y=10;
+        //canShowPopupMenu(x,y);
+        //showPopupMenu(x,y);
+
         //fontFace = "Courier New";
         fontFamily = FontFamily.MonoSpace;
         fontSize   = makePointSize(14);

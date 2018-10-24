@@ -10,9 +10,10 @@ void main(string[] argv) {
     auto mainFile = "test/./test.p2";
 
     auto ppl2 = new PPL2;
+    scope(exit) ppl2.destroy();
+
     ppl2.setProject(mainFile);
     ppl2.build();
-
 }
 
 

@@ -26,8 +26,6 @@ import llvm.all;
 import ppl2;
 
 import ppl2.access;
-import ppl2.BuildState;
-import ppl2.config;
 import ppl2.error;
 import ppl2.interfaces;
 import ppl2.Mangler;
@@ -64,7 +62,6 @@ import ppl2.ast.expr_parenthesis;
 import ppl2.ast.expr_type;
 import ppl2.ast.expr_unary;
 import ppl2.ast.statement;
-import ppl2.ast.module_;
 import ppl2.ast.parameters;
 import ppl2.ast.stmt_assert;
 import ppl2.ast.stmt_break;
@@ -75,6 +72,8 @@ import ppl2.ast.stmt_loop;
 import ppl2.ast.stmt_return;
 import ppl2.ast.expr_value_of;
 import ppl2.ast.stmt_variable;
+
+import ppl2.build.BuildState;
 
 import ppl2.check.check_module;
 

@@ -1,8 +1,8 @@
-module ppl2.BuildState;
+module ppl2.build.BuildState;
 
 import ppl2.internal;
 
-final class BuildState {
+class BuildState {
 private:
     Queue!Task taskQueue;
     Set!string requestedAliasOrStruct;    /// moduleName|defineName
@@ -10,6 +10,8 @@ private:
 
     Module[/*canonicalName*/string] modules;
     Mutex lock;
+protected:
+    StopWatch watch;
 public:
     struct Task {
         enum Enum { FUNC, TYPE }
@@ -18,12 +20,19 @@ public:
         string moduleName;
         string elementName;
     }
-
+    LLVMWrapper llvmWrapper;
+    Optimiser optimiser;
+    Linker linker;
     Config config;
     Module mainModule;
     Mangler mangler;
 
-    this(Config config) {
+    ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
+
+    this(LLVMWrapper llvmWrapper, Config config) {
+        this.llvmWrapper            = llvmWrapper;
+        this.optimiser              = new Optimiser(llvmWrapper);
+        this.linker                 = new Linker(llvmWrapper);
         this.config                 = config;
         this.lock                   = new Mutex;
         this.taskQueue              = new Queue!Task(1024);
@@ -68,7 +77,7 @@ public:
 
         auto m = modules.get(canonicalName, null);
         if(!m) {
-            m = new Module(canonicalName, PPL2.llvmWrapper, this);
+            m = new Module(canonicalName, llvmWrapper, this);
             modules[canonicalName] = m;
 
             mangler.addUniqueModuleName(canonicalName);

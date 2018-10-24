@@ -12,9 +12,11 @@ private:
     Module module_;
     StopWatch watch;
     Lexer lexer;
-    Tokens[] navs;
-    ASTNode[] startNodes;
+    Tokens mainTokens;
+    Tokens[] templateTokens;
+    ASTNode[] templateStartNodes;
     string contents;
+    bool mainParseComplete;
 
     StatementParser stmtParser() { return module_.stmtParser; }
 public:
@@ -32,29 +34,14 @@ public:
         watch.stop();
     }
     void tokenise() {
+        watch.start();
         auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(contents);
         log("... found %s tokens", tokens.length);
         lexer.dumpTokens(tokens);
 
-        this.navs       ~= new Tokens(module_, tokens);
-        this.startNodes ~= module_;
-        extractExports(tokens);
-    }
-    void appendTokens(ASTNode afterNode, Token[] tokens) {
-        auto t = new Tokens(module_, tokens);
-        this.navs ~= t;
-        if(afterNode.isFunction) {
-            t.setAccess(afterNode.as!Function.access);
-        } else {
-            assert(afterNode.isNamedStruct);
-            t.setAccess(afterNode.as!NamedStruct.access);
-        }
-
-        auto composite = Composite.make(navs[$-1], Composite.Usage.PLACEHOLDER);
-        afterNode.parent.insertAt(afterNode.index, composite);
-        this.startNodes ~= composite;
-        module_.isParsed = false;
-        module_.addActiveRoot(composite);
+        this.mainTokens = new Tokens(module_, tokens);
+        collectPublicTypesAndFunctions(tokens);
+        watch.stop();
     }
     ///
     /// Tokenise the contents and then start to parse the statements.
@@ -63,12 +50,18 @@ public:
     ///
     void parse() {
         watch.start();
+        assert(module_.isParsed==false);
 
         log("[%s] Parsing", module_.canonicalName);
 
-        foreach(i, nav; navs) {
+        /// Parse all module tokens
+        while(mainTokens.hasNext) {
+            stmtParser().parse(mainTokens, module_);
+        }
+        /// Parse subsequently added template tokens
+        foreach(i, nav; templateTokens) {
             while(nav.hasNext()) {
-                stmtParser().parse(nav, startNodes[i]);
+                stmtParser().parse(nav, templateStartNodes[i]);
             }
         }
 
@@ -78,6 +71,22 @@ public:
 
         watch.stop();
     }
+    void appendTokensFromTemplate(ASTNode afterNode, Token[] tokens) {
+        auto t = new Tokens(module_, tokens);
+        this.templateTokens ~= t;
+        if(afterNode.isFunction) {
+            t.setAccess(afterNode.as!Function.access);
+        } else {
+            assert(afterNode.isNamedStruct);
+            t.setAccess(afterNode.as!NamedStruct.access);
+        }
+
+        auto composite = Composite.make(t, Composite.Usage.PLACEHOLDER);
+        afterNode.parent.insertAt(afterNode.index, composite);
+        this.templateStartNodes ~= composite;
+        module_.isParsed = false;
+        module_.addActiveRoot(composite);
+    }
 private:
     ///
     ///  - Check that there is only 1 module init function.
@@ -86,6 +95,9 @@ private:
     ///  - Request resolution of the module "new" method
     ///
     void moduleFullyParsed() {
+        /// Only do this once
+        if(mainParseComplete) return;
+
         /// Ensure no more than one module new() function exists
         auto fns = module_.getFunctions("new");
         if(fns.length>1) {
@@ -130,11 +142,12 @@ private:
 
         /// Request init function resolution
         module_.buildState.functionRequired(module_.canonicalName, "new");
+        mainParseComplete = true;
     }
     ///
     /// Look for exported functions, defines and structs
     ///
-    void extractExports(Token[] tokens) {
+    void collectPublicTypesAndFunctions(Token[] tokens) {
         watch.start();
         log("Parser: %s Extracting exports", module_.canonicalName);
         auto t = new Tokens(module_, tokens);

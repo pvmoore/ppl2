@@ -19,15 +19,20 @@ active = 0
 
 [[openFile]]
 name = "test_if.p2"
-line = 8
+line = 24
+active = 0
+
+[[openFile]]
+name = "test_expressions.p2"
+line = 0
 active = 0
 
 [[openFile]]
 name = "test_consts.p2"
-line = 27
-active = 0
+line = 32
+active = 1
 
 [[openFile]]
 name = "core/hooks.p2"
-line = 13
-active = 1
+line = 8
+active = 0

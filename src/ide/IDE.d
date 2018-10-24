@@ -64,22 +64,15 @@ protected:
             ACTION_SEPARATOR,
             new Action(ActionID.TOOLBAR_RESOLVE, "Resolve"d));
 
-        assert(cast(Button)tb.child(0));
-        assert(cast(Button)tb.child(2));
-        assert(cast(Button)tb.child(4));
-
-        tb.child(0).click = (Widget src) {
-            consoleView.logln("Tokenising... %s", 99);
-            return true;
-        };
-        tb.child(2).click = (Widget src) {
-            consoleView.logln("Parsing...");
-            return true;
-        };
-        tb.child(4).click = (Widget src) {
-            consoleView.logln("Resolving...");
-            return true;
-        };
+        /// Force actions to be dispatched to our main handleAction method
+        foreach(i; 0..tb.childCount) {
+            auto button = cast(Button)tb.child(i);
+            if(button) {
+                button.click = (Widget src) {
+                    dispatchAction(src.action); return true;
+                };
+            }
+        }
 
         //tb = res.getOrAddToolbar("Edit");
         //tb.addButtons(
@@ -95,7 +88,7 @@ protected:
         return statusLine;
     }
     override bool handleAction(const Action a) {
-        writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
+        //writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
         if(a) {
             switch(a.id) with(ActionID) {
                 case FILE_EXIT:
@@ -106,6 +99,15 @@ protected:
                     break;
                 case WINDOW_CAPTION_CHANGE:
                     window.windowCaption = "PPL IDE :: %s"d.format(a.stringParam);
+                    break;
+                case TOOLBAR_TOKENISE:
+                    consoleView.logln("Tokenising...");
+                    break;
+                case TOOLBAR_PARSE:
+                    consoleView.logln("Parsing...");
+                    break;
+                case TOOLBAR_RESOLVE:
+                    consoleView.logln("Resolving...");
                     break;
                 default:
                     writefln("handleAction: Missing handler for id %s", cast(ActionID)a.id);

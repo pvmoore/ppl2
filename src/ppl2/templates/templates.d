@@ -31,7 +31,7 @@ public:
 
         auto tokens = ns.blueprint.extractStruct(mangledName, templateTypes);
 
-        module_.parser.appendTokens(ns, tokens);
+        module_.parser.appendTokensFromTemplate(ns, tokens);
 
         module_.buildState.aliasOrStructRequired(module_.canonicalName, mangledName);
 
@@ -78,7 +78,7 @@ public:
             auto tokens = f.blueprint.extractFunction(mangledName, call.templateTypes, f.isStatic);
             //dd("  tokens=", tokens.toString);
 
-            module_.parser.appendTokens(f, tokens);
+            module_.parser.appendTokensFromTemplate(f, tokens);
 
             module_.buildState.functionRequired(module_.canonicalName, mangledName);
         }

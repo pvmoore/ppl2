@@ -21,6 +21,8 @@ import ide.ide;
 import ide.project;
 import ide.util;
 
+import ide.async_jobs.build;
+
 import ide.editor.syntaxsupport;
 
 import ide.widgets.ConsoleView;

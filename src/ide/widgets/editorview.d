@@ -37,7 +37,9 @@ public:
     }
     void saveAll() {
         foreach(e; editors.values) {
-            e.save(e.filename);
+            if(e.content().modified) {
+                e.save(e.filename);
+            }
         }
     }
     void setProject(Project project) {

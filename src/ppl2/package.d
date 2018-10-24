@@ -2,10 +2,18 @@ module ppl2;
 
 public:
 
+import ppl2.config;
 import ppl2.global;
 import ppl2.tokens;
 
+import ppl2.ast.module_;
+
+import ppl2.build.BuildAll;
+import ppl2.build.BuildIncremental;
+
 import ppl2.misc.lexer;
+
+
 
 T min(T)(T a, T b) {
     return a < b ? a : b;
@@ -14,7 +22,7 @@ T max(T)(T a, T b) {
     return a > b ? a: b;
 }
 
-// Debug logging
+/// Debug logging
 void dd(A...)(A args) {
     import std.stdio : writef, writefln;
     import common : flushConsole;

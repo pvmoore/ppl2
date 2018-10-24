@@ -5,8 +5,8 @@ public
 
 __assert { bool result, byte* moduleName, int line ->
     if(not result) {
-        print("ASSERTION FAILED in ")
-        print(moduleName)
+        print("ASSERTION FAILED in ") 
+        print(moduleName) 
         print(":")
         println(line)
         exit(-1)
