@@ -2,9 +2,11 @@ module ppl2.internal;
 
 public:
 
+import core.atomic     : atomicLoad, atomicStore;
+import core.memory     : GC;
 import core.sync.mutex : Mutex;
 
-import std.stdio     : writefln;
+import std.stdio     : writefln, writeln;
 import std.format    : format;
 import std.string    : toLower, indexOf, lastIndexOf;
 import std.conv      : to;
@@ -18,7 +20,7 @@ import std.algorithm.iteration : each, map, filter, sum;
 import std.algorithm.searching : any, all, count, startsWith;
 import std.algorithm.sorting   : sort;
 
-import common : Array, Set, Queue, Stack, StringBuffer,
+import common : Array, FQN, Hash, Hasher, Queue, Set, Stack, StringBuffer,
                 as, dynamicDispatch, isA, firstNotNull, flushConsole, endsWith,
                 removeChars, repeat, visit;
 
@@ -34,7 +36,6 @@ import ppl2.global;
 import ppl2.operator;
 import ppl2.target;
 
-import ppl2.ast.ast_node;
 import ppl2.ast.expression;
 import ppl2.ast.expr_address_of;
 import ppl2.ast.expr_as;
@@ -86,8 +87,8 @@ import ppl2.gen.gen_module;
 import ppl2.gen.gen_struct;
 import ppl2.gen.gen_variable;
 
-import ppl2.opt.opt_dce;
 import ppl2.opt.opt_const_fold;
+import ppl2.opt.opt_dead_code;
 
 import ppl2.misc.JsonWriter;
 import ppl2.misc.linker;

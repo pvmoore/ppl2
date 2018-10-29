@@ -1,13 +1,19 @@
 # Todo  
 
-- move core to ppl2/stdlib/core directory
+## Next
+- Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
+
+- Use llvm IR phi nodes when emitting loop/if
+- Don't call requireFunction just to get the parameters for function resolution. Use a different lighter-weight
+  version eg. requireFunctionParams
+- Ensure we remove static funstions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
 
 ## High Priority
 - Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. 
   This may involve adding an array [T*,long length] struct to hold these dynamic arrays
 - Change struct/array literals to [int[]: 1,2,3], [Map: a=1,b=2], [List: 1,2]. 
   If no type is specified then assume array if types are implicitly the same or struct otherwise
-- Attributes eg (* inline). (* expect true) (* notnull)
+- Attributes eg (* inline). (* expect true) (* notnull) or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]
 - Select expression:
 ```
 var r = select(x) {
@@ -16,12 +22,32 @@ var r = select(x) {
     else { 0 }
 }
 ```
-## Medium Priority
+- Investigate co-routines (LLVM)
+
+- Allow string identifiers for function names
+```
+    "i am a function" {}
+    'i am a function {}
+    `i am a function` {}
+    "i am a function"()
+    // not sure which quote to use ??
+```
+- Compose struct within another struct eg.
+```
+    struct A { doSomething {} }
+    struct B {
+        compose A a // thing about this syntax
+    }
+    B b
+    b.doSomething() 
+```
+- Idea: Allow single token comments 
+  eg Map<#name String,int> map
+
 - Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... 
   (#size already implemented)
   Maybe do these as builtin funcs instead of properties
 
-## Low Priority
 - LiteralMap (requires core.map implementation)
 - Check optimisation against opt. Use -debug-pass=Arguments to see which passes opt uses.
 - Implement null checks when config.nullChecks==true. In each AST Dot, add an assert that the left hand side is not null. Possibly use LLVM isNull instruction.
@@ -29,7 +55,7 @@ var r = select(x) {
 - Built-in vector types eg float4, int2 etc...
 - More constant folding and dce (calls and functions)
 - Run DScanner to highlight unused functions etc
-- Multi level struct access
+- Multi level struct access (maybe also add 'outer' keyword)
 ```
 // assume they are always static
 A::B ab = A::B()
@@ -62,9 +88,6 @@ func<int>(10,20) // 1 explicit param, 1 missing
 - How to do closures with captures
 - How to do named structs within named structs (this, super etc...) A.B
 - Should we allow ptr arithmentic?
-## Low Priority
-- Write AST as DOT (.gv) format so it can be viewed by using a dot viewer tool
-    https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 
 - Allow type inference here:
 ```
@@ -73,7 +96,7 @@ func<int>(10,20) // 1 explicit param, 1 missing
 [a,b] r = getResult()
 ```
 
-- Do something with these
+- Do something with these ideas
 ```
 ref<Object> r
 ptr<Object> r

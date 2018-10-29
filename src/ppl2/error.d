@@ -45,7 +45,7 @@ final class AmbiguousCall : CompilerError {
 }
 //======================================================================
 void warn(Tokens n, string msg) {
-   writefln("WARN [%s Line %s] %s", n.module_.getPath(), n.line, msg);
+   writefln("WARN [%s Line %s] %s", n.module_.fullPath, n.line, msg);
 }
 //======================================================================
 void prettyErrorMsg(CompilerError e) {
@@ -67,13 +67,11 @@ void prettyErrorMsg(CompilerError e) {
     }
 }
 void prettyErrorMsg(Module m, int line, int col, string msg) {
-    string filename = m.getPath();
-
     void showMessageWithoutLine() {
-        writefln("\nError: [%s] %s", filename, msg);
+        writefln("\nError: [%s] %s", m.fullPath, msg);
     }
     void showMessageWithLine() {
-        writefln("\nError: [%s Line %s:%s] %s", filename, line+1, col, msg);
+        writefln("\nError: [%s Line %s:%s] %s", m.fullPath, line+1, col, msg);
     }
 
     if(line==-1 || col==-1) {
@@ -83,7 +81,7 @@ void prettyErrorMsg(Module m, int line, int col, string msg) {
 
     import std.stdio;
 
-    auto lines = File(filename, "rb").byLineCopy().array;
+    auto lines = File(m.fullPath, "rb").byLineCopy().array;
 
     if(lines.length<=line) {
         showMessageWithoutLine();

@@ -312,11 +312,12 @@ public:
         for(index=0; index<text.length; index++) {
             auto ch = text[index];
             //writefln("[%s] %s", index, ch);
-            if(ch<33) {
-                /// whitespace
-                addToken();
-                handleEOL();
-            } else switch(ch) {
+            switch(ch) {
+                case 0:..case 32:
+                    /// whitespace
+                    addToken();
+                    handleEOL();
+                    break;
                 case '/':
                     if(peek(1)=='/') {
                         addLineComment();

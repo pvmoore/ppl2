@@ -318,6 +318,12 @@ public:
             n.recurse!T(functor);
         }
     }
+    void recurse(T)(void delegate(int level, T n) functor, int level = 0) {
+        if(this.isA!T) functor(level, this.as!T);
+        foreach(n; children) {
+            n.recurse!T(functor, level+1);
+        }
+    }
     //===================================================================================
     override size_t toHash() const @trusted {
         assert(nid!=0);

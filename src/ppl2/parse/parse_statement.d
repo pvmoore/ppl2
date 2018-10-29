@@ -6,12 +6,12 @@ final class StatementParser {
 private:
     Module module_;
 
-    NamedStructParser namedStructParser() { return module_.namedStructParser; }
-    VariableParser varParser()            { return module_.varParser; }
-    TypeParser typeParser()               { return module_.typeParser; }
-    TypeDetector typeDetector()           { return module_.typeDetector; }
-    ExpressionParser exprParser()         { return module_.exprParser; }
-    NodeBuilder builder()                 { return module_.nodeBuilder; }
+    auto namedStructParser() { return module_.namedStructParser; }
+    auto varParser()         { return module_.varParser; }
+    auto typeParser()        { return module_.typeParser; }
+    auto typeDetector()      { return module_.typeDetector; }
+    auto exprParser()        { return module_.exprParser; }
+    auto builder()           { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -211,7 +211,7 @@ private: //=====================================================================
 
                 /// Check that the import exists
                 import std.file : exists;
-                if(!exists(Module.getFullPath(moduleName))) {
+                if(!exists(module_.config.getFullModulePath(moduleName))) {
                     t.resetToMark();
                     throw new CompilerError(t, "Module %s does not exist".format(moduleName));
                 }
@@ -239,7 +239,7 @@ private: //=====================================================================
             imp.mod = module_.buildState.getOrCreateModule(imp.moduleName);
 
             /// For each exported function and type, add proxies to this module
-            foreach (f; imp.mod.exportedFunctions.values) {
+            foreach (f; imp.mod.parser.publicFunctions.values) {
                 auto fn       = makeNode!Function(t);
                 fn.name       = f;
                 fn.moduleName = imp.moduleName;
@@ -247,7 +247,7 @@ private: //=====================================================================
                 fn.isImport   = true;
                 imp.add(fn);
             }
-            foreach (d; imp.mod.exportedTypes.values) {
+            foreach (d; imp.mod.parser.publicTypes.values) {
                 auto def        = makeNode!Alias(t);
                 def.name        = d;
                 def.type        = TYPE_UNKNOWN;
@@ -355,7 +355,7 @@ private: //=====================================================================
 
             int start = t.index;
             int end   = t.findEndOfBlock(TT.LCURLY);
-            f.blueprint.setFunctionTokens(ns, t.get(start, start+end).dup);
+            f.blueprint.setFunctionTokens(ns, t[start..start+end+1].dup);
             t.next(end+1);
 
             //dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);

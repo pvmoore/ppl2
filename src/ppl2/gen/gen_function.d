@@ -48,12 +48,12 @@ void generateLocalStructMemberFunctionBodies(Module module_, LiteralGenerator li
     }
 }
 void generateClosureDeclarations(Module module_) {
-    foreach(c; module_.closures) {
+    foreach(c; module_.getClosures()) {
         generateClosureDeclaration(module_, c);
     }
 }
 void generateClosureBodies(Module module_, LiteralGenerator literalGen) {
-    foreach(c; module_.closures) {
+    foreach(c; module_.getClosures()) {
         auto litFunc = c.getBody();
         literalGen.generate(litFunc, c.llvmValue);
     }

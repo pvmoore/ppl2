@@ -1,4 +1,4 @@
-module ide.editor.syntaxsupport;
+module ide.editor.P2SyntaxSupport;
 
 import ide.internal;
 

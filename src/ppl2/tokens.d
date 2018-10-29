@@ -12,16 +12,19 @@ public:
     Module module_;
 
     this(Module module_, Token[] tokens) {
-        this.module_      = module_;
-        this.tokens       = tokens;
-        this.marks        = new Stack!int;
-        this._access      = new Stack!Access;
-        this._access.push(Access.PRIVATE);
+        this.module_  = module_;
+        this.tokens   = tokens;
+        this.marks    = new Stack!int;
+        this._access  = new Stack!Access;
+        reset();
     }
     auto reuse(Module module_, Token[] tokens) {
         this.module_ = module_;
         this.tokens  = tokens;
-        this.pos     = 0;
+        return reset();
+    }
+    auto reset() {
+        this.pos = 0;
         this.marks.clear();
         this._access.clear();
         this._access.push(Access.PRIVATE);
@@ -69,9 +72,11 @@ public:
         if(pos >= tokens.length) return NO_TOKEN;
         return tokens[pos];
     }
-    /// Inclusive range
-    Token[] get(int start, int end) {
-        return tokens[start..end+1];
+    Token[] opSlice() {
+        return tokens;
+    }
+	Token[] opSlice(ulong from, ulong to) {
+        return tokens[from..to];
     }
     Token peek(int offset) {
         if(pos+offset < 0 || pos+offset >= tokens.length) return NO_TOKEN;

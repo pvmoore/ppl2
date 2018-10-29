@@ -41,6 +41,8 @@ public:
     override Type getType() {
         if(isExtern) return externType;
         if(isTemplateBlueprint) return TYPE_UNKNOWN;
+        /// This should only happen if we are incrementally building
+        if(!hasChildren()) return TYPE_VOID;
 
         /// Return type of body
         return getBody().getType;

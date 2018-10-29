@@ -12,36 +12,59 @@ private:
     Module module_;
     StopWatch watch;
     Lexer lexer;
+
     Tokens mainTokens;
     Tokens[] templateTokens;
     ASTNode[] templateStartNodes;
-    string contents;
     bool mainParseComplete;
+    bool templateParseComplete;
 
-    StatementParser stmtParser() { return module_.stmtParser; }
+    string sourceText;
+    Hash!20 sourceTextHash;
 public:
-    ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
+    Set!string publicTypes;
+    Set!string privateFunctions;
+    Set!string publicFunctions;
+
+    ulong getElapsedNanos()   { return watch.peek().total!"nsecs"; }
+    Tokens getInitialTokens() { return mainTokens; }
+    auto getSourceTextHash()  { return sourceTextHash; }
+    bool isParsed()           { return mainParseComplete && templateParseComplete; }
 
     this(Module module_) {
-        this.module_    = module_;
-        this.lexer      = new Lexer(module_);
+        this.module_          = module_;
+        this.lexer            = new Lexer(module_);
+        this.publicTypes      = new Set!string;
+        this.privateFunctions = new Set!string;
+        this.publicFunctions  = new Set!string;
     }
-    void readContents() {
-        watch.start();
-        import std.file : read;
-        this.contents = convertTabsToSpaces(cast(string)read(module_.getPath()));
-        log("Parser: Reading %s -> %s bytes", module_.getPath(), contents.length);
-        watch.stop();
+    void clearState() {
+        publicFunctions.clear();
+        privateFunctions.clear();
+        publicTypes.clear();
+        mainParseComplete = false;
+        templateParseComplete = false;
+        templateTokens = null;
+        templateStartNodes = null;
+        module_.children.clear();
+        watch.reset();
     }
-    void tokenise() {
-        watch.start();
-        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(contents);
-        log("... found %s tokens", tokens.length);
-        lexer.dumpTokens(tokens);
+    ///
+    /// Set/reset the source text.
+    ///
+    void setSourceText(string src) {
+        assert(false==FQN!"common".contains(src, "\t"));
 
-        this.mainTokens = new Tokens(module_, tokens);
-        collectPublicTypesAndFunctions(tokens);
-        watch.stop();
+        this.sourceTextHash = Hasher.sha1(src);
+        this.sourceText     = src;
+        log("Parser: %s src -> %s bytes hash:%s", module_.fullPath, sourceText.length, sourceTextHash);
+
+        tokenise();
+        collectTypesAndFunctions();
+    }
+    void readSourceFromDisk() {
+        import std.file : read;
+        setSourceText(convertTabsToSpaces(cast(string)read(module_.fullPath)));
     }
     ///
     /// Tokenise the contents and then start to parse the statements.
@@ -49,26 +72,27 @@ public:
     /// where the exports are not yet known.
     ///
     void parse() {
+        if(isParsed()) return;
         watch.start();
-        assert(module_.isParsed==false);
 
         log("[%s] Parsing", module_.canonicalName);
 
         /// Parse all module tokens
         while(mainTokens.hasNext) {
-            stmtParser().parse(mainTokens, module_);
+            module_.stmtParser.parse(mainTokens, module_);
         }
         /// Parse subsequently added template tokens
         foreach(i, nav; templateTokens) {
             while(nav.hasNext()) {
-                stmtParser().parse(nav, templateStartNodes[i]);
+                module_.stmtParser.parse(nav, templateStartNodes[i]);
             }
         }
 
         log("[%s] Parsing finished", module_.canonicalName);
         moduleFullyParsed();
-        module_.isParsed = true;
 
+        mainParseComplete     = true;
+        templateParseComplete = true;
         watch.stop();
     }
     void appendTokensFromTemplate(ASTNode afterNode, Token[] tokens) {
@@ -84,10 +108,110 @@ public:
         auto composite = Composite.make(t, Composite.Usage.PLACEHOLDER);
         afterNode.parent.insertAt(afterNode.index, composite);
         this.templateStartNodes ~= composite;
-        module_.isParsed = false;
+        templateParseComplete = false;
         module_.addActiveRoot(composite);
     }
 private:
+    void tokenise() {
+        watch.start();
+        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(sourceText);
+        log("... found %s tokens", tokens.length);
+        lexer.dumpTokens(tokens);
+
+        this.mainTokens = new Tokens(module_, tokens);
+        watch.stop();
+    }
+    ///
+    /// Look for module scope functions, aliases and structs
+    ///
+    void collectTypesAndFunctions() {
+        watch.start();
+        log("Parser: %s Extracting exports", module_.canonicalName);
+
+        auto t       = mainTokens;
+        bool public_ = false;
+
+        bool isStruct() {
+            return t.isKeyword("struct");
+        }
+        bool isAlias() {
+            return t.isKeyword("alias");
+        }
+        /// Assumes isStruct() and isAlias() returned false
+        bool isFuncDecl() {
+            if(t.isKeyword("extern")) return true;
+            if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) return true;
+            if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
+                int end;
+                if(isTemplateParams(t, 1, end) && t.peek(end+1).type==TT.LCURLY) return true;
+            }
+            return false;
+        }
+
+        while(t.hasNext) {
+            if(t.isKeyword("public")) {
+                public_ = true;
+            } else if(t.isKeyword("private")) {
+                public_ = false;
+            } else if(t.isKeyword("readonly")) {
+                throw new CompilerError(t, "readonly access is only allowed inside a struct");
+            } else if(t.type==TT.LCURLY) {
+                t.next(t.findEndOfBlock(t.type));
+            } else if(t.type==TT.LSQBRACKET) {
+                t.next(t.findEndOfBlock(t.type));
+            } else if(public_) {
+
+                if(isStruct() || isAlias()) {
+                    t.next;
+                    //module_.exportedTypes.add(t.value);
+                    publicTypes.add(t.value);
+                } else if(isFuncDecl()) {
+                    if(t.isKeyword("extern")) t.next;
+                    publicFunctions.add(t.value);
+                }
+            } else {
+                /// private
+                if(!isStruct() && isFuncDecl()) {
+                    if(t.isKeyword("extern")) t.next;
+                    privateFunctions.add(t.value);
+                }
+            }
+            t.next;
+        }
+        t.reset();
+        watch.stop();
+    }
+    Token[] getImplicitImportsTokens() {
+        auto tokens = appender!(Token[]);
+
+        Token tok(string value) {
+            Token t;
+            t.type   = TT.IDENTIFIER;
+            t.line   = 1;
+            t.column = 1;
+            t.value  = value;
+            return t;
+        }
+
+        __gshared static string[] IMPORTS = [
+            "core::core",
+            "core::c",
+            "core::hooks",
+            "core::list",
+            "core::string",
+            "core::console",
+            "core::unsigned",
+        ];
+
+        foreach(s; IMPORTS) {
+            if(module_.canonicalName!=s) {
+                tokens ~= tok("import");
+                tokens ~= tok(s);
+            }
+        }
+
+        return tokens.data;
+    }
     ///
     ///  - Check that there is only 1 module init function.
     ///  - Create one if there are none.
@@ -142,80 +266,5 @@ private:
 
         /// Request init function resolution
         module_.buildState.functionRequired(module_.canonicalName, "new");
-        mainParseComplete = true;
-    }
-    ///
-    /// Look for exported functions, defines and structs
-    ///
-    void collectPublicTypesAndFunctions(Token[] tokens) {
-        watch.start();
-        log("Parser: %s Extracting exports", module_.canonicalName);
-        auto t = new Tokens(module_, tokens);
-
-        bool public_ = false;
-
-        while(t.hasNext) {
-            if(t.isKeyword("public")) {
-                public_ = true;
-            } else if(t.isKeyword("private")) {
-                public_ = false;
-            } else if(t.type==TT.LCURLY) {
-                t.next(t.findEndOfBlock(t.type));
-            } else if(t.type==TT.LSQBRACKET) {
-                t.next(t.findEndOfBlock(t.type));
-            } else if(public_) {
-
-                if(t.isKeyword("struct")) {
-                    t.next;
-                    module_.exportedTypes.add(t.value);
-                } else if(t.isKeyword("alias")) {
-                    t.next;
-                    module_.exportedTypes.add(t.value);
-                } else if(t.isKeyword("extern")) {
-                    t.next;
-                    module_.exportedFunctions.add(t.value);
-                } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) {
-                    module_.exportedFunctions.add(t.value);
-                } else if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
-                    int end;
-                    if(isTemplateParams(t, 1, end) && t.peek(end+1).type==TT.LCURLY) {
-                        module_.exportedFunctions.add(t.value);
-                    }
-                }
-            }
-            t.next;
-        }
-        watch.stop();
-    }
-    Token[] getImplicitImportsTokens() {
-        auto tokens = appender!(Token[]);
-
-        Token tok(string value) {
-            Token t;
-            t.type   = TT.IDENTIFIER;
-            t.line   = 1;
-            t.column = 1;
-            t.value  = value;
-            return t;
-        }
-
-        __gshared static string[] IMPORTS = [
-            "core::core",
-            "core::c",
-            "core::hooks",
-            "core::list",
-            "core::string",
-            "core::console",
-            "core::unsigned",
-        ];
-
-        foreach(s; IMPORTS) {
-            if(module_.canonicalName!=s) {
-                tokens ~= tok("import");
-                tokens ~= tok(s);
-            }
-        }
-
-        return tokens.data;
     }
 }

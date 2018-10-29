@@ -1,5 +1,6 @@
 [[general]]
 name = "test"
+mainFile = "test.p2"
 targetDirectory = ".target/"
 excludeFiles = ["blah", "blah2"]
 excludeDirectories = [".target/"]
@@ -13,8 +14,63 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "test.p2"
-line = 75
+name = "core/console.p2"
+line = 32
+active = 0
+
+[[openFile]]
+name = "test_arrays.p2"
+line = 18
+active = 0
+
+[[openFile]]
+name = "test_expressions.p2"
+line = 7
+active = 0
+
+[[openFile]]
+name = "test_calls.p2"
+line = 10
+active = 0
+
+[[openFile]]
+name = "core/c.p2"
+line = 5
+active = 0
+
+[[openFile]]
+name = "test_inner_functions.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_casting.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_inner_structs.p2"
+line = 27
+active = 0
+
+[[openFile]]
+name = "core/hooks.p2"
+line = 8
+active = 0
+
+[[openFile]]
+name = "test_consts.p2"
+line = 43
+active = 0
+
+[[openFile]]
+name = "test_access2.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_loop.p2"
+line = 28
 active = 0
 
 [[openFile]]
@@ -23,16 +79,31 @@ line = 24
 active = 0
 
 [[openFile]]
-name = "test_expressions.p2"
+name = "test_operator_overloading.p2"
+line = 7
+active = 1
+
+[[openFile]]
+name = "test_meta.p2"
+line = 10
+active = 0
+
+[[openFile]]
+name = "test_console.p2"
 line = 0
 active = 0
 
 [[openFile]]
-name = "test_consts.p2"
-line = 32
-active = 1
+name = "test.p2"
+line = 75
+active = 0
 
 [[openFile]]
-name = "core/hooks.p2"
-line = 8
+name = "test_constructors.p2"
+line = 24
+active = 0
+
+[[openFile]]
+name = "test_imports.p2"
+line = 0
 active = 0

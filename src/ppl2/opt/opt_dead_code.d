@@ -1,18 +1,25 @@
-module ppl2.opt.opt_dce;
+module ppl2.opt.opt_dead_code;
 
 import ppl2.internal;
 ///
 /// Remove any nodes that do not affect the result. ie. they are not referenced
 ///
-final class OptimisationDCE {
+final class DeadCodeEliminator {
 private:
     Module module_;
+    StopWatch watch;
 public:
     this(Module module_) {
         this.module_ = module_;
     }
+    void clearState() {
+        watch.reset();
+    }
+
+    ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
 
     void opt() {
+        watch.start();
         log("Removing dead nodes from module %s", module_.canonicalName);
 
         /// Remove functions that are not referenced or are template blueprints
@@ -64,6 +71,7 @@ public:
             log("\t import %s", imp.moduleName);
             imp.detach();
         }
+        watch.stop();
     }
 private:
     ///

@@ -1,21 +1,32 @@
 module ide.widgets.editortab;
 
 import ide.internal;
+import ppl2;
 
 final class EditorTab : SourceEdit {
 private:
+    IDE ide;
     ulong timerId;
+    BuildIncremental build;
+    Project project;
+    Hash!20 srcHash;
 public:
     string relFilename;
     string filename;
+    string moduleCanonicalName;
     bool isActive;
 
-    this(string ID, string relFilename, string filename, int line) {
+    this(IDE ide, string ID, string relFilename, string filename, int line) {
         super(ID);
-        this.relFilename = relFilename;
-        this.filename    = filename;
+        this.ide                 = ide;
+        this.relFilename         = relFilename;
+        this.filename            = filename;
+        this.project             = ide.getProject();
 
-        //writefln("editorTab id:%s absFilename: %s line:%s", ID, filename, line);
+        this.build = PPL2.instance().prepareAnIncrementalBuild(project.directory~project.mainFile);
+
+        import std.path;
+        this.moduleCanonicalName = stripExtension(relFilename).replace("/", "::");
 
         MenuItem contextMenu = new MenuItem(null);
         contextMenu.add(new Action(ActionID.CONTEXT_MENU, "Context Menu"d));
@@ -59,7 +70,7 @@ public:
 
             setTokenHightlightColor(TokenCategory.Identifier, 0xffffff);
             setTokenHightlightColor(TokenCategory.Identifier_Class, 0xffffff);
-            setTokenHightlightColor(TokenCategory.Identifier+5, 0xffaa44); /// function declarations
+            setTokenHightlightColor(TokenCategory.Identifier|5, 0xffaa44); /// function declarations
 
             content.syntaxSupport = new PPL2SyntaxSupport;
         } else {
@@ -87,8 +98,6 @@ public:
                 }
             }
         }
-
-
         return super.onKeyEvent(event);
     }
     override bool onTimer(ulong id) {
@@ -101,5 +110,64 @@ public:
         }
 
         return true;
+    }
+    override string toString() {
+        return "[EditorTab %s]".format(moduleCanonicalName);
+    }
+    void parse() {
+        ide.getConsole().logln("Parsing... %s", moduleCanonicalName);
+
+        try{
+            auto src = content().text().toUTF8;
+
+            if(srcHash.isValid) {
+                auto newHash = Hasher.sha1(src);
+                if(newHash==srcHash) {
+                    ide.getConsole().logln("Nothing to do");
+                    return;
+                }
+            }
+
+            /// If we get here then we have new content to parse
+
+            build.startNewBuild(false);
+
+            auto m = build.getOrCreateModule(moduleCanonicalName, src);
+            ide.getConsole().logln("m=%s", m);
+            srcHash = m.parser.getSourceTextHash();
+
+            auto info = ide.getInfoView();
+            info.getTokensView().update(m.parser.getInitialTokens()[]);
+
+            build.parse(m);
+            info.getASTView().update(m);
+
+            build.resolve(m);
+
+            ide.getConsole().logln("Unresolved = %s", m.resolver.getUnresolvedNodes);
+
+            info.getASTView().update(m);
+
+            ide.getConsole().logln("All symbols resolved");
+
+            build.check(m);
+
+            build.generateIR(m);
+
+            info.getIRView().update(m.llvmValue.dumpToString());
+
+            build.optimise(m);
+
+            info.getOptIRView().update(m.llvmValue.dumpToString());
+
+            build.dumpStats((string it)=>ide.getConsole().logln(it));
+
+        }catch(CompilerError e) {
+            ide.getConsole().logln("Compile error: [%s Line %s:%s] %s", e.module_.fullPath, e.line+1, e.column, e.msg);
+        }catch(UnresolvedSymbols e) {
+            ide.getConsole().logln("Unresolved symbols");
+        }catch(Exception e) {
+            ide.getConsole().logln("error: %s", e);
+        }
     }
 }

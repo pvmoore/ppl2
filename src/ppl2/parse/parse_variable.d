@@ -6,10 +6,10 @@ final class VariableParser {
 private:
     Module module_;
 
-    ExpressionParser exprParser() { return module_.exprParser; }
-    TypeParser typeParser() { return module_.typeParser; }
-    TypeDetector typeDetector() { return module_.typeDetector; }
-    NodeBuilder builder() { return module_.nodeBuilder; }
+    auto  exprParser()  { return module_.exprParser; }
+    auto typeParser()   { return module_.typeParser; }
+    auto typeDetector() { return module_.typeDetector; }
+    auto builder()      { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;

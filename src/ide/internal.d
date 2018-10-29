@@ -23,13 +23,18 @@ import ide.util;
 
 import ide.async_jobs.build;
 
-import ide.editor.syntaxsupport;
+import ide.editor.IRSyntaxSupport;
+import ide.editor.P2SyntaxSupport;
 
+import ide.widgets.ASTView;
 import ide.widgets.ConsoleView;
 import ide.widgets.editortab;
 import ide.widgets.editorview;
 import ide.widgets.infoview;
+import ide.widgets.IRView;
 import ide.widgets.projectview;
+import ide.widgets.TokensView;
+
 
 /*
 //auto b = new Button()

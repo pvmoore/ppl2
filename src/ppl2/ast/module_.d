@@ -6,30 +6,27 @@ import std.array : replace;
 final class Module : ASTNode, Container {
 private:
     int tempCounter;
+    Closure[] closures;
+    LiteralString[][string] literalStrings;
+    Set!ASTNode activeRoots;  /// Active root nodes
 public:
     string canonicalName;
     string fileName;
+    string fullPath;
+    bool isMainModule;        /// true if this module contains the 'main' function
+
     int numRefs;
-    Set!string exportedTypes;     /// name of each exported types
-    Set!string exportedFunctions; /// name of each exported functions
-    bool isParsed;
-    bool isMainModule;            /// true if this is the first module of the project
-    Set!ASTNode activeRoots;  /// Active root nodes
-    LLVMWrapper llvmWrapper;
 
-    LiteralString[][string] literalStrings;
-    Closure[] closures;
-
+    Config config;
+    BuildState buildState;
     ModuleParser parser;
+
     ModuleResolver resolver;
     ModuleChecker checker;
     ModuleConstantFolder constFolder;
-    OptimisationDCE dce;
+    DeadCodeEliminator dce;
     ModuleGenerator gen;
     Templates templates;
-    Config config;
-    BuildState buildState;
-
     StatementParser stmtParser;
     ExpressionParser exprParser;
     TypeParser typeParser;
@@ -39,6 +36,7 @@ public:
     NodeBuilder nodeBuilder;
     TypeFinder typeFinder;
 
+    /// Generation properties
     LLVMModule llvmValue;
     LiteralString moduleNameLiteral;
 
@@ -47,10 +45,8 @@ public:
         this.canonicalName     = canonicalName;
         this.buildState        = buildState;
         this.config            = buildState.config;
-        this.llvmWrapper       = llvmWrapper;
-        this.exportedTypes     = new Set!string;
-        this.exportedFunctions = new Set!string;
         this.fileName          = canonicalName.replace("::", ".");
+        this.fullPath          = config.getFullModulePath(canonicalName);
 
         log("Creating new Module(%s)", canonicalName);
 
@@ -58,9 +54,10 @@ public:
         resolver          = new ModuleResolver(this);
         checker           = new ModuleChecker(this);
         constFolder       = new ModuleConstantFolder(this);
-        dce               = new OptimisationDCE(this);
+        dce               = new DeadCodeEliminator(this);
         gen               = new ModuleGenerator(this, llvmWrapper);
         templates         = new Templates(this);
+        activeRoots       = new Set!ASTNode;
 
         stmtParser        = new StatementParser(this);
         exprParser        = new ExpressionParser(this);
@@ -70,32 +67,43 @@ public:
         varParser         = new VariableParser(this);
         nodeBuilder       = new NodeBuilder(this);
         typeFinder        = new TypeFinder(this);
-        activeRoots       = new Set!ASTNode;
 
         moduleNameLiteral = makeNode!LiteralString;
         moduleNameLiteral.value = canonicalName;
         addLiteralString(moduleNameLiteral);
     }
+    void clearState() {
+        closures = null;
+        literalStrings.clear();
+        activeRoots.clear();
+        children.clear();
+        numRefs = 0;
+        tempCounter = 0;
+
+        parser.clearState();
+        resolver.clearState();
+        checker.clearState();
+        constFolder.clearState();
+        dce.clearState();
+        gen.clearState();
+        templates.clearState();
+
+        addLiteralString(moduleNameLiteral);
+    }
     override bool isResolved() { return true; }
     override NodeID id() const { return NodeID.MODULE; }
 
-    string getPath() {
-        return getFullPath(canonicalName);
-    }
+    bool isParsed() { return parser.isParsed; }
 
-    void addLiteralString(LiteralString s) {
-        literalStrings[s.value] ~= s;
-    }
-    void addClosure(Closure c) {
-        closures ~= c;
-    }
-    void removeClosure(Closure c) {
-        import common : remove;
-        closures.remove(c);
-    }
-    void addActiveRoot(ASTNode node) {
-        activeRoots.add(node.getRoot);
-    }
+    auto getLiteralStrings()               { return literalStrings.values; }
+    void addLiteralString(LiteralString s) { literalStrings[s.value] ~= s; }
+
+    Closure[] getClosures()       { return closures; }
+    void addClosure(Closure c)    { closures ~= c; }
+    void removeClosure(Closure c) { import common : remove; closures.remove(c); }
+
+    auto getCopyOfActiveRoots()      { return activeRoots.values.dup; }
+    void addActiveRoot(ASTNode node) { activeRoots.add(node.getRoot); }
 
     NodeBuilder builder(ASTNode n) {
         return nodeBuilder.forNode(n);
@@ -264,32 +272,5 @@ public:
     }
     override string toString() const {
         return "Module[refs=%s] %s".format(numRefs, canonicalName);
-    }
-    //==============================================================================
-    /// eg. "core::console" -> ["core", "console"]
-    static string[] splitCanonicalName(string canonicalName) {
-        assert(canonicalName);
-        import std.array;
-        return canonicalName.split("::");
-    }
-    ///
-    /// Return the full path including the module filename and extension
-    ///
-    static string getFullPath(string canonicalName) {
-        import std.array;
-
-        auto config         = PPL2.inst.getConfig();
-        auto baseModuleName = splitCanonicalName(canonicalName)[0];
-        auto path           = config.basePath;
-
-        foreach(lib; config.libs) {
-            if(lib.baseModuleName==baseModuleName) {
-                path = lib.absPath;
-            }
-        }
-
-        assert(path.endsWith("/"));
-
-        return path ~ canonicalName.replace("::", "/") ~ ".p2";
     }
 }

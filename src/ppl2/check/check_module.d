@@ -16,6 +16,9 @@ public:
         this.stringSet          = new Set!string;
         this.identifierResolver = new IdentifierResolver(module_);
     }
+    void clearState() {
+        watch.reset();
+    }
 
     ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
 

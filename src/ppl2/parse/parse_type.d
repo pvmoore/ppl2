@@ -5,12 +5,13 @@ import ppl2.internal;
 final class TypeParser {
 private:
     Module module_;
-    ModuleParser moduleParser()   { return module_.parser; }
-    ExpressionParser exprParser() { return module_.exprParser; }
-    StatementParser stmtParser()  { return module_.stmtParser; }
-    VariableParser varParser()    { return module_.varParser; }
-    TypeFinder typeFinder()       { return module_.typeFinder; }
-    TypeDetector typeDetector()   { return module_.typeDetector; }
+
+    auto moduleParser() { return module_.parser; }
+    auto exprParser()   { return module_.exprParser; }
+    auto stmtParser()   { return module_.stmtParser; }
+    auto varParser()    { return module_.varParser; }
+    auto typeFinder()   { return module_.typeFinder; }
+    auto typeDetector() { return module_.typeDetector; }
 public:
     this(Module module_) {
         this.module_ = module_;

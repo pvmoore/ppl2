@@ -64,7 +64,7 @@ final class TemplateBlueprint {
                 case TT.RSQBRACKET: sq--; nav.next; break;
                 case TT.COMMA:
                     if(curly==0 && sq==0) {
-                        argTokens ~= nav.get(start, nav.index-1);
+                        argTokens ~= nav[start..nav.index];
                         nav.next;
                         start = nav.index;
                     } else {
@@ -77,7 +77,7 @@ final class TemplateBlueprint {
             }
         }
         if(start != nav.index) {
-            argTokens ~= nav.get(start, nav.index-1);
+            argTokens ~= nav[start..nav.index];
         }
 
         //dd("  argTokens=", argTokens.map!(it=>it.toString).join(", "), "(%s params)".format(argTokens.length));

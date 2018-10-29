@@ -4,12 +4,17 @@ public:
 
 import ppl2.config;
 import ppl2.global;
+import ppl2.ppl2;
 import ppl2.tokens;
 
+import ppl2.ast.ast_node;
 import ppl2.ast.module_;
 
 import ppl2.build.BuildAll;
 import ppl2.build.BuildIncremental;
+import ppl2.build.BuildState;
+
+import ppl2.error : CompilerError, UnresolvedSymbols;
 
 import ppl2.misc.lexer;
 

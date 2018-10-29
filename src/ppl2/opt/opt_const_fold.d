@@ -11,6 +11,9 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
+    void clearState() {
+        watch.reset();
+    }
 
     ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
 
@@ -18,7 +21,7 @@ public:
         watch.start();
 
         nodesFolded = 0;
-        foreach(r; module_.activeRoots.values.dup) {
+        foreach(r; module_.getCopyOfActiveRoots()) {
             recursiveVisit(r);
             //if(module_.canonicalName=="test_template_functions") dd("   root", r);
         }

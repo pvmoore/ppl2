@@ -56,7 +56,29 @@ public:
         writefln("Target exe ... %s", targetExe);
         writefln("");
     }
+    ///
+    /// Return the full path including the module filename and extension
+    ///
+    string getFullModulePath(string canonicalName) {
+        auto baseModuleName = splitCanonicalName(canonicalName)[0];
+        auto path           = basePath;
+
+        foreach(lib; libs) {
+            if(lib.baseModuleName==baseModuleName) {
+                path = lib.absPath;
+            }
+        }
+
+        assert(path.endsWith("/"));
+
+        return path ~ canonicalName.replace("::", "/") ~ ".p2";
+    }
 private:
+    /// eg. "core::console" -> ["core", "console"]
+    static string[] splitCanonicalName(string canonicalName) {
+        assert(canonicalName);
+        return canonicalName.split("::");
+    }
     void getMainModuleCanonicalName() {
         auto rel = mainFile[basePath.length..$];
         mainModuleCanonicalName = rel.stripExtension.replace("/", ".").replace("\\", ".");

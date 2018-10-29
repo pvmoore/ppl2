@@ -7,13 +7,15 @@ private:
     Module module_;
     Set!string extractedStructs;
     Set!string extractedFunctions;
-    Tokens nav;
 public:
     this(Module module_) {
         this.module_            = module_;
         this.extractedStructs   = new Set!string;
         this.extractedFunctions = new Set!string;
-        this.nav                = new Tokens(module_, null);
+    }
+    void clearState() {
+        extractedStructs.clear();
+        extractedFunctions.clear();
     }
     ///
     /// Extract a struct template

@@ -4,12 +4,14 @@ import ide.internal;
 
 final class ProjectView : TreeWidget {
 private:
+    IDE ide;
     Project project;
     TreeItem[string] nodes;
     TreeItem[string] leaves;
 public:
-    this() {
+    this(IDE ide) {
         super("PROJECT-VIEW");
+        this.ide = ide;
 
         //items.selectItem(tree1);
         //
@@ -26,6 +28,7 @@ public:
             if(activated) {
                 dispatchAction(new Action(ActionID.PROJECT_VIEW_FILE_ACTIVATED, ""d).stringParam(selectedItem.id));
             }
+
         };
     }
     void onClosing() {
@@ -43,6 +46,7 @@ public:
 
         void makeNode(string name) {
             nodes[name] = items.newChild(name, name.toUTF32);
+            //TreeItem item;
         }
         void makeLeaf(string name) {
             auto folder = dirName(name) ~ "/";

@@ -6,10 +6,10 @@ final class NamedStructParser {
 private:
     Module module_;
 
-    StatementParser stmtParser() { return module_.stmtParser; }
-    TypeDetector typeDetector()  { return module_.typeDetector; }
-    TypeFinder typeFinder()      { return module_.typeFinder; }
-    NodeBuilder builder()        { return module_.nodeBuilder; }
+    auto stmtParser()   { return module_.stmtParser; }
+    auto typeDetector() { return module_.typeDetector; }
+    auto typeFinder()   { return module_.typeFinder; }
+    auto builder()      { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -106,7 +106,7 @@ public:
 
             int start = t.index;
             int end   = t.findEndOfBlock(TT.LCURLY);
-            n.blueprint.setStructTokens(null, t.get(start, start+end).dup);
+            n.blueprint.setStructTokens(null, t[start..start+end+1].dup);
             t.next(end+1);
 
             //dd("Struct template decl", n.name, n.blueprint.paramNames, n.blueprint.tokens.toString);

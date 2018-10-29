@@ -33,13 +33,19 @@ public:
         this.ifGen      = new IfGenerator(this);
         this.loopGen    = new LoopGenerator(this);
     }
-    bool generate() {
+    void clearState() {
+        watch.reset();
+    }
+    bool generate(bool writeToFile = true) {
         watch.start();
         log("Generating IR for module %s", module_.canonicalName);
 
         this.lhs = null;
         this.rhs = null;
 
+        if(module_.llvmValue !is null) {
+           module_.llvmValue.destroy();
+        }
         module_.llvmValue = llvm.createModule(module_.canonicalName);
 
         generateGlobalStrings();
@@ -63,7 +69,9 @@ public:
 
         visitChildren(module_);
 
-        writeLL(module_, "ir/");
+        if(writeToFile) {
+            writeLL(module_, "ir/");
+        }
 
         bool result = verify();
         watch.stop();
@@ -366,7 +374,7 @@ public:
         }
     }
     void generateGlobalStrings() {
-        foreach(LiteralString[] array; module_.literalStrings.values) {
+        foreach(LiteralString[] array; module_.getLiteralStrings()) {
             /// create a global string for only one of these
             auto s = array[0];
             log("Generating string literal decl ... %s", s);

@@ -11,6 +11,7 @@ public:
         bool active;
     }
     string name;
+    string mainFile;
     string directory;
     string targetDirectory = ".target";
 
@@ -87,6 +88,7 @@ public:
         /// [[general]]
         file.writefln("[[general]]");
         file.writefln("name = \"%s\"", name);
+        file.writefln("mainFile = \"%s\"", mainFile);
         file.writefln("targetDirectory = \"%s\"", targetDirectory);
         file.writefln("excludeFiles = %s", excludeFiles);
         file.writefln("excludeDirectories = %s", excludeDirectories);
@@ -129,15 +131,18 @@ private:
 
         targetDirectory = normaliseDir(targetDirectory);
 
+        writefln("Project {");
         // general
-        writefln("name               : %s", name);
-        writefln("directory          : %s", directory);
-        writefln("targetDirectory    : %s", targetDirectory);
-        writefln("excludeFiles       : %s", excludeFiles);
-        writefln("excludeDirectories : %s", excludeDirectories);
+        writefln("\tname               : %s", name);
+        writefln("\tmainFile           : %s", mainFile);
+        writefln("\tdirectory          : %s", directory);
+        writefln("\ttargetDirectory    : %s", targetDirectory);
+        writefln("\texcludeFiles       : %s", excludeFiles);
+        writefln("\texcludeDirectories : %s", excludeDirectories);
         // state
-        writefln("openFiles          : %s", openFiles);
-        writefln("dependencies       : %s", libs);
+        writefln("\topenFiles          : %s", openFiles);
+        writefln("\tdependencies       : %s", libs);
+        writefln("}");
     }
     void parseProjectToml(string text) {
         import toml;
@@ -148,6 +153,7 @@ private:
         foreach(map; doc["general"].array) {
             auto t = map.table;
             this.name            = t.get("name", TOMLValue("No-name")).str;
+            this.mainFile        = t.get("mainFile", TOMLValue("")).str;
             this.targetDirectory = t.get("targetDirectory", TOMLValue("target")).str;
             this.excludeFiles    = t.get("excludeFiles", TOMLValue([""]))
                                          .array.map!(it=>it.str).array;

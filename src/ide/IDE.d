@@ -7,15 +7,16 @@ private:
     MenuItem menuBar;
     StatusLine statusLine;
     Window window;
-    //DockWindow projectDock, propertiesDock;
-
     ProjectView projectView;
     EditorView editorView;
     InfoView infoView;
     ConsoleView consoleView;
-
     Project project;
 public:
+    auto getConsole() { return consoleView; }
+    auto getInfoView() { return infoView; }
+    Project getProject() { return project; }
+
     this(string[] args, Window window) {
         this.window = window;
     }
@@ -58,8 +59,6 @@ protected:
         ToolBar tb;
         tb = res.getOrAddToolbar("Build");
         tb.addButtons(
-            new Action(ActionID.TOOLBAR_TOKENISE, "Tokenise"d),
-            ACTION_SEPARATOR,
             new Action(ActionID.TOOLBAR_PARSE, "Parse"d),
             ACTION_SEPARATOR,
             new Action(ActionID.TOOLBAR_RESOLVE, "Resolve"d));
@@ -100,13 +99,12 @@ protected:
                 case WINDOW_CAPTION_CHANGE:
                     window.windowCaption = "PPL IDE :: %s"d.format(a.stringParam);
                     break;
-                case TOOLBAR_TOKENISE:
-                    consoleView.logln("Tokenising...");
-                    break;
                 case TOOLBAR_PARSE:
-                    consoleView.logln("Parsing...");
+                    auto tab = editorView.getSelectedTab();
+                    tab.parse();
                     break;
                 case TOOLBAR_RESOLVE:
+                    auto tab = editorView.getSelectedTab();
                     consoleView.logln("Resolving...");
                     break;
                 default:
@@ -117,10 +115,10 @@ protected:
         return true;
     }
     override Widget createBody() {
-        projectView = new ProjectView;
-        editorView  = new EditorView;
-        infoView    = new InfoView;
-        consoleView = new ConsoleView;
+        projectView = new ProjectView(this);
+        editorView  = new EditorView(this);
+        infoView    = new InfoView(this);
+        consoleView = new ConsoleView(this);
 
         auto dock = new DockHost("dockhost");
         {

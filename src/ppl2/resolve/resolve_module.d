@@ -7,16 +7,15 @@ private:
     CallResolver callResolver;
     IdentifierResolver identifierResolver;
     StopWatch watch;
-    int pass;
-    bool addedModuleScopeElements;
     Set!ASTNode unresolved;
     Array!Callable overloadSet;
+    bool addedModuleScopeElements;
     int rewrites;
     int typesWaiting;
 public:
     Module module_;
 
-    ulong getElapsedNanos() { return watch.peek().total!"nsecs"; }
+    ulong getElapsedNanos()        { return watch.peek().total!"nsecs"; }
     ASTNode[] getUnresolvedNodes() { return unresolved.values; }
 
     this(Module module_) {
@@ -25,7 +24,10 @@ public:
         this.identifierResolver = new IdentifierResolver(module_);
         this.unresolved         = new Set!ASTNode;
         this.overloadSet        = new Array!Callable;
-        this.pass = 1;
+    }
+    void clearState() {
+        watch.reset();
+        addedModuleScopeElements = false;
     }
 
     ///
@@ -34,20 +36,19 @@ public:
     ///
     int resolve() {
         watch.start();
-        rewrites = 0;
+        rewrites     = 0;
         typesWaiting = 0;
 
         collectModuleScopeElements();
 
         unresolved.clear();
 
-        foreach(r; module_.activeRoots.values.dup) {
+        foreach(r; module_.getCopyOfActiveRoots()) {
             recursiveVisit(r);
         }
 
         int numUnresolved = unresolved.length + rewrites + typesWaiting;
 
-        pass++;
         watch.stop();
         return numUnresolved;
     }

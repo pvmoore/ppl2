@@ -9,6 +9,8 @@ public:
 
 const string VERSION = "2.0.0";
 
+__gshared LLVMWrapper g_llvmWrapper;
+
 __gshared int g_nodeid = 1;
 __gshared int g_callableID = 1;
 
@@ -35,7 +37,12 @@ __gshared Callable CALLABLE_NOT_READY;
 
 __gshared Set!string g_keywords;
 
+shared static ~this() {
+    if(g_llvmWrapper) g_llvmWrapper.destroy();
+}
+
 shared static this() {
+    g_llvmWrapper = new LLVMWrapper;
     g_logger = new FileLogger(".logs/log.log");
 
     g_builtinTypes["var"]    = Type.UNKNOWN;

@@ -4,24 +4,30 @@ import ide.internal;
 
 final class EditorView : TabWidget {
 private:
+    IDE ide;
     Project project;
-    EditorTab[string] editors; // key = tab id
+    EditorTab[/*tab id*/string] editors;
+    EditorTab currentTab;
 public:
-    this() {
+    this(IDE ide) {
         super("EDITOR-VIEW");
+        this.ide = ide;
 
         tabChanged = (string newTabId, string oldTabId) {
             auto oldTab = editors.get(oldTabId, null);
-            auto newTab = editors[newTabId];
-            dispatchAction(new Action(ActionID.WINDOW_CAPTION_CHANGE, ""d).stringParam(newTab.filename));
+            currentTab  = editors[newTabId];
+            dispatchAction(new Action(ActionID.WINDOW_CAPTION_CHANGE, ""d).stringParam(currentTab.filename));
 
             if(oldTab) oldTab.onDeactivated();
-            newTab.onActivated();
+            currentTab.onActivated();
         };
         tabClose = (string tabId) {
             removeTab(tabId);
             editors.remove(tabId);
         };
+    }
+    EditorTab getSelectedTab() {
+        return currentTab;
     }
     void onClosing() {
         if(!project) return;
@@ -86,7 +92,7 @@ private:
             line = info.line;
         }
 
-        auto editor = new EditorTab("TAB-"~name, name, filename, line);
+        auto editor = new EditorTab(ide, "TAB-"~name, name, filename, line);
         editors["TAB-"~name] = editor;
         return editor;
     }

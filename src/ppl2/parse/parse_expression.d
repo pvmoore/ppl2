@@ -6,12 +6,12 @@ final class ExpressionParser {
 private:
     Module module_;
 
-    TypeParser typeParser()      { return module_.typeParser; }
-    TypeDetector typeDetector()  { return module_.typeDetector; }
-    StatementParser stmtParser() { return module_.stmtParser; }
-    VariableParser varParser()   { return module_.varParser; }
-    TypeFinder typeFinder()      { return module_.typeFinder; }
-    NodeBuilder builder()        { return module_.nodeBuilder; }
+    auto typeParser()   { return module_.typeParser; }
+    auto typeDetector() { return module_.typeDetector; }
+    auto stmtParser()   { return module_.stmtParser; }
+    auto varParser()    { return module_.varParser; }
+    auto typeFinder()   { return module_.typeFinder; }
+    auto builder()      { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;

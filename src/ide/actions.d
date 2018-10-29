@@ -18,7 +18,6 @@ enum ActionID : int {
     WINDOW_CAPTION_CHANGE,
 
     /// Toolbar
-    TOOLBAR_TOKENISE,
     TOOLBAR_PARSE,
     TOOLBAR_RESOLVE,
 }

@@ -7,17 +7,14 @@ import ppl2.internal;
 final class AfterResolution {
 private:
     BuildState buildState;
-    Module[] modules;
 public:
     this(BuildState buildState) {
         this.buildState = buildState;
-        this.modules    = buildState.allModules;
     }
-
-    void process() {
-        auto mainModule = buildState.mainModule;
-        auto entry      = mainModule.getFunctions("main")[0];
-        assert(entry);
+    void process(Module[] modules) {
+        bool hasMainModule = buildState.mainModule !is null;
+        Module mainModule  = buildState.mainModule;
+        Function entry     = hasMainModule ? mainModule.getFunctions("main")[0] : null;
 
         auto calls = new Array!Call;
 
@@ -42,12 +39,14 @@ public:
                 }
             }
 
-            // todo - get this in the right order
-            /// Call module init function at start of program entry
-            auto call = mainModule.nodeBuilder.call("new", mod.getInitFunction());
+            if(hasMainModule) {
+                // todo - get this in the right order
+                /// Call module init function at start of program entry
+                auto call = mainModule.nodeBuilder.call("new", mod.getInitFunction());
 
-            /// Arguments should always be the 1st child of body
-            entry.getBody().insertAt(1, call);
+                /// Arguments should always be the 1st child of body
+                entry.getBody().insertAt(1, call);
+            }
         }
     }
 private:
