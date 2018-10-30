@@ -4,11 +4,11 @@ public
 
 
 testConsts {
-    const A      = (((1 + (2))))
+    const A      = (((1 + (2)))) 
     const var B  = 2 + A
     const int C  = 3
 
-    // binary expressions
+    // binary expressions 
     const long D = 10/2
     const int E  = 3*5
     const var F  = 9%2

@@ -4,29 +4,32 @@ import ppl2.internal;
 
 final class Mangler {
 private:
-    Set!string uniqueFunctionNames;
-    Set!string uniqueStructAndModuleNames;
+    //Set!string uniqueFunctionNames;
+    //Set!string uniqueStructAndModuleNames;
 public:
     this() {
-        this.uniqueFunctionNames        = new Set!string;
-        this.uniqueStructAndModuleNames = new Set!string;
+        //this.uniqueFunctionNames        = new Set!string;
+        //this.uniqueStructAndModuleNames = new Set!string;
+    }
+    void clearState() {
+        //uniqueFunctionNames.clear();
+        //uniqueStructAndModuleNames.clear();
     }
     void addUniqueModuleName(string canonicalName) {
         string name = canonicalName;
         auto i      = canonicalName.lastIndexOf("::");
         if(i!=-1) name = canonicalName[i+2..$];
-        uniqueStructAndModuleNames.add(name);
+        //uniqueStructAndModuleNames.add(name);
     }
     string mangle(NamedStruct ns) {
         string name = ns.name;
-
-        int i = 2;
-        string prefix = name;
-        while(uniqueStructAndModuleNames.contains(name)) {
-            name = "%s_%s".format(prefix, i);
-            i++;
-        }
-        uniqueStructAndModuleNames.add(name);
+        //int i = 2;
+        //string prefix = name;
+        //while(uniqueStructAndModuleNames.contains(name)) {
+        //    name = "%s_%s".format(prefix, i);
+        //    i++;
+        //}
+        //uniqueStructAndModuleNames.add(name);
         return name;
     }
     string mangle(Function f) {
@@ -41,6 +44,9 @@ public:
                 if(f.isStatic) sep = "::";
                 name = struct_.parent.as!NamedStruct.getUniqueName ~ sep ~ name;
             }
+        } else {
+            auto m = f.getModule;
+            name = m.canonicalName ~ "::" ~ name;
         }
 
         string params;
@@ -50,18 +56,18 @@ public:
 
         name ~= params;
 
-        if(!uniqueFunctionNames.contains(name)) {
-            uniqueFunctionNames.add(name);
-            return name;
-        }
-
-        int i = 2;
-        string prefix = name;
-        while(uniqueFunctionNames.contains(name)) {
-            name = "%s_%s".format(prefix, i);
-            i++;
-        }
-        uniqueFunctionNames.add(name);
+        //if(!uniqueFunctionNames.contains(name)) {
+        //    uniqueFunctionNames.add(name);
+        //    return name;
+        //}
+        //
+        //int i = 2;
+        //string prefix = name;
+        //while(uniqueFunctionNames.contains(name)) {
+        //    name = "%s_%s".format(prefix, i);
+        //    i++;
+        //}
+        //uniqueFunctionNames.add(name);
         return name;
     }
     string mangle(Type t) {

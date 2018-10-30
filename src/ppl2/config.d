@@ -26,8 +26,10 @@ public:
     bool writeOBJ = true;
     bool writeAST = true;
 
-    bool nullChecks    = true;
-    bool enableAsserts = true;
+    bool nullChecks     = true;
+    bool enableAsserts  = true;
+    bool enableInlining = true;
+    bool disableInternalLinkage = false;
 
     bool dumpStats        = true;
     bool dumpDependencies = true;
@@ -98,12 +100,14 @@ private:
         }
     }
     void setToDebug() {
-        nullChecks    = true;
-        enableAsserts = true;
+        nullChecks     = true;
+        enableAsserts  = true;
+        enableInlining = false;
     }
     void setToRelease() {
-        nullChecks    = false;
-        enableAsserts = false;
+        nullChecks     = false;
+        enableAsserts  = false;
+        enableInlining = true;
     }
     void addLibs() {
         libs["core"] = Lib("core", "./libs/");

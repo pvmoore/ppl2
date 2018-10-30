@@ -47,6 +47,8 @@ public:
         templateTokens = null;
         templateStartNodes = null;
         module_.children.clear();
+        sourceText = null;
+        sourceTextHash.invalidate();
         watch.reset();
     }
     ///

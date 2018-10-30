@@ -18,7 +18,7 @@ void main(string[] argv) {
 
     buildAll(ppl2, mainFile);
 
-    incrementalBuild(ppl2, mainFile);
+    //incrementalBuild(ppl2, mainFile);
 }
 void buildAll(PPL2 ppl2, string mainFile) {
     auto b = ppl2.prepareAFullBuild(mainFile);
@@ -32,29 +32,30 @@ void buildAll(PPL2 ppl2, string mainFile) {
         writefln("Fail");
     }
 }
-void incrementalBuild(PPL2 ppl2, string mainFile) {
-    auto b = ppl2.prepareAnIncrementalBuild(mainFile);
-
-    auto m = b.getOrCreateModule("test_access2");
-
-    try{
-        b.parse(m);
-    }catch(Exception e) {
-        writefln("error: %s", e);
-    }
-
-    writefln("mainModule ... %s", b.mainModule);
-    writefln("allModules ... %s", b.allModules);
-    writefln("");
-
-    writefln("canonicalName........ %s", m.canonicalName);
-    writefln("fileName ............ %s", m.fileName);
-    writefln("isParsed ............ %s", m.isParsed);
-    writefln("isMainModule ........ %s", m.isMainModule);
-    writefln("publicTypes ......... %s", m.parser.publicTypes.values);
-    writefln("publicFunctions ..... %s", m.parser.publicFunctions.values);
-    writefln("privateFunctions .... %s", m.parser.privateFunctions.values);
-    writefln("tokens .............. %s", m.parser.getInitialTokens().length);
-
-
-}
+//void incrementalBuild(PPL2 ppl2, string mainFile) {
+//    auto b = ppl2.prepareAnIncrementalBuild(mainFile);
+//    b.startNewBuild();
+//
+//    auto m = b.getOrCreateModule("test_access2");
+//
+//    try{
+//        b.parse(m);
+//    }catch(Exception e) {
+//        writefln("error: %s", e);
+//    }
+//
+//    writefln("mainModule ... %s", b.mainModule);
+//    writefln("allModules ... %s", b.allModules);
+//    writefln("");
+//
+//    writefln("canonicalName........ %s", m.canonicalName);
+//    writefln("fileName ............ %s", m.fileName);
+//    writefln("isParsed ............ %s", m.isParsed);
+//    writefln("isMainModule ........ %s", m.isMainModule);
+//    writefln("publicTypes ......... %s", m.parser.publicTypes.values);
+//    writefln("publicFunctions ..... %s", m.parser.publicFunctions.values);
+//    writefln("privateFunctions .... %s", m.parser.privateFunctions.values);
+//    writefln("tokens .............. %s", m.parser.getInitialTokens().length);
+//
+//
+//}

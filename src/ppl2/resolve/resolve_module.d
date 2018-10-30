@@ -27,6 +27,8 @@ public:
     }
     void clearState() {
         watch.reset();
+        unresolved.clear();
+        overloadSet.clear();
         addedModuleScopeElements = false;
     }
 
@@ -409,6 +411,10 @@ public:
 
                 /// We don't need the param names any more
                 n.paramNames = null;
+            }
+
+            debug if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
+                dd("!!BAD line=",n.line, "target=", n.target, "%s argTypes=%s, paramTypes=%s".format(n.name, n.argTypes.prettyString, n.target.paramTypes.prettyString));
             }
 
             assert(n.argTypes.canImplicitlyCastTo(n.target.paramTypes),
@@ -1072,7 +1078,7 @@ private:
             if(!d.type.isAlias) return;
         }
 
-        //dd("resolve", typeid(m), m.nid);
+        //dd("  resolve", typeid(m), m.nid);
         m.visit!ModuleResolver(this);
 
         if(!m.isResolved) {

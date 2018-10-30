@@ -87,7 +87,7 @@ protected:
         return statusLine;
     }
     override bool handleAction(const Action a) {
-        //writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
+        writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
         if(a) {
             switch(a.id) with(ActionID) {
                 case FILE_EXIT:
@@ -112,6 +112,7 @@ protected:
                     break;
             }
         }
+        writefln("action %s handled", cast(ActionID)a.id); flushConsole();
         return true;
     }
     override Widget createBody() {

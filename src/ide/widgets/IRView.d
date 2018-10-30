@@ -14,10 +14,10 @@ public:
         readOnly(true);
 
         setTokenHightlightColor(TokenCategory.Comment, 0x707070);
-        setTokenHightlightColor(TokenCategory.Op, 0xc7c7c7);
+        setTokenHightlightColor(TokenCategory.Op, 0xffffff);
 
         setTokenHightlightColor(TokenCategory.Identifier,        0xaaaaaa);
-        setTokenHightlightColor(TokenCategory.Identifier_Local,  0x995555);
+        setTokenHightlightColor(TokenCategory.Identifier_Local,  0x77aa77);
         setTokenHightlightColor(TokenCategory.Identifier_Member, 0xaacc44);
         setTokenHightlightColor(TokenCategory.Identifier|5,      0xad83d7);  /// type
         setTokenHightlightColor(TokenCategory.Identifier|6,      0xff7788);  /// label

@@ -4,20 +4,14 @@ import ppl2.internal;
 
 final class BuildAll : BuildState {
 private:
-    shared bool buildStarted    = false;
-    shared bool buildCompleted  = false;
     bool buildSuccessful = false;
 public:
-    bool running() { return atomicLoad(buildStarted) && !atomicLoad(buildCompleted); }
-
     this(LLVMWrapper llvmWrapper, Config config) {
         super(llvmWrapper, config);
     }
     bool build() {
-        startNewBuild(true);
-        buildStarted = true;
+        startNewBuild();
         doBuild();
-        buildCompleted = true;
         return buildSuccessful;
     }
 
@@ -46,11 +40,16 @@ private:
             }
             ///============================ End
 
+            status = Status.FINISHED_OK;
+
         }catch(CompilerError e) {
+            status = Status.FINISHED_WITH_ERRORS;
             prettyErrorMsg(e);
         }catch(UnresolvedSymbols e) {
+            status = Status.FINISHED_WITH_ERRORS;
             displayUnresolved(allModules);
         }catch(Throwable e) {
+            status = Status.FINISHED_WITH_ERRORS;
             throw e;
         }finally{
             dumpAST();

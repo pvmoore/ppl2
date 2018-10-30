@@ -70,7 +70,9 @@ void generateClosureDeclaration(Module m, Closure c) {
     );
     c.llvmValue = func;
 
-    addFunctionAttribute(func, LLVMAttribute.InlineHint);
+    if(m.config.enableInlining) {
+        addFunctionAttribute(func, LLVMAttribute.InlineHint);
+    }
     addFunctionAttribute(func, LLVMAttribute.NoUnwind);
 
     func.setLinkage(LLVMLinkage.LLVMInternalLinkage);
@@ -86,9 +88,15 @@ void generateFunctionDeclaration(Module module_, Function f) {
     );
     f.llvmValue = func;
 
+    auto config = module_.config;
+
     //// inline
-    bool isInline   = false;//f.isOperatorOverload;
+    bool isInline   = false;
     bool isNoInline = false;
+
+    if(!config.enableInlining) {
+        isInline = false;
+    }
 
     //// check if user has set a preference
     //if(f.attributes && f.attributes.has(AttrType.INLINE)) {
@@ -106,7 +114,7 @@ void generateFunctionDeclaration(Module module_, Function f) {
 
     //// linkage
     //if(!f.isExport && f.access==Access.PRIVATE) {
-    if(f.numExternalRefs==0 && !f.isProgramEntry) {
+    if(f.numExternalRefs==0 && !f.isProgramEntry && !config.disableInternalLinkage) {
         f.llvmValue.setLinkage(LLVMLinkage.LLVMInternalLinkage);
     }
 }

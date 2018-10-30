@@ -6,6 +6,7 @@ import ppl2;
 final class ASTView : TreeWidget {
 private:
     IDE ide;
+    string showingModule;
 public:
     this(IDE ide) {
         super("AST-VIEW");
@@ -13,7 +14,10 @@ public:
 
         fontSize = 15;
     }
-    void update(Module m) {
+    void update(Module m, bool forceUpdate = false) {
+        if(!forceUpdate && m.canonicalName==showingModule) return;
+
+        showingModule = m.canonicalName;
         clearAllItems();
 
         auto rootItem = items.newChild(m.nid.to!string, "%s %s"d.format(m.id, m), null);

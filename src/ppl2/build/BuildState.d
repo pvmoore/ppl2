@@ -4,15 +4,17 @@ import ppl2.internal;
 
 class BuildState {
 protected:
+    Mutex getModuleLock;
+
     Queue!Task taskQueue;
     Set!string requestedAliasOrStruct;    /// moduleName|defineName
     Set!string requestedFunction;         /// moduleName|funcName
 
     Module[/*canonicalName*/string] modules;
-    Mutex getModuleLock;
-
+    Status status = Status.NOT_STARTED;
     StopWatch watch;
 public:
+    enum Status { NOT_STARTED, RUNNING, FINISHED_OK, FINISHED_WITH_ERRORS }
     struct Task {
         enum Enum { FUNC, TYPE }
         Enum type;
@@ -27,6 +29,7 @@ public:
     Module mainModule;
     Mangler mangler;
 
+    Status getStatus() const      { return status; }
     ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
 
     this(LLVMWrapper llvmWrapper, Config config) {
@@ -46,39 +49,50 @@ public:
     Task getNextTask()      { return taskQueue.pop; }
     void addTask(Task t)    { taskQueue.push(t); }
 
-    void startNewBuild(bool removeModules) {
+    void startNewBuild() {
+        status = Status.RUNNING;
         requestedAliasOrStruct.clear();
         requestedFunction.clear();
         taskQueue.clear();
-        if(removeModules) {
-            modules.clear();
-        }
+        optimiser.clearState();
+        linker.clearState();
+        mangler.clearState();
+        modules.clear();
     }
 
     /// Modules
+    Module getModule(string canonicalName) {
+        getModuleLock.lock();
+        scope(exit) getModuleLock.unlock();
+
+        return modules.get(canonicalName, null);
+    }
     Module getOrCreateModule(string canonicalName, string newSource) {
+        assert(status==Status.RUNNING);
         auto src = convertTabsToSpaces(newSource);
 
         getModuleLock.lock();
         scope(exit) getModuleLock.unlock();
 
         auto m = modules.get(canonicalName, null);
-        if(m) {
-            /// Check the src hash
-            auto hash = Hasher.sha1(src);
-            if(hash==m.parser.getSourceTextHash()) {
-                /// Source has not changed. Nothing to do
-                return m;
-            }
+        assert(!m);
 
-            /// The module and all modules that reference it are now stale
-            clearState(m);
-
-            m.parser.setSourceText(src);
-
-        } else {
+        //if(m) {
+        //    /// Check the src hash
+        //    auto hash = Hasher.sha1(src);
+        //    if (hash==m.parser.getSourceTextHash()) {
+        //        /// Source has not changed.
+        //        return m;
+        //    }
+        //
+        //    /// The module and all modules that reference it are now stale
+        //    clearState(m, new Set!string);
+        //
+        //    m.parser.setSourceText(src);
+        //
+        //} else {
             m = createModule(canonicalName, true, src);
-        }
+        //}
         return m;
     }
     Module getOrCreateModule(string canonicalName) {
@@ -114,13 +128,17 @@ public:
     ///
     /// Recursively clear module state so that it can be re-used
     ///
-    void clearState(Module m) {
+    void clearState(Module m, Set!string hasBeenReset) {
+        if(hasBeenReset.contains(m.canonicalName)) return;
+        hasBeenReset.add(m.canonicalName);
         writefln("clearState(%s)", m.canonicalName);
+
         m.clearState();
+
         Module[] refs = allModulesThatReference(m);
         writefln("\tModules referencing %s : %s", m.canonicalName, refs);
         foreach(r; refs) {
-            clearState(r);
+            clearState(r, hasBeenReset);
         }
     }
 
@@ -341,6 +359,7 @@ protected:
         foreach(m; allModules) {
             m.checker.check();
         }
+        dd("semantic end");
     }
     bool generateIR() {
         log("Generating IR");

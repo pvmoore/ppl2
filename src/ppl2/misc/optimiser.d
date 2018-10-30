@@ -15,6 +15,9 @@ public:
         this.passManager = llvm.passManager;
         passManager.addPasses();
     }
+    void clearState() {
+        watch.reset();
+    }
     void optimise(Module[] modules) {
         watch.start();
         foreach(m; modules) {

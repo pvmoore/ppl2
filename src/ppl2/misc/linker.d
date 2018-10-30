@@ -21,6 +21,9 @@ public:
     this(LLVMWrapper llvm) {
         this.llvm = llvm;
     }
+    void clearState() {
+        watch.reset();
+    }
 
     bool link(Module m) {
         // /OPT:REF		remove unreferenced functions and data

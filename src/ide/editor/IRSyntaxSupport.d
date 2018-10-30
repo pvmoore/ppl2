@@ -184,13 +184,14 @@ private:
         void token(TokenCategory cat = TokenCategory.WhiteSpace, int len = 1) {
             if(start<i) {
                 auto c = getCategory(line[start..i]);
-                writefln("[%s] %s '%s'", lineNum, c, line[start..i]);
                 foreach(n; start..i) {
                     attribs[n] = c;
                 }
             }
             if(cat!=TokenCategory.WhiteSpace) {
-                writefln("[%s] %s '%s'", lineNum, cat, line[i..i+len]);
+                foreach(n; i..i+len) {
+                    attribs[n] = cat;
+                }
             }
             start = i+len;
         }

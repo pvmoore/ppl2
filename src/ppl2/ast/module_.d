@@ -87,11 +87,14 @@ public:
         dce.clearState();
         gen.clearState();
         templates.clearState();
+        llvmValue = null;
 
         addLiteralString(moduleNameLiteral);
     }
-    override bool isResolved() { return true; }
-    override NodeID id() const { return NodeID.MODULE; }
+/// ASTNode
+    override bool isResolved()  { return true; }
+    override NodeID id() const  { return NodeID.MODULE; }
+    override Module getModule() { return this; }
 
     bool isParsed() { return parser.isParsed; }
 

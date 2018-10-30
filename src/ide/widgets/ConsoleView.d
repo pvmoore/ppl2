@@ -11,14 +11,26 @@ public:
 
         fontSize = 14;
     }
+    void log(A...)(dstring fmt, A args) {
+        log(format(fmt, args));
+    }
     void logln(A...)(dstring fmt, A args) {
-        try{
-            appendText(format(fmt, args) ~ "\n"d);
-        }catch(Exception e) {}
+        logln(format(fmt, args) ~ "\n"d);
+    }
+    void logln(dstring s) {
+        log(s~"\n"d);
     }
     void logln(string s) {
+        log(s~"\n");
+    }
+    void log(dstring s) {
         scrollLock(true);
-        appendText(s.toUTF32 ~ "\n"d);
+        appendText(s);
+        scrollLock(false);
+    }
+    void log(string s) {
+        scrollLock(true);
+        appendText(s.toUTF32);
         scrollLock(false);
     }
     void clear() {
