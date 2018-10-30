@@ -3,8 +3,10 @@ module ppl2.misc.writer;
 import ppl2.internal;
 
 void writeLL(Module m, string subdir) {
-    string path = m.config.targetPath ~ subdir;
-    m.llvmValue.writeToFileLL(path ~ m.fileName ~ ".ll");
+    if(m.config.writeIR) {
+        string path = m.config.targetPath ~ subdir;
+        m.llvmValue.writeToFileLL(path ~ m.fileName ~ ".ll");
+    }
 }
 bool writeASM(LLVMWrapper llvm, Module m) {
     if(m.config.writeASM) {

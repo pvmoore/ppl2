@@ -59,9 +59,9 @@ protected:
         ToolBar tb;
         tb = res.getOrAddToolbar("Build");
         tb.addButtons(
-            new Action(ActionID.TOOLBAR_PARSE, "Parse"d),
+            new Action(ActionID.TOOLBAR_BUILD_MODULE, "Build Module"d),
             ACTION_SEPARATOR,
-            new Action(ActionID.TOOLBAR_RESOLVE, "Resolve"d));
+            new Action(ActionID.TOOLBAR_BUILD_PROJECT, "Build Project"d));
 
         /// Force actions to be dispatched to our main handleAction method
         foreach(i; 0..tb.childCount) {
@@ -99,13 +99,11 @@ protected:
                 case WINDOW_CAPTION_CHANGE:
                     window.windowCaption = "PPL IDE :: %s"d.format(a.stringParam);
                     break;
-                case TOOLBAR_PARSE:
+                case TOOLBAR_BUILD_MODULE:
                     auto tab = editorView.getSelectedTab();
-                    tab.parse();
+                    tab.build();
                     break;
-                case TOOLBAR_RESOLVE:
-                    auto tab = editorView.getSelectedTab();
-                    consoleView.logln("Resolving...");
+                case TOOLBAR_BUILD_PROJECT:
                     break;
                 default:
                     writefln("handleAction: Missing handler for id %s", cast(ActionID)a.id);

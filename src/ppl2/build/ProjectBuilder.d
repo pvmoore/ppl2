@@ -1,8 +1,10 @@
-module ppl2.build.BuildAll;
-
+module ppl2.build.ProjectBuilder;
+///
+/// Build the entire project.
+///
 import ppl2.internal;
 
-final class BuildAll : BuildState {
+final class ProjectBuilder : BuildState {
 private:
     bool buildSuccessful = false;
 public:
@@ -34,6 +36,7 @@ private:
             if(generateIR()) {
                 optimiseModules();
                 combineModules();
+
                 if(link()) {
                     buildSuccessful = true;
                 }
@@ -84,8 +87,11 @@ private:
         writeLL(mainModule, "");
     }
     bool link() {
-        dd("linking");
-        log("Linking");
-        return linker.link(mainModule);
+        if(config.enableLink) {
+            dd("linking");
+            log("Linking");
+            return linker.link(mainModule);
+        }
+        return true;
     }
 }

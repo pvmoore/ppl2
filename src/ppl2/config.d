@@ -25,10 +25,12 @@ public:
     bool writeASM = true;
     bool writeOBJ = true;
     bool writeAST = true;
+    bool writeIR  = true;
 
     bool nullChecks     = true;
     bool enableAsserts  = true;
     bool enableInlining = true;
+    bool enableLink     = true;
     bool disableInternalLinkage = false;
 
     bool dumpStats        = true;

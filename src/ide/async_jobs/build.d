@@ -1,74 +1,51 @@
 module ide.async_jobs.build;
 
 import ide.internal;
-import core.sync.mutex : Mutex;
+import core.atomic   : atomicLoad, atomicStore;
+import core.thread   : Thread;
 import ppl2;
 
 final class BuildJob {
 private:
-    __gshared BuildJob instance;
-    __gshared Mutex lock;
-
     string mainFileName;
-    string moduleCanonicalName;
-
-    BuildIncremental build;
-    PPL2 ppl2;
+    shared bool running;
+    Thread thread;
+    Exception exception;
+    ProjectBuilder build;
 public:
-    this() {
-        this.lock = new Mutex;
-        this.ppl2 = PPL2.instance();
+    this(string mainFileName) {
+        this.mainFileName = mainFileName;
     }
-    static BuildJob get() {
-        lock.lock();
-        scope(exit) lock.unlock();
+    bool isRunning()         { return atomicLoad(running); }
+    Exception getException() { return exception; }
+    BuildState getBuild()    { return build; }
 
-        if(!instance) {
-            instance = new BuildJob();
-        }
-        return instance;
-    }
-    auto setMainFile(string mainFile) {
-        this.mainFileName = mainFile;
-        return this;
-    }
-    auto setModule(string canonicalName) {
-        this.moduleCanonicalName = canonicalName;
-        return this;
-    }
-    /// Job method run asynchronously
     void run() {
-        assert(mainFileName);
-        assert(moduleCanonicalName);
+        assert(!isRunning());
 
-        auto build = ppl2.prepareAnIncrementalBuild(mainFileName);
-
-        auto m = build.getOrCreateModule(moduleCanonicalName);
-
+        this.thread = new Thread(&runAsync);
+        this.thread.isDaemon = true;
+        this.thread.start();
+    }
+private:
+    void runAsync() {
         try{
-            build.parse(m);
+            atomicStore(running,true);
+            build = PPL2.instance().createProjectBuilder(mainFileName);
+
+            /// Disable all file writing and linking
+            build.config.enableLink = false;
+            build.config.writeASM   = false;
+            build.config.writeOBJ   = false;
+            build.config.writeAST   = false;
+            build.config.writeIR    = false;
+
+            bool ok = build.build();
+
         }catch(Exception e) {
-            writefln("error: %s", e);
+            exception = e;
+        }finally{
+            atomicStore(running,false);
         }
     }
-
-
-    void cancel() {
-
-    }
-    //Module tokenise(string canonicalName) {
-    //    return null;
-    //}
-    //void parse(Module m) {
-    //
-    //}
-    //void resolve(Module m) {
-    //
-    //}
-    //void generateIR(Module m) {
-    //
-    //}
-    //void buildAll() {
-    //
-    //}
 }

@@ -7,8 +7,8 @@ final class EditorTab : SourceEdit {
 private:
     IDE ide;
     ulong timerId;
-    BuildIncremental build;
     Project project;
+    ModuleBuilder builder;
 public:
     string relFilename;
     string filename;
@@ -21,9 +21,7 @@ public:
         this.relFilename         = relFilename;
         this.filename            = filename;
         this.project             = ide.getProject();
-
-        this.build = PPL2.instance().prepareAnIncrementalBuild(project.directory~project.mainFile);
-        this.build.config.disableInternalLinkage = true;
+        this.builder             = PPL2.instance().createModuleBuilder(project.directory~project.mainFile);
 
         import std.path;
         this.moduleCanonicalName = stripExtension(relFilename).replace("/", "::");
@@ -114,56 +112,31 @@ public:
     override string toString() {
         return "[EditorTab %s]".format(moduleCanonicalName);
     }
-    void parse() {
-        ide.getConsole().log("Parsing '%s' ... ", moduleCanonicalName);
+    void build() {
+        ide.getConsole().logln("Building module '%s' ... ", moduleCanonicalName);
 
         auto info = ide.getInfoView();
         auto src  = convertTabsToSpaces(content().text().toUTF8);
 
-        try{
-            /// If we get here then we have new content to parse
-            build.startNewBuild();
+        builder.startNewBuild();
 
-            auto m = build.getOrCreateModule(moduleCanonicalName, src);
-            ide.getConsole().logln("m=%s", m);
+        auto m = builder.getOrCreateModule(moduleCanonicalName, src);
 
+        if(builder.build(m)) {
             info.getTokensView().update(m.parser.getInitialTokens()[]);
-
-            build.parse(m);
-
             info.getASTView().update(m, true);
-
-            build.resolve(m);
-
-            ide.getConsole().logln("Unresolved = %s", m.resolver.getUnresolvedNodes);
-
-            info.getASTView().update(m, true);
-
-            ide.getConsole().logln("All symbols resolved");
-
-            build.check(m);
-
-            build.generateIR(m);
-
-            info.getIRView().update(m.llvmValue.dumpToString());
-
-            build.optimise(m);
-
-            info.getOptIRView().update(m.llvmValue.dumpToString());
-
-            build.dumpStats((string it)=>ide.getConsole().logln(it));
+            info.getIRView().update(builder.getUnoptimisedIR());
+            info.getOptIRView().update(builder.getOptimisedIR());
 
             ide.getConsole().logln("References   : %s", m.getReferencedModules().map!(it=>it.canonicalName));
-            ide.getConsole().logln("Referencedby : %s", build.allModulesThatReference(m).map!(it=>it.canonicalName));
+            ide.getConsole().logln("Referencedby : %s", builder.allModulesThatReference(m).map!(it=>it.canonicalName));
 
-        }catch(CompilerError e) {
-            ide.getConsole().logln("Compile error: [%s Line %s:%s] %s", e.module_.fullPath, e.line+1, e.column, e.msg);
-        }catch(UnresolvedSymbols e) {
-            ide.getConsole().logln("Unresolved symbols");
-        }catch(Exception e) {
-            ide.getConsole().logln("error: %s", e);
-        }finally{
-            ide.getConsole().logln("Status: %s", build.getStatus());
+        } else {
+            ide.getConsole().logln("Unresolved = %s", m.resolver.getUnresolvedNodes);
         }
+
+        builder.dumpStats((string it)=>ide.getConsole().logln(it));
+
+        ide.getConsole().logln("Status: %s", builder.getStatus());
     }
 }

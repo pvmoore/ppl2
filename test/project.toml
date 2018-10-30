@@ -51,7 +51,7 @@ active = 0
 [[openFile]]
 name = "test_imports2.p2"
 line = 0
-active = 0
+active = 1
 
 [[openFile]]
 name = "test_loop.p2"
@@ -60,8 +60,8 @@ active = 0
 
 [[openFile]]
 name = "test_if.p2"
-line = 15
-active = 1
+line = 11
+active = 0
 
 [[openFile]]
 name = "test_structs.p2"

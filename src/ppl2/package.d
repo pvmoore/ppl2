@@ -10,8 +10,8 @@ import ppl2.tokens;
 import ppl2.ast.ast_node;
 import ppl2.ast.module_;
 
-import ppl2.build.BuildAll;
-import ppl2.build.BuildIncremental;
+import ppl2.build.ModuleBuilder;
+import ppl2.build.ProjectBuilder;
 import ppl2.build.BuildState;
 
 import ppl2.error : CompilerError, UnresolvedSymbols;

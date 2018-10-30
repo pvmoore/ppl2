@@ -16,12 +16,18 @@ void main(string[] argv) {
 
     auto ppl2 = PPL2.instance();
 
-    buildAll(ppl2, mainFile);
+    buildProject(ppl2, mainFile);
 
-    //incrementalBuild(ppl2, mainFile);
+    //buildModule(ppl2, mainFile);
 }
-void buildAll(PPL2 ppl2, string mainFile) {
-    auto b = ppl2.prepareAFullBuild(mainFile);
+void buildProject(PPL2 ppl2, string mainFile) {
+    auto b = ppl2.createProjectBuilder(mainFile);
+
+    b.config.enableLink = true;
+    b.config.writeASM   = true;
+    b.config.writeOBJ   = true;
+    b.config.writeAST   = true;
+    b.config.writeIR    = true;
 
     bool success = b.build();
     if(success) {
@@ -32,8 +38,8 @@ void buildAll(PPL2 ppl2, string mainFile) {
         writefln("Fail");
     }
 }
-//void incrementalBuild(PPL2 ppl2, string mainFile) {
-//    auto b = ppl2.prepareAnIncrementalBuild(mainFile);
+//void buildModule(PPL2 ppl2, string mainFile) {
+//    auto b = ppl2.createModuleBuilder(mainFile);
 //    b.startNewBuild();
 //
 //    auto m = b.getOrCreateModule("test_access2");

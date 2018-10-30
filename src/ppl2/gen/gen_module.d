@@ -36,7 +36,7 @@ public:
     void clearState() {
         watch.reset();
     }
-    bool generate(bool writeToFile = true) {
+    bool generate() {
         watch.start();
         log("Generating IR for module %s", module_.canonicalName);
 
@@ -69,9 +69,7 @@ public:
 
         visitChildren(module_);
 
-        if(writeToFile) {
-            writeLL(module_, "ir/");
-        }
+        writeLL(module_, "ir/");
 
         bool result = verify();
         watch.stop();

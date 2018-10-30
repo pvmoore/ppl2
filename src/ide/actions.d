@@ -18,6 +18,6 @@ enum ActionID : int {
     WINDOW_CAPTION_CHANGE,
 
     /// Toolbar
-    TOOLBAR_PARSE,
-    TOOLBAR_RESOLVE,
+    TOOLBAR_BUILD_MODULE,
+    TOOLBAR_BUILD_PROJECT
 }

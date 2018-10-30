@@ -68,7 +68,6 @@ public:
         return modules.get(canonicalName, null);
     }
     Module getOrCreateModule(string canonicalName, string newSource) {
-        assert(status==Status.RUNNING);
         auto src = convertTabsToSpaces(newSource);
 
         getModuleLock.lock();
