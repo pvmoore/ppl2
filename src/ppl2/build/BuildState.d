@@ -2,7 +2,7 @@ module ppl2.build.BuildState;
 
 import ppl2.internal;
 
-class BuildState {
+abstract class BuildState {
 protected:
     Mutex getModuleLock;
 
@@ -15,6 +15,7 @@ protected:
     string[string] optimisedIr;
     Status status = Status.NOT_STARTED;
     StopWatch watch;
+    Throwable exception;
 public:
     enum Status { NOT_STARTED, RUNNING, FINISHED_OK, FINISHED_WITH_ERRORS }
     struct Task {
@@ -33,8 +34,13 @@ public:
 
     Status getStatus() const      { return status; }
     ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
+    Throwable getException()      { return exception; }
+
     string getOptimisedIR(string canonicalName)   { return optimisedIr.get(canonicalName, null); }
     string getUnoptimisedIR(string canonicalName) { return unoptimisedIr.get(canonicalName, null); }
+
+    // todo - get a list of errors
+    //CompileError[] getErrors() {}
 
     this(LLVMWrapper llvmWrapper, Config config) {
         this.llvmWrapper            = llvmWrapper;
@@ -64,6 +70,7 @@ public:
         modules.clear();
         unoptimisedIr.clear();
         optimisedIr.clear();
+        exception = null;
     }
 
     /// Modules
@@ -175,7 +182,7 @@ public:
         taskQueue.push(t);
     }
 
-    /// Metadata
+    /// Stats
     void dumpStats(void delegate(string) receiver = null) {
         if(!receiver) receiver = it=>writeln(it);
 
@@ -194,36 +201,6 @@ public:
         receiver("Linker time ............ %.2f ms".format(linker.getElapsedNanos * 1e-6));
         receiver("Total time.............. %.2f ms".format(getElapsedNanos * 1e-6));
         receiver("Memory used ............ %.2f MB".format(GC.stats.usedSize / (1024*1024.0)));
-    }
-    void dumpDependencies(void delegate(string) receiver = null) {
-        if(!receiver) receiver = it=>writeln(it);
-
-        receiver("\nDependencies {");
-        foreach (lib; config.libs) {
-            receiver("\t%s \t %s".format(lib.baseModuleName, lib.absPath));
-        }
-        receiver("}");
-    }
-    void dumpModuleReferences(void delegate(string) receiver = null) {
-        if(!receiver) receiver = it=>writeln(it);
-
-        receiver("\nModule outgoing references {");
-        Module[][Module] refs;
-        foreach(m; allModules.sort) {
-            auto mods = m.getReferencedModules();
-            receiver("% 25s: [%s] %s".format(m.canonicalName, mods.length, mods.map!(it=>it.canonicalName).join(", ")));
-            refs[m] = mods;
-
-            foreach(r; mods) {
-                refs.update(r, {return [m]; }, (ref Module[] it) { return it ~ m; });
-            }
-        }
-        receiver("}\nModule incoming references {");
-        foreach(m; allModules.sort) {
-            auto v = refs[m];
-            receiver("% 25s: [%s] %s".format(m.canonicalName, v.length, v.map!(it=>it.canonicalName).join(", ")));
-        }
-        receiver("}");
     }
 private:
     Module createModule(string canonicalName, bool withSrc = false, string src = null) {

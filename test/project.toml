@@ -30,8 +30,8 @@ active = 0
 
 [[openFile]]
 name = "test_calls.p2"
-line = 24
-active = 1
+line = 13
+active = 0
 
 [[openFile]]
 name = "test_inner_functions.p2"
@@ -80,5 +80,5 @@ active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 0
-active = 0
+line = 222
+active = 1

@@ -34,6 +34,7 @@ public:
             return true;
         }catch(Exception e) {
             status = Status.FINISHED_WITH_ERRORS;
+            exception = e;
         }
         return false;
     }

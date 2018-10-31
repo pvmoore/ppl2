@@ -15,7 +15,7 @@ public:
         log(format(fmt, args));
     }
     void logln(A...)(dstring fmt, A args) {
-        logln(format(fmt, args) ~ "\n"d);
+        logln(format(fmt, args));
     }
     void logln(dstring s) {
         log(s~"\n"d);

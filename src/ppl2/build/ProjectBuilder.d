@@ -6,21 +6,14 @@ import ppl2.internal;
 
 final class ProjectBuilder : BuildState {
 private:
-    bool buildSuccessful = false;
+
 public:
     this(LLVMWrapper llvmWrapper, Config config) {
         super(llvmWrapper, config);
     }
     bool build() {
         startNewBuild();
-        doBuild();
-        return buildSuccessful;
-    }
-
-    // todo - get a list of errors
-    //CompileError[] getErrors() {}
-private:
-    void doBuild() {
+        bool buildSuccessful = false;
         watch.start();
         try{
             /// We know we need the program entry point
@@ -45,25 +38,20 @@ private:
 
             status = Status.FINISHED_OK;
 
-        }catch(CompilerError e) {
-            status = Status.FINISHED_WITH_ERRORS;
-            prettyErrorMsg(e);
-        }catch(UnresolvedSymbols e) {
-            status = Status.FINISHED_WITH_ERRORS;
-            displayUnresolved(allModules);
         }catch(Throwable e) {
+            exception = e;
             status = Status.FINISHED_WITH_ERRORS;
-            throw e;
         }finally{
             dumpAST();
             flushLogs();
             watch.stop();
         }
+        return buildSuccessful;
     }
+private:
     void dumpAST() {
         foreach(m; allModules) {
             m.resolver.writeAST();
-            writeJson(m);
         }
     }
     void optimiseModules() {

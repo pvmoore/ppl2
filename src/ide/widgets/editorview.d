@@ -29,6 +29,12 @@ public:
     EditorTab getSelectedTab() {
         return currentTab;
     }
+    EditorTab getTabByCanonicalName(string canonicalName) {
+        foreach(e; editors.values) {
+            if(e.moduleCanonicalName==canonicalName) return e;
+        }
+        return null;
+    }
     void onClosing() {
         if(!project) return;
 

@@ -1046,7 +1046,7 @@ public:
     }
     //==========================================================================
     void writeAST() {
-        if(!module_.config.logDebug) return;
+        if(!module_.config.writeAST) return;
 
         //dd("DUMP MODULE", module_);
 

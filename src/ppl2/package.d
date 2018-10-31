@@ -14,10 +14,11 @@ import ppl2.build.ModuleBuilder;
 import ppl2.build.ProjectBuilder;
 import ppl2.build.BuildState;
 
-import ppl2.error : CompilerError, UnresolvedSymbols;
+import ppl2.error : AmbiguousCall, CompilerError, UnresolvedSymbols;
 
 import ppl2.misc.lexer;
 
+import ppl2.type.type;
 
 
 T min(T)(T a, T b) {

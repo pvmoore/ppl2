@@ -16,11 +16,6 @@ void main(string[] argv) {
 
     auto ppl2 = PPL2.instance();
 
-    buildProject(ppl2, mainFile);
-
-    //buildModule(ppl2, mainFile);
-}
-void buildProject(PPL2 ppl2, string mainFile) {
     auto b = ppl2.createProjectBuilder(mainFile);
 
     b.config.enableLink = true;
@@ -31,37 +26,48 @@ void buildProject(PPL2 ppl2, string mainFile) {
 
     bool success = b.build();
     if(success) {
-        b.dumpDependencies();
-        b.dumpModuleReferences();
+        dumpDependencies(b);
+        dumpModuleReferences(b);
         b.dumpStats();
     } else {
-        writefln("Fail");
+        auto compilerError     = cast(CompilerError)b.getException;
+        auto unresolvedSymbols = cast(UnresolvedSymbols)b.getException;
+
+        import ppl2.error;
+
+        if(compilerError) {
+            prettyErrorMsg(compilerError);
+        } else if(unresolvedSymbols) {
+            displayUnresolved(b.allModules);
+        } else {
+            writefln("%s", b.getException);
+        }
     }
 }
-//void buildModule(PPL2 ppl2, string mainFile) {
-//    auto b = ppl2.createModuleBuilder(mainFile);
-//    b.startNewBuild();
-//
-//    auto m = b.getOrCreateModule("test_access2");
-//
-//    try{
-//        b.parse(m);
-//    }catch(Exception e) {
-//        writefln("error: %s", e);
-//    }
-//
-//    writefln("mainModule ... %s", b.mainModule);
-//    writefln("allModules ... %s", b.allModules);
-//    writefln("");
-//
-//    writefln("canonicalName........ %s", m.canonicalName);
-//    writefln("fileName ............ %s", m.fileName);
-//    writefln("isParsed ............ %s", m.isParsed);
-//    writefln("isMainModule ........ %s", m.isMainModule);
-//    writefln("publicTypes ......... %s", m.parser.publicTypes.values);
-//    writefln("publicFunctions ..... %s", m.parser.publicFunctions.values);
-//    writefln("privateFunctions .... %s", m.parser.privateFunctions.values);
-//    writefln("tokens .............. %s", m.parser.getInitialTokens().length);
-//
-//
-//}
+void dumpDependencies(BuildState b) {
+    writefln("\nDependencies {");
+    foreach (lib; b.config.libs) {
+        writefln("\t%s \t %s", lib.baseModuleName, lib.absPath);
+    }
+    writefln("}");
+}
+void dumpModuleReferences(BuildState b) {
+    writefln("\nModule outgoing references {");
+    Module[][Module] refs;
+    foreach(m; b.allModules.sort) {
+        auto mods = m.getReferencedModules();
+        writefln("% 25s: [%s] %s",m.canonicalName, mods.length, mods.map!(it=>it.canonicalName).join(", "));
+        refs[m] = mods;
+
+        foreach(r; mods) {
+            refs.update(r, {return [m]; }, (ref Module[] it) { return it ~ m; });
+        }
+    }
+    writefln("}\nModule incoming references {");
+    foreach(m; b.allModules.sort) {
+        auto v = refs[m];
+        writefln("% 25s: [%s] %s",m.canonicalName, v.length, v.map!(it=>it.canonicalName).join(", "));
+    }
+    writefln("}");
+}
+

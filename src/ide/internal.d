@@ -27,6 +27,8 @@ import ide.async_jobs.build;
 import ide.editor.IRSyntaxSupport;
 import ide.editor.P2SyntaxSupport;
 
+import ide.usecases.BuildCompleted;
+
 import ide.widgets.ASTView;
 import ide.widgets.ConsoleView;
 import ide.widgets.editortab;
