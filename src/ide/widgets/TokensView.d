@@ -12,6 +12,7 @@ public:
         this.ide = ide;
 
         fontSize = 15;
+        readOnly(true);
     }
     void update(ppl2.Token[] tokens) {
         auto buf = new StringBuffer;
@@ -19,6 +20,9 @@ public:
             buf.add("[% 4s] %s\n".format(i, token));
         }
         text(buf.toString().toUTF32);
-        readOnly(true);
+        //readOnly(true);
+    }
+    void clear() {
+        text(""d);
     }
 }

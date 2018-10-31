@@ -18,15 +18,13 @@ public:
     void clearState() {
         watch.reset();
     }
-    void optimise(Module[] modules) {
+    void optimise(Module m) {
         watch.start();
-        foreach(m; modules) {
-            passManager.runOnModule(m.llvmValue);
-            writeLL(m, "ir_opt/");
-        }
+        passManager.runOnModule(m.llvmValue);
+        writeLL(m, "ir_opt/");
         watch.stop();
     }
-    void optimise(Module m) {
+    void optimiseCombined(Module m) {
         watch.start();
         passManager.runOnModule(m.llvmValue);
         writeLL(m, "");

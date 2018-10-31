@@ -69,7 +69,10 @@ private:
     void optimiseModules() {
         dd("optimise");
         log("Optimising");
-        optimiser.optimise(allModules);
+        foreach(m; modules.values) {
+            optimiser.optimise(m);
+            optimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
+        }
     }
     void combineModules() {
         dd("combining");
@@ -82,7 +85,7 @@ private:
         }
 
         /// Run optimiser again on combined file
-        optimiser.optimise(mainModule);
+        optimiser.optimiseCombined(mainModule);
 
         writeLL(mainModule, "");
     }

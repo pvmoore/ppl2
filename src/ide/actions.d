@@ -19,5 +19,8 @@ enum ActionID : int {
 
     /// Toolbar
     TOOLBAR_BUILD_MODULE,
-    TOOLBAR_BUILD_PROJECT
+    TOOLBAR_BUILD_PROJECT,
+
+
+    ///
 }

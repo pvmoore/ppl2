@@ -83,6 +83,28 @@ public:
         if(timerId==0) {
             timerId = setTimer(500);
         }
+
+        auto b = ide.getBuildState();
+        if(b) {
+            auto m          = b.getModule(moduleCanonicalName);
+            auto infoView   = ide.getInfoView();
+            auto tokensView = infoView.getTokensView();
+            auto astView    = infoView.getASTView();
+            auto irView     = infoView.getIRView();
+            auto optIrView  = infoView.getOptIRView();
+
+            if(m) {
+                tokensView.update(m.parser.getInitialTokens()[]);
+                astView.update(m);
+                irView.update(b.getUnoptimisedIR(moduleCanonicalName));
+                optIrView.update(b.getOptimisedIR(moduleCanonicalName));
+            } else {
+                tokensView.clear();
+                astView.clear();
+                irView.update("");
+                optIrView.update("");
+            }
+        }
     }
     void onDeactivated() {
         isActive = false;

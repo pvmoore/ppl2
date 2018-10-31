@@ -19,15 +19,11 @@ public:
     }
     bool build(Module m) {
         try{
-            dd(0);
             assert(status==Status.RUNNING);
-            dd(0.5);
+
             m.parser.parse();
-            dd(1);
             resolve(m);
-            dd(2);
             semanticCheck();
-            dd(3);
             m.gen.generate();
             ir = m.llvmValue.dumpToString();
             optimiser.optimise(m);

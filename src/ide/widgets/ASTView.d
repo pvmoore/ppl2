@@ -30,4 +30,8 @@ public:
         }
         recurse(rootItem, m);
     }
+    void clear() {
+        showingModule = null;
+        clearAllItems();
+    }
 }

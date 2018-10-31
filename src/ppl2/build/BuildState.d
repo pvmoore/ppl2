@@ -11,6 +11,8 @@ protected:
     Set!string requestedFunction;         /// moduleName|funcName
 
     Module[/*canonicalName*/string] modules;
+    string[string] unoptimisedIr;
+    string[string] optimisedIr;
     Status status = Status.NOT_STARTED;
     StopWatch watch;
 public:
@@ -31,6 +33,8 @@ public:
 
     Status getStatus() const      { return status; }
     ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
+    string getOptimisedIR(string canonicalName)   { return optimisedIr.get(canonicalName, null); }
+    string getUnoptimisedIR(string canonicalName) { return unoptimisedIr.get(canonicalName, null); }
 
     this(LLVMWrapper llvmWrapper, Config config) {
         this.llvmWrapper            = llvmWrapper;
@@ -58,6 +62,8 @@ public:
         linker.clearState();
         mangler.clearState();
         modules.clear();
+        unoptimisedIr.clear();
+        optimisedIr.clear();
     }
 
     /// Modules
@@ -175,7 +181,7 @@ public:
 
         GC.collect();
 
-        receiver("\nOK");
+        receiver("\n%s".format(status));
         receiver("");
         receiver("Active modules ......... %s %s".format(allModules.length, modules.keys));
         receiver("Parser time ............ %.2f ms".format(allModules.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6));
@@ -366,6 +372,7 @@ protected:
         bool allOk = true;
         foreach(m; allModules) {
             allOk &= m.gen.generate();
+            unoptimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
         }
         return allOk;
     }

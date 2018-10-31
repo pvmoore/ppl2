@@ -1,6 +1,7 @@
 module ide.ide;
 
 import ide.internal;
+import ppl2;
 
 final class IDE : AppFrame {
 private:
@@ -12,10 +13,12 @@ private:
     InfoView infoView;
     ConsoleView consoleView;
     Project project;
+    BuildState currentBuild;
 public:
-    auto getConsole() { return consoleView; }
-    auto getInfoView() { return infoView; }
-    Project getProject() { return project; }
+    auto getConsole()          { return consoleView; }
+    auto getInfoView()         { return infoView; }
+    Project getProject()       { return project; }
+    BuildState getBuildState() { return currentBuild; }
 
     this(string[] args, Window window) {
         this.window = window;
@@ -24,10 +27,12 @@ public:
         loadProject();
         assert(project);
 
-        //executeInUiThread(() {
-        //    writefln("hello there ui thread %s", Thread.getThis.id); flushConsole();
-        //    //window.showMessageBox("Title"d, "Content"d, [ACTION_OK]);
-        //});
+        writefln("Main thread id = %s", Thread.getThis.id); flushConsole();
+
+        executeInUiThread(() {
+            writefln("UI thread id = %s", Thread.getThis.id); flushConsole();
+            //window.showMessageBox("Title"d, "Content"d, [ACTION_OK]);
+        });
         //window.onCanClose(() {
         //    return true;
         //});
@@ -104,6 +109,13 @@ protected:
                     tab.build();
                     break;
                 case TOOLBAR_BUILD_PROJECT:
+                    consoleView.logln("Starting build on thread %s", Thread.getThis.id);
+                    auto job = new BuildJob(project.directory~project.mainFile);
+                    job.run((it) {
+                        executeInUiThread(() {
+                            buildUpdated(it);
+                        });
+                    });
                     break;
                 default:
                     writefln("handleAction: Missing handler for id %s", cast(ActionID)a.id);
@@ -154,5 +166,42 @@ private:
 
         assert(cast(DockWindow)projectView.parent);
         projectView.parent.child(0).child(0).text = "Project :: %s"d.format(project.name);
+    }
+    void buildUpdated(BuildJob job) {
+        import ppl2;
+        consoleView.logln("Build ready");
+
+        job.getBuilder().dumpStats((string it)=>getConsole().logln(it));
+
+        if(job.getBuilder().getStatus()!=BuildState.Status.FINISHED_OK) {
+            return;
+        }
+
+        /// Update our build if it was successful
+        currentBuild = job.getBuilder();
+
+        /// Update visible info views
+        auto editorTab = editorView.getSelectedTab();
+        if(editorTab) {
+            auto m = currentBuild.getModule(editorTab.moduleCanonicalName);
+            //getConsole().logln("m=%s", m);
+
+            auto tokensView = infoView.getTokensView();
+            auto astView    = infoView.getASTView();
+            auto irView     = infoView.getIRView();
+            auto optIrView  = infoView.getOptIRView();
+
+            if(m) {
+                tokensView.update(m.parser.getInitialTokens()[]);
+                astView.update(m);
+                irView.update(currentBuild.getUnoptimisedIR(editorTab.moduleCanonicalName));
+                optIrView.update(currentBuild.getOptimisedIR(editorTab.moduleCanonicalName));
+            } else {
+                tokensView.clear();
+                astView.clear();
+                irView.update("");
+                optIrView.update("");
+            }
+        }
     }
 }

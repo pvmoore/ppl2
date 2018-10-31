@@ -31,7 +31,7 @@ active = 0
 [[openFile]]
 name = "test_calls.p2"
 line = 24
-active = 0
+active = 1
 
 [[openFile]]
 name = "test_inner_functions.p2"
@@ -40,18 +40,18 @@ active = 0
 
 [[openFile]]
 name = "test_consts.p2"
-line = 18
+line = 44
 active = 0
 
 [[openFile]]
 name = "test_access2.p2"
-line = 0
+line = 12
 active = 0
 
 [[openFile]]
 name = "test_imports2.p2"
-line = 0
-active = 1
+line = 8
+active = 0
 
 [[openFile]]
 name = "test_loop.p2"

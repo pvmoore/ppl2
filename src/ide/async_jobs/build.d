@@ -11,19 +11,23 @@ private:
     shared bool running;
     Thread thread;
     Exception exception;
-    ProjectBuilder build;
+    ProjectBuilder builder;
+    void delegate(BuildJob) callback;
 public:
     this(string mainFileName) {
         this.mainFileName = mainFileName;
     }
     bool isRunning()         { return atomicLoad(running); }
     Exception getException() { return exception; }
-    BuildState getBuild()    { return build; }
+    BuildState getBuilder()  { return builder; }
+    ulong getElapsedNanos()  { return builder.getElapsedNanos(); }
 
-    void run() {
+    void run(void delegate(BuildJob) callback) {
         assert(!isRunning());
 
-        this.thread = new Thread(&runAsync);
+        this.callback = callback;
+        this.thread   = new Thread(&runAsync);
+
         this.thread.isDaemon = true;
         this.thread.start();
     }
@@ -31,16 +35,19 @@ private:
     void runAsync() {
         try{
             atomicStore(running,true);
-            build = PPL2.instance().createProjectBuilder(mainFileName);
+
+            builder = PPL2.instance().createProjectBuilder(mainFileName);
 
             /// Disable all file writing and linking
-            build.config.enableLink = false;
-            build.config.writeASM   = false;
-            build.config.writeOBJ   = false;
-            build.config.writeAST   = false;
-            build.config.writeIR    = false;
+            builder.config.enableLink = false;
+            builder.config.writeASM   = false;
+            builder.config.writeOBJ   = false;
+            builder.config.writeAST   = false;
+            builder.config.writeIR    = false;
 
-            bool ok = build.build();
+            bool ok = builder.build();
+
+            callback(this);
 
         }catch(Exception e) {
             exception = e;

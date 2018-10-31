@@ -8,6 +8,7 @@ import std.stdio  : writefln;
 import std.format : format;
 import std.array  : array, replace, appender;
 import std.string : lastIndexOf;
+import std.datetime.stopwatch : StopWatch;
 
 import std.algorithm.searching : any;
 import std.algorithm.iteration : map;
