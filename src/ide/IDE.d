@@ -17,16 +17,21 @@ private:
 
     /// Use cases
     BuildCompleted buildCompleted;
+
+    /// Build listeners
+    Array!BuildListener buildListeners;
 public:
-    auto getConsole()            { return consoleView; }
-    auto getInfoView()           { return infoView; }
-    auto getEditorView()         { return editorView; }
-    Project getProject()         { return project; }
-    BuildState getBuildState()   { return currentBuild; }
-    MyStatusLine getStatusLine() { return statusLine; }
+    auto getConsole()               { return consoleView; }
+    auto getInfoView()              { return infoView; }
+    auto getEditorView()            { return editorView; }
+    Project getProject()            { return project; }
+    BuildState getBuildState()      { return currentBuild; }
+    MyStatusLine getStatusLine()    { return statusLine; }
+    BuildListener[] getBuildListeners() { return buildListeners.values.dup; }
 
     this(string[] args, Window window) {
-        this.window = window;
+        this.window         = window;
+        this.buildListeners = new Array!BuildListener;
     }
     void ready() {
         this.buildCompleted = new BuildCompleted(this);
@@ -56,6 +61,13 @@ public:
     override void onEditorStateUpdate(Widget source, ref EditorStateInfo editorState) {
         writefln("onEditorStateUpdate");
     }
+    /// Handle BuildListeners
+    void addBuildListener(BuildListener l) {
+        buildListeners.add(l);
+    }
+    void removeBuildListener(BuildListener l) {
+        buildListeners.remove(l);
+    }
 protected:
     override MainMenu createMainMenu() {
         menuBar = new MenuItem();
@@ -80,7 +92,9 @@ protected:
         tb.addButtons(
             new Action(ActionID.TOOLBAR_BUILD_MODULE, "Build Module"d),
             ACTION_SEPARATOR,
-            new Action(ActionID.TOOLBAR_BUILD_PROJECT, "Build Project"d));
+            new Action(ActionID.TOOLBAR_BUILD_PROJECT, "Debug Build"d),
+            ACTION_SEPARATOR,
+            new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT, "Release Build"d));
 
         /// Force actions to be dispatched to our main handleAction method
         foreach(i; 0..tb.childCount) {
@@ -123,11 +137,24 @@ protected:
                     break;
                 case TOOLBAR_BUILD_PROJECT:
                     statusLine.setStatusText("Building...");
-                    consoleView.logln("Starting build on thread %s", Thread.getThis.id);
+                    consoleView.logln("Starting build");
 
                     editorView.saveAll();
 
                     auto job = new BuildJob(project.config);
+                    job.run((it) {
+                        executeInUiThread(() {
+                            buildCompleted.handle(it);
+                        });
+                    });
+                    break;
+                case TOOLBAR_BUILD_OPT_PROJECT:
+                    statusLine.setStatusText("Building...");
+                    consoleView.logln("Starting build on thread %s", Thread.getThis.id);
+
+                    editorView.saveAll();
+
+                    auto job = new BuildJob(project.config, true);
                     job.run((it) {
                         executeInUiThread(() {
                             buildCompleted.handle(it);

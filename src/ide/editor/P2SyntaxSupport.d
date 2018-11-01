@@ -2,23 +2,33 @@ module ide.editor.P2SyntaxSupport;
 
 import ide.internal;
 
-final class PPL2SyntaxSupport : SyntaxSupport {
+final class PPL2SyntaxSupport : SyntaxSupport, BuildListener {
 private:
     struct LineInfo {
         bool opensMLComment;
         bool opensDQuote;
         string content;
+
         bool opensSomething() {
             return opensMLComment || opensDQuote;
         }
     }
+    struct Error {
+        int line;
+        int start;
+        int end;
+    }
+    string moduleCanonicalName;
     EditableContent _content;
     ppl2.Lexer lexer;
     Array!LineInfo lineInfo;
+    Array!Error errors;
 public:
-    this() {
+    this(string moduleCanonicalName) {
+        this.moduleCanonicalName = moduleCanonicalName;
         this.lexer    = new ppl2.Lexer(null);
         this.lineInfo = new Array!LineInfo(1024);
+        this.errors   = new Array!Error;
     }
     EditableContent content() {
         return _content;
@@ -31,6 +41,39 @@ public:
         });
 
         return this;
+    }
+    /// BuildListener
+    void buildSucceeded(ppl2.BuildState state) {
+        /// Remove error highlights
+
+        //writefln("Removing errors");
+        foreach(e; errors.values) {
+
+        }
+        errors.clear();
+    }
+    void buildFailed(ppl2.BuildState state) {
+        /// Add error highlights
+
+        auto ce = cast(ppl2.CompilerError)state.getException;
+        auto us = cast(ppl2.UnresolvedSymbols)state.getException;
+
+        if(ce) {
+            if(ce.module_.canonicalName==moduleCanonicalName) {
+                //writefln("We have an error: %s %s:%s", moduleCanonicalName, ce.line, ce.column);
+
+                if(ce.line!=-1) {
+                    errors.add(Error(ce.line, ce.column, ce.column+1));
+
+                    /// Not sure how to update the error line so that it re-highlights
+
+
+
+                    //content.performOperation(new EditOperation(), this);
+                    //content.updateTokenProps(ce.line, ce.line+1);
+                }
+            }
+        }
     }
 
     /// return true if toggle line comment is supported for file type
@@ -232,6 +275,10 @@ public:
             /// Set the whole line to comment
             foreach(ref TokenCategory t; attribs) {
                 t = TokenCategory.Comment;
+            }
+
+            foreach(e; errors) {
+
             }
 
             /// Update tokens to appropriate category

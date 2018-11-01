@@ -27,10 +27,11 @@ public:
     bool writeAST = true;
     bool writeIR  = true;
 
-    bool nullChecks     = true;
-    bool enableAsserts  = true;
-    bool enableInlining = true;
-    bool enableLink     = true;
+    bool nullChecks             = true;
+    bool enableAsserts          = true;
+    bool enableInlining         = true;
+    bool enableOptimisation     = true;
+    bool enableLink             = true;
     bool disableInternalLinkage = false;
 
     bool dumpStats        = true;
@@ -104,14 +105,16 @@ private:
         }
     }
     void setToDebug() {
-        nullChecks     = true;
-        enableAsserts  = true;
-        enableInlining = false;
+        nullChecks         = true;
+        enableAsserts      = true;
+        enableInlining     = true;  /// set this to false later
+        enableOptimisation = true;  /// set this to false later
     }
     void setToRelease() {
-        nullChecks     = false;
-        enableAsserts  = false;
-        enableInlining = true;
+        nullChecks         = false;
+        enableAsserts      = false;
+        enableInlining     = true;
+        enableOptimisation = true;
     }
     void addLibs() {
         libs["core"] = Lib("core", "./libs/");

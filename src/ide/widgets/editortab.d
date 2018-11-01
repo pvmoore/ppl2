@@ -71,7 +71,10 @@ public:
             setTokenHightlightColor(TokenCategory.Identifier_Class, 0xffffff);
             setTokenHightlightColor(TokenCategory.Identifier|5, 0xffaa44); /// function declarations
 
-            content.syntaxSupport = new PPL2SyntaxSupport;
+            auto syntaxSupport = new PPL2SyntaxSupport(moduleCanonicalName);
+            ide.addBuildListener(syntaxSupport);
+
+            content.syntaxSupport = syntaxSupport;
         } else {
             /// Not a p2 file
         }
@@ -125,6 +128,13 @@ public:
     }
     void onDeactivated() {
         isActive = false;
+    }
+    /// Update highligter with errors
+    void setErrors(CompilerError e) {
+        auto ss = cast(PPL2SyntaxSupport)content.syntaxSupport;
+
+
+
     }
     override bool onKeyEvent(KeyEvent event) {
         if(event.action==KeyAction.KeyDown) {

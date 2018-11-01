@@ -21,29 +21,16 @@ public:
 
         if(b.getStatus()!=BuildState.Status.FINISHED_OK) {
 
-            console.logln("%s".format(b.getStatus));
-
-            auto compilerError     = cast(CompilerError)b.getException;
-            auto unresolvedSymbols = cast(UnresolvedSymbols)b.getException;
-
-            import ppl2.error;
-
-            if(compilerError) {
-                prettyErrorMsg(compilerError);
-            } else if(unresolvedSymbols) {
-                //displayUnresolved(b.allModules);
-            } else {
-                console.logln("%s", b.getException);
-            }
-
-            ide.getStatusLine().setBuildStatus("Build FAILED", b.getElapsedNanos());
-
-            return;
+            buildFailed(b);
+        } else {
+            buildSucceeded(b);
         }
-
+    }
+private:
+    void buildSucceeded(BuildState b) {
         ide.getStatusLine().setBuildStatus("Build OK", b.getElapsedNanos());
 
-        b.dumpStats((string it)=>console.logln(it));
+        //b.dumpStats((string it)=>console.logln(it));
 
         /// Update the current state build if it was successful
         ide.setCurrentBuildState(b);
@@ -71,8 +58,38 @@ public:
                 optIrView.update("");
             }
         }
+        foreach(l; ide.getBuildListeners()) {
+            l.buildSucceeded(b);
+        }
     }
-private:
+    void buildFailed(BuildState b) {
+        console.logln("%s".format(b.getStatus));
+
+        auto compilerError     = cast(CompilerError)b.getException;
+        auto unresolvedSymbols = cast(UnresolvedSymbols)b.getException;
+
+        import ppl2.error;
+
+        if(compilerError) {
+            prettyErrorMsg(compilerError);
+
+            auto errTab = editorView.getTabByCanonicalName(compilerError.module_.canonicalName);
+            if(errTab) {
+                errTab.setErrors(compilerError);
+            }
+
+        } else if(unresolvedSymbols) {
+            //displayUnresolved(b.allModules);
+        } else {
+            console.logln("%s", b.getException);
+        }
+
+        ide.getStatusLine().setBuildStatus("Build FAILED", b.getElapsedNanos());
+
+        foreach(l; ide.getBuildListeners()) {
+            l.buildFailed(b);
+        }
+    }
     auto getContentLines(Module m) {
         auto tab = ide.getEditorView().getTabByCanonicalName(m.canonicalName);
         if(tab) {

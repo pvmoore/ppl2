@@ -39,6 +39,10 @@ import ide.widgets.MyStatusLine;
 import ide.widgets.projectview;
 import ide.widgets.TokensView;
 
+interface BuildListener {
+    void buildSucceeded(ppl2.BuildState state);
+    void buildFailed(ppl2.BuildState state);
+}
 
 /*
 //auto b = new Button()

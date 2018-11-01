@@ -55,6 +55,7 @@ private:
         }
     }
     void optimiseModules() {
+        if(!config.enableOptimisation) return;
         dd("optimise");
         log("Optimising");
         foreach(m; modules.values) {
@@ -72,8 +73,10 @@ private:
             llvmWrapper.linkModules(mainModule.llvmValue, otherModules);
         }
 
-        /// Run optimiser again on combined file
-        optimiser.optimiseCombined(mainModule);
+        if(config.enableOptimisation) {
+            /// Run optimiser again on combined file
+            optimiser.optimiseCombined(mainModule);
+        }
 
         writeLL(mainModule, "");
     }

@@ -14,8 +14,9 @@ private:
     ProjectBuilder builder;
     void delegate(BuildJob) callback;
 public:
-    this(Config config) {
-        this.config = config;
+    this(Config config, bool optimise = false) {
+        this.config  = config;
+        config.enableOptimisation = optimise;
     }
     bool isRunning()         { return atomicLoad(running); }
     Exception getException() { return exception; }

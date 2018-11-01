@@ -35,7 +35,7 @@ struct Gold { // definition
 Gold gold
 
 // Module init function
-new {
+new  {
     // All module variable initialisation
     // code will be put in here
     boop += 7
