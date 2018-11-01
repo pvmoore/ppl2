@@ -3,10 +3,10 @@ module ide.ide;
 import ide.internal;
 import ppl2;
 
-final class IDE : AppFrame {
+final class IDE : AppFrame, EditorStateListener {
 private:
     MenuItem menuBar;
-    StatusLine statusLine;
+    MyStatusLine statusLine;
     Window window;
     ProjectView projectView;
     EditorView editorView;
@@ -18,13 +18,12 @@ private:
     /// Use cases
     BuildCompleted buildCompleted;
 public:
-    auto getConsole()          { return consoleView; }
-    auto getInfoView()         { return infoView; }
-    auto getEditorView()       { return editorView; }
-    Project getProject()       { return project; }
-    BuildState getBuildState() { return currentBuild; }
-
-    void setCurrentBuildState(BuildState b) { currentBuild = b; }
+    auto getConsole()            { return consoleView; }
+    auto getInfoView()           { return infoView; }
+    auto getEditorView()         { return editorView; }
+    Project getProject()         { return project; }
+    BuildState getBuildState()   { return currentBuild; }
+    MyStatusLine getStatusLine() { return statusLine; }
 
     this(string[] args, Window window) {
         this.window = window;
@@ -49,6 +48,13 @@ public:
             if(editorView) editorView.onClosing();
             if(project) project.save();
         });
+    }
+    void setCurrentBuildState(BuildState b) {
+        currentBuild = b;
+    }
+    /// EditorStateListener implementation
+    override void onEditorStateUpdate(Widget source, ref EditorStateInfo editorState) {
+        writefln("onEditorStateUpdate");
     }
 protected:
     override MainMenu createMainMenu() {
@@ -95,12 +101,11 @@ protected:
         return res;
     }
     override StatusLine createStatusLine() {
-        statusLine = new StatusLine;
-        statusLine.setStatusText("Ok");
+        statusLine = new MyStatusLine(this);
         return statusLine;
     }
     override bool handleAction(const Action a) {
-        writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
+        //writefln("handleAction: %s %s", a, cast(ActionID)a.id); flushConsole();
         if(a) {
             switch(a.id) with(ActionID) {
                 case FILE_EXIT:
@@ -117,8 +122,12 @@ protected:
                     tab.build();
                     break;
                 case TOOLBAR_BUILD_PROJECT:
+                    statusLine.setStatusText("Building...");
                     consoleView.logln("Starting build on thread %s", Thread.getThis.id);
-                    auto job = new BuildJob(project.directory~project.mainFile);
+
+                    editorView.saveAll();
+
+                    auto job = new BuildJob(project.config);
                     job.run((it) {
                         executeInUiThread(() {
                             buildCompleted.handle(it);
@@ -130,7 +139,7 @@ protected:
                     break;
             }
         }
-        writefln("action %s handled", cast(ActionID)a.id); flushConsole();
+        //writefln("action %s handled", cast(ActionID)a.id); flushConsole();
         return true;
     }
     override Widget createBody() {

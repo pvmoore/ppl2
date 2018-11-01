@@ -13,10 +13,10 @@ public:
         }
         return i;
     }
-    ProjectBuilder createProjectBuilder(string mainFileRaw) {
-        return new ProjectBuilder(g_llvmWrapper, new Config(mainFileRaw));
+    ProjectBuilder createProjectBuilder(Config config) {
+        return new ProjectBuilder(g_llvmWrapper, config);
     }
-    ModuleBuilder createModuleBuilder(string mainFileRaw) {
-        return new ModuleBuilder(g_llvmWrapper, new Config(mainFileRaw));
+    ModuleBuilder createModuleBuilder(Config config) {
+        return new ModuleBuilder(g_llvmWrapper, config);
     }
 }

@@ -20,7 +20,7 @@ import std.algorithm.iteration : each, map, filter, sum;
 import std.algorithm.searching : any, all, count, startsWith;
 import std.algorithm.sorting   : sort;
 
-import common : Array, FQN, Hash, Hasher, Queue, Set, Stack, StringBuffer,
+import common : Array, From, Hash, Hasher, Queue, Set, Stack, StringBuffer,
                 as, dynamicDispatch, isA, firstNotNull, flushConsole, endsWith,
                 removeChars, repeat, visit;
 

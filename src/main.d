@@ -16,13 +16,15 @@ void main(string[] argv) {
 
     auto ppl2 = PPL2.instance();
 
-    auto b = ppl2.createProjectBuilder(mainFile);
+    auto b = ppl2.createProjectBuilder(new Config(mainFile));
 
     b.config.enableLink = true;
     b.config.writeASM   = true;
     b.config.writeOBJ   = true;
     b.config.writeAST   = true;
     b.config.writeIR    = true;
+
+    writefln("\n%s", b.config.toString());
 
     bool success = b.build();
     if(success) {

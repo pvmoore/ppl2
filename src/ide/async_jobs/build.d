@@ -7,15 +7,15 @@ import ppl2;
 
 final class BuildJob {
 private:
-    string mainFileName;
+    Config config;
     shared bool running;
     Thread thread;
     Exception exception;
     ProjectBuilder builder;
     void delegate(BuildJob) callback;
 public:
-    this(string mainFileName) {
-        this.mainFileName = mainFileName;
+    this(Config config) {
+        this.config = config;
     }
     bool isRunning()         { return atomicLoad(running); }
     Exception getException() { return exception; }
@@ -36,7 +36,7 @@ private:
         try{
             atomicStore(running,true);
 
-            builder = PPL2.instance().createProjectBuilder(mainFileName);
+            builder = PPL2.instance().createProjectBuilder(config);
 
             /// Disable all file writing and linking
             builder.config.enableLink = false;

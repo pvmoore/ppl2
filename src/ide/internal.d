@@ -35,6 +35,7 @@ import ide.widgets.editortab;
 import ide.widgets.editorview;
 import ide.widgets.infoview;
 import ide.widgets.IRView;
+import ide.widgets.MyStatusLine;
 import ide.widgets.projectview;
 import ide.widgets.TokensView;
 

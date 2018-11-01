@@ -52,13 +52,6 @@ public:
 
         generateTargetDirectories();
         getMainModuleCanonicalName();
-
-        writefln("\nPPL %s", VERSION);
-        writefln("Main file .... %s", mainFile);
-        writefln("Base path .... %s", basePath);
-        writefln("Target path .. %s", targetPath);
-        writefln("Target exe ... %s", targetExe);
-        writefln("");
     }
     ///
     /// Return the full path including the module filename and extension
@@ -76,6 +69,15 @@ public:
         assert(path.endsWith("/"));
 
         return path ~ canonicalName.replace("::", "/") ~ ".p2";
+    }
+    override string toString() {
+        auto buf = new StringBuffer;
+        buf.add("PPL %s\n".format(VERSION));
+        buf.add("Main file .... %s\n".format(mainFile));
+        buf.add("Base path .... %s\n".format(basePath));
+        buf.add("Target path .. %s\n".format(targetPath));
+        buf.add("Target exe ... %s\n".format(targetExe));
+        return buf.toString();
     }
 private:
     /// eg. "core::console" -> ["core", "console"]

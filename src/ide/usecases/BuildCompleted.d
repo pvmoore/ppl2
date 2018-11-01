@@ -7,10 +7,12 @@ final class BuildCompleted {
 private:
     IDE ide;
     ConsoleView console;
+    EditorView editorView;
 public:
     this(IDE ide) {
-        this.ide     = ide;
-        this.console = ide.getConsole();
+        this.ide        = ide;
+        this.console    = ide.getConsole();
+        this.editorView = ide.getEditorView();
     }
     void handle(BuildJob job) {
         console.logln("Build completed");
@@ -34,8 +36,12 @@ public:
                 console.logln("%s", b.getException);
             }
 
+            ide.getStatusLine().setBuildStatus("Build FAILED", b.getElapsedNanos());
+
             return;
         }
+
+        ide.getStatusLine().setBuildStatus("Build OK", b.getElapsedNanos());
 
         b.dumpStats((string it)=>console.logln(it));
 

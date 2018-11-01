@@ -2,6 +2,7 @@ module ide.project;
 
 import ide.internal;
 import std.path : isAbsolute;
+import ppl2;
 
 final class Project {
 public:
@@ -15,6 +16,8 @@ public:
     string directory;
     string targetDirectory = ".target";
 
+    Config config;
+
     string[] excludeFiles;
     string[] excludeDirectories = [".target"];
 
@@ -25,7 +28,6 @@ public:
     string[string] libs; /// key = lib name, value = directory
 
     this() {
-        writefln("this");
         name      = "Test";
         directory = normaliseDir("/pvmoore/d/apps/PPL2/test", true);
 
@@ -114,7 +116,7 @@ public:
     }
 private:
     void initialise() {
-        assert(FQN!"std.file".exists(directory));
+        assert(From!"std.file".exists(directory));
 
         libs["core"] = "./libs";
 
@@ -143,6 +145,9 @@ private:
         writefln("\topenFiles          : %s", openFiles);
         writefln("\tdependencies       : %s", libs);
         writefln("}");
+
+        config = new Config(directory ~ mainFile);
+        writefln("%s", config);
     }
     void parseProjectToml(string text) {
         import toml;

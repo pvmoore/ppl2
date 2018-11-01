@@ -6,6 +6,7 @@ import ppl2;
 final class EditorTab : SourceEdit {
 private:
     IDE ide;
+    TabItem tabItem;
     ulong timerId;
     Project project;
     ModuleBuilder builder;
@@ -21,7 +22,7 @@ public:
         this.relFilename         = relFilename;
         this.filename            = filename;
         this.project             = ide.getProject();
-        this.builder             = PPL2.instance().createModuleBuilder(project.directory~project.mainFile);
+        this.builder             = PPL2.instance().createModuleBuilder(project.config);
 
         import std.path;
         this.moduleCanonicalName = stripExtension(relFilename).replace("/", "::");
@@ -77,9 +78,25 @@ public:
         setFocus();
         setCaretPos(line-10, 0, true, true);
         setCaretPos(line, 0, false, false);
+
+        modifiedStateChange.connect(delegate(Widget source, bool modified) {
+            if(modified) {
+
+            } else {
+
+            }
+        });
+        contentChange.connect((EditableContent source) {
+
+        });
+        editorStateChange.connect((Widget source, ref EditorStateInfo editorState) {
+
+        });
     }
-    void onActivated() {
+    void onActivated(TabItem t) {
+        tabItem  = t;
         isActive = true;
+
         if(timerId==0) {
             timerId = setTimer(500);
         }

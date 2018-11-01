@@ -67,10 +67,14 @@ public:
         optimiser.clearState();
         linker.clearState();
         mangler.clearState();
-        modules.clear();
         unoptimisedIr.clear();
         optimisedIr.clear();
         exception = null;
+
+        foreach(m; modules.values) {
+            if(m.llvmValue) m.llvmValue.destroy();
+        }
+        modules.clear();
     }
 
     /// Modules

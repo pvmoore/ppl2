@@ -19,7 +19,7 @@ public:
             dispatchAction(new Action(ActionID.WINDOW_CAPTION_CHANGE, ""d).stringParam(currentTab.filename));
 
             if(oldTab) oldTab.onDeactivated();
-            currentTab.onActivated();
+            currentTab.onActivated(tab(newTabId));
         };
         tabClose = (string tabId) {
             removeTab(tabId);
@@ -75,7 +75,7 @@ public:
     }
     void loadFile(string name) {
         string filename = project.getAbsPath(name);
-        assert(FQN!"std.file".exists(filename));
+        assert(From!"std.file".exists(filename));
 
         //writefln("loadFile %s %s", name, filename); flushConsole();
 
@@ -83,7 +83,7 @@ public:
 
         auto t = tab("TAB-"~name);
         if(!t) {
-            addTab(makeTab(name, filename, openFile), FQN!"std.path".baseName(name).toUTF32, null, true, null);
+            addTab(makeTab(name, filename, openFile), From!"std.path".baseName(name).toUTF32, null, true, null);
         }
         selectTab("TAB-"~name);
 
