@@ -28,9 +28,14 @@ public:
 
             if(generateIR()) {
                 optimiseModules();
-                combineModules();
 
-                if(link()) {
+                if(config.enableLink) {
+                    combineModules();
+
+                    if(link()) {
+                        buildSuccessful = true;
+                    }
+                } else {
                     buildSuccessful = true;
                 }
             }
@@ -81,11 +86,8 @@ private:
         writeLL(mainModule, "");
     }
     bool link() {
-        if(config.enableLink) {
-            dd("linking");
-            log("Linking");
-            return linker.link(mainModule);
-        }
-        return true;
+        dd("linking");
+        log("Linking");
+        return linker.link(mainModule);
     }
 }

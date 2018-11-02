@@ -79,8 +79,7 @@ public:
             /// Not a p2 file
         }
         setFocus();
-        setCaretPos(line-10, 0, true, true);
-        setCaretPos(line, 0, false, false);
+        setLine(line);
 
         modifiedStateChange.connect(delegate(Widget source, bool modified) {
             if(modified) {
@@ -135,6 +134,10 @@ public:
 
 
 
+    }
+    void setLine(int line) {
+        setCaretPos(line-10, 0, true, true);
+        setCaretPos(line, 0, false, false);
     }
     override bool onKeyEvent(KeyEvent event) {
         if(event.action==KeyAction.KeyDown) {
