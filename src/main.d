@@ -14,36 +14,35 @@ void main(string[] argv) {
 
     auto mainFile = "test/./test.p2";
 
+    /// Get the PPL2 singleton
     auto ppl2 = PPL2.instance();
 
-    auto b = ppl2.createProjectBuilder(new Config(mainFile));
+    /// Create a project builder
+    auto builder = ppl2.createProjectBuilder(new Config(mainFile));
 
-    b.config.enableLink = true;
-    b.config.writeASM   = true;
-    b.config.writeOBJ   = true;
-    b.config.writeAST   = true;
-    b.config.writeIR    = true;
+    /// Setup the configuration
+    builder.config.enableLink = true;
+    builder.config.writeASM   = true;
+    builder.config.writeOBJ   = true;
+    builder.config.writeAST   = true;
+    builder.config.writeIR    = true;
+    writefln("\n%s", builder.config.toString());
 
-    writefln("\n%s", b.config.toString());
+    /// Build the project
+    builder.build();
 
-    bool success = b.build();
-    if(success) {
-        dumpDependencies(b);
-        dumpModuleReferences(b);
-        b.dumpStats();
-    } else {
-        auto compilerError     = cast(CompilerError)b.getException;
-        auto unresolvedSymbols = cast(UnresolvedSymbols)b.getException;
+    /// Handle any errors
+    if(builder.hasErrors()) {
+        auto numErrors = builder.getErrors().length;
+        writefln("Build failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
 
-        import ppl2.error;
-
-        if(compilerError) {
-            prettyErrorMsg(compilerError);
-        } else if(unresolvedSymbols) {
-            displayUnresolved(b.allModules);
-        } else {
-            writefln("%s", b.getException);
+        foreach(i, err; builder.getErrors()) {
+            writefln("[%s] %s\n", i, err.toPrettyString());
         }
+    } else {
+        dumpDependencies(builder);
+        dumpModuleReferences(builder);
+        builder.dumpStats();
     }
 }
 void dumpDependencies(BuildState b) {

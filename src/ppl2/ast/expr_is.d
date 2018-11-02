@@ -56,9 +56,10 @@ public:
                 /// type as long as they are the same size
 
                 if(leftType.size != rightType.size) {
-                    throw new CompilerError(this,
+                    getModule.addError(this,
                         "Both sides of value 'is' value expression should be the same size "~
                         "(%s -> %s)".format(leftType.size, rightType.size));
+                    return;
                 }
 
                 /// Structs need to use memcmp
@@ -72,8 +73,9 @@ public:
                 }
 
             } else if(!leftType.isPtr || !rightType.isPtr) {
-                throw new CompilerError(this,
+                getModule.addError(this,
                     "Both sides if 'is' expression should be pointer types");
+                return;
             }
         } else {
             /// Type is Type

@@ -69,8 +69,7 @@ final class LiteralFunction : Expression, Container {
             } else {
                 rt = getBestFit(t, rt);
                 if(type is null) {
-                    throw new CompilerError(this,
-                        "All return types must be implicitly castable to the largest return type");
+                    getModule.addError(this, "All return types must be implicitly castable to the largest return type");
                 }
             }
         }

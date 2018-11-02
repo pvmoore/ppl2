@@ -19,8 +19,6 @@ public:
     }
     bool build(Module m) {
         try{
-            assert(status==Status.RUNNING);
-
             m.parser.parse();
             resolve(m);
             semanticCheck();
@@ -29,12 +27,11 @@ public:
             optimiser.optimise(m);
             optIR = m.llvmValue.dumpToString();
 
-            status = Status.FINISHED_OK;
+            // todo - refactor to use errors
 
             return true;
         }catch(Exception e) {
-            status = Status.FINISHED_WITH_ERRORS;
-            exception = e;
+
         }
         return false;
     }

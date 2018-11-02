@@ -46,7 +46,7 @@ private:
             builder.config.writeAST   = false;
             builder.config.writeIR    = false;
 
-            bool ok = builder.build();
+            builder.build();
 
             callback(this);
 

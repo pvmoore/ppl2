@@ -100,7 +100,7 @@ private:
         /// First token must be a type
         if(!isType(t, node)) return false;
 
-        if(t.type==TT.COLON) errorBadSyntax(t, "Deprecated array declaration");
+        if(t.type==TT.COLON) errorBadSyntax(module_, t, "Deprecated array declaration");
 
         t.next(end);
 

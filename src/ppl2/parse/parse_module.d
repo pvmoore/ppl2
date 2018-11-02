@@ -116,7 +116,7 @@ public:
 private:
     void tokenise() {
         watch.start();
-        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(sourceText);
+        auto tokens = getImplicitImportsTokens() ~ lexer.tokenise(sourceText, module_.buildState);
         log("... found %s tokens", tokens.length);
         lexer.dumpTokens(tokens);
 
@@ -156,7 +156,7 @@ private:
             } else if(t.isKeyword("private")) {
                 public_ = false;
             } else if(t.isKeyword("readonly")) {
-                throw new CompilerError(t, "readonly access is only allowed inside a struct");
+                module_.addError(t, "readonly access is only allowed inside a struct");
             } else if(t.type==TT.LCURLY) {
                 t.next(t.findEndOfBlock(t.type));
             } else if(t.type==TT.LSQBRACKET) {
@@ -227,7 +227,7 @@ private:
         /// Ensure no more than one module new() function exists
         auto fns = module_.getFunctions("new");
         if(fns.length>1) {
-            throw new CompilerError(fns[1], "Multiple module 'new' functions are not allowed");
+            module_.addError(fns[1], "Multiple module 'new' functions are not allowed");
         }
         bool hasModuleInit = fns.length==1;
         bool isMainModule  = module_.isMainModule;
@@ -255,15 +255,16 @@ private:
         if(isMainModule) {
             /// Check for a program entry point
             auto mainfns = module_.getFunctions("main");
-            if(mainfns.length > 1) {
-                throw new CompilerError(mainfns[1], "Multiple program entry points found");
-            } else if(mainfns.length==0) {
-                throw new CompilerError(module_, "No program entry point found");
-            }
 
-            /// Add an external ref to the entry function
-            mainfns[0].numRefs++;
-            module_.numRefs++;
+            if(mainfns.length > 1) {
+                module_.addError(mainfns[1], "Multiple program entry points found");
+            } else if(mainfns.length==0) {
+                module_.addError(module_, "No program entry point found");
+            } else {
+                /// Add an external ref to the entry function
+                mainfns[0].numRefs++;
+                module_.numRefs++;
+            }
         }
 
         /// Request init function resolution

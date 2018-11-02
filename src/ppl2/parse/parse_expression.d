@@ -136,13 +136,13 @@ private:
                 parseValueOf(t, parent);
                 break;
             case TT.EXCLAMATION:
-                errorBadSyntax(t, "Did you mean 'not'");
+                errorBadSyntax(module_, t, "Did you mean 'not'");
                 break;
             default:
                 //errorBadSyntax(t, "Syntax error");
                 writefln("BAD LHS %s", t.get);
                 parent.getModule.dumpToConsole();
-                throw new CompilerError(t, "Bad LHS");
+                module_.addError(t, "Bad LHS");
         }
     }
     void parseRHS(Tokens t, ASTNode parent) {
@@ -199,11 +199,11 @@ private:
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.AMPERSAND:
-                    if(t.peek(1).type==TT.AMPERSAND) errorBadSyntax(t, "Did you mean 'and'");
+                    if(t.peek(1).type==TT.AMPERSAND) errorBadSyntax(module_, t, "Did you mean 'and'");
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.PIPE:
-                    if(t.peek(1).type==TT.PIPE) errorBadSyntax(t, "Did you mean 'or'");
+                    if(t.peek(1).type==TT.PIPE) errorBadSyntax(module_, t, "Did you mean 'or'");
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.LSQBRACKET:
@@ -230,7 +230,7 @@ private:
                 default:
                     writefln("BAD RHS %s", t.get);
                     parent.getModule.dumpToConsole();
-                    throw new CompilerError(t, "Bad RHS");
+                    module_.addError(t, "Bad RHS");
             }
         }
     }
@@ -286,7 +286,7 @@ private:
         } else {
             b.op = parseOperator(t);
             if(b.op==Operator.NOTHING) {
-                throw new CompilerError(t, "Invalid operator");
+                module_.addError(t, "Invalid operator");
             }
         }
 
@@ -359,7 +359,7 @@ private:
         e.type = typeParser().parse(t, e);
 
         if(e.type is null) {
-            errorMissingType(t, t.value);
+            errorMissingType(module_, t, t.value);
         }
     }
     ///
@@ -401,20 +401,19 @@ private:
             ///
             /// This is a construtor call. We don't currently allow this
             ///
-            throw new CompilerError(c,
-                "Explicit constructor calls not allowed");
+            module_.addError(c, "Explicit constructor calls not allowed");
         }
 
         if(c.name=="operator") {
             /// Call to operator overload
 
             auto op = parseOperator(t);
-            if(!op.isOverloadable) errorBadSyntax(t, "Expecting an overloadable operator");
+            if(!op.isOverloadable) errorBadSyntax(module_, t, "Expecting an overloadable operator");
 
             c.name ~= op.value;
             t.next;
 
-            if(op==Operator.NOTHING) errorBadSyntax(t, "Expecting an overloadable operator");
+            if(op==Operator.NOTHING) errorBadSyntax(module_, t, "Expecting an overloadable operator");
         }
 
         /// template args
@@ -428,7 +427,7 @@ private:
                 auto tt = typeParser().parse(t, c);
                 if(!tt) {
                     t.resetToMark();
-                    errorMissingType(t);
+                    errorMissingType(module_, t);
                 }
                 t.discardMark();
 
@@ -457,15 +456,13 @@ private:
                 if (t.peek(1).type==TT.EQUALS) {
                     /// paramname = expr
                     if (composite.numChildren>1 && c.paramNames.length==0) {
-                        throw new CompilerError(c,
-                        "Mixing named and un-named constructor arguments");
+                        module_.addError(c, "Mixing named and un-named constructor arguments");
                     }
                     if (c.paramNames.contains(t.value)) {
-                        throw new CompilerError(t, "Duplicate call param name");
+                        module_.addError(t, "Duplicate call param name");
                     }
                     if (t.value=="this") {
-                        throw new CompilerError(t,
-                        "'this' cannot be used as a parameter name");
+                        module_.addError(t, "'this' cannot be used as a parameter name");
                     }
                     c.paramNames ~= t.value;
                     t.next;
@@ -476,8 +473,7 @@ private:
 
                 } else {
                     if (c.paramNames.length>0) {
-                        throw new CompilerError(c,
-                        "Mixing named and un-named constructor arguments");
+                        module_.addError(c, "Mixing named and un-named constructor arguments");
                     }
 
                     parse(t, composite);
@@ -511,7 +507,7 @@ private:
         /// Two identifiers in a row means one was probably a type that we don't know about
         auto prev = id.prevSibling;
         if(prev && prev.isA!Identifier && parent.id==NodeID.ANON_STRUCT) {
-            errorMissingType(prev, prev.as!Identifier.name);
+            errorMissingType(module_, prev, prev.as!Identifier.name);
         }
 
         id.target = new Target(module_);
@@ -524,7 +520,7 @@ private:
 
         t.skip(TT.LBRACKET);
 
-        if(t.type==TT.RBRACKET) errorBadSyntax(t, "Empty parenthesis");
+        if(t.type==TT.RBRACKET) errorBadSyntax(module_, t, "Empty parenthesis");
 
         parse(t, p);
 
@@ -687,10 +683,10 @@ private:
         /// type
         con.type = typeParser().parse(t, parent);
         if(!con.type) {
-            errorMissingType(t, t.value);
+            errorMissingType(module_, t, t.value);
         }
         if(!con.type.isAlias && !con.type.isNamedStruct) {
-            errorBadSyntax(t, "Expecting a struct name here");
+            errorBadSyntax(module_, t, "Expecting a struct name here");
         }
 
         /// Prepare the call to new(this, ...)
@@ -740,8 +736,7 @@ private:
                 /// paramname = expr
 
                 if(composite.numChildren>1 && call.paramNames.length==0) {
-                    throw new CompilerError(con,
-                        "Mixing named and un-named constructor arguments");
+                    module_.addError(con, "Mixing named and un-named constructor arguments");
                 }
 
                 /// Add the implicit 'this' param
@@ -750,11 +745,10 @@ private:
                 }
 
                 if(call.paramNames.contains(t.value)) {
-                    throw new CompilerError(t, "Duplicate call param name");
+                    module_.addError(t, "Duplicate call param name");
                 }
                 if(t.value=="this") {
-                    throw new CompilerError(t,
-                        "'this' cannot be used as a parameter name");
+                    module_.addError(t, "'this' cannot be used as a parameter name");
                 }
 
                 call.paramNames ~= t.value;
@@ -766,8 +760,7 @@ private:
 
             } else {
                 if(call.paramNames.length>0) {
-                    throw new CompilerError(con,
-                        "Mixing named and un-named constructor arguments");
+                    module_.addError(con, "Mixing named and un-named constructor arguments");
                 }
                 parse(t, composite);
             }
@@ -895,7 +888,10 @@ private:
         while(t.type!=TT.RSQBRACKET) {
             if(t.peek(1).type==TT.EQUALS) {
                 /// name = expression
-                if(e.hasChildren && e.names.length==0) errorStructLiteralMixedInitialisation(t);
+                if(e.hasChildren && e.names.length==0) {
+                    module_.addError(t, "Struct literals must be either all named or all unnamed");
+                    return;
+                }
 
                 e.names ~= t.value;
                 t.next;
@@ -904,7 +900,10 @@ private:
                 parse(t, e);
             } else {
                 /// expression
-                if(e.names.length>0) errorStructLiteralMixedInitialisation(t);
+                if(e.names.length>0) {
+                    module_.addError(t, "Struct literals must be either all named or all unnamed");
+                    return;
+                }
 
                 parse(t, e);
             }
@@ -929,12 +928,15 @@ private:
 
             if(t.peek(1).type==TT.EQUALS) {
                 /// number = expression
-                if(e.hasChildren && !e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
+                if(e.hasChildren && !e.isIndexBased) {
+                    module_.addError(t, "Array literals must be either all indexes or all non-indexes");
+                    return;
+                }
                 e.isIndexBased = true;
 
                 /// index = value (Binary = )
                 parse(t, e);
-                if(!e.last.isA!Binary) errorBadSyntax(e.last, "Syntax error. Expecting binary =");
+                if(!e.last.isA!Binary) errorBadSyntax(module_, e.last, "Syntax error. Expecting binary =");
 
                 /// Split binary into 2 expressions
                 auto b = e.last.as!Binary;
@@ -943,7 +945,10 @@ private:
                 e.add(b.right);
 
             } else {
-                if(e.isIndexBased) errorArrayLiteralMixedInitialisation(t);
+                if(e.isIndexBased) {
+                    module_.addError(t, "Array literals must be either all indexes or all non-indexes");
+                    return;
+                }
 
                 /// value
                 parse(t, e);

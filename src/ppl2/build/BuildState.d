@@ -13,11 +13,10 @@ protected:
     Module[/*canonicalName*/string] modules;
     string[string] unoptimisedIr;
     string[string] optimisedIr;
-    Status status = Status.NOT_STARTED;
     StopWatch watch;
-    Throwable exception;
+
+    CompileError[string] errors;
 public:
-    enum Status { NOT_STARTED, RUNNING, FINISHED_OK, FINISHED_WITH_ERRORS }
     struct Task {
         enum Enum { FUNC, TYPE }
         Enum type;
@@ -32,15 +31,18 @@ public:
     Module mainModule;
     Mangler mangler;
 
-    Status getStatus() const      { return status; }
     ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
-    Throwable getException()      { return exception; }
+    bool hasErrors() const        { return errors.length>0; }
+
+    CompileError[] getErrors()    {
+        alias comp = (x,y) {
+            return x.line*1000000+x.column < y.line*1000000+y.column;
+        };
+        return errors.values.sort!(comp).array;
+    }
 
     string getOptimisedIR(string canonicalName)   { return optimisedIr.get(canonicalName, null); }
     string getUnoptimisedIR(string canonicalName) { return unoptimisedIr.get(canonicalName, null); }
-
-    // todo - get a list of errors
-    //CompileError[] getErrors() {}
 
     this(LLVMWrapper llvmWrapper, Config config) {
         this.llvmWrapper            = llvmWrapper;
@@ -54,13 +56,25 @@ public:
         this.mangler                = new Mangler;
     }
     /// Tasks
-    bool tasksOutstanding() { return !taskQueue.empty; }
-    int tasksRemaining()    { return taskQueue.length; }
-    Task getNextTask()      { return taskQueue.pop; }
-    void addTask(Task t)    { taskQueue.push(t); }
+    bool tasksOutstanding()       { return !taskQueue.empty; }
+    int tasksRemaining()          { return taskQueue.length; }
+    Task getNextTask()            { return taskQueue.pop; }
+    void addTask(Task t)          { taskQueue.push(t); }
 
+    void addError(CompileError e, bool canContinue) {
+        string key = e.getKey();
+        if(key in errors) return;
+
+        errors[key] = e;
+
+        if(!canContinue) {
+            throw new CompilationAborted(CompilationAborted.Reason.COULD_NOT_CONTINUE);
+        }
+        if(errors.length >= config.maxErrors) {
+            throw new CompilationAborted(CompilationAborted.Reason.MAX_ERRORS_REACHED);
+        }
+    }
     void startNewBuild() {
-        status = Status.RUNNING;
         requestedAliasOrStruct.clear();
         requestedFunction.clear();
         taskQueue.clear();
@@ -69,7 +83,7 @@ public:
         mangler.clearState();
         unoptimisedIr.clear();
         optimisedIr.clear();
-        exception = null;
+        errors.clear();
 
         foreach(m; modules.values) {
             if(m.llvmValue) m.llvmValue.destroy();
@@ -192,7 +206,7 @@ public:
 
         GC.collect();
 
-        receiver("\n%s".format(status));
+        receiver("\nOK");
         receiver("");
         receiver("Active modules ......... %s %s".format(allModules.length, modules.keys));
         receiver("Parser time ............ %.2f ms".format(allModules.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6));
@@ -269,8 +283,7 @@ protected:
         }
 
         if(numUnresolvedModules > 0) {
-            // todo - Collect all unresolved symbols and add them to the exception
-            throw new UnresolvedSymbols();
+            convertUnresolvedNodesIntoErrors();
         }
     }
     int parseModules() {
@@ -356,5 +369,24 @@ protected:
             unoptimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
         }
         return allOk;
+    }
+    void convertUnresolvedNodesIntoErrors() {
+        foreach(m; modules.values) {
+            foreach(n; m.resolver.getUnresolvedNodes()) with(NodeID) {
+
+                if(n.id==IDENTIFIER) {
+                    auto identifier = n.as!Identifier;
+                    m.addError(n, "Unresolved identifier %s".format(identifier.name));
+                } else if(n.id==VARIABLE) {
+                    auto variable = n.as!Variable;
+                    m.addError(n, "Unresolved variable %s".format(variable.name));
+                } else {
+                    //writefln("\t%s: %s", n.id, n);
+                }
+            }
+        }
+        if(!hasErrors()) {
+            addError(new UnknownError("There were unresolved symbols but no errors were added"), true);
+        }
     }
 }

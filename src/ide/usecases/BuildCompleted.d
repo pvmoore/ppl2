@@ -15,12 +15,9 @@ public:
         this.editorView = ide.getEditorView();
     }
     void handle(BuildJob job) {
-        console.logln("Build completed");
-
         auto b = job.getBuilder();
 
-        if(b.getStatus()!=BuildState.Status.FINISHED_OK) {
-
+        if(b.hasErrors()) {
             buildFailed(b);
         } else {
             buildSucceeded(b);
@@ -28,6 +25,7 @@ public:
     }
 private:
     void buildSucceeded(BuildState b) {
+        console.logln("Build OK");
         ide.getStatusLine().setBuildStatus("Build OK", b.getElapsedNanos());
 
         //b.dumpStats((string it)=>console.logln(it));
@@ -63,93 +61,13 @@ private:
         }
     }
     void buildFailed(BuildState b) {
-        console.logln("%s".format(b.getStatus));
 
-        auto compilerError     = cast(CompilerError)b.getException;
-        auto unresolvedSymbols = cast(UnresolvedSymbols)b.getException;
+        auto numErrors = b.getErrors().length;
+        console.logln("Build failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
+        ide.getStatusLine().setBuildStatus("Build Failed", b.getElapsedNanos());
 
-        import ppl2.error;
-
-        if(compilerError) {
-            prettyErrorMsg(compilerError);
-
-            auto errTab = editorView.getTabByCanonicalName(compilerError.module_.canonicalName);
-            if(errTab) {
-                errTab.setErrors(compilerError);
-            }
-
-        } else if(unresolvedSymbols) {
-            //displayUnresolved(b.allModules);
-        } else {
-            console.logln("%s", b.getException);
+        foreach(i, err; b.getErrors()) {
+            console.logln("[%s] %s\n", i, err.toPrettyString());
         }
-
-        ide.getStatusLine().setBuildStatus("Build FAILED", b.getElapsedNanos());
-
-        foreach(l; ide.getBuildListeners()) {
-            l.buildFailed(b);
-        }
-    }
-    auto getContentLines(Module m) {
-        auto tab = ide.getEditorView().getTabByCanonicalName(m.canonicalName);
-        if(tab) {
-            return tab.content.lines();
-        }
-        /// Load it
-        return From!"std.stdio".File(m.fullPath, "rb")
-                               .byLineCopy()
-                               .map!(it=>convertTabsToSpaces(it).toUTF32)
-                               .array;
-    }
-    void prettyErrorMsg(CompilerError e) {
-        prettyErrorMsg(e.module_, e.line, e.column, e.msg);
-
-        auto ambiguous = e.as!AmbiguousCall;
-        if(ambiguous) {
-            console.logln("\nLooking for:");
-            console.logln("\n\t%s(%s)", ambiguous.name, ambiguous.argTypes.prettyString);
-
-            console.logln("\n%s matches found:\n", ambiguous.overloadSet.length);
-
-            foreach(callable; ambiguous.overloadSet) {
-                auto params       = callable.getType().getFunctionType.paramTypes();
-                string moduleName = callable.getModule.canonicalName;
-                int line          = callable.getNode.line;
-                console.logln("\t%s(%s) \t:: %s:%s", ambiguous.name, prettyString(params), moduleName, line);
-            }
-        }
-    }
-    void prettyErrorMsg(Module m, int line, int col, string msg) {
-        assert(m);
-
-        void showMessageWithoutLine() {
-            console.logln("\nError: [%s] %s", m.fullPath, msg);
-        }
-        void showMessageWithLine() {
-            console.logln("\nError: [%s Line %s:%s] %s", m.fullPath, line+1, col, msg);
-        }
-
-        if(line==-1 || col==-1) {
-            showMessageWithoutLine();
-            return;
-        }
-
-        auto lines = getContentLines(m);
-
-        if(lines.length<=line) {
-            showMessageWithoutLine();
-            return;
-        }
-
-        showMessageWithLine();
-
-        string spaces;
-        for(int i=0; i<col; i++) { spaces ~= " "; }
-
-        auto errorLineStr = lines[line];
-
-        console.logln("%s|", spaces);
-        console.logln("%sv", spaces);
-        console.logln("%s", errorLineStr);
     }
 }

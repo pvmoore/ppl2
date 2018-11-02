@@ -55,24 +55,11 @@ public:
     void buildFailed(ppl2.BuildState state) {
         /// Add error highlights
 
-        auto ce = cast(ppl2.CompilerError)state.getException;
-        auto us = cast(ppl2.UnresolvedSymbols)state.getException;
+        foreach(err; state.getErrors()) {
+            /// Not sure how to update the error line so that it re-highlights
 
-        if(ce) {
-            if(ce.module_.canonicalName==moduleCanonicalName) {
-                //writefln("We have an error: %s %s:%s", moduleCanonicalName, ce.line, ce.column);
-
-                if(ce.line!=-1) {
-                    errors.add(Error(ce.line, ce.column, ce.column+1));
-
-                    /// Not sure how to update the error line so that it re-highlights
-
-
-
-                    //content.performOperation(new EditOperation(), this);
-                    //content.updateTokenProps(ce.line, ce.line+1);
-                }
-            }
+            //content.performOperation(new EditOperation(), this);
+            //content.updateTokenProps(ce.line, ce.line+1);
         }
     }
 

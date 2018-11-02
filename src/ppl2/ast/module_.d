@@ -95,6 +95,7 @@ public:
     override bool isResolved()  { return true; }
     override NodeID id() const  { return NodeID.MODULE; }
     override Module getModule() { return this; }
+///
 
     bool isParsed() { return parser.isParsed; }
 
@@ -110,6 +111,13 @@ public:
 
     NodeBuilder builder(ASTNode n) {
         return nodeBuilder.forNode(n);
+    }
+
+    void addError(ASTNode node, string msg, bool canContinue=true) {
+        buildState.addError(new ParseError(this, node, msg), canContinue);
+    }
+    void addError(Tokens t, string msg, bool canContinue=true) {
+        buildState.addError(new ParseError(this, t, msg), canContinue);
     }
 
     string makeTemporary(string prefix) {

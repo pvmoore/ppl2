@@ -11,8 +11,9 @@ const string VERSION = "2.0.0";
 
 __gshared LLVMWrapper g_llvmWrapper;
 
-__gshared int g_nodeid = 1;
-__gshared int g_callableID = 1;
+__gshared int g_nodeid      = 1;
+__gshared int g_callableID  = 1;
+__gshared int g_errorIDs    = 1;
 
 __gshared FileLogger g_logger;
 

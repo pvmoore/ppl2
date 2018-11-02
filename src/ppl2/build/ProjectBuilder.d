@@ -11,7 +11,7 @@ public:
     this(LLVMWrapper llvmWrapper, Config config) {
         super(llvmWrapper, config);
     }
-    bool build() {
+    void build() {
         startNewBuild();
         bool buildSuccessful = false;
         watch.start();
@@ -21,10 +21,14 @@ public:
 
             ///============================ Start
             parseAndResolve();
+            if(hasErrors()) return;
 
             removeUnreferencedNodes();
             afterResolution();
+            if(hasErrors()) return;
+
             semanticCheck();
+            if(hasErrors()) return;
 
             if(generateIR()) {
                 optimiseModules();
@@ -33,25 +37,20 @@ public:
                     combineModules();
 
                     if(link()) {
-                        buildSuccessful = true;
+                        /// Link succeeded
                     }
-                } else {
-                    buildSuccessful = true;
                 }
             }
             ///============================ End
-
-            status = Status.FINISHED_OK;
-
+        }catch(CompilationAborted e) {
+            writefln("Compilation aborted ... %s\n", e.reason);
         }catch(Throwable e) {
-            exception = e;
-            status = Status.FINISHED_WITH_ERRORS;
+            addError(new UnknownError("Unhandled exception: %s".format(e)), false);
         }finally{
             dumpAST();
             flushLogs();
             watch.stop();
         }
-        return buildSuccessful;
     }
 private:
     void dumpAST() {

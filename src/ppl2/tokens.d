@@ -94,11 +94,11 @@ public:
         pos -= numToMove;
     }
     void skip(TT t) {
-        if(type()!=t) throw new CompilerError(this, "Expecting %s".format(t));
+        if(type()!=t) module_.addError(this, "Expecting %s".format(t), false);
         next();
     }
     void skip(string kw) {
-        if(value()!=kw) throw new CompilerError(this, "Expecting %s".format(kw));
+        if(value()!=kw) module_.addError(this, "Expecting %s".format(kw), false);
         next();
     }
     bool typeIn(TT[] types...) {
@@ -108,8 +108,7 @@ public:
     }
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
-        //throw new Error("!!");
-        throw new CompilerError(this, "Expecting one of %s".format(types));
+        module_.addError(this, "Expecting one of %s".format(types), false);
     }
     bool hasNext() {
         return pos < tokens.length;

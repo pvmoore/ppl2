@@ -54,7 +54,7 @@ public:
         }
 
         if(t.type==TT.LANGLE) {
-            errorBadSyntax(t, "Cannot parameterise this type");
+            errorBadSyntax(module_, t, "Cannot parameterise this type");
         }
 
         /// ptr depth
@@ -106,7 +106,7 @@ private:
         t.next;
 
         Type type = imp.getAlias(name);
-        if(!type) errorMissingType(t, t.value);
+        if(!type) errorMissingType(module_, t, t.value);
 
         Type[] templateParams = collectTemplateParams(t, node);
         if(templateParams.length>0) {
@@ -158,7 +158,7 @@ private:
         assert(a.subtype);
 
         if(a.subtype is null) {
-            errorMissingType(t, t.value);
+            errorMissingType(module_, t, t.value);
         }
 
         /// :
@@ -238,7 +238,7 @@ private:
             auto tt = parse(t, node);
             if(!tt) {
                 t.resetToMark();
-                errorMissingType(t);
+                errorMissingType(module_, t);
             }
             t.discardMark();
 

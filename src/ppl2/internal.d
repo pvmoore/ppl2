@@ -28,7 +28,6 @@ import llvm.all;
 import ppl2;
 
 import ppl2.access;
-import ppl2.error;
 import ppl2.interfaces;
 import ppl2.Mangler;
 import ppl2.ppl2;
@@ -77,6 +76,9 @@ import ppl2.ast.stmt_variable;
 import ppl2.build.BuildState;
 
 import ppl2.check.check_module;
+
+import ppl2.error.CompilationAborted;
+import ppl2.error.CompileError;
 
 import ppl2.gen.gen_binary;
 import ppl2.gen.gen_function;

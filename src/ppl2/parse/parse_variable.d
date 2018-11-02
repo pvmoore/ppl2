@@ -50,10 +50,10 @@ public:
         } else {
             /// there is no type
             if(requireType) {
-                errorMissingType(t, t.value);
+                errorMissingType(module_, t, t.value);
             }
             if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.IDENTIFIER) {
-                errorMissingType(t, t.value);
+                errorMissingType(module_, t, t.value);
             }
 
             v.type = TYPE_UNKNOWN;
@@ -62,8 +62,7 @@ public:
         if(t.type==TT.IDENTIFIER && !t.get.templateType) {
             v.name = t.value;
             if(v.name=="this") {
-                throw new CompilerError(t,
-                    "'this' is a reserved word");
+                module_.addError(t, "'this' is a reserved word");
             }
             t.next;
 
@@ -79,12 +78,10 @@ public:
 
             } else {
                 if(v.isImplicit) {
-                    throw new CompilerError(v,
-                        "Implicitly typed variable requires initialisation");
+                    module_.addError(v, "Implicitly typed variable requires initialisation");
                 }
                 if(v.isConst) {
-                    throw new CompilerError(v,
-                        "Const variable must be initialised");
+                    module_.addError(v, "Const variable must be initialised");
                 }
             }
         }

@@ -15,13 +15,15 @@ public:
     ///
     /// text   - the text to tokenise
     ///
-    Token[] tokenise(bool forIDE=false)(string text) {
+    Token[] tokenise(bool forIDE=false)(string text, BuildState buildState = null) {
         auto tokens           = new Array!Token(256);
         auto buf              = new StringBuffer;
         int index             = 0;
         int line              = 0;
         int indexSOL          = 0;   /// char index at start of line
         auto stack            = new Stack!int;
+
+        if(!forIDE) assert(buildState);
 
         ///======================================================================================
         /// Local helper functions
@@ -107,12 +109,12 @@ public:
             bool err = false;
             if(index>=text.length) {
                 static if(!forIDE) {
-                    throw new CompilerError(module_, line, col, "Missing end quote '");
+                    buildState.addError(new TokeniseError(module_, line, col, "Missing end quote '"), false);
                 } else err = true;
             }
             if(!err && parseCharLiteral(buf[1..$])==-1) {
                 static if(!forIDE) {
-                    throw new CompilerError(module_, line, col, "Bad character literal");
+                    buildState.addError(new TokeniseError(module_, line, col, "Bad character literal"), false);
                 } else err = true;
             }
             if(err) {
@@ -194,7 +196,7 @@ public:
                 }
                 if(index>=text.length) {
                     ///  We ran out of text before the end quote
-                    throw new CompilerError(module_, startLine, startColumn, "Missing end quote \"");
+                    buildState.addError(new TokeniseError(module_, startLine, startColumn, "Missing end quote \""), false);
                 }
                 assert(peek()=='\"');
                 buf.add(peek());
@@ -301,7 +303,7 @@ public:
                 }
                 if(index>=text.length) {
                     /// We ran out of text before the end of the comment
-                    throw new CompilerError(module_, startLine, startColumn, "Missing end of comment");
+                    buildState.addError(new TokeniseError(module_, startLine, startColumn, "Missing end of comment"), false);
                 }
             }
         }

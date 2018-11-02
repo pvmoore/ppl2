@@ -41,7 +41,8 @@ public:
         stringSet.clear();
         foreach(i, a; n.paramNames) {
             if(stringSet.contains(a)) {
-                throw new CompilerError(n.getParam(i), "Duplicate parameter name");
+                module_.addError(n.getParam(i), "Duplicate parameter name");
+                return;
             }
             stringSet.add(a);
         }
@@ -49,7 +50,8 @@ public:
 
     void visit(ArrayType n) {
         if(!n.countExpr().isA!LiteralNumber) {
-            errorArrayCountMustBeConst(n.countExpr());
+            module_.addError(n.countExpr(), "Array count expression must be a const");
+            return;
         }
     }
     void visit(As n) {
@@ -59,29 +61,31 @@ public:
         if(fromType.isPtr && toType.isPtr) {
             /// ok - bitcast pointers
         } else if(fromType.isPtr && !toType.isLong) {
-            errorBadExplicitCast(n, fromType, toType);
+            errorBadExplicitCast(module_, n, fromType, toType);
         } else if(!fromType.isLong && toType.isPtr) {
-            errorBadExplicitCast(n, fromType, toType);
+            errorBadExplicitCast(module_, n, fromType, toType);
         }
     }
     void visit(Binary n) {
 
         /// Check the types
         if(!areCompatible(n.rightType, n.leftType)) {
-            errorIncompatibleTypes(n, n.rightType, n.leftType);
+            module_.addError(n, "Types are incompatible: %s and %s".format(n.rightType.prettyString, n.leftType.prettyString));
+            return;
         }
 
         if(n.op.isAssign) {
 
             if(!n.rightType.canImplicitlyCastTo(n.leftType)) {
-                errorBadImplicitCast(n, n.rightType, n.leftType);
+                errorBadImplicitCast(module_, n, n.rightType, n.leftType);
             }
 
             /// Check whether we are modifying a const variable
             if(!n.parent.isInitialiser) {
                 auto id = n.left().as!Identifier;
                 if(id && id.target.isVariable && id.target.getVariable.isConst) {
-                    errorModifyingConst(n, id);
+                    module_.addError(n, "Cannot modify const %s".format(id.name));
+                    return;
                 }
             }
         }
@@ -95,14 +99,14 @@ public:
 
         /// Ensure we have the correct number of arguments
         if(paramTypes.length != argTypes.length) {
-            throw new CompilerError(n,
-                "Expecting %s arguments, not %s".format(paramTypes.length, argTypes.length));
+            module_.addError(n, "Expecting %s arguments, not %s".format(paramTypes.length, argTypes.length));
+            return;
         }
 
         /// Ensure the arguments can implicitly cast to the parameters
         foreach(int i, p; n.target.paramTypes()) {
             if(!argTypes[i].canImplicitlyCastTo(p)) {
-                errorBadImplicitCast(n.arg(i), argTypes[i], p);
+                errorBadImplicitCast(module_, n.arg(i), argTypes[i], p);
             }
         }
     }
@@ -136,16 +140,16 @@ public:
         switch(n.name) {
             case "operator<>":
                 if(retType.isPtr || !retType.isInt) {
-                    throw new CompilerError(n,
-                        "operator<> must return int");
+                    module_.addError(n, "operator<> must return int");
+                    return;
                 }
                 break;
             case "operator:":
                 if(n.params.numParams==2) {
                     /// get
                     if(retType.isValue && retType.isVoid) {
-                        throw new CompilerError(n,
-                            "operator:(this,int) must not return void");
+                        module_.addError(n, "operator:(this,int) must not return void");
+                        return;
                     }
                 } else if(n.params.numParams==3) {
                     /// set
@@ -169,16 +173,16 @@ public:
             if(access.isReadOnly && moduleNID!=module_.nid) {
                 auto a = n.getAncestor!Binary;
                 if(a && a.op.isAssign && n.isAncestor(a.left)) {
-                    throw new CompilerError(n,
-                        "Attempting to modify readonly property");
+                    module_.addError(n, "Attempting to modify readonly property");
+                    return;
                 }
             }
         }
 
         void checkPrivateAccess(Access access, int moduleNID) {
             if(access.isPrivate && moduleNID!=module_.nid) {
-                throw new CompilerError( n,
-                    "Attempting to access private property");
+                module_.addError(n, "Attempting to access private property");
+                return;
             }
         }
 
@@ -198,22 +202,22 @@ public:
         if(n.isExpr) {
             /// Type must not be void
             if(n.type.isVoid && n.type.isValue) {
-                throw new CompilerError(n,
-                    "If must not have void result");
+                module_.addError(n, "If must not have void result");
+                return;
             }
 
             /// Both then and else are required
             if(!n.hasThen || !n.hasElse) {
-                throw new CompilerError(n,
-                    "If must have both a then and an else result");
+                module_.addError(n, "If must have both a then and an else result");
+                return;
             }
 
             /// Don't allow any returns in then or else block
             auto array = new Array!Return;
             n.selectDescendents!Return(array);
             if(array.length>0) {
-                throw new CompilerError(array[0],
-                    "An if used as a result cannot return");
+                module_.addError(array[0], "An if used as a result cannot return");
+                return;
             }
         }
     }
@@ -232,7 +236,8 @@ public:
                 assert(count);
 
                 if(lit.value.getInt() >= count.value.getInt()) {
-                    errorArrayBounds(n, lit.value.getInt(), count.value.getInt());
+                    module_.addError(n, "Array bounds error. %s >= %s".format(lit.value.getInt(), count.value.getInt()));
+                    return;
                 }
             } else if(n.isStructIndex) {
 
@@ -243,7 +248,8 @@ public:
                 assert(count);
 
                 if(lit.value.getInt() >= count) {
-                    errorArrayBounds(n, lit.value.getInt(), count);
+                    module_.addError(n, "Array bounds error. %s >= %s".format(lit.value.getInt(), count));
+                    return;
                 }
             } else {
                 /// ptr
@@ -251,8 +257,8 @@ public:
             }
         } else {
             if(n.isStructIndex) {
-                throw new CompilerError(n,
-                    "Struct index must be a const number");
+                module_.addError(n, "Struct index must be a const number");
+                return;
             }
 
             /// We could add a runtime check here in debug mode
@@ -270,8 +276,8 @@ public:
     void visit(LiteralArray n) {
         /// Check for too many values
         if(n.length() > n.type.countAsInt()) {
-            throw new CompilerError(n,
-                "Too many values specified (%s > %s)".format(n.length(), n.type.countAsInt()));
+            module_.addError(n, "Too many values specified (%s > %s)".format(n.length(), n.type.countAsInt()));
+            return;
         }
 
         if(n.isIndexBased) {
@@ -281,7 +287,7 @@ public:
             foreach(i, left; n.elementTypes()) {
 
                 if(!left.canImplicitlyCastTo(n.type.subtype)) {
-                    errorBadImplicitCast(n.elementValues()[i], left, n.type.subtype);
+                    errorBadImplicitCast(module_, n.elementValues()[i], left, n.type.subtype);
                 }
             }
         }
@@ -310,7 +316,7 @@ public:
             auto parentType = *ptr;
 
             if(!n.type.canImplicitlyCastTo(parentType)) {
-                errorBadImplicitCast(n, n.type, parentType);
+                errorBadImplicitCast(module_, n, n.type, parentType);
             }
         }
     }
@@ -325,8 +331,8 @@ public:
 
         /// Check for too many values
         if(n.numElements > struct_.numMemberVariables) {
-            throw new CompilerError(n,
-            "Too many values specified");
+            module_.addError(n, "Too many values specified");
+            return;
         }
 
         if(n.numElements==0) {
@@ -339,14 +345,14 @@ public:
             stringSet.clear();
             foreach(i, name; n.names) {
                 if(stringSet.contains(name)) {
-                    throw new CompilerError(n.children[i],
-                        "Struct member %s initialised more than once".format(name));
+                    module_.addError(n.children[i], "Struct member %s initialised more than once".format(name));
+                    return;
                 }
                 stringSet.add(name);
                 auto v = struct_.getMemberVariable(name);
                 if(!v) {
-                    throw new CompilerError(n.children[i],
-                        "Struct does not have member %s".format(name));
+                    module_.addError(n.children[i], "Struct does not have member %s".format(name));
+                    return;
                 }
             }
 
@@ -358,7 +364,7 @@ public:
                 auto left  = elementTypes[i];
                 auto right = var.type;
                 if(!left.canImplicitlyCastTo(right)) {
-                    errorBadImplicitCast(n.elements()[i], left, right);
+                    errorBadImplicitCast(module_, n.elements()[i], left, right);
 
                 }
             }
@@ -371,7 +377,7 @@ public:
                 auto left  = t;
                 auto right = structTypes[i];
                 if(!left.canImplicitlyCastTo(right)) {
-                    errorBadImplicitCast(n.elements()[i], left, right);
+                    errorBadImplicitCast(module_, n.elements()[i], left, right);
                 }
             }
         }
@@ -384,8 +390,8 @@ public:
         stringSet.clear();
         foreach(v; module_.getVariables()) {
             if(stringSet.contains(v.name)) {
-                throw new CompilerError(v,
-                    "Global variable %s declared more than once".format(v.name));
+                module_.addError(v, "Global variable %s declared more than once".format(v.name));
+                return;
             }
             stringSet.add(v.name);
         }
@@ -398,8 +404,8 @@ public:
         stringSet.clear();
         foreach(v; n.type.getMemberVariables()) {
             if(v.name.length==0) {
-                throw new CompilerError(v,
-                    "Named struct variable must have a name");
+                module_.addError(v, "Named struct variable must have a name");
+                return;
             }
         }
     }
@@ -423,12 +429,14 @@ public:
             /// Initialiser must be const
             auto ini = n.initialiser();
             if(!ini.isConst) {
-                errorVarInitMustBeConst(n);
+                module_.addError(n, "Const initialiser must be const");
+                return;
             }
         }
         if(n.isStatic) {
             if(!n.parent.isAnonStruct || !n.parent.as!AnonStruct.isNamed) {
-                throw new CompilerError(n, "Static variables are not allowed at this scope");
+                module_.addError(n, "Static variables are not allowed at this scope");
+                return;
             }
         }
 
@@ -439,9 +447,10 @@ public:
             auto vars    = struct_.getMemberVariables();
             foreach(v; vars) {
                 if(v.name) {
-                    if(stringSet.contains(v.name))
-                        throw new CompilerError(v,
-                            "Struct %s has duplicate member %s".format(n.name, v.name));
+                    if(stringSet.contains(v.name)) {
+                        module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name));
+                        return;
+                    }
                     stringSet.add(v.name);
                 }
             }
@@ -449,13 +458,13 @@ public:
             if(n.type.isAnonStruct) {
                 foreach(v; struct_.children) {
                     if(!v.isVariable) {
-                        throw new CompilerError(n,
-                            "An anonymous struct must only contain variable declarations");
+                        module_.addError(n, "An anonymous struct must only contain variable declarations");
+                        return;
                     } else {
                         auto var = cast(Variable)v;
                         if(var.hasInitialiser) {
-                            throw new CompilerError(n,
-                            "An anonymous struct must not have variable initialisation");
+                            module_.addError(n, "An anonymous struct must not have variable initialisation");
+                            return;
                         }
                     }
                 }
@@ -471,12 +480,12 @@ public:
                 if(res.isVar) {
                     auto var = res.var;
                     bool sameScope = var.parent==n.parent;
-                    if (sameScope) {
-                        throw new CompilerError(n,
-                        "Variable %s declared more than once in this scope".format(n.name));
+                    if(sameScope) {
+                        module_.addError(n, "Variable %s declared more than once in this scope".format(n.name));
+                        return;
                     }
-                    throw new CompilerError(n,
-                    "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line));
+                    module_.addError(n, "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line));
+                    return;
                 } else {
                     /// check function?
                 }

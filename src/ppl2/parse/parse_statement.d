@@ -24,7 +24,7 @@ public:
         pragma(inline,true) {
             void noExprAllowedAtModuleScope() {
                 if(parent.isA!Module) {
-                    errorBadSyntax(t, "Expressions not allowed at module scope. Did you mean define?");
+                    errorBadSyntax(module_, t, "Expressions not allowed at module scope. Did you mean define?");
                 }
             }
         }
@@ -90,7 +90,7 @@ public:
                 namedStructParser().parse(t, parent);
                 return;
             case "operator":
-                if(isOperatorOverloadFunction(t)) {
+                if(isOperatorOverloadFunction(module_, t)) {
                     parseFunction(t, parent);
                     return;
                 }
@@ -104,7 +104,7 @@ public:
             return;
         }
         if(t.type==TT.LBRACKET) {
-            errorBadSyntax(t, "Parenthesis not allowed here");
+            errorBadSyntax(module_, t, "Parenthesis not allowed here");
         }
 
         /// name {
@@ -152,14 +152,14 @@ public:
             if(isTemplateParams(t,1,end)) {
                 auto nextTok = t.peek(end+1);
                 if(nextTok.type!=TT.LBRACKET && nextTok.type!=TT.LCURLY) {
-                    errorMissingType(t);
+                    errorMissingType(module_, t);
                 }
             }
         }
 
         /// Test for 'Type type' where Type is not known
         if(parent.isModule && t.type==TT.IDENTIFIER && t.peek(1).type==TT.IDENTIFIER) {
-            errorMissingType(t, t.value);
+            errorMissingType(module_, t, t.value);
         }
 
         noExprAllowedAtModuleScope();
@@ -213,7 +213,7 @@ private: //=====================================================================
                 import std.file : exists;
                 if(!exists(module_.config.getFullModulePath(moduleName))) {
                     t.resetToMark();
-                    throw new CompilerError(t, "Module %s does not exist".format(moduleName));
+                    module_.addError(t, "Module %s does not exist".format(moduleName), true);
                 }
                 t.discardMark();
                 return moduleName;
@@ -225,14 +225,14 @@ private: //=====================================================================
                 t.next(2);
 
                 if(findImportByAlias(imp.aliasName, imp)) {
-                    throw new CompilerError(imp, "Module alias %s already found in this scope".format(imp.aliasName));
+                    module_.addError(imp, "Module alias %s already found in this scope".format(imp.aliasName), true);
                 }
             }
 
             imp.moduleName = collectModuleName();
 
             if(findImportByCanonicalName(imp.moduleName, imp)) {
-                throw new CompilerError(imp, "Module %s already imported".format(imp.moduleName));
+                module_.addError(imp, "Module %s already imported".format(imp.moduleName), true);
             }
 
             /// Trigger the loading of the module
@@ -316,7 +316,7 @@ private: //=====================================================================
             f.name ~= f.op.value;
             t.next;
 
-            if(f.op==Operator.NOTHING) errorBadSyntax(t, "Expecting an overloadable operator");
+            if(f.op==Operator.NOTHING) errorBadSyntax(module_, t, "Expecting an overloadable operator");
         }
 
         /// Function readonly access is effectively public
@@ -339,8 +339,7 @@ private: //=====================================================================
             while(t.type!=TT.RANGLE) {
 
                 if(typeDetector().isType(t, f)) {
-                    throw new CompilerError(t,
-                        "Template param name cannot be a type");
+                    module_.addError(t, "Template param name cannot be a type", false);
                 }
 
                 f.blueprint.paramNames ~= t.value;
@@ -431,7 +430,7 @@ private: //=====================================================================
         auto inits = Composite.make(t, Composite.Usage.PERMANENT);
         loop.add(inits);
 
-        if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop initialiser");
+        if(t.type==TT.RBRACKET) errorBadSyntax(module_, t, "Expecting loop initialiser");
 
         while(t.type!=TT.SEMICOLON) {
 
@@ -443,7 +442,7 @@ private: //=====================================================================
 
         t.skip(TT.SEMICOLON);
 
-        if(t.type==TT.RBRACKET) errorBadSyntax(t, "Expecting loop condition");
+        if(t.type==TT.RBRACKET) errorBadSyntax(module_, t, "Expecting loop condition");
 
         /// Condition
         auto cond = Composite.make(t, Composite.Usage.PERMANENT);

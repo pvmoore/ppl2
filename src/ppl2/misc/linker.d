@@ -51,8 +51,19 @@ public:
 
         import std.process : spawnProcess, wait;
 
-        auto pid   = spawnProcess(args);
-        int status = wait(pid);
+        int returnStatus;
+        string errorMsg;
+        try{
+            auto pid = spawnProcess(args);
+            returnStatus = wait(pid);
+        }catch(Exception e) {
+            errorMsg     = e.msg;
+            returnStatus = -1;
+        }
+
+        if(returnStatus!=0) {
+            m.buildState.addError(new LinkError(returnStatus, errorMsg), false);
+        }
 
         /// Delete the obj file if required
         if(!m.config.writeOBJ) {
@@ -60,6 +71,6 @@ public:
             remove(targetObj);
         }
         watch.stop();
-        return status==0;
+        return returnStatus==0;
     }
 }

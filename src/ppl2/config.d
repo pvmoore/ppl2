@@ -33,6 +33,7 @@ public:
     bool enableOptimisation     = true;
     bool enableLink             = true;
     bool disableInternalLinkage = false;
+    int maxErrors               = int.max;
 
     bool dumpStats        = true;
     bool dumpDependencies = true;

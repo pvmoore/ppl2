@@ -27,8 +27,9 @@ public:
         extractedStructs.add(mangledName);
 
         if(templateTypes.length != ns.blueprint.numTemplateParams) {
-            throw new CompilerError(requestingNode,
+            module_.addError(requestingNode,
                 "Expecting %s template parameters".format(ns.blueprint.numTemplateParams));
+            return;
         }
 
         auto tokens = ns.blueprint.extractStruct(mangledName, templateTypes);
@@ -55,8 +56,9 @@ public:
         foreach(f; funcs) {
 
             if(call.templateTypes.length != f.blueprint.numTemplateParams) {
-                throw new CompilerError(call,
+                module_.addError(call,
                     "Expecting %s template parameters".format(f.blueprint.numTemplateParams));
+                return;
             }
 
             NamedStruct ns;

@@ -5,7 +5,7 @@ import ppl2.internal;
 ///
 /// "operator" [+-*/%]=? "=" {"
 ///
-bool isOperatorOverloadFunction(Tokens t) {
+bool isOperatorOverloadFunction(Module module_, Tokens t) {
     assert(t.value=="operator");
 
     int end;
@@ -21,7 +21,7 @@ bool isOperatorOverloadFunction(Tokens t) {
         msg ~= ". Did you mean operator<> ?";
     }
 
-    errorBadSyntax(t, msg);
+    errorBadSyntax(module_, t, msg);
     assert(false);
 }
 bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {

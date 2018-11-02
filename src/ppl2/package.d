@@ -14,7 +14,8 @@ import ppl2.build.ModuleBuilder;
 import ppl2.build.ProjectBuilder;
 import ppl2.build.BuildState;
 
-import ppl2.error : AmbiguousCall, CompilerError, UnresolvedSymbols;
+import ppl2.error.CompilationAborted;
+import ppl2.error.CompileError;
 
 import ppl2.misc.lexer;
 

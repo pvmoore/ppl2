@@ -98,7 +98,7 @@ struct Array <A,B> {
 
 main {
     import test_operator_overloading
-
+    
     testLiterals()
     testExpressions()
     testCasting()

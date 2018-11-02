@@ -167,10 +167,12 @@ public:
                 } else {
                     msg = "Function %s(%s) not found".format(call.name, call.argTypes.prettyString);
                 }
-                throw new CompilerError(call, msg);
+                module_.addError(call, msg);
+                return CALLABLE_NOT_READY;
             }
             if(overloads.length > 1) {
-                throw new AmbiguousCall(call, call.name, call.argTypes, overloads);
+                module_.buildState.addError(new AmbiguousCall(module_, call, overloads), true);
+                return CALLABLE_NOT_READY;
             }
 
             assert(overloads.length==1);
@@ -290,10 +292,11 @@ public:
             }
             msg = msg.format(ns.getUniqueName, call.name, argsStr);
 
-            throw new CompilerError(call, msg);
+            module_.addError(call, msg);
 
         } else if(overloads.length > 1) {
-            throw new AmbiguousCall(call, call.name, call.argTypes(), overloads);
+            module_.buildState.addError(new AmbiguousCall(module_, call, overloads), true);
+            return CALLABLE_NOT_READY;
         }
 
         //chat("    returning", overloads[0], overloads[0].resultReady);

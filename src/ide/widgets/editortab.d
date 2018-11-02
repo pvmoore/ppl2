@@ -128,13 +128,6 @@ public:
     void onDeactivated() {
         isActive = false;
     }
-    /// Update highligter with errors
-    void setErrors(CompilerError e) {
-        auto ss = cast(PPL2SyntaxSupport)content.syntaxSupport;
-
-
-
-    }
     void setLine(int line) {
         setCaretPos(line-10, 0, true, true);
         setCaretPos(line, 0, false, false);
@@ -188,7 +181,5 @@ public:
         }
 
         builder.dumpStats((string it)=>ide.getConsole().logln(it));
-
-        ide.getConsole().logln("Status: %s", builder.getStatus());
     }
 }

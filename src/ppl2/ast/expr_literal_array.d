@@ -67,8 +67,8 @@ final class LiteralArray : Expression {
             if(parent.parent.isVariable) {
                 auto var = parent.parent.as!Variable;
                 if(var.isImplicit) {
-                    throw new CompilerError(this,
-                        "Cannot infer type if no array values are specified");
+                    getModule.addError(this, "Cannot infer type if no array values are specified");
+                    return;
                 }
             }
         }
@@ -81,7 +81,10 @@ final class LiteralArray : Expression {
             if(!indices.types.areKnown) return;
 
             foreach(n; indices) {
-                if(!n.isConst) errorArrayIndexMustBeConst(n);
+                if(!n.isConst) {
+                    getModule.addError(n, "Array index expression must be a const");
+                    return;
+                }
             }
 
             if(!areAll!(NodeID.LITERAL_NUMBER)(indices.as!(ASTNode[]))) return;
@@ -153,8 +156,7 @@ private:
         foreach(e; et[1..$]) {
             t = getBestFit(t, e);
             if(t is null) {
-                throw new CompilerError(this,
-                    "Array has no common type");
+                getModule.addError(this,"Array has no common type");
             }
         }
         return t;
