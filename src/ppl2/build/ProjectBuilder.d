@@ -45,7 +45,8 @@ public:
         }catch(CompilationAborted e) {
             writefln("Compilation aborted ... %s\n", e.reason);
         }catch(Throwable e) {
-            addError(new UnknownError("Unhandled exception: %s".format(e)), false);
+            auto m = mainModule ? mainModule : modules.values[0];
+            addError(new UnknownError(m, "Unhandled exception: %s".format(e)), false);
         }finally{
             dumpAST();
             flushLogs();

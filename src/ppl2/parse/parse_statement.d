@@ -339,7 +339,7 @@ private: //=====================================================================
             while(t.type!=TT.RANGLE) {
 
                 if(typeDetector().isType(t, f)) {
-                    module_.addError(t, "Template param name cannot be a type", false);
+                    module_.addError(t, "Template param name cannot be a type", true);
                 }
 
                 f.blueprint.paramNames ~= t.value;

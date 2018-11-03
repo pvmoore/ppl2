@@ -62,7 +62,7 @@ public:
         if(t.type==TT.IDENTIFIER && !t.get.templateType) {
             v.name = t.value;
             if(v.name=="this") {
-                module_.addError(t, "'this' is a reserved word");
+                module_.addError(t, "'this' is a reserved word", true);
             }
             t.next;
 
@@ -78,10 +78,10 @@ public:
 
             } else {
                 if(v.isImplicit) {
-                    module_.addError(v, "Implicitly typed variable requires initialisation");
+                    module_.addError(v, "Implicitly typed variable requires initialisation", true);
                 }
                 if(v.isConst) {
-                    module_.addError(v, "Const variable must be initialised");
+                    module_.addError(v, "Const variable must be initialised", true);
                 }
             }
         }

@@ -27,8 +27,7 @@ public:
         extractedStructs.add(mangledName);
 
         if(templateTypes.length != ns.blueprint.numTemplateParams) {
-            module_.addError(requestingNode,
-                "Expecting %s template parameters".format(ns.blueprint.numTemplateParams));
+            module_.addError(requestingNode, "Expecting %s template parameters".format(ns.blueprint.numTemplateParams), true);
             return;
         }
 
@@ -56,8 +55,7 @@ public:
         foreach(f; funcs) {
 
             if(call.templateTypes.length != f.blueprint.numTemplateParams) {
-                module_.addError(call,
-                    "Expecting %s template parameters".format(f.blueprint.numTemplateParams));
+                module_.addError(call, "Expecting %s template parameters".format(f.blueprint.numTemplateParams), true);
                 return;
             }
 

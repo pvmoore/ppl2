@@ -206,15 +206,13 @@ public:
         if(n.op==Operator.BOOL_AND) {
             auto p = n.parent.as!Binary;
             if(p && p.op==Operator.BOOL_OR) {
-                module_.addError(n, "Parenthesis required to disambiguate these expressions");
-                return;
+                module_.addError(n, "Parenthesis required to disambiguate these expressions", true);
             }
         }
         if(n.op==Operator.BOOL_OR) {
             auto p = n.parent.as!Binary;
             if(p && p.op==Operator.BOOL_AND) {
-                module_.addError(n, "Parenthesis required to disambiguate these expressions");
-                return;
+                module_.addError(n, "Parenthesis required to disambiguate these expressions", true);
             }
         }
 
@@ -260,8 +258,7 @@ public:
         if(!n.isResolved) {
             n.loop = n.getAncestor!Loop;
             if(n.loop is null) {
-                module_.addError(n, "Break statement must be inside a loop");
-                return;
+                module_.addError(n, "Break statement must be inside a loop", true);
             }
         }
     }
@@ -304,7 +301,7 @@ public:
                 assert(dot);
 
                 if(!prevType.isStruct) {
-                    module_.addError(prev, "Left of call '%s' must be a struct type not a %s".format(n.name, prevType));
+                    module_.addError(prev, "Left of call '%s' must be a struct type not a %s".format(n.name, prevType), true);
                     return;
                 }
 
@@ -391,7 +388,7 @@ public:
                 //dd("!!!", n.target, n.paramNames, n.target.paramNames());
 
                 if(n.paramNames.length != n.target.paramNames().length) {
-                    module_.addError(n, "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length));
+                    module_.addError(n, "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length), true);
                     return;
                 }
 
@@ -402,7 +399,7 @@ public:
                 foreach(int i, name; n.paramNames) {
                     auto index = targetNames.indexOf(name);
                     if(index==-1) {
-                        module_.addError(n, "Parameter name %s not found".format(name));
+                        module_.addError(n, "Parameter name %s not found".format(name), true);
                         return;
                     }
                     args[index] = n.arg(i);
@@ -420,14 +417,12 @@ public:
                 n.paramNames = null;
             } else {
                 if(n.numArgs != n.target.paramTypes.length) {
-                    module_.addError(n, "Expecting %s arguments, not %s".format(n.target.paramTypes.length, n.numArgs));
-                    return;
+                    module_.addError(n, "Expecting %s arguments, not %s".format(n.target.paramTypes.length, n.numArgs), true);
                 }
             }
 
             debug if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
-                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes.prettyString, n.target.paramTypes.prettyString));
-                return;
+                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes.prettyString, n.target.paramTypes.prettyString), true);
             }
         }
     }
@@ -444,8 +439,7 @@ public:
         if(!n.isResolved) {
             n.loop = n.getAncestor!Loop;
             if(n.loop is null) {
-                module_.addError(n, "Continue statement must be inside a loop");
-                return;
+                module_.addError(n, "Continue statement must be inside a loop", true);
             }
         }
     }
@@ -588,7 +582,7 @@ public:
 
             // fixme when we do module::name
             if(!prevType.isStruct) {
-                module_.addError(prev, "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev));
+                module_.addError(prev, "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev), true);
                 return;
             }
 
@@ -602,8 +596,7 @@ public:
                 auto var = ns.getStaticVariable(n.name);
                 if(var) {
                     if(var.access.isPrivate && var.getModule.nid != module_.nid) {
-                        module_.addError(n, "%s is external and private".format(var.name));
-                        return;
+                        module_.addError(n, "%s is external and private".format(var.name), true);
                     }
                     n.target.set(var);
                 }
@@ -650,8 +643,7 @@ public:
 
                 auto t = getBestFit(thenType, elseType);
                 if(!t) {
-                    module_.addError(n, "If result types %s and %s are incompatible".format(thenType.prettyString, elseType.prettyString));
-                    return;
+                    module_.addError(n, "If result types %s and %s are incompatible".format(thenType.prettyString, elseType.prettyString), true);
                 }
 
                 n.type = t;
@@ -775,7 +767,7 @@ public:
                 auto type = parentType.getArrayType;
                 if(type) {
                     if(!type.isArray) {
-                        module_.addError(n, "Cannot cast array literal to %s".format(type.prettyString));
+                        module_.addError(n, "Cannot cast array literal to %s".format(type.prettyString), true);
                         return;
                     }
                     n.type = type;
@@ -866,8 +858,7 @@ public:
                 if(type.isPtr) {
                     n.type = type;
                 } else {
-                    module_.addError(n, "Cannot implicitly cast null to %s".format(type.prettyString()));
-                    return;
+                    module_.addError(n, "Cannot implicitly cast null to %s".format(type.prettyString()), true);
                 }
             }
         }
@@ -933,7 +924,7 @@ public:
             }
             if(type && type.isKnown) {
                 if(!type.isAnonStruct) {
-                    module_.addError(n, "Cannot cast struct literal to %s".format(type.prettyString));
+                    module_.addError(n, "Cannot cast struct literal to %s".format(type.prettyString), true);
                     return;
                 }
                 n.type = type;
@@ -1140,7 +1131,7 @@ private:
                         type = PtrType.of(ns, type.getPtrDepth);
                         return;
                     }
-                    module_.addError(module_, "Import %s not found in module %s".format(def.name, def.moduleName));
+                    module_.addError(module_, "Import %s not found in module %s".format(def.name, def.moduleName), true);
                     return;
                 }
             } else {

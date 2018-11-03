@@ -58,7 +58,7 @@ public:
                 if(leftType.size != rightType.size) {
                     getModule.addError(this,
                         "Both sides of value 'is' value expression should be the same size "~
-                        "(%s -> %s)".format(leftType.size, rightType.size));
+                        "(%s -> %s)".format(leftType.size, rightType.size), true);
                     return;
                 }
 
@@ -74,7 +74,7 @@ public:
 
             } else if(!leftType.isPtr || !rightType.isPtr) {
                 getModule.addError(this,
-                    "Both sides if 'is' expression should be pointer types");
+                    "Both sides if 'is' expression should be pointer types", true);
                 return;
             }
         } else {

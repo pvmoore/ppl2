@@ -156,7 +156,7 @@ private:
             } else if(t.isKeyword("private")) {
                 public_ = false;
             } else if(t.isKeyword("readonly")) {
-                module_.addError(t, "readonly access is only allowed inside a struct");
+                module_.addError(t, "readonly access is only allowed inside a struct", true);
             } else if(t.type==TT.LCURLY) {
                 t.next(t.findEndOfBlock(t.type));
             } else if(t.type==TT.LSQBRACKET) {
@@ -227,7 +227,7 @@ private:
         /// Ensure no more than one module new() function exists
         auto fns = module_.getFunctions("new");
         if(fns.length>1) {
-            module_.addError(fns[1], "Multiple module 'new' functions are not allowed");
+            module_.addError(fns[1], "Multiple module 'new' functions are not allowed", true);
         }
         bool hasModuleInit = fns.length==1;
         bool isMainModule  = module_.isMainModule;
@@ -257,9 +257,9 @@ private:
             auto mainfns = module_.getFunctions("main");
 
             if(mainfns.length > 1) {
-                module_.addError(mainfns[1], "Multiple program entry points found");
+                module_.addError(mainfns[1], "Multiple program entry points found", true);
             } else if(mainfns.length==0) {
-                module_.addError(module_, "No program entry point found");
+                module_.addError(module_, "No program entry point found", true);
             } else {
                 /// Add an external ref to the entry function
                 mainfns[0].numRefs++;

@@ -59,7 +59,7 @@ public:
         auto lit = n.expr().as!LiteralNumber;
         if(lit) {
             if(lit.value.getBool()==false) {
-                module_.addError(n, "Assertion failed");
+                module_.addError(n, "Assertion failed", true);
                 return;
             }
 

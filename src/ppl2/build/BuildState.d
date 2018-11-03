@@ -34,9 +34,12 @@ public:
     ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
     bool hasErrors() const        { return errors.length>0; }
 
-    CompileError[] getErrors()    {
+    CompileError[] getErrors() {
+        import std.algorithm.comparison : cmp;
         alias comp = (x,y) {
-            return x.line*1000000+x.column < y.line*1000000+y.column;
+            int r = cmp(x.module_.canonicalName, y.module_.canonicalName);
+            if(r!=0) return r < 0;
+            return x.line*1_000_000 + x.column < y.line*1_000_000 + y.column;
         };
         return errors.values.sort!(comp).array;
     }
@@ -376,17 +379,18 @@ protected:
 
                 if(n.id==IDENTIFIER) {
                     auto identifier = n.as!Identifier;
-                    m.addError(n, "Unresolved identifier %s".format(identifier.name));
+                    m.addError(n, "Unresolved identifier %s".format(identifier.name), true);
                 } else if(n.id==VARIABLE) {
                     auto variable = n.as!Variable;
-                    m.addError(n, "Unresolved variable %s".format(variable.name));
+                    m.addError(n, "Unresolved variable %s".format(variable.name), true);
                 } else {
                     //writefln("\t%s: %s", n.id, n);
                 }
             }
         }
         if(!hasErrors()) {
-            addError(new UnknownError("There were unresolved symbols but no errors were added"), true);
+            auto m = mainModule ? mainModule : modules.values[0];
+            addError(new UnknownError(m, "There were unresolved symbols but no errors were added"), true);
         }
     }
 }

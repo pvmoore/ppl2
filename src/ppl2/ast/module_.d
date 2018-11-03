@@ -113,10 +113,10 @@ public:
         return nodeBuilder.forNode(n);
     }
 
-    void addError(ASTNode node, string msg, bool canContinue=true) {
+    void addError(ASTNode node, string msg, bool canContinue) {
         buildState.addError(new ParseError(this, node, msg), canContinue);
     }
-    void addError(Tokens t, string msg, bool canContinue=true) {
+    void addError(Tokens t, string msg, bool canContinue) {
         buildState.addError(new ParseError(this, t, msg), canContinue);
     }
 

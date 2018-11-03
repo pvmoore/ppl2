@@ -54,7 +54,7 @@ final class Index : Expression {
             if(array.isResolved && index().isResolved && index().isA!LiteralNumber) {
                 auto i = getIndexAsInt();
                 if(i >= array.countAsInt()) {
-                    getModule.addError(index(), "Array bounds error. %s >= %s".format(i, array.countAsInt()));
+                    getModule.addError(index(), "Array bounds error. %s >= %s".format(i, array.countAsInt()), true);
                 }
             }
             return array.subtype;
@@ -64,7 +64,7 @@ final class Index : Expression {
                 auto i = getIndexAsInt();
                 /// Check for bounds error
                 if(i >= struct_.numMemberVariables()) {
-                    getModule.addError(index(), "Array bounds error. %s >= %s".format(i, struct_.numMemberVariables()));
+                    getModule.addError(index(), "Array bounds error. %s >= %s".format(i, struct_.numMemberVariables()), true);
                 }
                 return struct_.getMemberVariable(i).type;
             }

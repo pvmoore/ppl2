@@ -9,9 +9,13 @@ public:
     int id;
     int line;
     int column;
+    Module module_;
 
-    this() {
-        this.id = g_errorIDs++;
+    this(Module module_, int line, int column) {
+        this.id      = g_errorIDs++;
+        this.module_ = module_;
+        this.line    = line;
+        this.column  = column;
     }
     abstract string getKey();
     abstract string toPrettyString();
@@ -55,13 +59,10 @@ protected:
 //====================================================================================
 final class TokeniseError : CompileError {
 private:
-    Module module_;
     string msg;
 public:
     this(Module m, int line, int column, string msg) {
-        this.module_ = m;
-        this.line    = line;
-        this.column  = column;
+        super(m, line, column);
         this.msg     = msg;
     }
     override string getKey() {
@@ -74,24 +75,19 @@ public:
 //====================================================================================
 final class ParseError : CompileError {
 private:
-    Module module_;
     Tokens tokens;
     ASTNode node;
     string msg;
 public:
     this(Module m, Tokens t, string msg) {
-        this.module_ = m;
-        this.tokens  = t;
-        this.line    = t.line;
-        this.column  = t.column;
-        this.msg     = msg;
+        super(m, t.line, t.column);
+        this.tokens = t;
+        this.msg    = msg;
     }
     this(Module m, ASTNode n, string msg) {
-        this.module_ = m;
-        this.node    = n;
-        this.line    = n.line;
-        this.column  = n.column;
-        this.msg     = msg;
+        super(m, n.line, n.column);
+        this.node = n;
+        this.msg  = msg;
     }
     override string getKey() {
         return "%s|%s|%s".format(module_.canonicalName, line, column);
@@ -105,7 +101,8 @@ final class UnknownError : CompileError {
 private:
     string msg;
 public:
-    this(string msg) {
+    this(Module m, string msg) {
+        super(m, 0, 0);
         this.msg = msg;
     }
     override string getKey() {
@@ -125,7 +122,7 @@ private:
     Array!Callable overloadSet;
 public:
     this(Module m, Call call, Array!Callable overloadSet) {
-        this.module_     = m;
+        super(m, call.line, call.column);
         this.call        = call;
         this.overloadSet = overloadSet;
     }
@@ -156,7 +153,8 @@ private:
     int status;
     string msg;
 public:
-    this(int status, string msg) {
+    this(Module m, int status, string msg) {
+        super(m, 0, 0);
         this.status  = status;
         this.msg     = msg;
     }
@@ -172,25 +170,25 @@ void warn(Tokens n, string msg) {
     writefln("WARN [%s Line %s] %s", n.module_.fullPath, n.line, msg);
 }
 void errorBadSyntax(Module m, ASTNode n, string msg) {
-    m.addError(n, msg);
+    m.addError(n, msg, false);
 }
 void errorBadSyntax(Module m, Tokens t, string msg) {
-    m.addError(t, msg);
+    m.addError(t, msg, false);
 }
 void errorBadImplicitCast(Module m, ASTNode n, Type from, Type to) {
-    m.addError(n, "Cannot implicitly cast %s to %s".format(from.prettyString(), to.prettyString()));
+    m.addError(n, "Cannot implicitly cast %s to %s".format(from.prettyString(), to.prettyString()), true);
 }
 void errorBadExplicitCast(Module m, ASTNode n, Type from, Type to) {
-    m.addError(n, "Cannot cast %s to %s".format(from.prettyString(), to.prettyString()));
+    m.addError(n, "Cannot cast %s to %s".format(from.prettyString(), to.prettyString()), true);
 }
 
 void errorMissingType(Module m, ASTNode n, string name) {
-    m.addError(n, "Type %s not found".format(name));
+    m.addError(n, "Type %s not found".format(name), true);
 }
 void errorMissingType(Module m, Tokens t, string name=null) {
     if(name) {
-        m.addError(t, "Type %s not found".format(name));
+        m.addError(t, "Type %s not found".format(name), true);
     } else {
-        m.addError(t, "Type not found");
+        m.addError(t, "Type not found", true);
     }
 }

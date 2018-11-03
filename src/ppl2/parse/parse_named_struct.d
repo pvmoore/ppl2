@@ -38,8 +38,7 @@ public:
                 if(type.getAlias.isTemplateProxy) {
                     /// Allow template proxy as this is what we are replacing
                 } else {
-                    module_.addError(n, "Type %s already defined".format(t.value));
-                    return;
+                    module_.addError(n, "Type %s already defined".format(t.value), true);
                 }
             } else if(type.isNamedStruct) {
                 auto ns = type.getNamedStruct;
@@ -54,8 +53,7 @@ public:
                     log("Re-using redefined struct %s", n.name);
 
                 } else {
-                    module_.addError(n, "Struct %s already defined".format(t.value));
-                    return;
+                    module_.addError(n, "Struct %s already defined".format(t.value), true);
                 }
             }
         }
@@ -89,8 +87,7 @@ public:
             while(t.type!=TT.RANGLE) {
 
                 if(typeDetector().isType(t, n)) {
-                    module_.addError(t, "Template param name cannot be a type");
-                    return;
+                    module_.addError(t, "Template param name cannot be a type", true);
                 }
 
                 n.blueprint.paramNames ~= t.value;
@@ -178,8 +175,7 @@ public:
 
             /// Don't allow user to add their own return
             if(bdy.getReturns().length > 0) {
-                module_.addError(bdy.getReturns()[0], "Constructor should not include a return statement");
-                return;
+                module_.addError(bdy.getReturns()[0], "Constructor should not include a return statement", true);
             }
 
             auto ret = builder().return_(builder().identifier("this"));

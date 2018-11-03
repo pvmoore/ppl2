@@ -62,7 +62,7 @@ public:
         }
 
         if(returnStatus!=0) {
-            m.buildState.addError(new LinkError(returnStatus, errorMsg), false);
+            m.buildState.addError(new LinkError(m, returnStatus, errorMsg), false);
         }
 
         /// Delete the obj file if required

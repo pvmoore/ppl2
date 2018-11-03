@@ -142,7 +142,7 @@ private:
                 //errorBadSyntax(t, "Syntax error");
                 writefln("BAD LHS %s", t.get);
                 parent.getModule.dumpToConsole();
-                module_.addError(t, "Bad LHS");
+                module_.addError(t, "Bad LHS", false);
         }
     }
     void parseRHS(Tokens t, ASTNode parent) {
@@ -230,7 +230,7 @@ private:
                 default:
                     writefln("BAD RHS %s", t.get);
                     parent.getModule.dumpToConsole();
-                    module_.addError(t, "Bad RHS");
+                    module_.addError(t, "Bad RHS", false);
             }
         }
     }
@@ -286,7 +286,7 @@ private:
         } else {
             b.op = parseOperator(t);
             if(b.op==Operator.NOTHING) {
-                module_.addError(t, "Invalid operator");
+                module_.addError(t, "Invalid operator", true);
             }
         }
 
@@ -401,7 +401,7 @@ private:
             ///
             /// This is a construtor call. We don't currently allow this
             ///
-            module_.addError(c, "Explicit constructor calls not allowed");
+            module_.addError(c, "Explicit constructor calls not allowed", true);
         }
 
         if(c.name=="operator") {
@@ -455,14 +455,14 @@ private:
 
                 if (t.peek(1).type==TT.EQUALS) {
                     /// paramname = expr
-                    if (composite.numChildren>1 && c.paramNames.length==0) {
-                        module_.addError(c, "Mixing named and un-named constructor arguments");
+                    if(composite.numChildren>1 && c.paramNames.length==0) {
+                        module_.addError(c, "Mixing named and un-named constructor arguments", true);
                     }
-                    if (c.paramNames.contains(t.value)) {
-                        module_.addError(t, "Duplicate call param name");
+                    if(c.paramNames.contains(t.value)) {
+                        module_.addError(t, "Duplicate call param name", true);
                     }
-                    if (t.value=="this") {
-                        module_.addError(t, "'this' cannot be used as a parameter name");
+                    if(t.value=="this") {
+                        module_.addError(t, "'this' cannot be used as a parameter name", true);
                     }
                     c.paramNames ~= t.value;
                     t.next;
@@ -473,7 +473,7 @@ private:
 
                 } else {
                     if (c.paramNames.length>0) {
-                        module_.addError(c, "Mixing named and un-named constructor arguments");
+                        module_.addError(c, "Mixing named and un-named constructor arguments", true);
                     }
 
                     parse(t, composite);
@@ -736,7 +736,7 @@ private:
                 /// paramname = expr
 
                 if(composite.numChildren>1 && call.paramNames.length==0) {
-                    module_.addError(con, "Mixing named and un-named constructor arguments");
+                    module_.addError(con, "Mixing named and un-named constructor arguments", true);
                 }
 
                 /// Add the implicit 'this' param
@@ -745,10 +745,10 @@ private:
                 }
 
                 if(call.paramNames.contains(t.value)) {
-                    module_.addError(t, "Duplicate call param name");
+                    module_.addError(t, "Duplicate call param name", true);
                 }
                 if(t.value=="this") {
-                    module_.addError(t, "'this' cannot be used as a parameter name");
+                    module_.addError(t, "'this' cannot be used as a parameter name", true);
                 }
 
                 call.paramNames ~= t.value;
@@ -760,7 +760,7 @@ private:
 
             } else {
                 if(call.paramNames.length>0) {
-                    module_.addError(con, "Mixing named and un-named constructor arguments");
+                    module_.addError(con, "Mixing named and un-named constructor arguments", true);
                 }
                 parse(t, composite);
             }
@@ -889,8 +889,7 @@ private:
             if(t.peek(1).type==TT.EQUALS) {
                 /// name = expression
                 if(e.hasChildren && e.names.length==0) {
-                    module_.addError(t, "Struct literals must be either all named or all unnamed");
-                    return;
+                    module_.addError(t, "Struct literals must be either all named or all unnamed", true);
                 }
 
                 e.names ~= t.value;
@@ -901,8 +900,7 @@ private:
             } else {
                 /// expression
                 if(e.names.length>0) {
-                    module_.addError(t, "Struct literals must be either all named or all unnamed");
-                    return;
+                    module_.addError(t, "Struct literals must be either all named or all unnamed", true);
                 }
 
                 parse(t, e);
@@ -929,8 +927,7 @@ private:
             if(t.peek(1).type==TT.EQUALS) {
                 /// number = expression
                 if(e.hasChildren && !e.isIndexBased) {
-                    module_.addError(t, "Array literals must be either all indexes or all non-indexes");
-                    return;
+                    module_.addError(t, "Array literals must be either all indexes or all non-indexes", true);
                 }
                 e.isIndexBased = true;
 
@@ -946,8 +943,7 @@ private:
 
             } else {
                 if(e.isIndexBased) {
-                    module_.addError(t, "Array literals must be either all indexes or all non-indexes");
-                    return;
+                    module_.addError(t, "Array literals must be either all indexes or all non-indexes", true);
                 }
 
                 /// value

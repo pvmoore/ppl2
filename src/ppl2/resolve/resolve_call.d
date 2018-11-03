@@ -167,7 +167,7 @@ public:
                 } else {
                     msg = "Function %s(%s) not found".format(call.name, call.argTypes.prettyString);
                 }
-                module_.addError(call, msg);
+                module_.addError(call, msg, true);
                 return CALLABLE_NOT_READY;
             }
             if(overloads.length > 1) {
@@ -292,7 +292,7 @@ public:
             }
             msg = msg.format(ns.getUniqueName, call.name, argsStr);
 
-            module_.addError(call, msg);
+            module_.addError(call, msg, true);
 
         } else if(overloads.length > 1) {
             module_.buildState.addError(new AmbiguousCall(module_, call, overloads), true);
