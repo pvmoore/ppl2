@@ -110,11 +110,13 @@ public:
             return CALLABLE_NOT_READY;
         }
 
-        //dd("looking for", call.name);
+        chat("looking for %s", call.name);
 
         if(collector.collect(call, modAlias, overloads)) {
 
             int numRemoved = removeInvisible();
+
+            chat("overloads = %s", overloads);
 
             if(overloads.length==1 && overloads[0].isTemplateBlueprint) {
                 /// If we get here then we have a possible template match but
@@ -144,6 +146,8 @@ public:
             if(!call.argTypes.areKnown) return CALLABLE_NOT_READY;
 
             filterOverloads(call);
+
+            chat("after filtering, overloads = %s", overloads);
 
             if(overloads.length==0) {
 
@@ -615,7 +619,7 @@ private:
         return CALLABLE_NOT_READY;
     }
     void chat(A...)(lazy string fmt, lazy A args) {
-        //if(module_.canonicalName=="test_statics") {
+        //if(module_.canonicalName=="test") {
         //    dd(format(fmt, args));
         //}
     }

@@ -228,7 +228,7 @@ public:
         }
     }
     void dump(FileLogger l, string indent="") {
-        //dd(this.id, "line", line);
+        //debug if(getModule.canonicalName=="test_arrays") dd(this.id, "line", line);
         l.log("[% 4s] %s", this.line, indent ~ description());
         foreach(ch; children) {
             ch.dump(l, indent ~ "   ");

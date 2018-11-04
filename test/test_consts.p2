@@ -41,8 +41,8 @@ testConsts {
     var wii = not true 
 
     const ARRAY_LEN = 2
-    [int:ARRAY_LEN] array  
-    assert array is [int:2]   
+    int[ARRAY_LEN] array  
+    assert array is int[2]   
 
     //var what = 1  
  

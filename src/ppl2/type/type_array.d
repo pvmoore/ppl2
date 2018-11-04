@@ -21,7 +21,7 @@ public:
     int getEnum() const { return Type.ARRAY; }
 
     bool isKnown() {
-        return subtype.isKnown() && countExpr().isResolved && countExpr().isA!LiteralNumber;
+        return subtype && subtype.isKnown() && countExpr().isResolved && countExpr().isA!LiteralNumber;
     }
     bool exactlyMatches(Type other) {
         /// Do the common checks
@@ -60,7 +60,7 @@ public:
         } else {
             c = "?";
         }
-        return "[:%s %s]".format(subtype.prettyString(), c);
+        return "%s[%s]".format(subtype.prettyString(), c);
     }
     //============================================================
     void setCount(LiteralNumber lit) {
@@ -86,9 +86,12 @@ public:
         string c;
         if(isResolved) {
             c = countAsInt().to!string;
-        } else {
+        } else if(hasChildren) {
             c = "%s".format(countExpr());
+        } else {
+            c = "?";
         }
-        return "ArrayType [%s:%s] (nid=%s)".format(subtype.prettyString, c, nid);
+        string typestr = subtype is null ? "null" : subtype.prettyString;
+        return "ArrayType %s[%s] (nid=%s)".format(typestr, c, nid);
     }
 }

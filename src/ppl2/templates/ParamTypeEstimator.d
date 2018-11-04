@@ -21,6 +21,8 @@ public:
         this.proxies = f.blueprint.paramNames;
         this.hash.clear();
 
+        chat("-------------- checking template %s(%s)", f.name, f.blueprint.argTokens.map!(it=>it.toSimpleString));
+
         foreach(i, callType; call.argTypes) {
             chat("\tArg %s", i);
 
@@ -31,8 +33,8 @@ public:
                 continue;
             }
 
-            chat("\t\tCall type  = %s", callType);
-            chat("\t\tArg tokens = %s", tokens);
+            chat("\t\tCall type  = %s", callType.prettyString);
+            chat("\t\tArg tokens = %s", tokens.toSimpleString);
 
             int tokenIndex = 0;
             matchProxiesToTypes(TYPE_UNKNOWN, [callType], tokens, tokenIndex);
@@ -51,16 +53,16 @@ public:
     ///
     /// Call arg signature:
     ///
-    /// 0 Cat<Cat<int, int, [:int 10]>, {short->float}, bool>
-    /// 1    Cat<int, int, [:int 10]>
-    /// 2        int,
-    /// 3        int,
-    /// 4        [:int 10]
-    /// 5            int
-    /// 6    {short->float}
-    /// 7        short
-    /// 8        float
-    /// 9    bool
+    ///  Cat<Cat<int, int, int*[10]*[2]*>, {short->float}, bool>
+    ///     Cat<int, int, int[10][2]>
+    ///         int,
+    ///         int,
+    ///         int*[10]*[2]*
+    ///            int*[10]*, // subtype
+    ///     {short->float}
+    ///         short
+    ///         float
+    ///     bool
     ///
     /// Param tokens = Cat < A , B , C >
     ///
@@ -68,24 +70,44 @@ public:
                              Type[] types,
                              Token[] argTokens,
                              ref int tokenIndex,
-                             lazy string depth="")
+                             lazy string depth="    ")
     {
-        chat(depth~"... matching");
-        chat(depth~"types  = %s", types);
-        chat(depth~"tokens = %s", argTokens);
+        chat(depth~"... matching arg types: %s, tokens: %s", types.prettyString, argTokens.toSimpleString);
 
         auto typeIndex = 0;
 
-        pragma(inline, true) Token getToken() {
-            if(tokenIndex<argTokens.length) return argTokens[tokenIndex];
+        Token getToken(int offset=0) {
+            if(tokenIndex+offset<argTokens.length) return argTokens[tokenIndex+offset];
             return NO_TOKEN;
         }
-        chat(depth~"index  = %s (%s)", tokenIndex, getToken().value);
+        //bool isLastToken() { return tokenIndex+1 == argTokens.length; }
+        //bool isLastType()  { return typeIndex+1  == types.length; }
+        bool foundProxy(Type type, Token token) {
+            chat(depth~"proxy");
+            auto name     = token.value;
+            int ptrDepth  = 0;
+
+            while(tokenIndex<argTokens.length-1 && argTokens[tokenIndex+1].type==TT.ASTERISK) {
+                tokenIndex++;
+                ptrDepth--;
+            }
+            if(type.getPtrDepth + ptrDepth < 0) {
+                /// Not a match
+                return false;
+            }
+            auto tcopy = PtrType.of(type, ptrDepth);
+            addToHash(name, tcopy);
+
+            tokenIndex++;
+            typeIndex++;
+            return true;
+        }
+        //chat(depth~"index = %s (%s)", tokenIndex, getToken().value);
 
         while(tokenIndex<argTokens.length && typeIndex<types.length) {
             auto token = getToken();
             auto type  = types[typeIndex];
-            chat(depth~"token=%s type=%s [%s of %s]", token.value, type, typeIndex+1, types.length);
+            chat(depth~"token=%s type=%s (%s of %s)", token.value, type.prettyString, typeIndex+1, types.length);
 
             if(token.type==TT.COMMA ||      // func or anon struct
                token.type==TT.RT_ARROW ||   // func
@@ -94,24 +116,70 @@ public:
             {
                 /// Ignore these tokens
                 tokenIndex++;
-            } else if(isProxy(token)) {
-                chat(depth~"proxy");
-                auto name     = token.value;
-                int ptrDepth  = 0;
+            } else if(type.isArray) {
+                /// type*[length]*[length2]* etc...
+                chat(depth~"ArrayType");
 
-                while(tokenIndex<argTokens.length-1 && argTokens[tokenIndex+1].type==TT.ASTERISK) {
+                auto arrayType = type.getArrayType;
+                int lSqBrOffset = 1;
+
+                bool isFollowedBySqBr() {
+                    while(getToken(lSqBrOffset).type==TT.ASTERISK) lSqBrOffset++;
+
+                    return getToken(lSqBrOffset).type==TT.LSQBRACKET;
+                }
+
+                //if(isFollowedBySqBr()) {
+                //
+                //
+                //    chat(depth~"recurse array subtype");
+                //    auto children = [arrayType.subtype];
+                //    matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
+                //
+                //
+                //} else {
+                //    tokenIndex++;
+                //}
+
+                if(isProxy(token)) {
+                    if(isFollowedBySqBr()) {
+                        /// Check the count if possible before adding the proxy
+
+                        chat(depth~"recurse array subtype");
+                        auto children = [arrayType.subtype];
+                        matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
+
+                    } else {
+                        if(!foundProxy(type, token)) break;
+                        continue;
+                    }
+                } else {
+                    /// Skip non-proxy type name
                     tokenIndex++;
-                    ptrDepth--;
                 }
-                if(type.getPtrDepth + ptrDepth < 0) {
-                    /// Not a match
-                    break;
-                }
-                auto tcopy = PtrType.of(type, ptrDepth);
-                addToHash(name, tcopy);
 
+                /// [
+                if(getToken().type!=TT.LSQBRACKET) break;
                 tokenIndex++;
+
+                /// count expression
+                if(getToken().type==TT.NUMBER) {
+                    if(getToken().value != arrayType.countAsInt.to!string) {
+                        chat(depth~"incorrect array length (%s != %s)", getToken().value, arrayType.countAsInt);
+                        break;
+                    }
+                } else {
+                    /// skip tokens until ']'
+                    while(getToken()!=NO_TOKEN && getToken().type!=TT.RSQBRACKET) tokenIndex++;
+                }
+
+                /// ]
+                if(getToken().type!=TT.RSQBRACKET) break;
+                tokenIndex++;
+
                 typeIndex++;
+            } else if(isProxy(token)) {
+                if(!foundProxy(type, token)) break;
             } else if(type.isAnonStruct) {
                 /// [ name? type { , name? type } ]
                 chat(depth~"AnonStruct");
@@ -126,31 +194,6 @@ public:
                 chat(depth~"recurse struct");
                 auto children = type.getAnonStruct.memberVariableTypes();
                 matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
-
-                /// ]
-                if(getToken().type!=TT.RSQBRACKET) break;
-                tokenIndex++;
-
-                typeIndex++;
-            } else if(type.isArray) {
-                /// [type : length ]
-                chat(depth~"ArrayType");
-
-                /// [
-                if(getToken().type!=TT.LSQBRACKET) break;
-                tokenIndex++;
-
-                chat(depth~"recurse array");
-                auto children = [type.getArrayType.subtype];
-                matchProxiesToTypes(type, children, argTokens, tokenIndex, depth~"   ");
-
-                /// :
-                if(getToken().type!=TT.COLON) break;
-                tokenIndex++;
-
-                /// skip count expression which might be 1 or more tokens
-                // todo - test this
-                while(getToken()!=NO_TOKEN && getToken().type!=TT.RSQBRACKET) tokenIndex++;
 
                 /// ]
                 if(getToken().type!=TT.RSQBRACKET) break;
@@ -175,7 +218,7 @@ public:
                 typeIndex++;
             } else if(token.type==TT.IDENTIFIER) {
                 /// built-int type or named struct
-                chat(depth~"id");
+                chat(depth~"id '%s'", token.value);
 
                 tokenIndex++;
                 typeIndex++;

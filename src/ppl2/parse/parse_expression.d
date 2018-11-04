@@ -26,7 +26,7 @@ public:
 private:
     void parseLHS(Tokens t, ASTNode parent) {
 
-        //dd("lhs", t.get, "parent=", parent.id)
+        //if(module_.canonicalName=="test") dd("lhs", t.get, "parent=", parent.id);
 
         /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);

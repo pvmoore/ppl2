@@ -25,14 +25,8 @@ public:
             /// {int a,bool->int}
             type = parseFunctionType(t, node, addToNode);
         } else if(t.type==TT.LSQBRACKET) {
-            int end = typeDetector().endOffset(t, node, 1);
-            if(end!=-1 && t.peek(end+1).type==TT.COLON) {
-                /// "[" type ":" count_expr "]"
-                type = parseArrayStruct(t, node, addToNode);
-            } else {
-                /// "[" types "]"
-                type = parseAnonStruct(t, node, addToNode);
-            }
+            /// "[" types "]"
+            type = parseAnonStruct(t, node, addToNode);
         } else {
             /// built-in type
             int p = g_builtinTypes.get(value, -1);
@@ -59,13 +53,23 @@ public:
 
         /// ptr depth
         if(type !is null) {
-            int pd = 0;
-            while(t.type==TT.ASTERISK) {
-                t.next;
-                pd++;
+
+            while(true) {
+                int pd = 0;
+                while(t.type==TT.ASTERISK) {
+                    t.next;
+                    pd++;
+                }
+                type = PtrType.of(type, pd);
+
+
+                if(t.onSameLine && t.type==TT.LSQBRACKET) {
+                    type = parseArrayType(t, type, node, addToNode);
+
+                } else break;
             }
-            type = PtrType.of(type, pd);
         }
+
         return type;
     }
 private:
@@ -145,24 +149,22 @@ private:
         return s;
     }
     ///
-    /// array_type ::= "[" type ":" count_expr "]"
-    ///
-    Type parseArrayStruct(Tokens t, ASTNode node, bool addToNode) {
+    /// int[expr] array
+    /// int[expr][expr][expr] array // any number of sub arrays allowed
+    Type parseArrayType(Tokens t, Type subtype, ASTNode node, bool addToNode) {
+        if(!addToNode && subtype.isA!ASTNode) {
+            subtype.as!ASTNode.detach();
+        }
+
         auto a = makeNode!ArrayType(t);
         node.add(a);
 
         /// [
         t.skip(TT.LSQBRACKET);
 
-        a.subtype = parse(t, a);
-        assert(a.subtype);
+        t.dontExpect(TT.RSQBRACKET);
 
-        if(a.subtype is null) {
-            errorMissingType(module_, t, t.value);
-        }
-
-        /// :
-        t.skip(TT.COLON);
+        a.subtype = subtype;
 
         /// count
         exprParser().parse(t, a);

@@ -35,7 +35,7 @@ public:
         if("static"==t.value) t.next;
 
         if(t.type==TT.LSQBRACKET) {
-            found = possibleArrayOrAnonStruct(t, node);
+            found = possibleArrayTypeOrAnonStruct(t, node);
         } else if(t.type==TT.LCURLY) {
             found = possibleFunctionType(t, node);
         } else {
@@ -69,14 +69,21 @@ public:
             }
             /// import alias? imp::Type
             if(!found) {
-                found = possibleAlias(t, node);
+                found = possibleImportAlias(t, node);
             }
         }
 
         /// ptr depth
         if(found) {
-            while(t.type==TT.ASTERISK) {
-                t.next;
+            while(true) {
+                while(t.type==TT.ASTERISK) {
+                    t.next;
+                }
+
+                if(t.onSameLine && t.type==TT.LSQBRACKET) {
+                    int end = t.findEndOfBlock(TT.LSQBRACKET);
+                    t.next(end + 1);
+                } else break;
             }
         }
 
@@ -86,10 +93,13 @@ public:
         return endOffset - startOffset - 1;
     }
 private:
-    /// Starts with [
-    /// Could be an ArrayStruct or array literal or
-    ///             AnonStruct or struct literal
-    bool possibleArrayOrAnonStruct(Tokens t, ASTNode node) {
+    /// Starts with '['
+    /// Could be one of:
+    ///     [type : expr]   ArrayType
+    ///     [type ...       AnonStruct
+    ///     [expr ...       Not a type (LiteralArray or LiteralStruct)
+    ///
+    bool possibleArrayTypeOrAnonStruct(Tokens t, ASTNode node) {
         assert(t.type==TT.LSQBRACKET);
 
         int end = t.findEndOfBlock(TT.LSQBRACKET);
@@ -106,47 +116,8 @@ private:
 
         return true;
     }
-    /// Starts with [:
-    /// Could be an array type or array literal
-    //bool possibleArrayType(Tokens t, ASTNode node) {
-    //    assert(t.type==TT.LSQBRACKET);
-    //    assert(t.peek(1).type==TT.COLON);
-    //
-    //    int end = t.findEndOfBlock(TT.LSQBRACKET);
-    //    if(end==-1) return false;
-    //
-    //    t.next(2);
-    //
-    //    /// First token must be a type
-    //    if(!isType(t, node)) return false;
-    //
-    //    t.next(end - 1);
-    //
-    //    return true;
-    //}
-    ///// Starts with [
-    ///// Could be an AnonStruct or struct literal
-    /////
-    ///// [int, int]
-    ///// [int id, int id]
-    /////
-    //bool possibleAnonStruct(Tokens t, ASTNode node) {
-    //    assert(t.type==TT.LSQBRACKET);
-    //
-    //    int end = t.findEndOfBlock(TT.LSQBRACKET);
-    //    if(end==-1) return false;
-    //
-    //    t.next;
-    //
-    //    /// First token must be a type
-    //    if(!isType(t, node)) return false;
-    //
-    //    t.next(end);
-    //
-    //    return true;
-    //}
-    /// Starts with {
-    /// Could be a FunctionType or literal function
+    /// Starts with '{'
+    /// Could be a FunctionType or LiteralFunction
     ///
     /// {void->void}
     /// {type,type->type}
@@ -178,7 +149,7 @@ private:
         return t.index() == scopeEnd + 1;
     }
     /// imp::Type<int>*
-    bool possibleAlias(Tokens t, ASTNode node) {
+    bool possibleImportAlias(Tokens t, ASTNode node) {
 
         if(t.peek(1).type!=TT.DBL_COLON) return false;
 

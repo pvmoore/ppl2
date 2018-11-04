@@ -92,9 +92,11 @@ final class Variable : Statement {
                      isLocal ? "LOCAL" :
                      isGlobal ? "GLOBAL" : "STRUCT";
 
+        string typestr = type is null ? "null" : type.prettyString;
+
         if(name) {
-            return "'%s' Variable[refs=%s] (type=%s%s) %s %s".format(name, numRefs, mod, type.prettyString, loc, access);
+            return "'%s' Variable[refs=%s] (type=%s%s) %s %s".format(name, numRefs, mod, typestr, loc, access);
         }
-        return "Variable[refs=%s] (type=%s%s) %s %s".format(numRefs, mod, type.prettyString, loc, access);
+        return "Variable[refs=%s] (type=%s%s) %s %s".format(numRefs, mod, typestr, loc, access);
     }
 }

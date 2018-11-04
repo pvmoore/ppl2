@@ -86,6 +86,9 @@ public:
     bool isKeyword(string k) {
         return type()==TT.IDENTIFIER && value()==k;
     }
+    bool onSameLine() {
+        return line==peek(-1).line;
+    }
     //=======================================
     void next(int numToMove=1) {
         pos += numToMove;
@@ -109,6 +112,11 @@ public:
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
         module_.addError(this, "Expecting one of %s".format(types), false);
+    }
+    void dontExpect(TT[] types...) {
+        foreach(t; types) if(type()==t) {
+            module_.addError(this, "Not expecting %s".format(t), false);
+        }
     }
     bool hasNext() {
         return pos < tokens.length;
@@ -219,6 +227,16 @@ Token copyToken(Token t) {
         t.column,
         t.templateType
     );
+}
+string toSimpleString(Token[] tokens) {
+    auto buf = new StringBuffer;
+    foreach(i, t; tokens) {
+        if(i>0) buf.add(" ");
+        string s = t.type==TT.IDENTIFIER ? t.value :
+                   t.type==TT.NUMBER ? t.value : t.type.toString;
+        buf.add(s);
+    }
+    return buf.toString();
 }
 
 enum TT {
