@@ -71,43 +71,48 @@ public:
         return name;
     }
     string mangle(Type t) {
-        string s;
-        final switch (t.getEnum) with(Type) {
-            case UNKNOWN: assert(false, "type must be known");
-            case BOOL:   s = "o"; break;
-            case BYTE:   s = "b"; break;
-            case SHORT:  s = "s"; break;
-            case INT:    s = "i"; break;
-            case LONG:   s = "l"; break;
-            case HALF:   s = "h"; break;
-            case FLOAT:  s = "f"; break;
-            case DOUBLE: s = "d"; break;
-            case VOID:   s = "v"; break;
-            case NAMED_STRUCT:
-                auto n = t.getNamedStruct;
-                s = "N[%s]".format(n.getUniqueName());
-                break;
-            case ANON_STRUCT:
-                auto st = t.getAnonStruct;
-                s = "[%s]".format(mangle(st.memberVariableTypes()));
-                break;
-            case ARRAY:
-                auto a = t.getArrayType;
-                s = "A[%s]".format(mangle(a.subtype));
-                break;
-            case FUNCTION:
-                auto f = t.getFunctionType;
-                s = "F[%s]".format(mangle(f.paramTypes));
-                break;
-        }
-        for(auto i=0;i<t.getPtrDepth(); i++) {
-            s ~= "*";
-        }
-        return s;
+        assert(t.isKnown);
+
+        return "%s".format(t);
+
+        //string s;
+        //final switch (t.getEnum) with(Type) {
+        //    case UNKNOWN: assert(false, "type must be known");
+        //    case BOOL:   s = "o"; break;
+        //    case BYTE:   s = "b"; break;
+        //    case SHORT:  s = "s"; break;
+        //    case INT:    s = "i"; break;
+        //    case LONG:   s = "l"; break;
+        //    case HALF:   s = "h"; break;
+        //    case FLOAT:  s = "f"; break;
+        //    case DOUBLE: s = "d"; break;
+        //    case VOID:   s = "v"; break;
+        //    case NAMED_STRUCT:
+        //        auto n = t.getNamedStruct;
+        //        s = "N[%s]".format(n.getUniqueName());
+        //        break;
+        //    case ANON_STRUCT:
+        //        auto st = t.getAnonStruct;
+        //        s = "[%s]".format(mangle(st.memberVariableTypes()));
+        //        break;
+        //    case ARRAY:
+        //        auto a = t.getArrayType;
+        //        s = "A[%s]".format(mangle(a.subtype));
+        //        break;
+        //    case FUNCTION:
+        //        auto f = t.getFunctionType;
+        //        s = "F[%s]".format(mangle(f.paramTypes));
+        //        break;
+        //}
+        //for(auto i=0;i<t.getPtrDepth(); i++) {
+        //    s ~= "*";
+        //}
+        //return s;
     }
     string mangle(Type[] types) {
         auto buf = new StringBuffer;
-        foreach(t; types) {
+        foreach(i, t; types) {
+            if(i>0) buf.add(",");
             buf.add(mangle(t));
         }
         return buf.toString();

@@ -77,7 +77,11 @@ public:
     Type decoratedType() { return decorated; }
 
     override string toString() {
-        return "%s%s".format(decorated, "*".repeat(ptrDepth));
+        int p = ptrDepth;
+        /// Functions have an implicit ptr
+        if(decorated.isFunction) { p--;}
+
+        return "%s%s".format(decorated, "*".repeat(p));
     }
     //override string toString() {
     //    string p = "*".repeat(getPtrDepth);

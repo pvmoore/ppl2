@@ -60,7 +60,6 @@ private:
         }
     }
     void optimiseModules() {
-        dd("config.enableOptimisation", config.enableOptimisation);
         if(!config.enableOptimisation) return;
         dd("optimise");
         log("Optimising");

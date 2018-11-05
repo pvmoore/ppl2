@@ -29,7 +29,7 @@ public:
         } else {
             subCollect(call);
         }
-        return ready;
+        return ready && module_.isParsed;
     }
 private:
     /// Collect from an aliased import
@@ -40,6 +40,7 @@ private:
     }
     void subCollect(ASTNode node) {
         auto nid = node.id();
+        //dd("nid=", nid);
 
         if(nid==NodeID.MODULE) {
             /// Check all module level variables/functions

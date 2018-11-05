@@ -137,7 +137,7 @@ protected:
                     break;
                 case TOOLBAR_BUILD_PROJECT:
                     statusLine.setStatusText("Building...");
-                    consoleView.logln("Starting build");
+                    consoleView.logln("Starting debug build");
 
                     editorView.saveAll();
 
@@ -150,7 +150,7 @@ protected:
                     break;
                 case TOOLBAR_BUILD_OPT_PROJECT:
                     statusLine.setStatusText("Building...");
-                    consoleView.logln("Starting build on thread %s", Thread.getThis.id);
+                    consoleView.logln("Starting release build");
 
                     editorView.saveAll();
 

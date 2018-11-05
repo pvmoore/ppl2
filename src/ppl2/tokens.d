@@ -228,13 +228,15 @@ Token copyToken(Token t) {
         t.templateType
     );
 }
+string toSimpleString(Token t) {
+    return t.type==TT.IDENTIFIER ? t.value  :
+           t.type==TT.NUMBER ? t.value      : t.type.toString;
+}
 string toSimpleString(Token[] tokens) {
     auto buf = new StringBuffer;
     foreach(i, t; tokens) {
         if(i>0) buf.add(" ");
-        string s = t.type==TT.IDENTIFIER ? t.value :
-                   t.type==TT.NUMBER ? t.value : t.type.toString;
-        buf.add(s);
+        buf.add(toSimpleString(t));
     }
     return buf.toString();
 }

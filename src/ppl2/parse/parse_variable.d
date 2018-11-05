@@ -85,5 +85,9 @@ public:
                 }
             }
         }
+        if(v.type.isUnknown && t.type==TT.LANGLE) {
+            t.prev;
+            module_.addError(v, "Type %s not found".format(t.value), false);
+        }
     }
 }

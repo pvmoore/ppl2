@@ -1,26 +1,11 @@
+
 /*
-struct Goo <T> { T a }
-
 main {
-    //int[2] arg1
-    //assert 1 == func(arg1)
-
-    //float[3] arg2    
-    //assert 2 == func(arg2)
-  
-    Goo<int> arg = Goo<int>()
-    //assert 7 == func(arg)
+    import test_implicit_template_funcs
+    testImplicitTemplateFunctions()
 } 
-func <A> { A[2] a       -> return 1 }
-func <A> { A[3] a       -> return 2 }
-func <A> { A[2][1] a    -> return 3 }
-func <A> { A[2]*[1] a   -> return 4 }
-func <A> { A a          -> return 5 }
-func <A> { A* a         -> return 6 }
-func <A> { Goo<A> a     -> return 7 }
-
-func2 <A> { A a, int b -> return 10 }
 */
+
 
 var s = "hello"
 
@@ -134,6 +119,9 @@ main {
     testOperatorOverloading()
     testStatics()
 	testImports()
+    
+    import test_implicit_template_funcs
+    testImplicitTemplateFunctions()
 
     testGlobals {
         assert dd is int**
@@ -241,6 +229,11 @@ main {
     testConsole()
 }
 bool yop
+
+
+
+
+
 
 
 

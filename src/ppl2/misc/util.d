@@ -7,6 +7,14 @@ import std.conv : to;
 T frontOrNull(T,Range)(Range r) {
     return r.empty ? null : r.front;
 }
+string toString(string[] array) {
+    auto buf = appender!string;
+    foreach(i, a; array) {
+        if(i>0) buf ~= ",";
+        buf ~= a;
+    }
+    return buf.data;
+}
 
 bool isDigit(char c) {
     return c>='0' && c<='9';

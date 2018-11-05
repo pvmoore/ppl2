@@ -13,7 +13,7 @@ struct M1 {
     foo <A,B> { A a, B b ->
         return 30
     }
-    foo0 <A> { int a, int b, [A, A b] c ->
+    foo0 <A> { int a, int b, [A,A] c ->
         return 40
     }
     foo0 <A> { int a, {A,A->A} b ->
@@ -148,7 +148,7 @@ func <T> { T* a ->
 func <A,B> { A a, B b ->
     return 3
 }
-func2 <A> { int a, int b, [A, A b] c ->
+func2 <A> { int a, int b, [A,A] c ->
     return 5
 }
 func2 <A> { int a, {A,A->A} c ->

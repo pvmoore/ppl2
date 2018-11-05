@@ -116,7 +116,7 @@ public:
 
             int numRemoved = removeInvisible();
 
-            chat("overloads = %s", overloads);
+            chat("overloads = %s (%s invisible)", overloads, numRemoved);
 
             if(overloads.length==1 && overloads[0].isTemplateBlueprint) {
                 /// If we get here then we have a possible template match but
@@ -169,8 +169,9 @@ public:
                     }
                     msg = "Function %s(%s) not found".format(call.name, buf.toString);
                 } else {
-                    msg = "Function %s(%s) not found".format(call.name, call.argTypes);
+                    msg = "Function %s(%s) not found".format(call.name, call.argTypes.toString);
                 }
+                chat("%s", msg);
                 module_.addError(call, msg, true);
                 return CALLABLE_NOT_READY;
             }
@@ -269,7 +270,7 @@ public:
             if(funcTemplates.length>0) {
                 /// There is a template with the same name. Try that
                 if(implicitTemplates.find(ns, call, funcTemplates)) {
-                    /// If we get here then we found a match.
+                    /// If we get here then we found an implicit match.
                     /// call.templateTypes have been set
                     return CALLABLE_NOT_READY;
                 }
@@ -619,7 +620,7 @@ private:
         return CALLABLE_NOT_READY;
     }
     void chat(A...)(lazy string fmt, lazy A args) {
-        //if(module_.canonicalName=="test") {
+        //if(module_.canonicalName=="test_implicit_template_funcs") {
         //    dd(format(fmt, args));
         //}
     }

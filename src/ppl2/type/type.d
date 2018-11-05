@@ -20,7 +20,6 @@ interface Type {
     bool canImplicitlyCastTo(Type other);
     LLVMTypeRef getLLVMType();
     //-------------------------------------
-pragma(inline,true) {
     final bool isFloat() const { return getEnum()==FLOAT; }
     final bool isDouble() const { return getEnum()==DOUBLE; }
     final bool isInt() const { return getEnum()==INT; }
@@ -93,7 +92,6 @@ pragma(inline,true) {
         if(this.isPtr) return this.as!PtrType.getPtrDepth;
         return 0;
     }
-} /// end of inline block
 }
 //=============================================================================================
 Type[] types(Expression[] e) {

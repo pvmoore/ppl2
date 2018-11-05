@@ -196,7 +196,7 @@ public:
             c.add(module_.moduleNameLiteral.copy());
 
             /// line
-            c.add(LiteralNumber.makeConst(n.line, TYPE_INT));
+            c.add(LiteralNumber.makeConst(n.line+1, TYPE_INT));
 
             rewrites++;
         }

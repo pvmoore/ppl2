@@ -8,9 +8,11 @@ final class TemplateBlueprint {
     Token[][] argTokens;    /// for function templates only
     bool isFunction;
     Tokens nav;
+    Set!string extracted;
 
     this() {
-        this.nav = new Tokens(null, null);
+        this.nav       = new Tokens(null, null);
+        this.extracted = new Set!string;
     }
 
     int numTemplateParams() {

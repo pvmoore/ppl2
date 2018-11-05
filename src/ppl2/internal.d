@@ -119,7 +119,7 @@ import ppl2.resolve.resolve_module;
 
 import ppl2.templates.blueprint;
 import ppl2.templates.ImplicitTemplates;
-import ppl2.templates.ParamTypeEstimator;
+import ppl2.templates.ParamTypeMatcherRegex;
 import ppl2.templates.templates;
 
 import ppl2.type.alias_;

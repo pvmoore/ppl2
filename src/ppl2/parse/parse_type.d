@@ -16,6 +16,9 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
+    Type parseForTemplate(Tokens t, ASTNode node) {
+        return parse(t, node, false);
+    }
     Type parse(Tokens t, ASTNode node, bool addToNode = true) {
         //dd("parseType", node.id, t.get);
         string value = t.value;

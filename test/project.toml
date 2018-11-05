@@ -16,6 +16,11 @@ lib = "thing"
 [[openFile]]
 name = "test.p2"
 line = 66
+active = 0
+
+[[openFile]]
+name = "test_implicit_template_funcs.p2"
+line = 15
 active = 1
 
 [[openFile]]
