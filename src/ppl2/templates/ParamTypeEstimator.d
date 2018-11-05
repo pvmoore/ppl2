@@ -33,7 +33,7 @@ public:
                 continue;
             }
 
-            chat("\t\tCall type  = %s", callType.prettyString);
+            chat("\t\tCall type  = %s", callType);
             chat("\t\tArg tokens = %s", tokens.toSimpleString);
 
             int tokenIndex = 0;
@@ -72,7 +72,7 @@ public:
                              ref int tokenIndex,
                              lazy string depth="    ")
     {
-        chat(depth~"... matching arg types: %s, tokens: %s", types.prettyString, argTokens.toSimpleString);
+        chat(depth~"... matching arg types: %s, tokens: %s", types, argTokens.toSimpleString);
 
         auto typeIndex = 0;
 
@@ -107,7 +107,7 @@ public:
         while(tokenIndex<argTokens.length && typeIndex<types.length) {
             auto token = getToken();
             auto type  = types[typeIndex];
-            chat(depth~"token=%s type=%s (%s of %s)", token.value, type.prettyString, typeIndex+1, types.length);
+            chat(depth~"token=%s type=%s (%s of %s)", token.value, type, typeIndex+1, types.length);
 
             if(token.type==TT.COMMA ||      // func or anon struct
                token.type==TT.RT_ARROW ||   // func

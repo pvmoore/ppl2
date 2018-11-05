@@ -19,7 +19,6 @@ interface Type {
     bool exactlyMatches(Type other);
     bool canImplicitlyCastTo(Type other);
     LLVMTypeRef getLLVMType();
-    string prettyString();
     //-------------------------------------
 pragma(inline,true) {
     final bool isFloat() const { return getEnum()==FLOAT; }
@@ -193,16 +192,16 @@ bool prelimCanImplicitlyCastTo(Type left, Type right) {
     /// Do the base checks now
     return true;
 }
-void getChildTypes(Type t, Array!Type array) {
-    if(t.isAnonStruct()) {
-        array.add(t.getAnonStruct.memberVariableTypes());
-    } else if(t.isFunction) {
-        array.add(t.getFunctionType.paramTypes());
-        array.add(t.getFunctionType.returnType());
-    } else if(t.isArray) {
-        array.add(t.getArrayType.subtype);
-    }
-}
+//void getChildTypes(Type t, Array!Type array) {
+//    if(t.isAnonStruct()) {
+//        array.add(t.getAnonStruct.memberVariableTypes());
+//    } else if(t.isFunction) {
+//        array.add(t.getFunctionType.paramTypes());
+//        array.add(t.getFunctionType.returnType());
+//    } else if(t.isArray) {
+//        array.add(t.getArrayType.subtype);
+//    }
+//}
 int size(Type t) {
     if(t.isPtr) return 8;
     final switch(t.getEnum) with(Type) {
@@ -246,11 +245,11 @@ LLVMValueRef zero(Type t) {
     }
     assert(false);
 }
-string prettyString(Type[] types) {
+string toString(Type[] types) {
     auto buf = new StringBuffer;
     foreach(i, t; types) {
         if(i>0) buf.add(", ");
-        buf.add(t.prettyString);
+        buf.add("%s".format(t));
     }
     return buf.toString;
 }

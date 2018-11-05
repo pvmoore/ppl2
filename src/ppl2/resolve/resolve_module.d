@@ -422,7 +422,7 @@ public:
             }
 
             debug if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
-                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes.prettyString, n.target.paramTypes.prettyString), true);
+                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes, n.target.paramTypes), true);
             }
         }
     }
@@ -643,7 +643,7 @@ public:
 
                 auto t = getBestFit(thenType, elseType);
                 if(!t) {
-                    module_.addError(n, "If result types %s and %s are incompatible".format(thenType.prettyString, elseType.prettyString), true);
+                    module_.addError(n, "If result types %s and %s are incompatible".format(thenType, elseType), true);
                 }
 
                 n.type = t;
@@ -767,7 +767,7 @@ public:
                 auto type = parentType.getArrayType;
                 if(type) {
                     if(!type.isArray) {
-                        module_.addError(n, "Cannot cast array literal to %s".format(type.prettyString), true);
+                        module_.addError(n, "Cannot cast array literal to %s".format(type), true);
                         return;
                     }
                     n.type = type;
@@ -858,7 +858,7 @@ public:
                 if(type.isPtr) {
                     n.type = type;
                 } else {
-                    module_.addError(n, "Cannot implicitly cast null to %s".format(type.prettyString()), true);
+                    module_.addError(n, "Cannot implicitly cast null to %s".format(type), true);
                 }
             }
         }
@@ -924,7 +924,7 @@ public:
             }
             if(type && type.isKnown) {
                 if(!type.isAnonStruct) {
-                    module_.addError(n, "Cannot cast struct literal to %s".format(type.prettyString), true);
+                    module_.addError(n, "Cannot cast struct literal to %s".format(type), true);
                     return;
                 }
                 n.type = type;

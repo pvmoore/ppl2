@@ -71,16 +71,16 @@ public:
         }
         return t;
     }
-    string prettyString() {
-        return "%s%s".format(decorated.prettyString(), "*".repeat(ptrDepth));
-    }
 /// End of Type interface
     //========================================================================================
     int getPtrDepth() const { return ptrDepth; }
     Type decoratedType() { return decorated; }
 
     override string toString() {
-        string p = "*".repeat(getPtrDepth);
-        return "%s%s".format(decorated, p);
+        return "%s%s".format(decorated, "*".repeat(ptrDepth));
     }
+    //override string toString() {
+    //    string p = "*".repeat(getPtrDepth);
+    //    return "%s%s".format(decorated, p);
+    //}
 }

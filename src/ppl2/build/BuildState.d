@@ -371,6 +371,7 @@ protected:
             allOk &= m.gen.generate();
             unoptimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
         }
+        dd("IR ok:", allOk);
         return allOk;
     }
     void convertUnresolvedNodesIntoErrors() {

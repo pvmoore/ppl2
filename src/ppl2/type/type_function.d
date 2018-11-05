@@ -106,33 +106,35 @@ public:
         }
         return _llvmType;
     }
-    string prettyString() {
-        auto buf = new StringBuffer;
-        buf.add("{");
-        foreach(i, t; paramTypes()) {
-            if(i>0) buf.add(", ");
-            buf.add(t.prettyString());
-        }
-        buf.add("->");
-        buf.add(returnType.prettyString());
-        buf.add("}");
-        return buf.toString;
-    }
+    //string prettyString() {
+    //    auto buf = new StringBuffer;
+    //    buf.add("{");
+    //    foreach(i, t; paramTypes()) {
+    //        if(i>0) buf.add(", ");
+    //        buf.add(t.prettyString());
+    //    }
+    //    buf.add("->");
+    //    buf.add(returnType.prettyString());
+    //    buf.add("}");
+    //    return buf.toString;
+    //}
+    //override string toString() {
+    //    string a;
+    //    if(paramTypes().length == 0) {
+    //        a = "void";
+    //    } else {
+    //        foreach (i, t; paramTypes()) {
+    //            if (i>0) a ~= ",";
+    //            a ~= "%s".format(t.prettyString);
+    //            //if (paramNames[i] !is null) a ~= " " ~ paramNames[i];
+    //        }
+    //    }
+    //    return "{%s->%s}".format(a, returnType);
+    //}
     //============================================================
-    override string description() {
-        return "FunctionType:%s".format(toString());
-    }
     override string toString() {
-        string a;
-        if(paramTypes().length == 0) {
-            a = "void";
-        } else {
-            foreach (i, t; paramTypes()) {
-                if (i>0) a ~= ",";
-                a ~= "%s".format(t.prettyString);
-                //if (paramNames[i] !is null) a ~= " " ~ paramNames[i];
-            }
-        }
-        return "{%s->%s}".format(a, returnType);
+        if(!isKnown) return "{?->?}";
+        string params = "%s".format(paramTypes().length == 0 ? "void" : paramTypes().toString());
+        return "{%s->%s}".format(params, returnType());
     }
 }

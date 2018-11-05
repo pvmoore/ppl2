@@ -141,7 +141,7 @@ protected:
 
                     editorView.saveAll();
 
-                    auto job = new BuildJob(project.config);
+                    auto job = new BuildJob(project.config, false);
                     job.run((it) {
                         executeInUiThread(() {
                             buildCompleted.handle(it);

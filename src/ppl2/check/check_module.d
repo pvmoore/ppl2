@@ -68,7 +68,7 @@ public:
 
         /// Check the types
         if(!areCompatible(n.rightType, n.leftType)) {
-            module_.addError(n, "Types are incompatible: %s and %s".format(n.rightType.prettyString, n.leftType.prettyString), true);
+            module_.addError(n, "Types are incompatible: %s and %s".format(n.rightType, n.leftType), true);
         }
 
         if(n.op.isAssign) {

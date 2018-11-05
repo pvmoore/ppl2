@@ -32,11 +32,13 @@ final class Alias : Statement, Type {
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
     LLVMTypeRef getLLVMType()            { assert(false); }
-    string prettyString()                { return "Alias %s=%s".format(name,type.prettyString); }
     //=======================================================================================
     override string toString() {
-        string val = "%s".format(getType.prettyString);
-        string imp = isImport ? " (IMPORT)" : "";
-        return "Alias[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
+        return "alias of %s".format(type);
     }
+    //override string toString() {
+    //    string val = "%s".format(getType.prettyString);
+    //    string imp = isImport ? " (IMPORT)" : "";
+    //    return "Alias[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
+    //}
 }

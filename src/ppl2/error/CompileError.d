@@ -132,7 +132,7 @@ public:
     override string toPrettyString() {
         auto buf = new StringBuffer;
         buf.add("Ambigous matches found looking for function:\n\n");
-        buf.add("\t%s(%s)\n\n", call.name, call.argTypes.prettyString);
+        buf.add("\t%s(%s)\n\n", call.name, call.argTypes);
         buf.add("%s matches found:\n\n", overloadSet.length);
 
         foreach(callable; overloadSet) {
@@ -140,7 +140,7 @@ public:
             string moduleName = callable.getModule.canonicalName;
             int line          = callable.getNode.line;
 
-            string s = "%s(%s)".format(call.name, prettyString(params));
+            string s = "%s(%s)".format(call.name, params);
 
             buf.add("\t% 10s\t::% 10s:%s\n", s, moduleName, line);
         }
@@ -176,10 +176,10 @@ void errorBadSyntax(Module m, Tokens t, string msg) {
     m.addError(t, msg, false);
 }
 void errorBadImplicitCast(Module m, ASTNode n, Type from, Type to) {
-    m.addError(n, "Cannot implicitly cast %s to %s".format(from.prettyString(), to.prettyString()), true);
+    m.addError(n, "Cannot implicitly cast %s to %s".format(from, to), true);
 }
 void errorBadExplicitCast(Module m, ASTNode n, Type from, Type to) {
-    m.addError(n, "Cannot cast %s to %s".format(from.prettyString(), to.prettyString()), true);
+    m.addError(n, "Cannot cast %s to %s".format(from, to), true);
 }
 
 void errorMissingType(Module m, ASTNode n, string name) {

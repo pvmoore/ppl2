@@ -14,6 +14,6 @@ final class Identifier : Expression {
 
     override string toString(){
         string c = isConst ? "const ":"";
-        return "ID:%s (type=%s%s) %s".format(name, c, getType().prettyString, target);
+        return "ID:%s (type=%s%s) %s".format(name, c, getType(), target);
     }
 }

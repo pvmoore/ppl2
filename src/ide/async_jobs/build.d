@@ -14,7 +14,7 @@ private:
     ProjectBuilder builder;
     void delegate(BuildJob) callback;
 public:
-    this(Config config, bool optimise = false) {
+    this(Config config, bool optimise) {
         this.config  = config;
         config.enableOptimisation = optimise;
     }

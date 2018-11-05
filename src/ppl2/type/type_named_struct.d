@@ -66,9 +66,6 @@ public:
         }
         return _llvmType;
     }
-    string prettyString() {
-        return getUniqueName();
-    }
     //========================================================================================
     Variable[] getStaticVariables() {
         return type.children[]
@@ -151,15 +148,15 @@ public:
         return _uniqueName;
     }
     //========================================================================================
-    override string description() {
-        return "NamedStruct[refs=%s] %s".format(numRefs, toString());
-    }
     override string toString() {
-        string acc = "[%s]".format(access);
-        string s;
-        if(isTemplateBlueprint()) {
-            s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
-        }
-        return "%s%s%s %s".format(s, getUniqueName, isKnown ? "":"?", acc);
+        return getUniqueName();
     }
+    //override string toString() {
+    //    string acc = "[%s]".format(access);
+    //    string s;
+    //    if(isTemplateBlueprint()) {
+    //        s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
+    //    }
+    //    return "%s%s%s %s".format(s, getUniqueName, isKnown ? "":"?", acc);
+    //}
 }

@@ -15,5 +15,10 @@ lib = "thing"
 
 [[openFile]]
 name = "test.p2"
-line = 18
+line = 66
 active = 1
+
+[[openFile]]
+name = "test_consts.p2"
+line = 24
+active = 0

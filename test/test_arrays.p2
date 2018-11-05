@@ -16,7 +16,7 @@ testArrays {
         int[2]*[1] e3
         int*[2]*[1]* e4 = null
 
-        var g = [: 1 as int,2,3]    // [int:3]
+        var g = [: 1 as int,2,3]    // int[3]
     }
     arrayOfArray {
         int[3][1] a

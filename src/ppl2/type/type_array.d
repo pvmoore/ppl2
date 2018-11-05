@@ -53,15 +53,15 @@ public:
         }
         return _llvmType;
     }
-    string prettyString() {
-        string c;
-        if(isResolved) {
-            c = countAsInt().to!string;
-        } else {
-            c = "?";
-        }
-        return "%s[%s]".format(subtype.prettyString(), c);
-    }
+    //string prettyString() {
+    //    string c;
+    //    if(isResolved) {
+    //        c = countAsInt().to!string;
+    //    } else {
+    //        c = "?";
+    //    }
+    //    return "%s[%s]".format(subtype.prettyString(), c);
+    //}
     //============================================================
     void setCount(LiteralNumber lit) {
         assert(numChildren==1);
@@ -83,15 +83,19 @@ public:
         return countExpr().as!LiteralNumber.value.getInt();
     }
     override string toString() {
-        string c;
-        if(isResolved) {
-            c = countAsInt().to!string;
-        } else if(hasChildren) {
-            c = "%s".format(countExpr());
-        } else {
-            c = "?";
-        }
-        string typestr = subtype is null ? "null" : subtype.prettyString;
-        return "ArrayType %s[%s] (nid=%s)".format(typestr, c, nid);
+        if(!isKnown) return "?[?]";
+        return "%s[%s]".format(subtype, countAsInt());
     }
+    //override string toString() {
+    //    string c;
+    //    if(isResolved) {
+    //        c = countAsInt().to!string;
+    //    } else if(hasChildren) {
+    //        c = "%s".format(countExpr());
+    //    } else {
+    //        c = "?";
+    //    }
+    //    string typestr = subtype is null ? "null" : subtype.prettyString;
+    //    return "ArrayType %s[%s] (nid=%s)".format(typestr, c, nid);
+    //}
 }

@@ -55,7 +55,7 @@ struct Callable {
         if(!getType.getFunctionType) {
             return "%s%s %s(type=%s)".format(func?"FUNC":"VAR", t, getName, getType);
         }
-        return "%s%s %s(%s)".format(func?"FUNC":"VAR", t, getName, paramTypes.prettyString);
+        return "%s%s %s(%s)".format(func?"FUNC":"VAR", t, getName, paramTypes);
     }
 }
 //============================================================================================
@@ -165,11 +165,11 @@ public:
                     auto buf = new StringBuffer;
                     foreach(i, n; call.paramNames) {
                         if(i>0) buf.add(", ");
-                        buf.add(n).add("=").add(call.argTypes[i].prettyString);
+                        buf.add(n).add("=").add("%s".format(call.argTypes[i]));
                     }
                     msg = "Function %s(%s) not found".format(call.name, buf.toString);
                 } else {
-                    msg = "Function %s(%s) not found".format(call.name, call.argTypes.prettyString);
+                    msg = "Function %s(%s) not found".format(call.name, call.argTypes);
                 }
                 module_.addError(call, msg, true);
                 return CALLABLE_NOT_READY;
@@ -280,11 +280,11 @@ public:
                 auto buf = new StringBuffer;
                 foreach(i, n; call.paramNames) {
                     if(i>0) buf.add(", ");
-                    buf.add(n).add("=").add(call.argTypes[i].prettyString);
+                    buf.add(n).add("=").add("%s".format(call.argTypes[i]));
                 }
                 argsStr = buf.toString;
             } else {
-                argsStr = call.argTypes.prettyString;
+                argsStr = call.argTypes.toString();
             }
 
             string msg;

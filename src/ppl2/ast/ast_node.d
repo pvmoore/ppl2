@@ -117,7 +117,6 @@ public:
     abstract NodeID id() const;
     abstract bool isResolved() { return false; }
     Type getType() { return TYPE_UNKNOWN; }
-    string description() { return toString(); }
 /// end
 
     bool hasChildren() const { return children.length > 0; }
@@ -229,7 +228,7 @@ public:
     }
     void dump(FileLogger l, string indent="") {
         //debug if(getModule.canonicalName=="test_arrays") dd(this.id, "line", line);
-        l.log("[% 4s] %s", this.line, indent ~ description());
+        l.log("[% 4s] %s", this.line, indent ~ this.toString());
         foreach(ch; children) {
             ch.dump(l, indent ~ "   ");
         }

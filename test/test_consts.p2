@@ -44,6 +44,10 @@ testConsts {
     int[ARRAY_LEN] array  
     assert array is int[2]   
 
+    const L1 = 1
+    const L2 = 2
+    int[L1][L2] array2
+
     //var what = 1  
  
     //const int D         // needs initialiser
