@@ -21,7 +21,11 @@ public:
     int getEnum() const { return Type.ARRAY; }
 
     bool isKnown() {
-        return subtype && subtype.isKnown() && countExpr().isResolved && countExpr().isA!LiteralNumber;
+        return subtype &&
+               subtype.isKnown() &&
+               numChildren()>0 &&
+               countExpr().isResolved &&
+               countExpr().isA!LiteralNumber;
     }
     bool exactlyMatches(Type other) {
         /// Do the common checks

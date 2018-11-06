@@ -51,6 +51,7 @@ import ppl2.ast.expr_index;
 import ppl2.ast.expr_initialiser;
 import ppl2.ast.expr_literal_number;
 import ppl2.ast.expr_literal_array;
+import ppl2.ast.expr_literal_expr_list;
 import ppl2.ast.expr_literal_function;
 import ppl2.ast.expr_literal_map;
 import ppl2.ast.expr_literal_null;

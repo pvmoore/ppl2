@@ -19,6 +19,7 @@ enum NodeID {
     CONSTRUCTOR,
     CONTINUE,
     DOT,
+    LITERAL_EXPR_LIST,
     FUNC_TYPE,
     FUNCTION,
     IDENTIFIER,

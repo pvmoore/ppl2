@@ -41,7 +41,7 @@ testImplicitTemplateFunctions {
         //func <A> { int a, int b, [A,A d] c -> return 40 } // this won't match because of the 'd'
         
         assert 10 == func(5,6)
-        assert 20 == func(2,3, [4,5])
+        assert 20 == func(2,3, [4,5] as struct)
     }
     singleArg()
     multipleArgs()

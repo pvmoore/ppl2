@@ -165,12 +165,12 @@ private:
         /// [
         t.skip(TT.LSQBRACKET);
 
-        t.dontExpect(TT.RSQBRACKET);
-
         a.subtype = subtype;
 
         /// count
-        exprParser().parse(t, a);
+        if(t.type!=TT.RSQBRACKET) {
+            exprParser().parse(t, a);
+        }
 
         /// ]
         t.skip(TT.RSQBRACKET);

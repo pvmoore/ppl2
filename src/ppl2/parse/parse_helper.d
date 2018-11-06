@@ -119,3 +119,21 @@ bool isTemplateParams(Tokens t, int offset, ref int endOffset) {
     t.resetToMark();
     return result;
 }
+bool isObviouslyAStructLiteral(Tokens t) {
+    assert(t.type==TT.LSQBRACKET);
+
+    int end = t.findEndOfBlock(TT.LSQBRACKET);
+    if(end==-1) return false;
+
+    /// Ends with 'as' ('struct' | '[')
+    if(t.peek(end+1).value=="as") {
+        if(t.peek(end+2).value=="struct") return true;
+        if(t.peek(end+2).type==TT.LSQBRACKET) return true;
+    }
+
+    /// Look for name=value
+    if(t.findInScope(TT.EQUALS, 1)!=-1) return true;
+
+    /// No obvious struct characteristics found
+    return false;
+}

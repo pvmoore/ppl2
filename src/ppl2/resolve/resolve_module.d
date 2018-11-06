@@ -116,6 +116,11 @@ public:
     void visit(As n) {
         auto lt = n.leftType();
         auto rt = n.rightType();
+
+        //if(rt.isArray && rt.getArrayType.numChildren==0) {
+        //
+        //}
+
         if(lt.isKnown && rt.isKnown) {
 
             bool isValidRewrite(Type t) {
@@ -734,6 +739,11 @@ public:
                     break;
                 case AS:
                     parentType = n.parent.as!As.getType;
+
+                    if(parentType.isArray && parentType.getArrayType.numChildren==0) {
+                        dd("!!booo");
+                    }
+
                     break;
                 case BINARY:
                     parentType = n.parent.as!Binary.otherSide(n).getType;
@@ -805,6 +815,11 @@ public:
         //
         //    }
         //}
+    }
+    void visit(LiteralExpressionList n) {
+        /// Try to convert this into either a LiteralStruct or a LiteralArray
+        n.resolve();
+        rewrites++;
     }
     void visit(LiteralFunction n) {
         if(n.type.isUnknown) {

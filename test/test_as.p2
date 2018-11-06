@@ -9,10 +9,11 @@ testAs {
     // tuples
     alias Tuple = [int,byte,short]
     var b  = [1,2 as byte,3 as short] as [int,byte,short]
-    var b2 = [1,2 as byte,3 as short] as Tuple //struct 
-
+    var b2 = [1,2 as byte,3 as short] as struct 
     struct Name { int a }
     var c = null as Name*
 
-    
+    // arrays
+    var d = [: 1,2,3] as int[3]  
+    //var d2 = [1,2,3] as int[]
 }

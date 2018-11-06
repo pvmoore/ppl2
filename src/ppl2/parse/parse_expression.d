@@ -114,14 +114,18 @@ private:
                 parseParenthesis(t, parent);
                 break;
             case TT.LSQBRACKET:
-
-
-                if(t.peek(1).type==TT.COLON) {
-                    /// [:
-                    parseLiteralArray(t, parent);
-                } else {
-                    /// [
+                if(isObviouslyAStructLiteral(t)) {
                     parseLiteralStruct(t, parent);
+                } else {
+                    if(t.peek(1).type==TT.COLON) {
+                        parseLiteralArray(t, parent);
+                    } else {
+                        /// Could be a LiteralStruct or a ListeralArray
+                        parseLiteralExprList(t, parent);
+
+                        /// assume struct for now
+                        //parseLiteralStruct(t, parent);
+                    }
                 }
                 break;
             case TT.LCURLY:
@@ -888,6 +892,7 @@ private:
         /// expression list or
         /// name = expression list
         while(t.type!=TT.RSQBRACKET) {
+
             if(t.peek(1).type==TT.EQUALS) {
                 /// name = expression
                 if(e.hasChildren && e.names.length==0) {
@@ -911,6 +916,11 @@ private:
             if(t.type==TT.COMMA) t.next;
         }
         t.skip(TT.RSQBRACKET);
+
+        /// Consume "as struct"
+        if(t.isKeyword("as") && t.peek(1).value=="struct") {
+            t.next(2);
+        }
     }
     ///
     /// literal_array ::= "[:" expression { "," expression } "]"
@@ -931,6 +941,25 @@ private:
             t.expect(TT.RSQBRACKET, TT.COMMA);
             if(t.type==TT.COMMA) t.next;
         }
+        t.skip(TT.RSQBRACKET);
+    }
+    void parseLiteralExprList(Tokens t, ASTNode parent) {
+        auto e = makeNode!LiteralExpressionList(t);
+        parent.add(e);
+
+        /// [
+        t.skip(TT.LSQBRACKET);
+
+        /// elements
+        while(t.type!=TT.RSQBRACKET) {
+
+            parse(t, e);
+
+            t.expect(TT.RSQBRACKET, TT.COMMA);
+            if(t.type==TT.COMMA) t.next;
+        }
+
+        /// ]
         t.skip(TT.RSQBRACKET);
     }
     void parseModuleAlias(Tokens t, ASTNode parent, Import imp) {

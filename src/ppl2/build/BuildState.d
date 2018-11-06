@@ -385,7 +385,7 @@ protected:
                     auto variable = n.as!Variable;
                     m.addError(n, "Unresolved variable %s".format(variable.name), true);
                 } else {
-                    //writefln("\t%s: %s", n.id, n);
+                    writefln("\t%s[line %s] %s: %s", m.canonicalName, n.line+1, n.id, n);
                 }
             }
         }
