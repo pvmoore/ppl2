@@ -264,15 +264,10 @@ public:
             module_.addError(n, "Too many values specified (%s > %s)".format(n.length(), n.type.countAsInt()), true);
         }
 
-        if(n.isIndexBased) {
+        foreach(i, left; n.elementTypes()) {
 
-        } else {
-
-            foreach(i, left; n.elementTypes()) {
-
-                if(!left.canImplicitlyCastTo(n.type.subtype)) {
-                    errorBadImplicitCast(module_, n.elementValues()[i], left, n.type.subtype);
-                }
+            if(!left.canImplicitlyCastTo(n.type.subtype)) {
+                errorBadImplicitCast(module_, n.elementValues()[i], left, n.type.subtype);
             }
         }
     }

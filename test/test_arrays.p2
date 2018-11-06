@@ -131,13 +131,7 @@ testLiteralArrays {
         assert b[1] == 7
     }
     test3 {
-        // sparse initialised
-        int[5] a = [: 2=1, 4=2]
-        assert a[0]==0
-        assert a[1]==0
-        assert a[2]==1
-        assert a[3]==0
-        assert a[4]==2
+
     }
     test4 { int[2] a ->
         assert a[0] == 77

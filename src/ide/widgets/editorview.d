@@ -75,7 +75,7 @@ public:
     }
     void loadFile(string name) {
         string filename = project.getAbsPath(name);
-        assert(From!"std.file".exists(filename));
+        assert(From!"std.file".exists(filename), "file not found");
 
         //writefln("loadFile %s %s", name, filename); flushConsole();
 
@@ -100,6 +100,7 @@ private:
 
         auto editor = new EditorTab(ide, "TAB-"~name, name, filename, line);
         editors["TAB-"~name] = editor;
+
         return editor;
     }
 }

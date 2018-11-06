@@ -114,6 +114,8 @@ private:
                 parseParenthesis(t, parent);
                 break;
             case TT.LSQBRACKET:
+
+
                 if(t.peek(1).type==TT.COLON) {
                     /// [:
                     parseLiteralArray(t, parent);
@@ -911,7 +913,7 @@ private:
         t.skip(TT.RSQBRACKET);
     }
     ///
-    /// literal_array ::= "[:" [digits"="] expression { "," [digits"="] expression } "]"
+    /// literal_array ::= "[:" expression { "," expression } "]"
     ///
     void parseLiteralArray(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralArray(t);
@@ -924,31 +926,7 @@ private:
         /// elements
         while(t.type!=TT.RSQBRACKET) {
 
-            if(t.peek(1).type==TT.EQUALS) {
-                /// number = expression
-                if(e.hasChildren && !e.isIndexBased) {
-                    module_.addError(t, "Array literals must be either all indexes or all non-indexes", true);
-                }
-                e.isIndexBased = true;
-
-                /// index = value (Binary = )
-                parse(t, e);
-                if(!e.last.isA!Binary) errorBadSyntax(module_, e.last, "Syntax error. Expecting binary =");
-
-                /// Split binary into 2 expressions
-                auto b = e.last.as!Binary;
-                e.remove(b);
-                e.add(b.left);
-                e.add(b.right);
-
-            } else {
-                if(e.isIndexBased) {
-                    module_.addError(t, "Array literals must be either all indexes or all non-indexes", true);
-                }
-
-                /// value
-                parse(t, e);
-            }
+            parse(t, e);
 
             t.expect(TT.RSQBRACKET, TT.COMMA);
             if(t.type==TT.COMMA) t.next;

@@ -14,16 +14,36 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "test.p2"
-line = 66
+name = "test_arrays.p2"
+line = 0
 active = 0
 
 [[openFile]]
-name = "test_implicit_template_funcs.p2"
-line = 15
-active = 1
+name = "test_expressions.p2"
+line = 0
+active = 0
 
 [[openFile]]
 name = "test_consts.p2"
 line = 24
+active = 0
+
+[[openFile]]
+name = "test_implicit_template_funcs.p2"
+line = 18
+active = 0
+
+[[openFile]]
+name = "test_as.p2"
+line = 11
+active = 1
+
+[[openFile]]
+name = "test_literal_struct.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test.p2"
+line = 102
 active = 0

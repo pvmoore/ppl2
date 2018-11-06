@@ -97,7 +97,7 @@ public:
         //writefln("updateHighlight [%s lines total] highlight lines %s..%s (%s lines)",
         //    lines.length,
         //    startLine, endLine-1,
-        //    endLine-startLine);
+        //    endLine-startLine); flushConsole();
 
         void updateLineInfo() {
             //writefln("updateLineInfo %s %s", lineInfo.length, lines.length); flushConsole();

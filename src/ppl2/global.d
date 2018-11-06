@@ -132,7 +132,7 @@ shared static this() {
         "private", "public",
         "readonly", "return",
         "short", "static", "struct",
-        "this", "true",
+        "this", "true", "tuple",
         "var", "void"
     ]);
 }

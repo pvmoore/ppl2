@@ -17,38 +17,19 @@ final class LiteralGenerator {
         gen.lhs  = builder.alloca(n.type.getLLVMType(), name);
         auto ptr = gen.lhs;
 
-        if(n.isIndexBased) {
+        if(n.length() != n.type.countAsInt()) {
             /// Set to all zeroes
             builder.store(constAllZeroes(n.type.getLLVMType()), ptr);
-
-            auto indices = n.elementIndexes();
-            auto values  = n.elementValues();
-            assert(indices.length==values.length);
-
-            foreach(i, idx; indices) {
-                auto index = idx.as!LiteralNumber.value.getInt();
-                auto ele   = values[i];
-
-                ele.visit!ModuleGenerator(gen);
-                gen.rhs = gen.castType(gen.rhs, ele.getType, n.type.subtype);
-
-                gen.setArrayValue(ptr, gen.rhs, index, "[%s]".format(index));
-            }
-        } else {
-
-            if(n.length() != n.type.countAsInt()) {
-                /// Set to all zeroes
-                builder.store(constAllZeroes(n.type.getLLVMType()), ptr);
-            }
-
-            /// Set the values
-            foreach(int i, ch; n.elementValues()) {
-                ch.visit!ModuleGenerator(gen);
-                gen.rhs = gen.castType(gen.rhs, ch.getType, n.type.subtype);
-
-                gen.setArrayValue(ptr, gen.rhs, i, "[%s]".format(i));
-            }
         }
+
+        /// Set the values
+        foreach(int i, ch; n.elementValues()) {
+            ch.visit!ModuleGenerator(gen);
+            gen.rhs = gen.castType(gen.rhs, ch.getType, n.type.subtype);
+
+            gen.setArrayValue(ptr, gen.rhs, i, "[%s]".format(i));
+        }
+
         /// Set literal array ptr as the lhs
         gen.lhs = ptr;
         gen.rhs = builder.load(gen.lhs);
