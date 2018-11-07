@@ -14,6 +14,26 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
+name = "test_literal_struct.p2"
+line = 109
+active = 0
+
+[[openFile]]
 name = "test.p2"
 line = 12
+active = 0
+
+[[openFile]]
+name = "test_inner_structs.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_structs.p2"
+line = 20
+active = 0
+
+[[openFile]]
+name = "test_calls.p2"
+line = 27
 active = 1

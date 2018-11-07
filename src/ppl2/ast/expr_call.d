@@ -5,7 +5,7 @@ import ppl2.internal;
 final class Call : Expression {
     string name;
     Target target;
-    string[] paramNames;        /// optional. eg. name=value
+    string[] paramNames;        /// optional. eg. name:value
 
 /// Template stuff
     Type[] templateTypes;       /// optional. eg. func<int,bool>

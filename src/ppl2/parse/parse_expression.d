@@ -452,7 +452,7 @@ private:
 
             while(t.type!=TT.RBRACKET) {
 
-                if (t.peek(1).type==TT.EQUALS) {
+                if(t.peek(1).type==TT.COLON) {
                     /// paramname = expr
                     if(composite.numChildren>1 && c.paramNames.length==0) {
                         module_.addError(c, "Mixing named and un-named constructor arguments", true);
@@ -466,7 +466,8 @@ private:
                     c.paramNames ~= t.value;
                     t.next;
 
-                    t.skip(TT.EQUALS);
+                    /// :
+                    t.skip(TT.COLON);
 
                     parse(t, composite);
 

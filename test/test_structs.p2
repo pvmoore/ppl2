@@ -18,7 +18,7 @@ public
         b += 3
     }
     foo { /* Fruit* this */
-        boo(inc=1)
+        boo(inc:1)
     }
     bar { /* Fruit* this, */ int a ->
         struct Vegetable {bool isGreen}

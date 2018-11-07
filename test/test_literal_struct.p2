@@ -42,7 +42,6 @@ testLiteralStruct {
         assert s[0]==1
         assert s[1]==3.1f
         assert s[2]==true
-
     }
     test4 {
         // partial initialisation
@@ -68,18 +67,18 @@ testLiteralStruct {
         //assert #size(s2)==0
     }
     test6 {
-        // implicit [byte,byte]
+        // implicit [int,int]
         var s = [7,8] as struct     ; assert s is [int,int]
         assert s[0] is int
         assert s[1] is int
 
-        // implicit [int,byte]
+        // [byte,int]
         var s2 = [7 as byte, 8] as struct
         assert s2[0] is byte
         assert s2[1] is int
     }
     test7 {
-        // s is [bool, float, long]
+        // [bool, float, long]
         var s = [true,2f,3L] as struct  ; assert s is [bool,float,long]
         s = [true]
 
@@ -98,6 +97,15 @@ testLiteralStruct {
     }
     test9 { [int] a ->
         assert(a[0]==66)
+    }
+    namedParameters {
+        [int a, int b] thing = [b:3, a:1]
+        assert thing.a == 1
+        assert thing.b == 3
+
+        [int a, int b] thing2 = [b:5]
+        assert thing2.a == 0
+        assert thing2.b == 5
     }
     shouldNotCompile {
         // error mixing initialisation
@@ -119,5 +127,6 @@ testLiteralStruct {
     test7()
     test8()
     test9([66])
+    namedParameters()
     shouldNotCompile()
 }
