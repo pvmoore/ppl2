@@ -7,7 +7,7 @@ if not exist "ppl2.exe" goto COMPILE
 del ppl2.exe
 
 :COMPILE
-dub build  --parallel --build=debug --config=test --arch=x86_64 --compiler=dmd
+dub build --parallel --build=debug --config=test --arch=x86_64 --compiler=dmd
 
 
 if not exist "ppl2.exe" goto FAIL

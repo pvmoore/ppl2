@@ -131,8 +131,8 @@ bool isObviouslyAStructLiteral(Tokens t) {
         if(t.peek(end+2).type==TT.LSQBRACKET) return true;
     }
 
-    /// Look for name=value
-    if(t.findInScope(TT.EQUALS, 1)!=-1) return true;
+    /// Look for name:value
+    if(t.findInScope(TT.COLON, 1)!=-1) return true;
 
     /// No obvious struct characteristics found
     return false;

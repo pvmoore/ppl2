@@ -117,7 +117,7 @@ private:
                 if(isObviouslyAStructLiteral(t)) {
                     parseLiteralStruct(t, parent);
                 } else {
-                    /// Could be a LiteralStruct or a ListeralArray
+                    /// Could be a LiteralStruct or a LiteralArray
                     parseLiteralExprList(t, parent);
                 }
                 break;
@@ -873,7 +873,7 @@ private:
     }
 
     ///
-    /// literal_struct ::= "[" { [name "="] expression } [ "," [name "="] expression ] "]"
+    /// literal_struct ::= "[" { [name ":"] expression } [ "," [name ":"] expression ] "]"
     ///
     void parseLiteralStruct(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralStruct(t);
@@ -883,10 +883,10 @@ private:
         t.skip(TT.LSQBRACKET);
 
         /// expression list or
-        /// name = expression list
+        /// name : expression list
         while(t.type!=TT.RSQBRACKET) {
 
-            if(t.peek(1).type==TT.EQUALS) {
+            if(t.peek(1).type==TT.COLON) {
                 /// name = expression
                 if(e.hasChildren && e.names.length==0) {
                     module_.addError(t, "Struct literals must be either all named or all unnamed", true);
@@ -894,7 +894,7 @@ private:
 
                 e.names ~= t.value;
                 t.next;
-                t.skip(TT.EQUALS);
+                t.skip(TT.COLON);
 
                 parse(t, e);
             } else {
