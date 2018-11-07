@@ -117,10 +117,6 @@ public:
         auto lt = n.leftType();
         auto rt = n.rightType();
 
-        //if(rt.isArray && rt.getArrayType.numChildren==0) {
-        //
-        //}
-
         if(lt.isKnown && rt.isKnown) {
 
             bool isValidRewrite(Type t) {
@@ -149,6 +145,8 @@ public:
                     auto b = module_.builder(n);
                     auto p = n.parent;
 
+                    // fold
+
                     auto value = makeNode!ValueOf(n);
                     p.replaceChild(n, value);
 
@@ -164,8 +162,23 @@ public:
                 }
             }
         }
-        if(rt.isKnown) {
+        if(n.isResolved) {
+            /// If cast is unnecessary then just remove the As
+            if(lt.exactlyMatches(rt)) {
+                fold(n, n.left);
+                return;
+            }
 
+            /// If left is a literal number then do the cast now
+            auto lit = n.left().as!LiteralNumber;
+            if(lit && rt.isValue) {
+
+                lit.value.as(rt);
+                lit.str = lit.value.getString();
+
+                fold(n, lit);
+                return;
+            }
         }
     }
     void visit(Assert n) {
@@ -204,9 +217,25 @@ public:
             c.add(LiteralNumber.makeConst(n.line+1, TYPE_INT));
 
             rewrites++;
+            return;
+        }
+        /// If the asserted expression is now a const number then
+        /// evaluate it now and replace the assert with a true or false
+        if(n.expr().isResolved) {
+            auto lit = n.expr().as!LiteralNumber;
+            if(lit) {
+                if(lit.value.getBool()==false) {
+                    module_.addError(n, "Assertion failed", true);
+                    return;
+                }
+
+                fold(n, lit);
+            }
         }
     }
     void visit(Binary n) {
+        auto lt = n.leftType();
+        auto rt = n.rightType();
 
         if(n.op==Operator.BOOL_AND) {
             auto p = n.parent.as!Binary;
@@ -222,11 +251,11 @@ public:
         }
 
         /// We need the types before we can continue
-        if(n.leftType().isUnknown || n.rightType.isUnknown) {
+        if(lt.isUnknown || rt.isUnknown) {
             return;
         }
 
-        if(n.leftType.isStruct) {
+        if(lt.isStruct) {
             if(n.op.isOverloadable || n.op.isComparison) {
                 n.rewriteToOperatorOverloadCall();
                 rewrites++;
@@ -235,9 +264,6 @@ public:
         }
 
         if(n.type.isUnknown) {
-
-            auto lt = n.leftType();
-            auto rt = n.rightType();
 
             if(lt.isKnown && rt.isKnown) {
                 /// If we are assigning then take the type of the lhs expression
@@ -256,6 +282,26 @@ public:
                         n.type = t;
                     }
                 }
+            }
+        }
+        /// If left and right expressions are const numbers then evaluate them now
+        /// and replace the Binary with the result
+        if(n.isResolved && n.isConst) {
+
+            // todo - make this work
+            if(n.op.isAssign) return;
+
+            auto leftLit  = n.left().as!LiteralNumber;
+            auto rightLit = n.right().as!LiteralNumber;
+            if(leftLit && rightLit) {
+
+                auto lit = leftLit.copy();
+
+                lit.value.applyBinary(n.type, n.op, rightLit.value);
+                lit.str = lit.value.getString();
+
+                fold(n, lit);
+                return ;
             }
         }
     }
@@ -438,7 +484,30 @@ public:
 
     }
     void visit(Composite n) {
-
+        final switch(n.usage) with(Composite.Usage) {
+            case STANDARD:
+                /// Can be removed if empty
+                /// Can be replaced if contains single child
+                if(n.numChildren==0) {
+                    n.detach();
+                    rewrites++;
+                } else if(n.numChildren==1) {
+                    auto child = n.first();
+                    fold(n, child);
+                }
+                break;
+            case PERMANENT:
+                /// Never remove or replace
+                break;
+            case PLACEHOLDER:
+                /// Never remove
+                /// Can be replaced if contains single child
+                if(n.numChildren==1) {
+                    auto child = n.first();
+                    fold(n, child);
+                }
+                break;
+        }
     }
     void visit(Continue n) {
         if(!n.isResolved) {
@@ -625,6 +694,25 @@ public:
                 findLocalOrGlobal();
             } else {
                 findStructMember();
+            }
+        }
+
+        /// If Identifier target is a const value then just replace with that value
+        if(n.isResolved && n.isConst) {
+            auto type = n.target.getType;
+            auto var  = n.target.getVariable;
+
+            if(type.isValue && (type.isInteger || type.isReal || type.isBool)) {
+                assert(var.hasInitialiser);
+
+                Initialiser ini = var.initialiser();
+                auto lit        = ini.literal();
+
+                if(lit && lit.isResolved) {
+                    fold(n, lit.copy());
+                    n.target.dereference();
+                    return;
+                }
             }
         }
     }
@@ -961,7 +1049,10 @@ public:
 
     }
     void visit(Parenthesis n) {
+        assert(n.numChildren==1);
 
+        /// We don't need any Parentheses any more
+        fold(n, n.expr());
     }
     void visit(Return n) {
         //if(n.hasExpr) {
@@ -1003,6 +1094,19 @@ public:
 
             n.parent.replaceChild(n, dot);
             rewrites++;
+            return;
+        }
+        /// If expression is a const literal number then apply the
+        /// operator and replace Unary with the result
+        if(n.isResolved && n.isConst) {
+            auto lit = n.expr().as!LiteralNumber;
+            if(lit) {
+                lit.value.applyUnary(n.op);
+                lit.str = lit.value.getString();
+
+                fold(n, lit);
+                return;
+            }
         }
     }
     void visit(ValueOf n) {
@@ -1086,27 +1190,50 @@ public:
 private:
     void recursiveVisit(ASTNode m) {
 
-        if(m.isNamedStruct && m.as!NamedStruct.isTemplateBlueprint) return;
-        if(m.isFunction) {
+        if(!isAttached(m)) return;
+
+        if(m.isNamedStruct) {
+            if(m.as!NamedStruct.isTemplateBlueprint) return;
+        } else if(m.isFunction) {
             auto f = m.as!Function;
             if(f.isTemplateBlueprint) return;
             if(f.isImport) return;
-        }
-        if(m.isAlias) {
+        } else if(m.isAlias) {
             auto d = m.as!Alias;
             if(!d.type.isAlias) return;
         }
 
         //dd("  resolve", typeid(m), m.nid);
+        /// Resolve this node
         m.visit!ModuleResolver(this);
+
+        if(!isAttached(m)) return;
 
         if(!m.isResolved) {
             unresolved.add(m);
         }
 
-        foreach(n; m.children) {
+        /// Visit children
+        foreach(n; m.children[].dup) {
             recursiveVisit(n);
         }
+    }
+    bool isAttached(ASTNode n) {
+        if(n.parent is null) return false;
+        if(n.parent.isModule) return true;
+        return isAttached(n.parent);
+    }
+    void fold(ASTNode replaceMe, ASTNode withMe) {
+        auto p = replaceMe.parent;
+        p.replaceChild(replaceMe, withMe);
+        rewrites++;
+
+        //if(module_.canonicalName=="test_statics") {
+        //    dd("=======> folded", replaceMe.line, replaceMe, "child=", replaceMe.hasChildren ? replaceMe.first : null);
+        //    dd("withMe=", withMe);
+        //}
+        /// Ensure active roots remain valid
+        module_.addActiveRoot(withMe);
     }
     ///
     /// If this is the first time we have looked at this module then add           

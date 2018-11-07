@@ -214,7 +214,6 @@ public:
         receiver("Active modules ......... %s %s".format(allModules.length, modules.keys));
         receiver("Parser time ............ %.2f ms".format(allModules.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6));
         receiver("Resolver time .......... %.2f ms".format(allModules.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6));
-        receiver("Constant folder time ... %.2f ms".format(allModules.map!(it=>it.constFolder.getElapsedNanos).sum() * 1e-6));
         receiver("DCE time ............... %.2f ms".format(allModules.map!(it=>it.dce.getElapsedNanos).sum() * 1e-6));
         receiver("Semantic checker time .. %.2f ms".format(allModules.map!(it=>it.checker.getElapsedNanos).sum() * 1e-6));
         receiver("IR generation time ..... %.2f ms".format(allModules.map!(it=>it.gen.getElapsedNanos).sum() * 1e-6));
@@ -246,12 +245,11 @@ private:
     }
 protected:
     void parseAndResolve() {
-        int numModulesParsed = 0;
+        int numModulesParsed     = 0;
         int numUnresolvedModules = 0;
-        int nodesFolded = 0;
 
         for(int loop=1;
-            loop<30 && (numUnresolvedModules>0 || tasksOutstanding() || nodesFolded>0 || numModulesParsed>0);
+            loop<30 && (numUnresolvedModules>0 || tasksOutstanding() || numModulesParsed>0);
             loop++)
         {
             log("===================================================== Loop %s", loop);
@@ -282,7 +280,6 @@ protected:
 
             numModulesParsed     = parseModules();
             numUnresolvedModules = runResolvePass();
-            nodesFolded          = runConstFoldPass();
         }
 
         if(numUnresolvedModules > 0) {
@@ -317,17 +314,6 @@ protected:
         }
         log("There are %s unresolved modules, %s unresolved nodes", numUnresolvedModules, numUnresolvedNodes);
         return numUnresolvedModules;
-    }
-    int runConstFoldPass() {
-        log("Folding constants");
-
-        int nodesFolded;
-
-        foreach(m; allModules) {
-            nodesFolded += m.constFolder.fold();
-        }
-        log("Folded %s nodes", nodesFolded);
-        return nodesFolded;
     }
     void removeUnreferencedNodes() {
         dd("remove unreferenced");

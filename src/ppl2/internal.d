@@ -90,7 +90,6 @@ import ppl2.gen.gen_module;
 import ppl2.gen.gen_struct;
 import ppl2.gen.gen_variable;
 
-import ppl2.opt.opt_const_fold;
 import ppl2.opt.opt_dead_code;
 
 import ppl2.misc.JsonWriter;

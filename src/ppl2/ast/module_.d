@@ -23,7 +23,6 @@ public:
 
     ModuleResolver resolver;
     ModuleChecker checker;
-    ModuleConstantFolder constFolder;
     DeadCodeEliminator dce;
     ModuleGenerator gen;
     Templates templates;
@@ -53,7 +52,6 @@ public:
         parser            = new ModuleParser(this);
         resolver          = new ModuleResolver(this);
         checker           = new ModuleChecker(this);
-        constFolder       = new ModuleConstantFolder(this);
         dce               = new DeadCodeEliminator(this);
         gen               = new ModuleGenerator(this, llvmWrapper);
         templates         = new Templates(this);
@@ -83,7 +81,6 @@ public:
         parser.clearState();
         resolver.clearState();
         checker.clearState();
-        constFolder.clearState();
         dce.clearState();
         gen.clearState();
         templates.clearState();
