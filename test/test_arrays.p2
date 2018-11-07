@@ -5,18 +5,18 @@ testArrays {
     declarations {
         int[3] array
     
-        int[2] a
+        int[2] a                ; assert a.length==2
 
-        int[2] b = [: 1,3]
-        var c    = [: 7,13,17]
-        var d    = [: 1, 3.3, true]
+        int[2] b = [1,3]
+        var c    = [7,13,17]    ; assert c is int[3]
+        var d    = [1, 3.3, 7]  ; assert d is float[3]
 
         int[9]* e1 = null
         int*[7] e2
         int[2]*[1] e3
         int*[2]*[1]* e4 = null
 
-        var g = [: 1 as int,2,3]    // int[3]
+        var g = [1 as int,2,3]   ; assert g is int[3]
     }
     arrayOfArray {
         int[3][1] a
@@ -33,7 +33,7 @@ testArrays {
         var b = a[0][1]
         assert b==77
     }
-    anonStructOfArray {
+    arrayOfAnonStruct {
         [int a, float b][2] a        
         assert a.length==2
         assert a[0] is [int,float]
@@ -46,11 +46,11 @@ testArrays {
 
         var b = a[0]
     }
-    namedStructOfArray {
+    arrayOfNamedStructOfArray {
         struct SOA {
             int[5] array
         }
-        SOA[2] soa = [: SOA(),SOA()]
+        SOA[2] soa = [ SOA(),SOA() ]   
         assert soa.length==2
         assert soa[0] is SOA
         assert soa[1] is SOA
@@ -59,15 +59,15 @@ testArrays {
         assert soa[1].array is int[5]
         assert soa[0].array[0] is int
 
-        soa[0].array = [: 1,2,3,4,5]
-        soa[1].array = [: 10,20,30,40,50]
+        soa[0].array = [1,2,3,4,5]
+        soa[1].array = [10,20,30,40,50]
 
         var z1 = soa[0].array[0]
         assert z1 == 1
         assert soa[0].array[1] == 2
 
-        assert soa[0].array is [: 1 as int,2,3,4,5]
-        assert soa[1].array is [: 10 as int,20,30,40,50]
+        assert soa[0].array is [1 as int,2,3,4,5]
+        assert soa[1].array is [10 as int,20,30,40,50]
     }
     arrayLength {
         int[4] a
@@ -75,10 +75,10 @@ testArrays {
         var len = a.length
         assert len==4
 
-        var b = [: 0,1,2,3,4,5]
+        var b = [0,1,2,3,4,5]   ; assert b is int[6]
         assert b.length == 6
 
-        assert [: 1,2,3].length==3
+        assert [1,2,3].length==3
         assert int[5].length==5
     }
     shouldNotCompile {
@@ -86,8 +86,8 @@ testArrays {
     }
     declarations()
     arrayOfArray()
-    anonStructOfArray()
-    namedStructOfArray()
+    arrayOfAnonStruct()
+    arrayOfNamedStructOfArray()
     arrayLength()
     shouldNotCompile()
 
@@ -109,7 +109,7 @@ testLiteralArrays {
         int[2]* ptr
         assert ptr is null
 
-        ptr = &[: 3 as int, 7]
+        ptr = &[3 as int, 7]
 
         assert ptr[0] is int[2]
         assert ptr[0][0] == 3
@@ -118,14 +118,14 @@ testLiteralArrays {
     }
     test2 {
         // initialised
-        int[2] array = [: 5, 10]
+        int[2] array = [5, 10]
 
         assert array[0] == 5
         assert array[1] == 10
         assert array[0] is int
         assert array[1] is int
 
-        var b = [:3, 7]
+        var b = [3, 7]     
         assert b is int[2]
         assert b[0] == 3
         assert b[1] == 7
@@ -138,27 +138,31 @@ testLiteralArrays {
         assert a[1] == 88
     }
     test5 {
-        [:99,100]
-        var a = [:101,102][0]
+        [99,100]
+        var a = [101,102][0]
         assert a==101
     }
     test6 {
         // empty array literal
-        int[1] a = [:]
+        int[1] a = []
+        assert a.length==1
         assert a[0] == 0
 
         // too few values
-        float[3] b = [: 7]
+        float[3] b = [7]
+        assert b.length==3
         assert b[0] == 7
         assert b[1] == 0
         assert b[2] == 0
 
-        b = [:8,3]
+        b = [8,3]
+        assert b.length==3
         assert b[0] == 8
         assert b[1] == 3
         assert b[2] == 0
 
-        b = [:]
+        b = []
+        assert b.length==3
         assert b[0] == 0
         assert b[1] == 0
         assert b[2] == 0
@@ -168,19 +172,18 @@ testLiteralArrays {
     }
     shouldNotCompile {
         //int[1] a
-        //var b = a:1 // out of bounds
+        //var b = a[1] // out of bounds
 
-        //var a = [:] // cannot infer
+        //var a = [] // cannot infer element type
 
-        //int[2] a = [: 1,2,3] // too many values
-        //int[5] a = [: 5=1] // to many values
+        //int[2] a = [1,2,3] // too many values
 
-        //int[2] a = [: 1, 1f] // bad cast
+        //int[2] a = [1, 1f] // bad cast
     }
     test1()
     test2()
     test3()
-    test4([: 77 as int, 88] as int[2])
+    test4([77 as int, 88] as int[2])
     test5()
     test6()
     test7()

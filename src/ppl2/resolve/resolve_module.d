@@ -763,7 +763,6 @@ public:
                     parentType = n.parent.as!Initialiser.getType;
                     break;
                 case IS:
-
                     break;
                 case LITERAL_FUNCTION:
                     break;

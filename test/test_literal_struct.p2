@@ -69,7 +69,7 @@ testLiteralStruct {
     }
     test6 {
         // implicit [byte,byte]
-        var s = [7,8] as struct
+        var s = [7,8] as struct     ; assert s is [int,int]
         assert s[0] is int
         assert s[1] is int
 
@@ -80,7 +80,7 @@ testLiteralStruct {
     }
     test7 {
         // s is [bool, float, long]
-        var s = [true,2f,3L] as struct
+        var s = [true,2f,3L] as struct  ; assert s is [bool,float,long]
         s = [true]
 
         assert s[0] == true
@@ -107,7 +107,7 @@ testLiteralStruct {
         //[int] s = [1,2]
 
         // bad casts
-        //[int] s = [3.1f]
+        //[int] a = [3.1f]
         //[float a, int b] s = [b=3.14f]
     }
     test1()

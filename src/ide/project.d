@@ -2,6 +2,7 @@ module ide.project;
 
 import ide.internal;
 import std.path : isAbsolute;
+import std.file : exists;
 import ppl2;
 
 final class Project {
@@ -116,7 +117,7 @@ public:
     }
 private:
     void initialise() {
-        assert(From!"std.file".exists(directory));
+        assert(exists(directory));
 
         libs["core"] = "./libs";
 
@@ -129,6 +130,11 @@ private:
         }
         foreach(k,v; libs) {
             libs[k] = normaliseDir(v, true);
+        }
+
+        /// Remove any open files that don't exist
+        foreach(k; openFiles.keys.idup) {
+            if(!exists(directory~k)) openFiles.remove(k);
         }
 
         targetDirectory = normaliseDir(targetDirectory);

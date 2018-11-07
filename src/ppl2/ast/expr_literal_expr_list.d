@@ -14,6 +14,10 @@ final class LiteralExpressionList : Expression {
 
     void resolve() {
         switch(parent.id) with(NodeID) {
+            case ADDRESS_OF:
+                /// Assume array
+                convertToLiteralArray();
+                break;
             case AS:
                 As p   = parent.as!As;
                 auto t = p.getType;
@@ -45,7 +49,18 @@ final class LiteralExpressionList : Expression {
                     convertToLiteralArray();
                 } else if(t.isAnonStruct) {
                     convertToLiteralStruct();
+                } else {
+                    /// Assume array
+                    convertToLiteralArray();
                 }
+                break;
+            case DOT:
+                /// Assume array
+                convertToLiteralArray();
+                break;
+            case INDEX:
+                /// Assume array
+                convertToLiteralArray();
                 break;
             case INITIALISER:
                 auto p = parent.as!Initialiser;
@@ -57,6 +72,19 @@ final class LiteralExpressionList : Expression {
                 } else if(p.var.type.isAnonStruct) {
                     convertToLiteralStruct();
                 }
+                break;
+            case IS:
+                auto p = parent.as!Is;
+                auto t = p.oppositeSideType(this);
+                if(t.isArray) {
+                    convertToLiteralArray();
+                } else if(t.isAnonStruct) {
+                    convertToLiteralStruct();
+                }
+                break;
+            case LITERAL_FUNCTION:
+                /// Assume array
+                convertToLiteralArray();
                 break;
             case RETURN:
                 auto p = parent.as!Return;
@@ -76,7 +104,6 @@ final class LiteralExpressionList : Expression {
     }
 private:
     void convertToLiteralArray() {
-        dd("converting to LiteralArray");
         auto array = makeNode!LiteralArray(this);
 
         foreach(ch; children[].dup) {
@@ -86,7 +113,6 @@ private:
         parent.replaceChild(this, array);
     }
     void convertToLiteralStruct() {
-        dd("converting to LiteralStruct");
         auto struct_ = makeNode!LiteralStruct(this);
 
         foreach(ch; children[].dup) {

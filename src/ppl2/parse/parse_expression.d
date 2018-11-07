@@ -117,15 +117,8 @@ private:
                 if(isObviouslyAStructLiteral(t)) {
                     parseLiteralStruct(t, parent);
                 } else {
-                    if(t.peek(1).type==TT.COLON) {
-                        parseLiteralArray(t, parent);
-                    } else {
-                        /// Could be a LiteralStruct or a ListeralArray
-                        parseLiteralExprList(t, parent);
-
-                        /// assume struct for now
-                        //parseLiteralStruct(t, parent);
-                    }
+                    /// Could be a LiteralStruct or a ListeralArray
+                    parseLiteralExprList(t, parent);
                 }
                 break;
             case TT.LCURLY:

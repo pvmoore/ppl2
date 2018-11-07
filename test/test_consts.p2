@@ -47,8 +47,6 @@ testConsts {
     const L1 = 1
     const L2 = 2
     int[L1][L2] array2
-
-    //var what = 1  
  
     //const int D         // needs initialiser
 

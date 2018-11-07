@@ -113,8 +113,8 @@ testTemplateFunctions {
         assert 6 == func2(1, {float a, float b -> return a+b})   // <float>(int,{float,bool}*)
         assert 6 == func2<byte>(2 as byte, {byte a, byte b->return 1 as byte})
 
-        assert 7 == func3([: 1,2], 3d) // func3<int,double>(int[2])
-        assert 7 == func3<float,bool>([: 1.1,2.2], true)
+        assert 7 == func3([1,2], 3d) // func3<int,double>(int[2])
+        assert 7 == func3<float,bool>([1.1,2.2], true)
     }
     implicitStruct {
         M1 m1
