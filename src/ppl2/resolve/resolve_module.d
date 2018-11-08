@@ -317,7 +317,6 @@ public:
             Expression prev  = n.prevLink();
 
             if(n.isStartOfChain()) {
-
                 auto callable = callResolver.standardFind(n);
                 if(callable.resultReady) {
                     /// If we get here then we have 1 good match
@@ -523,7 +522,7 @@ public:
         resolveAlias(n, n.type);
     }
     void visit(Dot n) {
-        n.resolve();
+        //n.resolve();
     }
     void visit(Function n) {
 
@@ -652,8 +651,6 @@ public:
                     break;
             }
 
-
-            // fixme when we do module::name
             if(!prevType.isStruct) {
                 module_.addError(prev, "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev), true);
                 return;
@@ -1204,7 +1201,7 @@ private:
             if(!d.type.isAlias) return;
         }
 
-        //dd("  resolve", typeid(m), m.nid);
+        //dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);
         /// Resolve this node
         m.visit!ModuleResolver(this);
 

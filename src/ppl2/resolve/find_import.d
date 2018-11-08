@@ -21,17 +21,13 @@ Import findImportByCanonicalName(string canonicalName, ASTNode node) {
     return null;
 }
 Import findImportByAlias(string alias_, ASTNode node) {
-
-    /// Check nodes that appear before 'node' in current scope
-    foreach(n; node.prevSiblings()) {
-        auto imp = n.as!Import;
+    /// Iterate back from node to the root of the tree
+    while(node) {
+        auto imp = node.as!Import;
         if(imp && alias_==imp.aliasName) {
             return imp;
         }
-    }
-    if(node.parent) {
-        /// Recurse up the tree
-        return findImportByAlias(alias_, node.parent);
+        node = node.previous();
     }
     return null;
 }

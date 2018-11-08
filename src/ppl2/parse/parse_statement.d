@@ -224,7 +224,7 @@ private: //=====================================================================
                 imp.aliasName = t.value;
                 t.next(2);
 
-                if(findImportByAlias(imp.aliasName, imp)) {
+                if(findImportByAlias(imp.aliasName, imp.previous())) {
                     module_.addError(imp, "Module alias %s already found in this scope".format(imp.aliasName), true);
                 }
             }

@@ -11,7 +11,7 @@ var s = "hello"
 
 import test_imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
 import test_literals
-import test_arrays, test_expressions
+import test_arrays
 import test_consts
 import test_meta
 
@@ -93,8 +93,10 @@ struct Array <A,B> {
 }
 
 main {
+    import texpr = test_expressions
+    texpr::testExpressions()
+    
     testLiterals()
-    testExpressions()
     testConsts()
     testMeta()
     testArrays()
@@ -184,7 +186,7 @@ main {
 
     testModules()
     testStatements()
-    testExpressions2()
+    testExpressions() 
     testFunctions()
     testStructures()
     testTemplates()
@@ -220,7 +222,7 @@ testStatements {
     l::testLoop()
     v::testVariables()
 }
-testExpressions2 {
+testExpressions {
     import test_as, test_if, test_literal_struct   
     
     testAs()

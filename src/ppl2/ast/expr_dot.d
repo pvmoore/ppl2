@@ -29,13 +29,13 @@ final class Dot : Expression {
     bool isStaticAccess() const { return dotType==DotType.STATIC; }
     bool isModuleAccess() const { return dotType==DotType.MODULE; }
 
-    void resolve() {
-        if(dotType==DotType.STATIC) {
+    //void resolve() {
+        //if(dotType==DotType.STATIC) {
             /// todo - Find out whether lhs is a struct or a module
 
             // For now it is always a struct
-        }
-    }
+        //}
+    //}
 
     override string toString() {
         string s = dotType==DotType.MEMBER ? "." : "::";

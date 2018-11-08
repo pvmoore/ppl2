@@ -245,6 +245,7 @@ private:
     }
 protected:
     void parseAndResolve() {
+        dd("parseAndResolve");
         int numModulesParsed     = 0;
         int numUnresolvedModules = 0;
 
@@ -287,6 +288,7 @@ protected:
         }
     }
     int parseModules() {
+        log("parseModules");
         int numModulesParsed = 0;
         foreach(m; allModules) {
             if(!m.isParsed) {

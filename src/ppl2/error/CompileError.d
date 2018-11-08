@@ -115,34 +115,42 @@ public:
 //====================================================================================
 final class AmbiguousCall : CompileError {
 private:
-    Module module_;
     Call call;
     string name;
     Type[] argTypes;
-    Array!Callable overloadSet;
+    Callable[] overloadSet;
 public:
     this(Module m, Call call, Array!Callable overloadSet) {
         super(m, call.line, call.column);
         this.call        = call;
-        this.overloadSet = overloadSet;
+        this.overloadSet = overloadSet.values.dup;
     }
     override string getKey() {
         return "%s|%s|%s".format(module_.canonicalName, call.line, call.column);
     }
     override string toPrettyString() {
         auto buf = new StringBuffer;
-        buf.add("Ambigous matches found looking for function:\n\n");
-        buf.add("\t%s(%s)\n\n", call.name, call.argTypes);
-        buf.add("%s matches found:\n\n", overloadSet.length);
+
+        buf.add(prettyErrorMsg(module_, "Ambiguous call"));
+
+        buf.add("\n\n\t%s matches found:\n\n", overloadSet.length);
+
+        string getFuncSignature(Type[] params, Type retType) {
+            string a = params.length==0 ? "void" : params.toString;
+            return "{%s -> %s}".format(a, retType);
+        }
 
         foreach(callable; overloadSet) {
-            auto params       = callable.getType().getFunctionType.paramTypes();
+            auto funcType     = callable.getType().getFunctionType;
+            auto params       = funcType.paramTypes();
+            auto retType      = funcType.returnType();
             string moduleName = callable.getModule.canonicalName;
-            int line          = callable.getNode.line;
+            auto node         = callable.getNode;
 
-            string s = "%s(%s)".format(call.name, params);
+            string s1 = "%s Line %4s:%-2s".format(moduleName, node.line+1, node.column);
+            string s2 = "%35s\t%s %s".format(s1, call.name, getFuncSignature(params, retType));
 
-            buf.add("\t% 10s\t::% 10s:%s\n", s, moduleName, line);
+            buf.add("\t%s\n", s2);
         }
         return buf.toString();
     }

@@ -198,6 +198,11 @@ public:
         return -1;
     }
     //=================================================================================
+    ASTNode previous() {
+        int i = index();
+        if(i<1) return parent;
+        return parent.children[i-1];
+    }
     ASTNode prevSibling() {
         int i = index();
         if(i<1) return null;
@@ -207,6 +212,11 @@ public:
         int i = index();
         if(i<1) return [];
         return parent.children[0..i];
+    }
+    ASTNode[] prevSiblingsAndMe() {
+        int i = index();
+        if(i<0) return [];
+        return parent.children[0..i+1];
     }
     ASTNode[] allSiblings() {
         return parent.children[].filter!(it=>it !is this).array;

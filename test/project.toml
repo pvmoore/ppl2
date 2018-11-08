@@ -30,8 +30,8 @@ active = 0
 
 [[openFile]]
 name = "test_variables.p2"
-line = 50
-active = 1
+line = 51
+active = 0
 
 [[openFile]]
 name = "test_string.p2"
@@ -65,8 +65,8 @@ active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 226
-active = 0
+line = 186
+active = 1
 
 [[openFile]]
 name = "test_constructors.p2"

@@ -78,6 +78,7 @@ public:
     ///     call.argTypes may not yet be known
     ///
     Callable standardFind(Call call, ModuleAlias modAlias=null) {
+        //dd("resolveCall", call.name);
 
         /// Come back when all root level Composites have been removed
         //if(module_.containsComposites) {
@@ -85,7 +86,7 @@ public:
         //}
 
         NamedStruct ns = call.isStartOfChain() ?
-                            call.getAncestor!NamedStruct : null;
+                         call.getAncestor!NamedStruct : null;
 
         if(call.isTemplated && !call.name.contains("<")) {
             /// We can't do anything until the template types are known
@@ -620,7 +621,7 @@ private:
         return CALLABLE_NOT_READY;
     }
     void chat(A...)(lazy string fmt, lazy A args) {
-        //if(module_.canonicalName=="test_implicit_template_funcs") {
+        //if(module_.canonicalName=="test") {
         //    dd(format(fmt, args));
         //}
     }

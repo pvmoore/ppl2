@@ -73,6 +73,8 @@ private:
         /// name (
         /// name.name {
         /// name <
+        /// name::
+        /// name
         if(t.type==TT.IDENTIFIER) {
             if(t.peek(1).type==TT.LBRACKET) {
                 parseCall(t, parent);
@@ -94,11 +96,13 @@ private:
                     return;
                 }
             }
-            auto node = parent.hasChildren ? parent.last : parent;
-            auto imp = findImportByAlias(t.value, node);
-            if(imp) {
-                parseModuleAlias(t, parent, imp);
-                return;
+            if(t.peek(1).type==TT.DBL_COLON) {
+                auto node = parent.hasChildren ? parent.last : parent;
+                auto imp  = findImportByAlias(t.value, node);
+                if(imp) {
+                    parseModuleAlias(t, parent, imp);
+                    return;
+                }
             }
 
             parseIdentifier(t, parent);

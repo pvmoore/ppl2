@@ -97,7 +97,7 @@ private:
     }
     Type parseImportAlias(Tokens t, ASTNode node) {
 
-        auto imp = findImportByAlias(t.value ,node);
+        auto imp = findImportByAlias(t.value, node);
         if(!imp) return null;
         if(t.peek(1).type!=TT.DBL_COLON) return null;
 
