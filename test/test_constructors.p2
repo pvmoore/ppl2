@@ -58,17 +58,17 @@ testConstructors {
     assert s3.b==4
     assert s3.flag==true
 
-    var s4 = S(value=90)
+    var s4 = S(value:90)
     assert s4.a == 90
     assert s4.b == 4
     assert s4.flag == true
 
-    var s5 = S(sh=3 as short, flag=false)
+    var s5 = S(sh:3 as short, flag:false)
     assert s5.a == 0
     assert s5.b == 3
     assert s5.flag == false
 
-    var s6 = S(b=4.2, c=0, a=9.5)
+    var s6 = S(b:4.2, c:0, a:9.5)
     assert s6.a == 9
     assert s6.b == 4
     assert s6.flag == false
@@ -83,7 +83,7 @@ testConstructors {
     assert s8.b==4
     assert s8.flag==true
 
-    var s9 = S*(sh=3 as short, flag=true)
+    var s9 = S*(sh:3 as short, flag:true)
     assert s9.a == 0
     assert s9.b == 3
     assert s9.flag == true

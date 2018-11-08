@@ -224,14 +224,29 @@ main {
     import test_access
     testAccess()
 
-    import test_list
-    testList()
-    import test_console
-    testConsole()
+    testExpressions2()
+    testStatements()
+    testCore()
 }
 bool yop
 
+testStatements {
 
+}
+testExpressions2 {
+
+}
+testCore {
+    import test_console
+    import test_list
+    import test_string
+    import test_unsigned
+
+    testConsole()   
+    testList()   
+    testString()
+    testUnsigned()
+}
 
 
 

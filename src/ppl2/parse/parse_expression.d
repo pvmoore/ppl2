@@ -658,7 +658,7 @@ private:
     }
     ///
     /// constructor ::= identifier "(" { cexpr [ "," cexpr ] } ")"
-    /// cexpr :: expression | paramname "=" expression
+    /// cexpr :: expression | paramname ":" expression
     ///
     void parseConstructor(Tokens t, ASTNode parent) {
         /// S(...)
@@ -732,7 +732,7 @@ private:
 
         while(t.type!=TT.RBRACKET) {
 
-            if(t.peek(1).type==TT.EQUALS) {
+            if(t.peek(1).type==TT.COLON) {
                 /// paramname = expr
 
                 if(composite.numChildren>1 && call.paramNames.length==0) {
@@ -754,7 +754,7 @@ private:
                 call.paramNames ~= t.value;
                 t.next;
 
-                t.skip(TT.EQUALS);
+                t.skip(TT.COLON);
 
                 parse(t, composite);
 
@@ -937,6 +937,9 @@ private:
         }
         t.skip(TT.RSQBRACKET);
     }
+    ///
+    /// expr_list := "[" { expr { "," expr } } "]"
+    ///
     void parseLiteralExprList(Tokens t, ASTNode parent) {
         auto e = makeNode!LiteralExpressionList(t);
         parent.add(e);

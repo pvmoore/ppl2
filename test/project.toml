@@ -14,17 +14,22 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "test_literal_struct.p2"
-line = 109
-active = 0
-
-[[openFile]]
-name = "test.p2"
-line = 12
+name = "test_calls.p2"
+line = 30
 active = 0
 
 [[openFile]]
 name = "test_inner_structs.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_string.p2"
+line = 5
+active = 0
+
+[[openFile]]
+name = "test_literals.p2"
 line = 0
 active = 0
 
@@ -34,6 +39,26 @@ line = 20
 active = 0
 
 [[openFile]]
-name = "test_calls.p2"
-line = 30
+name = "test_literal_struct.p2"
+line = 109
+active = 0
+
+[[openFile]]
+name = "test_console.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test.p2"
+line = 239
 active = 1
+
+[[openFile]]
+name = "test_constructors.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_list.p2"
+line = 16
+active = 0
