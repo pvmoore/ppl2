@@ -16,8 +16,8 @@ testAs {
     var b4 = [3] as [int]  
 
     // arrays
-    var d = [1,2,3] as int[3]  
-    //var d2 = [1,2,3] as int[]
+    var d  = [1,2,3] as int[3]  
+    var d2 = [1,2,3] as int[]   ; assert d2 is int[3]
 
 
 

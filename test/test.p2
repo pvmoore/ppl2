@@ -215,9 +215,10 @@ testModules {
     [int, Bat berty] bertyStruct
 }
 testStatements {
-    import test_loop
+    import l = test_loop, v = test_variables
 
-    testLoop()
+    l::testLoop()
+    v::testVariables()
 }
 testExpressions2 {
     import test_as, test_if, test_literal_struct   

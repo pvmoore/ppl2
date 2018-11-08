@@ -14,6 +14,11 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
+name = "test_arrays.p2"
+line = 0
+active = 0
+
+[[openFile]]
 name = "test_calls.p2"
 line = 30
 active = 0
@@ -24,6 +29,11 @@ line = 0
 active = 0
 
 [[openFile]]
+name = "test_variables.p2"
+line = 50
+active = 1
+
+[[openFile]]
 name = "test_string.p2"
 line = 5
 active = 0
@@ -31,6 +41,11 @@ active = 0
 [[openFile]]
 name = "test_literals.p2"
 line = 0
+active = 0
+
+[[openFile]]
+name = "test_as.p2"
+line = 21
 active = 0
 
 [[openFile]]
@@ -50,7 +65,7 @@ active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 124
+line = 226
 active = 0
 
 [[openFile]]
@@ -65,5 +80,5 @@ active = 0
 
 [[openFile]]
 name = "test_imports.p2"
-line = 57
-active = 1
+line = 60
+active = 0

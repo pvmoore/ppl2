@@ -145,10 +145,9 @@ public:
                     auto b = module_.builder(n);
                     auto p = n.parent;
 
-                    // fold
-
                     auto value = makeNode!ValueOf(n);
-                    p.replaceChild(n, value);
+
+                    fold(n, value);
 
                     auto left  = b.addressOf(n.left);
                     auto right = b.addressOf(n.right);
@@ -157,7 +156,6 @@ public:
 
                     value.add(n);
 
-                    rewrites++;
                     return;
                 }
             }
@@ -196,7 +194,8 @@ public:
             auto b      = module_.builder(n);
 
             auto c = b.call("__assert", null);
-            parent.replaceChild(n, c);
+
+            fold(n, c);
 
             /// value
             Expression value;
@@ -216,7 +215,6 @@ public:
             /// line
             c.add(LiteralNumber.makeConst(n.line+1, TYPE_INT));
 
-            rewrites++;
             return;
         }
         /// If the asserted expression is now a const number then
@@ -378,7 +376,8 @@ public:
 
                         auto dummy = TypeExpr.make(prevType);
 
-                        dot.replaceChild(prev, dummy);
+                        fold(prev, dummy);
+                        //dot.replaceChild(prev, dummy);
 
                         if(prevType.isValue) {
                             auto ptr = makeNode!AddressOf;
@@ -391,7 +390,7 @@ public:
                         if(n.paramNames.length>0) n.paramNames ~= "this";
 
                         n.implicitThisArgAdded = true;
-                        rewrites++;
+                        //rewrites++;
                     }
 
                     auto callable = callResolver.structFind(n, ns);
@@ -806,9 +805,10 @@ public:
 
             auto dot = b.dot(left, call);
 
-            n.parent.replaceChild(n, dot);
+            fold(n, dot);
 
-            rewrites++;
+            //n.parent.replaceChild(n, dot);
+            //rewrites++;
             return;
 
         }
@@ -1092,8 +1092,9 @@ public:
 
             auto dot = b.dot(left, right);
 
-            n.parent.replaceChild(n, dot);
-            rewrites++;
+            fold(n, dot);
+            //n.parent.replaceChild(n, dot);
+            //rewrites++;
             return;
         }
         /// If expression is a const literal number then apply the

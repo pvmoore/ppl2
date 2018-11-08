@@ -1,0 +1,54 @@
+
+public
+
+testVariables {
+    basicTypes {
+        bool a
+        bool a1 = true
+
+        byte b 
+        byte b1 = 1 as byte
+
+        short c
+        short c1 = 2 as short
+
+        int d
+        int d1 = 3
+
+        half e
+        half e1 = 1.1h
+
+        float f
+        float f1 = 1.1f
+    
+        double g
+        double g1 = 1.2d
+
+        long h
+        long h1 = 4
+
+        var i = 0   ; assert i is int
+    }
+    anonStructs {
+        [int] a
+        [int a] a1
+
+        [float, int]     b
+        [float a, int b] b1
+        [float a, int]   b2
+        [float, int b]   b3
+    }   
+    arrays {
+        int[1] a
+        double[2] b
+
+        const COUNT = 1
+        int[COUNT] c        ; assert c.length==1
+
+        int[] d = [1,2,3]   ; assert d is int[3]
+    }
+    basicTypes()
+    anonStructs() 
+    arrays()
+}
+
