@@ -50,8 +50,8 @@ active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 239
-active = 1
+line = 124
+active = 0
 
 [[openFile]]
 name = "test_constructors.p2"
@@ -62,3 +62,8 @@ active = 0
 name = "test_list.p2"
 line = 16
 active = 0
+
+[[openFile]]
+name = "test_imports.p2"
+line = 57
+active = 1

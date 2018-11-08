@@ -15,6 +15,17 @@ public:
         this.module_ = module_;
     }
     ///
+    /// Parse parameter list.
+    ///
+    ///            {name ->
+    ///            {int value, byte* str, int base -> }
+    ///  Start here ^
+    void parseParameters(Tokens t, ASTNode parent) {
+        auto params = makeNode!Parameters(t);
+
+
+    }
+    ///
     /// type        // only inside an anonymous struct
     /// id          // only as a LiteralFunction parameter
     /// type id

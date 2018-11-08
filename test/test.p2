@@ -9,20 +9,19 @@ main {
 
 var s = "hello"
 
-import test_imports, test_literals
-import test_arrays, test_expressions, test_structs
-import test_inner_functions, test_consts
-import test_constructors, test_meta, test_literal_struct
-import test_unreferenced_module, test_calls, test_if
-import test_loop, test_template_functions, test_statics
+import test_imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
+import test_literals
+import test_arrays, test_expressions
+import test_consts
+import test_meta
 
 alias AA = int 
 alias BB = AA*     // int*
 alias CC = BB      // int*
 alias DD = CC*     // int**
-DD dd               // int**
+DD dd              // int**
 alias EE = IntPtrPtr*
-EE ee               // int*** 
+EE ee              // int*** 
 
 // declare for later
 struct Gold
@@ -56,20 +55,17 @@ struct Animal {
         assert true
     }
 }
-
-alias GreyWolf  = Wolf
 alias AnimalPtr = Animal*
 alias IntPtr    = int*
 
-dothings { int a, Cat cat ->
+dothings { int a, Animal animal ->
     int local
-    return cat
+    return animal
 }
 
 int boop = 1
 
 alias Unref = int
-
 Unref unr = 77
 
 unreferencedFunc {
@@ -79,7 +75,6 @@ unreferencedFunc {
 struct Thingy {
     int a
     {void->int} b = { return 1 }
-
     //new = { Thingy* this }    // implicit
 }
 
@@ -89,7 +84,7 @@ myfunc { bool flag ->
 
 someArrays {
     int[5] array
-    var a2 = [1,2]
+    var a2 = [1,2]  // int[2]
 }
 
 struct Array <A,B> {
@@ -98,32 +93,12 @@ struct Array <A,B> {
 }
 
 main {
-    import test_as
-    testAs()
-
-    import test_operator_overloading
-    
     testLiterals()
     testExpressions()
     testConsts()
     testMeta()
     testArrays()
-
-    testStructs()
-    testInnerFunctions()
-    testConstructors()
-    testLiteralStruct()
-    testCalls()
-    testIf()
-    testLoop()
-    testTemplateFunctions()
-    testOperatorOverloading()
-    testStatics()
-	testImports()
-    
-    import test_implicit_template_funcs
-    testImplicitTemplateFunctions()
-
+	
     testGlobals {
         assert dd is int**
         assert ee is int***
@@ -136,7 +111,6 @@ main {
 
         [int, float] anon
 
-        GreyWolf wolf
         Animal* animal
         Animal** animal2
         AnimalPtr animalPtr
@@ -144,28 +118,12 @@ main {
         
         var animal3 = Animal()
         animal3.bark()
-
-        Cat cat
-        Dog* dog = Dog*()
-        dog.age += 1
-
-        [int, Bat berty] bertyStruct
-
-        int a = 1
-        var b = 2
+        dothings(0, animal3)
 
         Thingy thingy = Thingy()
         thingy.a = 9
 
         someArrays()
-
-        importedFunc()
-
-        dothings(0, cat)
-
-        Dog* dd1 = null
-        dd1 = dog
-        dd1 = null
     }
     test1 {
         {void->int} b = { return 1 }
@@ -224,23 +182,72 @@ main {
     import test_access
     testAccess()
 
-    testExpressions2()
+    testModules()
     testStatements()
+    testExpressions2()
+    testFunctions()
+    testStructures()
+    testTemplates()
     testCore()
 }
 bool yop
 
-testStatements {
+testModules {
+    import test_unreferenced_module
 
+    testImports()
+    
+    importedFunc()  
+    
+    Cat cat             // from test_imports
+    Dog dog1 = Dog()
+    dog1.age += 1
+    
+    Dog* dog2 = null     // from test_imports
+    dog2 = &dog1
+    dog2 = null
+    
+    var dog3 = Dog*()
+    
+    alias GreyWolf = Wolf
+    GreyWolf wolf
+    
+    [int, Bat berty] bertyStruct
+}
+testStatements {
+    import test_loop
+
+    testLoop()
 }
 testExpressions2 {
+    import test_as, test_if, test_literal_struct   
+    
+    testAs()
+    testIf()
+    testLiteralStruct()
+}
+testFunctions {
+    import test_calls, test_inner_functions
 
+    testCalls()
+    testInnerFunctions()
+}
+testStructures {
+    import test_structs, test_constructors, test_statics, test_operator_overloading
+
+    testStructs()
+    testConstructors()
+    testStatics()
+    testOperatorOverloading()
+}
+testTemplates {
+    import test_template_functions, test_implicit_template_funcs
+
+    testTemplateFunctions()
+    testImplicitTemplateFunctions()
 }
 testCore {
-    import test_console
-    import test_list
-    import test_string
-    import test_unsigned
+    import test_console, test_list, test_string, test_unsigned
 
     testConsole()   
     testList()   
