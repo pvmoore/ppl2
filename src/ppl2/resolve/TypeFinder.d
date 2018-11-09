@@ -79,7 +79,6 @@ public:
     /// A more advanced findType function that handles template params
     ///
     Type findTemplateType(Type untemplatedType, ASTNode node, Type[] templateParams) {
-
         auto type = untemplatedType;
 
         assert(templateParams.length>0);

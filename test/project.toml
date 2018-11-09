@@ -39,6 +39,11 @@ line = 5
 active = 0
 
 [[openFile]]
+name = "test_implicit_template_funcs.p2"
+line = 44
+active = 1
+
+[[openFile]]
 name = "test_literals.p2"
 line = 0
 active = 0
@@ -65,8 +70,8 @@ active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 186
-active = 1
+line = 190
+active = 0
 
 [[openFile]]
 name = "test_constructors.p2"

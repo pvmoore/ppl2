@@ -19,6 +19,7 @@ interface Type {
     bool exactlyMatches(Type other);
     bool canImplicitlyCastTo(Type other);
     LLVMTypeRef getLLVMType();
+///
     //-------------------------------------
     final bool isFloat() const { return getEnum()==FLOAT; }
     final bool isDouble() const { return getEnum()==DOUBLE; }
@@ -246,7 +247,7 @@ LLVMValueRef zero(Type t) {
 string toString(Type[] types) {
     auto buf = new StringBuffer;
     foreach(i, t; types) {
-        if(i>0) buf.add(", ");
+        if(i>0) buf.add(",");
         buf.add("%s".format(t));
     }
     return buf.toString;

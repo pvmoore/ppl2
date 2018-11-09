@@ -333,7 +333,8 @@ private: //=====================================================================
             /// Template function - just gather the args and tokens
             t.skip(TT.LANGLE);
 
-            f.blueprint = new TemplateBlueprint;
+            f.blueprint = new TemplateBlueprint(module_);
+            string[] paramNames;
 
             /// < .. >
             while(t.type!=TT.RANGLE) {
@@ -342,7 +343,7 @@ private: //=====================================================================
                     module_.addError(t, "Template param name cannot be a type", true);
                 }
 
-                f.blueprint.paramNames ~= t.value;
+                paramNames ~= t.value;
                 t.next;
                 t.expect(TT.RANGLE, TT.COMMA);
                 if(t.type==TT.COMMA) t.next;
@@ -354,7 +355,7 @@ private: //=====================================================================
 
             int start = t.index;
             int end   = t.findEndOfBlock(TT.LCURLY);
-            f.blueprint.setFunctionTokens(ns, t[start..start+end+1].dup);
+            f.blueprint.setFunctionTokens(ns, paramNames, t[start..start+end+1].dup);
             t.next(end+1);
 
             //dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);

@@ -3,14 +3,19 @@ module ppl2.templates.blueprint;
 import ppl2.internal;
 
 final class TemplateBlueprint {
+private:
+    Module module_;
+    Tokens nav;
+    ParamTokens paramTokens;
+public:
     Token[] tokens;
     string[] paramNames;
-    Token[][] argTokens;    /// for function templates only
+
     bool isFunction;
-    Tokens nav;
     Set!string extracted;
 
-    this() {
+    this(Module module_) {
+        this.module_   = module_;
         this.nav       = new Tokens(null, null);
         this.extracted = new Set!string;
     }
@@ -19,7 +24,10 @@ final class TemplateBlueprint {
         return paramNames.length.as!int;
     }
     int numFuncParams() {
-        return argTokens.length.as!int;
+        return paramTokens.numParams;
+    }
+    ParamTokens getParamTokens() {
+        return paramTokens;
     }
     int indexOf(string paramName) {
         foreach(int i, n; paramNames) {
@@ -27,68 +35,29 @@ final class TemplateBlueprint {
         }
         return -1;
     }
-    void setStructTokens(NamedStruct ns, Token[] tokens) {
-        this.tokens = tokens;
+    void setStructTokens(NamedStruct ns, string[] paramNames, Token[] tokens) {
         assert(tokens.length>0);
         assert(tokens[0].type==TT.LCURLY);
         assert(tokens[$-1].type==TT.RCURLY);
+
+        this.paramNames = paramNames;
+        this.tokens     = tokens;
     }
-    void setFunctionTokens(NamedStruct ns, Token[] tokens) {
-        this.tokens = tokens;
+    void setFunctionTokens(NamedStruct ns, string[] paramNames, Token[] tokens) {
         assert(tokens.length>0);
         assert(tokens[0].type==TT.LCURLY);
         assert(tokens[$-1].type==TT.RCURLY);
 
-        isFunction = true;
-
-        /// Add this* as first parameter if this is a struct function template
-        if(ns) {
-            Token[] this_ = [tok("__this*", PtrType.of(ns, 1)), tok("this")];
-            argTokens = this_ ~ argTokens;
-        }
-
-        auto nav = new Tokens(null, tokens);
-        nav.next;
-        int arrow = nav.findInScope(TT.RT_ARROW);
-        if(arrow==-1) return;
-
-        nav.setLength(nav.index+arrow);
-
-        int start = nav.index;
-
-        int sq = 0, curly = 0;
-
-        while(nav.hasNext) {
-            switch(nav.type) {
-                case TT.LCURLY: curly++; nav.next; break;
-                case TT.RCURLY: curly--; nav.next; break;
-                case TT.LSQBRACKET: sq++; nav.next; break;
-                case TT.RSQBRACKET: sq--; nav.next; break;
-                case TT.COMMA:
-                    if(curly==0 && sq==0) {
-                        argTokens ~= nav[start..nav.index];
-                        nav.next;
-                        start = nav.index;
-                    } else {
-                        nav.next;
-                    }
-                    break;
-                default:
-                    nav.next;
-                    break;
-            }
-        }
-        if(start != nav.index) {
-            argTokens ~= nav[start..nav.index];
-        }
-
-        //dd("  argTokens=", argTokens.map!(it=>it.toString).join(", "), "(%s params)".format(argTokens.length));
+        this.isFunction  = true;
+        this.paramNames  = paramNames;
+        this.tokens      = tokens;
+        this.paramTokens = new ParamTokens(ns, paramNames, tokens);
     }
     Token[] extractStruct(string mangledName, Type[] types) {
         /// struct mangledName
         Token[] tokens = [
-            tok("struct"),
-            tok(mangledName)
+            this.tokens[0].copy("struct"),
+            this.tokens[0].copy(mangledName)
         ] ~ this.tokens.dup;
 
         foreach(ref t; tokens) {
@@ -105,10 +74,10 @@ final class TemplateBlueprint {
         /// [static] mangledName = {
 
         Token[] tokens;
-        if(isStatic) tokens ~= tok("static");
+        if(isStatic) tokens ~= this.tokens[0].copy("static");
 
         tokens ~= [
-            tok(mangledName)
+            this.tokens[0].copy(mangledName)
         ] ~ this.tokens.dup;
 
         foreach(ref t; tokens) {
@@ -121,11 +90,71 @@ final class TemplateBlueprint {
         }
         return tokens;
     }
+    bool isProxy(Token tok) {
+        import common : contains;
+        return tok.type==TT.IDENTIFIER && paramNames.contains(tok.value);
+    }
+    /*
+    /// Return a list of proxies used in param tokens in order of usage.
+    /// eg. for these tokens:  [A a, B b, A c] c
+    /// The proxy list is      ["A","B","A"]
+    string[] getProxyListForParam(int paramIndex) {
+        assert(paramIndex>=0 && paramIndex<argTokens.length);
+
+        string[] list; list.reserve(8);
+        foreach(t; argTokens[paramIndex]) {
+            if(isProxy(t)) list ~= t.value;
+        }
+        return list;
+    }
+    /// eg. turn this array of tokens:
+    ///     [A a, B b, A c] c
+    /// into this:
+    ///     "\[(.*),(.*),(.*)\]" with proxyList ["A","B","A"]
+    string getRegexStringForParam(int paramIndex) {
+        assert(node.isA!Function);
+        assert(paramIndex>=0 && paramIndex<argTokens.length);
+
+        if(cachedRegex[paramIndex] !is null) {
+            dd("cached");
+            return cachedRegex[paramIndex];
+        }
+        dd("uncached");
+
+        static class ProxyType : Type {
+            int getEnum() const { return -1; }
+            bool isKnown() { return true; }
+            bool exactlyMatches(Type other) { return false; }
+            bool canImplicitlyCastTo(Type other) { return false; }
+            LLVMTypeRef getLLVMType() { return null; }
+            override string toString() { return "__P__"; }
+        }
+        Type proxy = new ProxyType;
+
+        auto tempTokens = argTokens[paramIndex].dup;
+
+        foreach(ref t; tempTokens) {
+            if(isProxy(t)) t.templateType = proxy;
+        }
+
+        nav.reuse(module_, tempTokens);
+
+        Type type = module_.typeParser.parseForTemplate(nav, node);
+
+        if(type is null || type.isUnknown) {
+            cachedRegex[paramIndex] = "";
+        } else {
+            import std.array : replace;
+            cachedRegex[paramIndex] = escapeRegex("%s".format(type)).replace("__P__", "(.*)");
+        }
+
+        return cachedRegex[paramIndex];
+    }*/
     Type[] getFuncParamTypes(Module module_, Call call, Type[] templateTypes) {
         assert(templateTypes.length==paramNames.length);
 
         Type[] paramTypes;
-        foreach(at; argTokens) {
+        foreach(at; paramTokens.getTokensForAllParams()) {
             auto tokens = at.dup;
 
             nav.reuse(module_, tokens);
@@ -138,30 +167,11 @@ final class TemplateBlueprint {
     }
     override string toString() {
         if(isFunction) {
-            return "(%s)".format(argTokens.map!(it=>"%s".format(it)).join(", "));
+            return "(%s)".format(paramTokens.getTokensForAllParams().map!(it=>"%s".format(it)).join(", "));
         }
         return super.toString();
     }
 private:
-    Token tok(string value) {
-        auto t  = copyToken(tokens[0]);
-        t.type  = TT.IDENTIFIER;
-        t.value = value;
-        return t;
-    }
-    Token tok(TT e) {
-        auto t  = copyToken(tokens[0]);
-        t.type  = e;
-        t.value = "";
-        return t;
-    }
-    Token tok(string value, Type ty) {
-        auto t         = copyToken(tokens[0]);
-        t.type         = TT.IDENTIFIER;
-        t.value        = value;
-        t.templateType = ty;
-        return t;
-    }
     void applyTypes(Token[] tokens, Type[] types) {
         foreach(ref tok; tokens) {
             if(tok.type==TT.IDENTIFIER) {

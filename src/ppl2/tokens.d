@@ -214,19 +214,25 @@ struct Token {
 
     string toString() {
         string t  = type==TT.IDENTIFIER ? "'"~value~"'" : "%s".format(type);
-        string tt = templateType ? " "~type.toString() : "";
+        string tt = templateType ? " (%s)".format(templateType) : "";
         return "%s Len:%s L:%s C:%s%s".format(t, length, line, column, tt);
     }
 }
-Token copyToken(Token t) {
-    return Token(
-        t.type,
-        t.value,
-        t.length,
-        t.line,
-        t.column,
-        t.templateType
-    );
+Token copy(Token t, string value) {
+    t.type  = TT.IDENTIFIER;
+    t.value = value;
+    return t;
+}
+Token copy(Token t, TT e) {
+    t.type  = e;
+    t.value = "";
+    return t;
+}
+Token copy(Token t, string value, Type templateType) {
+    t.type         = TT.IDENTIFIER;
+    t.value        = value;
+    t.templateType = templateType;
+    return t;
 }
 string toSimpleString(Token t) {
     return t.type==TT.IDENTIFIER ? t.value  :

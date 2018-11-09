@@ -15,6 +15,21 @@ string toString(string[] array) {
     }
     return buf.data;
 }
+string escapeRegex(string s) {
+    auto buf = appender!string;
+    foreach(c; s) {
+        switch(c) {
+            case '[': case ']': case '{': case '}': case '*': case '-':
+                buf ~= "\\";
+                buf ~= c;
+                break;
+            default:
+                buf ~= c;
+                break;
+        }
+    }
+    return buf.data;
+}
 
 bool isDigit(char c) {
     return c>='0' && c<='9';

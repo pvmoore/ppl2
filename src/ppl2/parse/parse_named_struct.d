@@ -81,7 +81,8 @@ public:
 
             t.skip(TT.LANGLE);
 
-            n.blueprint = new TemplateBlueprint;
+            n.blueprint = new TemplateBlueprint(module_);
+            string[] paramNames;
 
             /// template params < A,B,C >
             while(t.type!=TT.RANGLE) {
@@ -90,7 +91,7 @@ public:
                     module_.addError(t, "Template param name cannot be a type", true);
                 }
 
-                n.blueprint.paramNames ~= t.value;
+                paramNames ~= t.value;
                 t.next;
 
                 t.expect(TT.RANGLE, TT.COMMA);
@@ -103,7 +104,7 @@ public:
 
             int start = t.index;
             int end   = t.findEndOfBlock(TT.LCURLY);
-            n.blueprint.setStructTokens(null, t[start..start+end+1].dup);
+            n.blueprint.setStructTokens(null, paramNames, t[start..start+end+1].dup);
             t.next(end+1);
 
             //dd("Struct template decl", n.name, n.blueprint.paramNames, n.blueprint.tokens.toString);

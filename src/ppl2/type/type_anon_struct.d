@@ -117,7 +117,7 @@ public:
     }
     //===============================================================
     override string toString() {
-        return "%s".format(memberVariableTypes());
+        return "[%s]".format(memberVariableTypes().toString());
     }
     //override string toString() {
     //    return "AnonStruct [%s]".format(memberVariableTypes().prettyString);

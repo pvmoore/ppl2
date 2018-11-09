@@ -25,6 +25,23 @@ public:
 
 
     }
+    Type parseParameterForTemplate(Tokens t, ASTNode parent) {
+        Type type;
+        //while(t.hasNext) {
+            if(typeDetector().isType(t, parent)) {
+                type = typeParser.parseForTemplate(t, parent);
+            }
+            if(t.type==TT.COMMA) {
+                assert(false);
+                //t.next;
+            } else {
+                /// name
+                assert(t.type==TT.IDENTIFIER, "type=%s".format(t.get));
+                t.next;
+            }
+        //}
+        return type;
+    }
     ///
     /// type        // only inside an anonymous struct
     /// id          // only as a LiteralFunction parameter

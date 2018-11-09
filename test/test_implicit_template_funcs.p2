@@ -6,13 +6,14 @@ public
 
 testImplicitTemplateFunctions {
     singleArg {
-        func <A,B> { {A->B} a   -> return 0 }
-        func <A> { A[2][1] a    -> return 1 }
-        func <A> { A[3] a       -> return 2 }
-        func <A> { A[2] a       -> return 3 }
-        func <A> { Goo<A> a     -> return 4 }
-        func <A> { A* a         -> return 5 }
-        func <A> { A a          -> return 6 }
+        func <A,B> { {A->B} a    -> return 0 }
+        func <A> { A[2][1] a     -> return 1 }
+        func <A> { A[3] a        -> return 2 }
+        func <A> { A[2] a        -> return 3 }
+        func <A> { Goo<A> a      -> return 4 }
+        func <A> { Gaa<A> a      -> return 5 }
+        func <A> { A* a          -> return 6 }
+        func <A> { Goo<Gaa<A>> a -> return 7 }
 
         {int->bool} arg0
         assert 0 == func(arg0)
@@ -26,25 +27,25 @@ testImplicitTemplateFunctions {
         byte[2] arg3
         assert 3 == func(arg3)
         
-        // selects 6 probably because it checked it first
-        //Goo<int> arg4
-        //assert 4 == func(arg4)
+        Goo<int> arg4
+        assert 4 == func(arg4)
   
-        int* arg5
+        Gaa<short> arg5
         assert 5 == func(arg5)
         
-        Gaa<short> arg6
+        int* arg6
         assert 6 == func(arg6)
     }
     multipleArgs {
-        func <A> { A a, int b             -> return 10 }
-        func <A> { int a, int b, [A, A] c -> return 20 }
-        func <A> { int a, int b, A[2] c   -> return 30 }  
-        //func <A> { int a, int b, [A,A d] c -> return 40 } // this won't match because of the 'd'
+        func <A> { A a, int b              -> return 10 }
+        func <A> { int a, int b, [A, A] c  -> return 20 }
+        func <A> { int a, int b, A[2] c    -> return 30 }  
+        func <A> { int a, int b, [A,A,A] c -> return 40 } // this won't match because of the 'd'
         
         assert 10 == func(5,6)
         assert 20 == func(2,3, [4,5] as struct)
         assert 30 == func(2,3, [4,5])
+        assert 40 == func(2,3, [4,5,6] as struct)
     }
     singleArg()
     multipleArgs()
