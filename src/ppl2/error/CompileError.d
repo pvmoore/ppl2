@@ -119,11 +119,19 @@ private:
     string name;
     Type[] argTypes;
     Callable[] overloadSet;
+    Function[] templateFunctions;
+    Type[][] templateParams;
 public:
     this(Module m, Call call, Array!Callable overloadSet) {
         super(m, call.line, call.column);
         this.call        = call;
         this.overloadSet = overloadSet.values.dup;
+    }
+    this(Module m, Call call, Function[] templateFunctions, Type[][] templateParams) {
+        super(m, call.line, call.column);
+        this.call              = call;
+        this.templateFunctions = templateFunctions;
+        this.templateParams    = templateParams;
     }
     override string getKey() {
         return "%s|%s|%s".format(module_.canonicalName, call.line, call.column);
@@ -133,11 +141,24 @@ public:
 
         buf.add(prettyErrorMsg(module_, "Ambiguous call"));
 
-        buf.add("\n\n\t%s matches found:\n\n", overloadSet.length);
+        auto numMatches = overloadSet.length + templateFunctions.length;
+
+        buf.add("\n\n\t%s matches found:\n\n", numMatches);
 
         string getFuncSignature(Type[] params, Type retType) {
             string a = params.length==0 ? "void" : params.toString;
             return "{%s -> %s}".format(a, retType);
+        }
+
+        foreach(i, f; templateFunctions) {
+            string moduleName = f.getModule.canonicalName;
+            auto paramTokens  = f.blueprint.getParamTokens();
+
+            string s1 = "%s Line %4s:%-2s".format(moduleName, f.line+1, f.column);
+            string s2 = "%35s\t%s <%s>".format(s1, call.name,
+                templateParams[i].toString);
+
+            buf.add("\t%s\n", s2);
         }
 
         foreach(callable; overloadSet) {

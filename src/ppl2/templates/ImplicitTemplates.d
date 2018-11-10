@@ -26,20 +26,34 @@ public:
 
         /// The call has at least 1 arg that we can use to match to a template param type
 
-        Type[] templateTypes;
+        auto matchingParams = appender!(Type[][]);
+        auto matchingFuncs  = appender!(Function[]);
 
         foreach(f; templateFuncs) {
             if(f.blueprint.numFuncParams == call.numArgs) {
 
+                Type[] templateTypes;
+
                 if(typeMatcherRegex.getEstimatedParams(call, f, templateTypes)) {
                     //dd("   MATCH", "<", templateTypes.prettyString, ">");
 
-                    /// Set the template types on the call
-                    call.templateTypes = templateTypes;
-                    return true;
+                    matchingParams ~= templateTypes;
+                    matchingFuncs  ~= f;
                 }
             }
         }
+
+        if(matchingParams.data.length > 1) {
+            /// Found multiple matches
+            module_.buildState.addError(new AmbiguousCall(module_, call, matchingFuncs.data, matchingParams.data), true);
+            return false;
+        } else if(matchingParams.data.length==1) {
+            /// Found a single match.
+            /// Set the template types on the call
+            call.templateTypes = matchingParams.data[0];
+            return true;
+        }
+        /// No matches yet
 
         /// If we get here without a match and the call is from within a struct
         /// then try adding the implicit this* and check for template matches within the same struct

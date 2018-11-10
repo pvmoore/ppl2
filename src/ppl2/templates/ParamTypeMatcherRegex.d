@@ -28,6 +28,8 @@ public:
         this.buf2    = new StringBuffer;
     }
     bool getEstimatedParams(Call call, Function f, ref Type[] estimatedParams) {
+        assert(estimatedParams.length==0);
+
         this.call    = call;
         this.func    = f;
         this.proxies = f.blueprint.paramNames;
@@ -41,17 +43,9 @@ public:
         auto paramTokens = f.blueprint.getParamTokens();
 
         foreach(int i, callType; call.argTypes) {
-            chat("Arg %s", i);
-
-            Token[] tokens = paramTokens.getTokensForParam(i);
-
-            if(!containsProxy(tokens)) {
-                chat("\tNo proxies");
-                continue;
-            }
-
-            matchArg(i, tokens, callType);
+            matchArg(paramTokens, i, callType);
         }
+
         if(hash.length==f.blueprint.numTemplateParams) {
             chat("Hash = %s", hash);
             estimatedParams = new Type[proxies.length];
@@ -85,18 +79,9 @@ private:
             hash[proxy] = type;
         }
     }
-    bool isProxy(Token tok) const {
-        import common : contains;
-        return tok.type==TT.IDENTIFIER && proxies.contains(tok.value);
-    }
-    bool containsProxy(Token[] tokens) const {
-        foreach(tok; tokens) if(isProxy(tok)) return true;
-        return false;
-    }
     bool checkEstimate(Function f, Type[] estimatedParams) {
-
         Type[] paramTypes = f.blueprint.getFuncParamTypes(module_, call, estimatedParams);
-        //dd("  paramTypes=", paramTypes);
+        //chat("  paramTypes=%s", paramTypes);
 
         return canImplicitlyCastTo(call.argTypes, paramTypes);
     }
@@ -105,77 +90,27 @@ private:
         auto nav = new Tokens(null, tokens);
         return module_.typeParser.parseForTemplate(nav, call);
     }
-    auto buildRegexString(Token[] tokens, ref string[] proxyList) {
-        //auto getRawSignature() {
-        //    /// Parse tokens as possibly types with names and write them as types only.
-        //    /// eg. turn this:
-        //    ///     [A a,A b,A c] c
-        //    /// into this:
-        //    ///     "[A,A,A]"
-        //    static class ProxyType : Type {
-        //        int getEnum() const { return -1; }
-        //        bool isKnown() { return true; }
-        //        bool exactlyMatches(Type other) { return false; }
-        //        bool canImplicitlyCastTo(Type other) { return false; }
-        //        LLVMTypeRef getLLVMType() { return null; }
-        //        override string toString() { return "__PROXY__"; }
-        //    }
-        //    Type proxy = new ProxyType;
-        //
-        //    foreach(ref t; tokens) {
-        //        if(isProxy(t)) t.templateType = proxy;
-        //    }
-        //
-        //    auto mod  = func.getModule;
-        //    auto nav  = new Tokens(mod, tokens);
-        //    Type type = mod.typeParser.parseForTemplate(nav, func);
-        //
-        //    if(type is null || type.isUnknown) return null;
-        //
-        //    return "%s".format(type);
-        //}
-        //
-        //string rawSignature = getRawSignature();
-
-        dd("--------------------------");
-        dd("proxies:", proxies.toString);
-        //dd("raw    :", rawSignature);
-        dd("tokens :", tokens.toSimpleString);
-
-        buf.clear();
-
-        foreach(t; tokens[0..$-1]) {
-            if(isProxy(t)) {
-                buf.add(r"(.*)");
-                proxyList ~= t.value;
-            } else {
-                buf.add(escapeRegex(toSimpleString(t)));
-            }
+    ///
+    /// Check template parameter tokens against call type.
+    ///
+    void matchArg(ParamTokens paramTokens, int argIndex, Type callType) {
+        chat("Arg %s", argIndex);
+        if(!paramTokens.paramContainsProxies(argIndex)) {
+            chat("No proxies");
+            return;
         }
-        import std.array : replace;
-        string reg  = buf.toString();
-        //string reg2 = escapeRegex(rawSignature).replace("__PROXY__", "(.*)");
 
-        dd("regex  :", reg);
-
-        return buf.toString();
-    }
-    /// Check arg tokens against call type.
-    /// Assume:
-    ///     tokens contains at least one template proxy
-    void matchArg(int argIndex, Token[] tokens, Type callType) {
+        Token[] tokens     = paramTokens.getTokensForParam(argIndex);
         string typeString  = "%s".format(callType);
-        //string regexString = func.blueprint.getRegexStringForParam(argIndex);
-        //string[] proxyList = func.blueprint.getProxyListForParam(argIndex);
-        string[] proxyList;
-        string regexString = buildRegexString(tokens, proxyList);
-        auto rx            = regex(regexString);
 
-        dd("tokens :", tokens.toSimpleString);
-        dd("proxies:", proxyList);
-        dd("regex  :", regexString);
-        dd("type   :", typeString);
-        dd("--------------------------");
+        auto rx = paramTokens.getRegexForParam(argIndex);
+        string[] proxyList = paramTokens.getProxiesForParam(argIndex);
+
+        chat("tokens : %s", tokens.toSimpleString);
+        chat("proxies: %s", proxyList);
+        chat("regex  : %s", paramTokens.getRegexStringForParam(argIndex));
+        chat("type   : %s", typeString);
+        chat("--------------------------");
 
         auto m = matchAll(typeString, rx);
         if(m.empty) {
@@ -187,6 +122,7 @@ private:
                 if(i>0) {
                     auto type = getType(r);
                     chat("\t\t[%s] %s = %s (type = %s)", i-1, proxyList[i-1], r, type);
+
                     addToHash(proxyList[i-1], type);
                 }
                 i++;

@@ -1,6 +1,7 @@
 
 struct Goo <T> { T a }
 struct Gaa <T> { T a }
+struct Gee <T> { T a }
 
 public
 
@@ -13,7 +14,7 @@ testImplicitTemplateFunctions {
         func <A> { Goo<A> a      -> return 4 }
         func <A> { Gaa<A> a      -> return 5 }
         func <A> { A* a          -> return 6 }
-        func <A> { Goo<Gaa<A>> a -> return 7 }
+        func <A> { Gee<Gaa<A>> a -> return 7 }
 
         {int->bool} arg0
         assert 0 == func(arg0)
@@ -35,12 +36,15 @@ testImplicitTemplateFunctions {
         
         int* arg6
         assert 6 == func(arg6)
+
+        Gee<Gaa<int>> arg7
+        assert 7 == func(arg7)
     }
     multipleArgs {
         func <A> { A a, int b              -> return 10 }
         func <A> { int a, int b, [A, A] c  -> return 20 }
         func <A> { int a, int b, A[2] c    -> return 30 }  
-        func <A> { int a, int b, [A,A,A] c -> return 40 } // this won't match because of the 'd'
+        func <A> { int a, int b, [A a, A b ,A c] c -> return 40 }
         
         assert 10 == func(5,6)
         assert 20 == func(2,3, [4,5] as struct)

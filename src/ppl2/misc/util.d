@@ -19,7 +19,7 @@ string escapeRegex(string s) {
     auto buf = appender!string;
     foreach(c; s) {
         switch(c) {
-            case '[': case ']': case '{': case '}': case '*': case '-':
+            case '[': case ']': case '{': case '}': case '<': case '>': case '*': case '-':
                 buf ~= "\\";
                 buf ~= c;
                 break;

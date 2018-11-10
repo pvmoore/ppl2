@@ -157,9 +157,6 @@ func2 <A> { int a, {A,A->A} c ->
 func3 <A,B> { A[2] a, B b ->
     return 7
 }
-func3 <A,B> { A a, B b ->
-    return 8
-}
 func { float a ->
     return 2
 }

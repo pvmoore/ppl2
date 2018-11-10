@@ -90,66 +90,6 @@ public:
         }
         return tokens;
     }
-    bool isProxy(Token tok) {
-        import common : contains;
-        return tok.type==TT.IDENTIFIER && paramNames.contains(tok.value);
-    }
-    /*
-    /// Return a list of proxies used in param tokens in order of usage.
-    /// eg. for these tokens:  [A a, B b, A c] c
-    /// The proxy list is      ["A","B","A"]
-    string[] getProxyListForParam(int paramIndex) {
-        assert(paramIndex>=0 && paramIndex<argTokens.length);
-
-        string[] list; list.reserve(8);
-        foreach(t; argTokens[paramIndex]) {
-            if(isProxy(t)) list ~= t.value;
-        }
-        return list;
-    }
-    /// eg. turn this array of tokens:
-    ///     [A a, B b, A c] c
-    /// into this:
-    ///     "\[(.*),(.*),(.*)\]" with proxyList ["A","B","A"]
-    string getRegexStringForParam(int paramIndex) {
-        assert(node.isA!Function);
-        assert(paramIndex>=0 && paramIndex<argTokens.length);
-
-        if(cachedRegex[paramIndex] !is null) {
-            dd("cached");
-            return cachedRegex[paramIndex];
-        }
-        dd("uncached");
-
-        static class ProxyType : Type {
-            int getEnum() const { return -1; }
-            bool isKnown() { return true; }
-            bool exactlyMatches(Type other) { return false; }
-            bool canImplicitlyCastTo(Type other) { return false; }
-            LLVMTypeRef getLLVMType() { return null; }
-            override string toString() { return "__P__"; }
-        }
-        Type proxy = new ProxyType;
-
-        auto tempTokens = argTokens[paramIndex].dup;
-
-        foreach(ref t; tempTokens) {
-            if(isProxy(t)) t.templateType = proxy;
-        }
-
-        nav.reuse(module_, tempTokens);
-
-        Type type = module_.typeParser.parseForTemplate(nav, node);
-
-        if(type is null || type.isUnknown) {
-            cachedRegex[paramIndex] = "";
-        } else {
-            import std.array : replace;
-            cachedRegex[paramIndex] = escapeRegex("%s".format(type)).replace("__P__", "(.*)");
-        }
-
-        return cachedRegex[paramIndex];
-    }*/
     Type[] getFuncParamTypes(Module module_, Call call, Type[] templateTypes) {
         assert(templateTypes.length==paramNames.length);
 
