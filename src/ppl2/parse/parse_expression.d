@@ -135,7 +135,7 @@ private:
             case TT.AMPERSAND:
                 parseAddressOf(t, parent);
                 break;
-            case TT.AT:
+            case TT.ASTERISK:
                 parseValueOf(t, parent);
                 break;
             case TT.EXCLAMATION:
@@ -176,7 +176,6 @@ private:
                 case TT.MINUS:
                 case TT.DIV:
                 case TT.PERCENT:
-                case TT.ASTERISK:
                 case TT.HAT:
                 case TT.SHL:
                 case TT.SHR:
@@ -199,6 +198,12 @@ private:
                 case TT.USHR_ASSIGN:
                 case TT.BOOL_EQ:
                 case TT.COMPARE:
+                    parent = attachAndRead(t, parent, parseBinary(t));
+                    break;
+                case TT.ASTERISK:
+                    /// Must be on the same line as LHS otherwise will look like deref *
+                    if(!t.onSameLine) return;
+
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.AMPERSAND:
@@ -795,7 +800,7 @@ private:
         auto v = makeNode!ValueOf(t);
         parent.add(v);
 
-        t.skip(TT.AT);
+        t.skip(TT.ASTERISK);
 
         parse(t, v);
     }

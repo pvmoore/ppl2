@@ -4,7 +4,8 @@ public
 testVariables {
     basicTypes {
         bool a
-        bool a1 = true
+        bool a1  = true
+        bool* a2 = &a1      ; assert *a2 == true 
 
         byte b 
         byte b1 = 1 as byte
@@ -37,6 +38,9 @@ testVariables {
         [float a, int b] b1
         [float a, int]   b2
         [float, int b]   b3
+    }
+    namedStructs {
+
     }   
     arrays {
         int[1] a
@@ -49,6 +53,7 @@ testVariables {
     }
     basicTypes()
     anonStructs() 
+    namedStructs()
     arrays()
 }
 
