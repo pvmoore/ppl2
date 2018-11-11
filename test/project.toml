@@ -15,5 +15,15 @@ lib = "thing"
 
 [[openFile]]
 name = "test_variables.p2"
-line = 72
+line = 77
 active = 1
+
+[[openFile]]
+name = "test.p2"
+line = 9
+active = 0
+
+[[openFile]]
+name = "test_misc.p2"
+line = 4
+active = 0

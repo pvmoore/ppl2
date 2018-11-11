@@ -1,18 +1,12 @@
 # Todo  
 
-## Next
+- Nested multiline comments
 - Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
 
 - Use llvm IR phi nodes when emitting loop/if
 - Don't call requireFunction just to get the parameters for function resolution. Use a different lighter-weight
   version eg. requireFunctionParams
 - Ensure we remove static funstions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
-
-## High Priority
-- Change array syntax to int[10] Also, allow int[] as a function arg somehow so that we can pass arbitrarily long arrays to functions. 
-  This may involve adding an array [T*,long length] struct to hold these dynamic arrays
-- Change struct/array literals to [int[]: 1,2,3], [Map: a=1,b=2], [List: 1,2]. 
-  If no type is specified then assume array if types are implicitly the same or struct otherwise
 - Attributes eg (* inline). (* expect true) (* notnull) or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]
 - Select expression:
 ```
@@ -22,6 +16,8 @@ var r = select(x) {
     else { 0 }
 }
 ```
+- #if #else #endif compile-time operations. 
+  Needs to be able to parse compile-time boolean expressions
 - Investigate co-routines (LLVM)
 
 - Allow string identifiers for function names

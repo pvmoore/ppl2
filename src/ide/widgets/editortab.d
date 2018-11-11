@@ -75,6 +75,8 @@ public:
             ide.addBuildListener(syntaxSupport);
 
             content.syntaxSupport = syntaxSupport;
+
+            content.smartIndents = true;
         } else {
             /// Not a p2 file
         }
