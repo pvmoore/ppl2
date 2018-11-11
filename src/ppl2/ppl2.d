@@ -4,6 +4,7 @@ import ppl2.internal;
 
 final class PPL2 {
     static shared PPL2 _instance;
+    this() {}
 public:
     static auto instance() {
         auto i = cast(PPL2)atomicLoad(_instance);

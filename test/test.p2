@@ -93,6 +93,8 @@ struct Array <A,B> {
 }
 
 main {
+    import test_misc;   testMisc()
+    
     import texpr = test_expressions
     texpr::testExpressions()
     

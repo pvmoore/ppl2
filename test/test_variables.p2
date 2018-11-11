@@ -8,14 +8,20 @@ testVariables {
         bool* a2 = &a1      ; assert *a2 == true 
 
         byte b 
-        byte b1 = 1 as byte
+        byte b1  = 1 as byte
+        byte b2  = b1
+        byte* b3 = &b2;     ; assert *b3 == 1
 
         short c
-        short c1 = 2 as short
+        short c1  = 2 as short
+        short* c2 = &c1     ; assert *c2 == 2
 
         int d
-        int d1 = 3
-
+        int d1   = 3
+        int* d2  = &d1      ; assert *d2 == 3
+        int** d3 = &d2        assert *d3 is int*
+                              assert **d3 is int
+                              assert **d3 == 3 
         half e
         half e1 = 1.1h
 
@@ -38,9 +44,20 @@ testVariables {
         [float a, int b] b1
         [float a, int]   b2
         [float, int b]   b3
+
+        [float] c = [1.3f]
+        var c1    = &c      ; assert c1 is [float]*     
+                              assert *c1 is [float] 
+                              assert *c1 == [1.3f]
+        var c2    = &c1     ; assert c2 is [float]**
+                               
     }
     namedStructs {
-
+        struct A { float a = 9 }
+        A a
+        A a1   = A()
+        A* a2  = &a1    ; assert a2 is A*   ; assert (*a2).a == 9
+        A** a3 = &a2    ; assert a3 is A**  ; assert (**a3).a == 9
     }   
     arrays {
         int[1] a
@@ -50,6 +67,10 @@ testVariables {
         int[COUNT] c        ; assert c.length==1
 
         int[] d = [1,2,3]   ; assert d is int[3]
+
+        float[2] e   = [5,7]
+        float[2]* e1 = &e       ; assert e1 is float[2]*    ; assert (*e1)[0]==5
+        var e2       = &e1      ; assert e2 is float[2]**   ; assert (**e2)[0]==5
     }
     basicTypes()
     anonStructs() 

@@ -105,7 +105,12 @@ public:
     }
     //=====================================================================================
     void visit(AddressOf n) {
-
+        if(n.expr.id==NodeID.VALUE_OF) {
+            auto valueof = n.expr.as!ValueOf;
+            auto child   = valueof.expr;
+            fold(n, child);
+            return;
+        }
     }
     void visit(AnonStruct n) {
 
@@ -253,10 +258,25 @@ public:
             return;
         }
 
-        if(lt.isStruct) {
+        if(lt.isNamedStruct) {
             if(n.op.isOverloadable || n.op.isComparison) {
                 n.rewriteToOperatorOverloadCall();
                 rewrites++;
+                return;
+            }
+        }
+
+        /// Rewrite anonstruct == anonstruct --> is_expr
+        /// [int] a = [1]
+        /// a == [1,2,3]
+        if(n.op==Operator.BOOL_EQ && lt.isAnonStruct && rt.isAnonStruct) {
+            if(lt.isValue && rt.isValue) {
+
+                auto isExpr = makeNode!Is(n);
+                isExpr.add(n.left);
+                isExpr.add(n.right);
+
+                fold(n, isExpr);
                 return;
             }
         }
@@ -352,6 +372,8 @@ public:
                     module_.addError(prev, "Left of call '%s' must be a struct type not a %s".format(n.name, prevType), true);
                     return;
                 }
+
+                //dd("module:", module_.canonicalName, "call:", n, "prevType:", prevType);
 
                 AnonStruct struct_ = prevType.getAnonStruct();
                 assert(struct_);
@@ -470,8 +492,8 @@ public:
                 }
             }
 
-            debug if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
-                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes, n.target.paramTypes), true);
+            if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
+                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes.toString, n.target.paramTypes.toString), true);
             }
         }
     }
@@ -1108,7 +1130,12 @@ public:
         }
     }
     void visit(ValueOf n) {
-
+        if(n.expr.id==NodeID.ADDRESS_OF) {
+            auto addrof = n.expr.as!AddressOf;
+            auto child  = addrof.expr;
+            fold(n, child);
+            return;
+        }
     }
     void visit(Variable n) {
 
