@@ -4,8 +4,8 @@ import ppl2.internal;
 ///
 ///
 ///
-final class AnonStruct : ASTNode, Type, Container {
-private:
+class AnonStruct : ASTNode, Type, Container {
+protected:
     LLVMTypeRef _llvmType;
 public:
 /// ASTNode interface
@@ -15,7 +15,9 @@ public:
 
 /// Type interface
     int getEnum() const { return Type.ANON_STRUCT; }
-    bool isKnown() { return memberVariableTypes().all!(it=>it.isKnown); }
+    bool isKnown() {
+        return memberVariableTypes().all!(it=>it.isKnown);
+    }
     bool exactlyMatches(Type other) {
         /// Do the common checks
         if(!prelimExactlyMatches(this, other)) return false;
@@ -52,15 +54,6 @@ public:
     }
 /// end of Type interface
 
-    bool isNamed() {
-        return parent && parent.isNamedStruct;
-    }
-    string getName() {
-        if(isNamed()) {
-            return parent.as!NamedStruct.name;
-        }
-        return null;
-    }
     ///
     /// Return true if there are Composites at root level which signifies
     /// that a template function has just been added

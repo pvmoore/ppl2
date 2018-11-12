@@ -39,10 +39,10 @@ public:
 
         if(f.isStructMember) {
             auto struct_ = f.getAncestor!AnonStruct();
-            if(struct_.isNamed) {
+            if(struct_.isNamedStruct) {
                 string sep = ".";
                 if(f.isStatic) sep = "::";
-                name = struct_.parent.as!NamedStruct.getUniqueName ~ sep ~ name;
+                name = struct_.as!NamedStruct.getUniqueName ~ sep ~ name;
             }
         } else {
             auto m = f.getModule;

@@ -71,7 +71,7 @@ interface Type {
     final AnonStruct getAnonStruct() {
         if(!isAnonStruct && !isNamedStruct) return null;
         auto st     = this.as!AnonStruct; if(st) return st;
-        auto ns     = this.as!NamedStruct; if(ns) return ns.type;
+        //auto ns     = this.as!NamedStruct; if(ns) return ns.type;
         auto alias_ = this.as!Alias; if(alias_) return alias_.type.getAnonStruct;
         auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType.getAnonStruct;
         assert(false, "How did we get here?");
@@ -194,16 +194,6 @@ bool prelimCanImplicitlyCastTo(Type left, Type right) {
     /// Do the base checks now
     return true;
 }
-//void getChildTypes(Type t, Array!Type array) {
-//    if(t.isAnonStruct()) {
-//        array.add(t.getAnonStruct.memberVariableTypes());
-//    } else if(t.isFunction) {
-//        array.add(t.getFunctionType.paramTypes());
-//        array.add(t.getFunctionType.returnType());
-//    } else if(t.isArray) {
-//        array.add(t.getArrayType.subtype);
-//    }
-//}
 int size(Type t) {
     if(t.isPtr) return 8;
     final switch(t.getEnum) with(Type) {
@@ -219,7 +209,7 @@ int size(Type t) {
         case HALF: return 2;
         case FLOAT: return 4;
         case DOUBLE: return 8;
-        case NAMED_STRUCT: return t.getNamedStruct.type.memberVariableTypes().map!(it=>it.size).sum;
+        case NAMED_STRUCT: return t.getNamedStruct.memberVariableTypes().map!(it=>it.size).sum;
         case ANON_STRUCT: return t.getAnonStruct.memberVariableTypes().map!(it=>it.size).sum;
         case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
     }

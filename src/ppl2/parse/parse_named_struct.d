@@ -112,48 +112,42 @@ public:
         } else {
             /// This is a concrete struct
 
-            n.type = parseBody(t, n);
+            parseBody(t, n);
 
             /// Do some house-keeping
-            auto anonStruct = n.type;
-
-            addDefaultConstructor(t, n, anonStruct);
+            addDefaultConstructor(t, n);
             addImplicitReturnThis(n);
             addCallToDefaultConstructor(n);
-            moveInitCodeInsideDefaultConstructor(n, anonStruct);
+            moveInitCodeInsideDefaultConstructor(n);
         }
 
         if(isModuleScope) {
             t.endAccessScope();
         }
     }
-    AnonStruct parseBody(Tokens t, ASTNode node) {
+    void parseBody(Tokens t, NamedStruct ns) {
         /// {
-        auto s = makeNode!AnonStruct(t);
-        node.add(s);
-
         t.skip(TT.LCURLY);
 
         /// Statements
         while(t.type!=TT.RCURLY) {
 
-            stmtParser().parse(t, s);
+            stmtParser().parse(t, ns);
 
             if(t.type==TT.COMMA) t.next;
         }
         /// }
         t.skip(TT.RCURLY);
-        return s;
     }
     /// If there is no default constructor 'new()' then create one
-    void addDefaultConstructor(Tokens t, NamedStruct ns, AnonStruct anonStruct) {
+    void addDefaultConstructor(Tokens t, NamedStruct ns) {
         auto defCons = ns.getDefaultConstructor();
         if(!defCons) {
 
             defCons            = makeNode!Function(t);
             defCons.name       = "new";
             defCons.moduleName = module_.canonicalName;
-            anonStruct.add(defCons);
+            ns.add(defCons);
 
             auto params = makeNode!Parameters(t);
             params.addThisParameter(ns);
@@ -202,11 +196,11 @@ public:
         }
     }
     /// Move struct member variable initialisers into the default constructor
-    void moveInitCodeInsideDefaultConstructor(NamedStruct ns, AnonStruct anonStruct) {
+    void moveInitCodeInsideDefaultConstructor(NamedStruct ns) {
         auto initFunc = ns.getDefaultConstructor();
         assert(initFunc);
 
-        foreach_reverse(v; anonStruct.getMemberVariables()) {
+        foreach_reverse(v; ns.getMemberVariables()) {
             if(v.hasInitialiser) {
                 /// Arguments should always be at index 0 so add these at index 1
                 initFunc.getBody().insertAt(1, v.initialiser);

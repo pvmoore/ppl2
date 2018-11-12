@@ -56,7 +56,7 @@ public:
             string key = mangledName;
 
             if(f.isStructMember || f.isStatic) {
-                ns = f.getStruct.parent.as!NamedStruct;
+                ns = f.getNamedStruct();
                 assert(ns);
                 key = ns.getUniqueName ~ "." ~ mangledName;
             }

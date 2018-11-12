@@ -107,7 +107,7 @@ public:
         }
 
         /// Come back when all root level Composites have been removed
-        if(ns && ns.type.containsComposites) {
+        if(ns && ns.containsComposites) {
             return CALLABLE_NOT_READY;
         }
 
@@ -199,12 +199,10 @@ public:
     Callable structFind(Call call, NamedStruct ns, bool isStatic=false) {
         chat("structFind %s", call.name);
 
-        AnonStruct struct_ = ns.type;
         assert(ns);
-        assert(struct_);
 
         /// Come back when all root level Composites have been removed
-        if(struct_.containsComposites) {
+        if(ns.containsComposites) {
             return CALLABLE_NOT_READY;
         }
 
@@ -237,7 +235,7 @@ public:
 
         } else {
             fns = ns.getMemberFunctions(call.name);
-            var = struct_.getMemberVariable(call.name);
+            var = ns.getMemberVariable(call.name);
         }
 
         /// Filter

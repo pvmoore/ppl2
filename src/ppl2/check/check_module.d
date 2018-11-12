@@ -377,7 +377,7 @@ public:
     void visit(NamedStruct n) {
         /// All variables must have a name
         stringSet.clear();
-        foreach(v; n.type.getMemberVariables()) {
+        foreach(v; n.getMemberVariables()) {
             if(v.name.length==0) {
                 module_.addError(v, "Named struct variable must have a name", true);
             }
@@ -407,7 +407,7 @@ public:
             }
         }
         if(n.isStatic) {
-            if(!n.parent.isAnonStruct || !n.parent.as!AnonStruct.isNamed) {
+            if(!n.parent.isNamedStruct) {
                 module_.addError(n, "Static variables are not allowed at this scope", true);
             }
         }
@@ -442,9 +442,9 @@ public:
         if(n.isLocal) {
             /// Check for duplicate variable names
             stringSet.clear();
-            auto node = n.prevSibling();
-            if(!node) node = n.parent;
-            auto res = identifierResolver.findFirst(n.name, node);
+
+            auto node = n.previous();
+            auto res  = identifierResolver.findFirst(n.name, node, node.getDepth());
             if(res.found) {
                 if(res.isVar) {
                     auto var = res.var;

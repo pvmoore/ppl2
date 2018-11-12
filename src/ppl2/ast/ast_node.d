@@ -72,7 +72,7 @@ T makeNode(T)(ASTNode p) {
     assert(n.children);
     return n;
 }
-bool isAnonStruct(inout ASTNode n) { return n.id()==NodeID.ANON_STRUCT; }
+bool isAnonStruct(inout ASTNode n) { return cast(AnonStruct)n !is null; }
 bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
@@ -127,6 +127,10 @@ public:
             module_ = findModule();
         }
         return module_;
+    }
+    int getDepth() {
+        if(this.id==NodeID.MODULE) return 0;
+        return parent.getDepth() + 1;
     }
 
     auto addToFront(ASTNode child) {

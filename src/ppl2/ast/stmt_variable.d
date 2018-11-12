@@ -30,10 +30,10 @@ final class Variable : Statement {
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isNamedStructMember() {
-        return !isStatic && parent.isAnonStruct && parent.as!AnonStruct.isNamed;
+        return !isStatic && parent.isNamedStruct;
     }
     bool isAnonStructMember() {
-        return !isStatic && parent.isAnonStruct && !parent.as!AnonStruct.isNamed;
+        return !isStatic && parent.isAnonStruct && !parent.isNamedStruct;
     }
     bool isStructMember() const {
         return !isStatic && parent.isAnonStruct;
@@ -67,7 +67,7 @@ final class Variable : Statement {
     }
     NamedStruct getNamedStruct() {
         assert(isNamedStructMember());
-        return parent.parent.as!NamedStruct;
+        return parent.as!NamedStruct;
     }
     Function getFunction() {
         assert(isParameter());

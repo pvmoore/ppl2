@@ -49,7 +49,7 @@ public:
     }
 ///
     bool isStructMember() const {
-        return getContainer().id==NodeID.ANON_STRUCT;
+        return getContainer().id==NodeID.NAMED_STRUCT;
     }
     bool isGlobal() const {
         return getContainer().id==NodeID.MODULE;
@@ -66,10 +66,12 @@ public:
         return op != Operator.NOTHING;
     }
 
-    Parameters params() { return isExtern ? null : getBody().params(); }
-    AnonStruct getStruct() {
+    Parameters params() {
+        return isExtern ? null : getBody().params();
+    }
+    NamedStruct getNamedStruct() {
         assert(isStructMember());
-        return parent.as!AnonStruct;
+        return parent.as!NamedStruct;
     }
     LiteralFunction getBody() {
         assert(!isExtern, "Function %s is extern".format(name));

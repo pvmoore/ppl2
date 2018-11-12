@@ -5,15 +5,12 @@ import common : contains;
 ///
 ///
 ///
-
-final class NamedStruct : ASTNode, Type {
+final class NamedStruct : AnonStruct {
 private:
     string _uniqueName;
-    LLVMTypeRef _llvmType;
 public:
     string name;
     string moduleName;
-    AnonStruct type;
     int numRefs;
     Access access = Access.PUBLIC;
 
@@ -32,15 +29,13 @@ public:
 /// end of template stuff
 
 /// ASTNode interface
-    override bool isResolved() { return isKnown; }
     override NodeID id() const { return NodeID.NAMED_STRUCT; }
-    override Type getType() { return this; }
+    override bool isKnown() { return true; }
 
 /// Type interface
-    int getEnum() const { return Type.NAMED_STRUCT; }
-    bool isKnown() { return type !is null; } //  && type.isKnown
+    override int getEnum() const { return Type.NAMED_STRUCT; }
 
-    bool exactlyMatches(Type other) {
+    override bool exactlyMatches(Type other) {
         /// Do the common checks
         if(!prelimExactlyMatches(this, other)) return false;
         /// Now check the base type
@@ -50,7 +45,7 @@ public:
 
         return name==right.name;
     }
-    bool canImplicitlyCastTo(Type other) {
+    override bool canImplicitlyCastTo(Type other) {
         /// Do the common checks
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
         /// Now check the base type
@@ -60,7 +55,7 @@ public:
 
         return name==right.name;
     }
-    LLVMTypeRef getLLVMType() {
+    override LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
             _llvmType = struct_(getUniqueName());
         }
@@ -68,7 +63,7 @@ public:
     }
     //========================================================================================
     Variable[] getStaticVariables() {
-        return type.children[]
+        return children[]
                    .filter!(it=>it.id==NodeID.VARIABLE)
                    .map!(it=>cast(Variable)it)
                    .filter!(it=>it.isStatic)
@@ -81,7 +76,7 @@ public:
     }
     ////========================================================================================
     Function[] getStaticFunctions() {
-        return type.children[]
+        return children[]
                    .filter!(it=>it.id==NodeID.FUNCTION)
                    .map!(it=>cast(Function)it)
                    .filter!(it=>it.isStatic)
@@ -94,7 +89,7 @@ public:
     }
     //========================================================================================
     Function[] getMemberFunctions() {
-        return type.children[]
+        return children[]
                    .filter!(it=>it.id==NodeID.FUNCTION)
                    .map!(it=>cast(Function)it)
                    .filter!(it=>it.isStatic==false)
@@ -110,6 +105,9 @@ public:
             if(var is v) return i;
         }
         return -1;
+    }
+    override int getMemberIndex(Variable var) {
+        return super.getMemberIndex(var);
     }
     bool hasDefaultConstructor() {
         return getDefaultConstructor() !is null;
@@ -151,12 +149,4 @@ public:
     override string toString() {
         return getUniqueName();
     }
-    //override string toString() {
-    //    string acc = "[%s]".format(access);
-    //    string s;
-    //    if(isTemplateBlueprint()) {
-    //        s ~= "<" ~ blueprint.paramNames.join(",") ~ "> ";
-    //    }
-    //    return "%s%s%s %s".format(s, getUniqueName, isKnown ? "":"?", acc);
-    //}
 }

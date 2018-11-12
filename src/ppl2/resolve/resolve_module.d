@@ -375,9 +375,7 @@ public:
 
                 //dd("module:", module_.canonicalName, "call:", n, "prevType:", prevType);
 
-                AnonStruct struct_ = prevType.getAnonStruct();
-                assert(struct_);
-                NamedStruct ns = struct_.parent.as!NamedStruct;
+                NamedStruct ns = prevType.getNamedStruct;
                 assert(ns);
 
                 if(dot.isStaticAccess) {
@@ -423,7 +421,7 @@ public:
                             n.target.set(callable.func, ns.getMemberIndex(callable.func));
                         }
                         if(callable.isVariable) {
-                            n.target.set(callable.var, struct_.getMemberIndex(callable.var));
+                            n.target.set(callable.var, ns.getMemberIndex(callable.var));
                         }
                     }
                 }
@@ -445,7 +443,7 @@ public:
             {
                 auto ns = n.getAncestor!NamedStruct;
                 if(ns) {
-                    auto r = identifierResolver.findFirst("this", n);
+                    auto r = identifierResolver.findFirst("this", n, n.getDepth);
                     if(r.found) {
                         n.addImplicitThisArg(r.var);
                         rewrites++;
@@ -555,7 +553,7 @@ public:
     void visit(Identifier n) {
 
         void findLocalOrGlobal() {
-            auto res = identifierResolver.findFirst(n.name, n);
+            auto res = identifierResolver.findFirst(n.name, n, n.getDepth);
             if(!res.found) {
                 /// Ok to continue
                 module_.addError(n, "identifier '%s' not found".format(n.name), true);
@@ -568,9 +566,7 @@ public:
                 module_.buildState.functionRequired(func.moduleName, func.name);
 
                 if(func.isStructMember) {
-                    auto struct_ = n.getAncestor!AnonStruct();
-                    assert(struct_);
-                    auto ns = struct_.parent.as!NamedStruct;
+                    auto ns = n.getAncestor!NamedStruct();
                     assert(ns);
 
                     n.target.set(func, ns.getMemberIndex(func));
@@ -698,7 +694,7 @@ public:
                     n.target.set(var, struct_.getMemberIndex(var));
                 } else {
                     /// If this is a static var then show a nice error
-                    //auto ns = struct_.parent.as!NamedStruct;
+                    //auto ns = struct_.as!NamedStruct;
                     //if(ns && (var = ns.getStaticVariable(n.name))!is null) {
                     //    module_.addError(prev, "struct %s does not have member %s. Did you mean %s::%s ?"
                     //        .format(ns.name, n.name, ns.name, n.name));

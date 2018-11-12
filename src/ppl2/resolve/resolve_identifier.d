@@ -34,7 +34,10 @@ public:
     ///
     /// Find the first variable or function that matches the given identifier name.
     ///
-    Result findFirst(string name, ASTNode node) {
+    Result findFirst(string name, ASTNode node, int originalDepth) {
+        chat("%sfindFirst(%s, %s, %s) depth %s",
+            "  ".repeat(node.getDepth), name, node.id, originalDepth, node.getDepth);
+
         Result res;
         auto nid = node.id();
 
@@ -53,25 +56,30 @@ public:
                 }
                 /// We can't find it
                 return res;
-            case ANON_STRUCT:
+            //case ANON_STRUCT:
+            case NAMED_STRUCT:
+                if(node.getDepth >= originalDepth) {
+                    /// Children of this struct will not be visible to node
+                    break;
+                }
                 /// Check all struct level variables
-                foreach(n; node.children) {
+                foreach (n; node.children) {
                     isThisIt(name, n, res);
-                    if(res.found) return res;
+                    if (res.found) return res;
                 }
 
                 /// Skip to module level scope
-                return findFirst(name, node.getModule());
+                return findFirst(name, node.getModule(), originalDepth);
             case LITERAL_FUNCTION:
                 /// If this is not a closure
                 if(!node.as!LiteralFunction.isClosure) {
                     /// Go to containing struct if there is one
-                    auto struct_ = node.getAncestor!AnonStruct();
-                    if(struct_) return findFirst(name, struct_);
+                    auto ns = node.getAncestor!NamedStruct();
+                    if(ns) return findFirst(name, ns, originalDepth);
                 }
 
                 /// Go to module scope
-                return findFirst(name, node.getModule());
+                return findFirst(name, node.getModule(), originalDepth);
             default:
                 break;
         }
@@ -83,7 +91,7 @@ public:
             if(res.found) return res;
         }
         /// Recurse up the tree
-        return findFirst(name, node.parent);
+        return findFirst(name, node.parent, originalDepth);
     }
 private:
     void isThisIt(string name, ASTNode n, ref Result res) {
@@ -113,5 +121,10 @@ private:
             default:
                 break;
         }
+    }
+    void chat(A...)(lazy string fmt, lazy A args) {
+        //if(module_.canonicalName=="test_variables") {
+        //    dd(format(fmt, args));
+        //}
     }
 }

@@ -57,7 +57,7 @@ public:
             }
             return null;
 
-        } else if(nid==NodeID.ANON_STRUCT || nid==NodeID.LITERAL_FUNCTION) {
+        } else if(nid==NodeID.ANON_STRUCT || nid==NodeID.NAMED_STRUCT || nid==NodeID.LITERAL_FUNCTION) {
             /// Check all scope level nodes
             foreach(n; node.children) {
                 auto t = find(n);
