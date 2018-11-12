@@ -13,4 +13,7 @@ public:
     void setBuildStatus(string text, ulong nanos) {
         setStatusText("%s   (%.2f seconds)"d.format(text, nanos * 1e-9));
     }
+    void setText(string text) {
+        setStatusText(text.toUTF32);
+    }
 }

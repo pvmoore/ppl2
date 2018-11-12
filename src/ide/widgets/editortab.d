@@ -10,6 +10,7 @@ private:
     ulong timerId;
     Project project;
     ModuleBuilder builder;
+    StopWatch timeSinceLastEdit;
 public:
     string relFilename;
     string filename;
@@ -91,7 +92,8 @@ public:
             }
         });
         contentChange.connect((EditableContent source) {
-
+            timeSinceLastEdit.reset();
+            timeSinceLastEdit.start();
         });
         editorStateChange.connect((Widget source, ref EditorStateInfo editorState) {
 
@@ -100,9 +102,11 @@ public:
     void onActivated(TabItem t) {
         tabItem  = t;
         isActive = true;
+        timeSinceLastEdit.reset();
+        timeSinceLastEdit.start();
 
         if(timerId==0) {
-            timerId = setTimer(500);
+            timerId = setTimer(1000);
         }
 
         auto b = ide.getBuildState();
@@ -129,6 +133,7 @@ public:
     }
     void onDeactivated() {
         isActive = false;
+        timeSinceLastEdit.stop();
     }
     void setLine(int line) {
         setCaretPos(line-10, 0, true, true);
@@ -149,6 +154,15 @@ public:
         if(id!=timerId) return false;
 
         if(isActive) {
+            auto seconds = timeSinceLastEdit.peek().total!"seconds";
+            if(seconds > 5) {
+                dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
+
+                /// Reset clock and stop it. Any edit will restart it
+                timeSinceLastEdit.reset();
+                timeSinceLastEdit.stop();
+            }
+
             //new Thread(() {
             //
             //}).start();

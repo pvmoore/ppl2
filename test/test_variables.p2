@@ -73,8 +73,8 @@ testVariables {
         var e2       = &e1      ; assert e2 is float[2]**   ; assert (**e2)[0]==5
     }
     basicTypes() 
-    anonStructs() 
-    namedStructs()
+    anonStructs()  
+    namedStructs() 
     arrays()
 }
 

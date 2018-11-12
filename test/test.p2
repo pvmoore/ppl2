@@ -10,17 +10,17 @@ main {
 var s = "hello"
 
 import test_imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
-import test_literals
-import test_arrays
-import test_consts
+import test_literals       
+import test_arrays  
+import test_consts    
 import test_meta
 
 alias AA = int 
-alias BB = AA*     // int*
+alias BB = AA*     // int*  
 alias CC = BB      // int*
 alias DD = CC*     // int**
 DD dd              // int**
-alias EE = IntPtrPtr*
+alias EE = IntPtrPtr* 
 EE ee              // int*** 
 
 // declare for later

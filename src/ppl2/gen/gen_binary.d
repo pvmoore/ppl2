@@ -24,7 +24,7 @@ final class BinaryGenerator {
         //logln("assignVar type is %s", assignVar.getType());
 
         if(b.op is Operator.BOOL_OR || b.op is Operator.BOOL_AND) {
-            handleBooleanAndOrRightSide(b, left);
+            handleShortCircuit(b, left);
             return;
         }
 
@@ -101,22 +101,20 @@ private:
 	/// In certain cases, the result of the left hand side means we don't
 	/// need to evaluate the right hand side at all.
 	///
-    void handleBooleanAndOrRightSide(Binary b, LLVMValueRef leftVar) {
-        //auto rightLabel		 = gen.currentFunction.llvmValue.appendBasicBlock("right");
-        //auto afterRightLabel = gen.currentFunction.llvmValue.appendBasicBlock("after_right");
+    void handleShortCircuit(Binary b, LLVMValueRef leftVar) {
         auto rightLabel		 = gen.createBlock(b, "right");
         auto afterRightLabel = gen.createBlock(b, "after_right");
 
         bool isOr            = b.op is Operator.BOOL_OR;
 
-        // ensure lhs is a bool(i8)
+        /// ensure lhs is a bool(i8)
         leftVar = gen.castType(leftVar, b.leftType, TYPE_BOOL);
 
-        // create a temporary result
+        /// create a temporary result
         auto resultVal = builder.alloca(i8Type(), "bool_result");
         builder.store(leftVar, resultVal);
 
-        // do we need to evaluate the right side?
+        /// do we need to evaluate the right side?
         LLVMValueRef cmpResult;
         if(isOr) {
             cmpResult = builder.icmp(LLVMIntPredicate.LLVMIntNE,
@@ -127,14 +125,14 @@ private:
         }
         builder.condBr(cmpResult, afterRightLabel, rightLabel);
 
-        // evaluate right side
+        /// evaluate right side
         builder.positionAtEndOf(rightLabel);
         b.right.visit!ModuleGenerator(gen);
         gen.rhs = gen.castType(gen.rhs, b.rightType, TYPE_BOOL);
         builder.store(gen.rhs, resultVal);
         builder.br(afterRightLabel);
 
-        // after right side
+        /// after right side
         builder.positionAtEndOf(afterRightLabel);
         gen.rhs = builder.load(resultVal);
     }

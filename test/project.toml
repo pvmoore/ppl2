@@ -15,13 +15,13 @@ lib = "thing"
 
 [[openFile]]
 name = "test_variables.p2"
-line = 77
-active = 1
+line = 75
+active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 9
-active = 0
+line = 28
+active = 1
 
 [[openFile]]
 name = "test_misc.p2"

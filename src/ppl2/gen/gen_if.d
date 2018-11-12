@@ -38,22 +38,16 @@ final class IfGenerator {
 
         /// then
         builder.positionAtEndOf(thenLabel);
-        //if(n.hasThen) {
+        n.thenStmt().visit!ModuleGenerator(gen);
 
-            n.thenStmt().visit!ModuleGenerator(gen);
+        if(n.isExpr) {
+            gen.castType(gen.rhs, n.thenType(), n.type);
+            builder.store(gen.rhs, result);
+        }
 
-            if(n.isExpr) {
-                gen.castType(gen.rhs, n.thenType(), n.type);
-                builder.store(gen.rhs, result);
-            }
-
-            if(!n.thenBlockEndsWithReturn) {
-
-                builder.br(endLabel);
-            }
-        //} else {
-        //    builder.br(endLabel);
-        //}
+        if(!n.thenBlockEndsWithReturn) {
+            builder.br(endLabel);
+        }
 
         /// else
         builder.positionAtEndOf(elseLabel);
@@ -70,6 +64,7 @@ final class IfGenerator {
             }
         }
 
+        /// end
         builder.positionAtEndOf(endLabel);
         if(n.isExpr) {
             gen.rhs = builder.load(result);
