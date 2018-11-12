@@ -43,31 +43,61 @@ public:
         auto leftType  = leftType();
         auto rightType = rightType();
 
+        /// Both sides must be resolved
+        if(leftType.isUnknown || rightType.isUnknown) return;
+
         if(!left().isTypeExpr && !right().isTypeExpr) {
             /// Identifier is Identifier
-
-            /// Both sides must be resolved
-            if(leftType.isUnknown || rightType.isUnknown) return;
 
             if(leftType.isValue && rightType.isValue) {
                 /// value is value
 
-                /// Do a memory comparison regardless of the
-                /// type as long as they are the same size
-
+                /// If the sizes are different then the result must be false
                 if(leftType.size != rightType.size) {
-                    getModule.addError(this,
-                        "Both sides of value 'is' value expression should be the same size "~
-                        "(%s -> %s)".format(leftType.size, rightType.size), true);
+                    rewriteToConstBool(false);
                     return;
                 }
 
-                /// Structs need to use memcmp
-                if(leftType.isStruct && rightType.isStruct) {
+                /// If one side is a named struct then the other must be too
+                if(leftType.isNamedStruct != rightType.isNamedStruct) {
+                    rewriteToConstBool(false);
+                    return;
+                }
+
+                /// If one side is an anon struct then the other side musy be too
+                if(leftType.isAnonStruct != rightType.isAnonStruct) {
+                    rewriteToConstBool(false);
+                    return;
+                }
+
+                /// Two named structs
+                if(leftType.isNamedStruct && rightType.isNamedStruct) {
+
+                    /// Must be the same type
+                    if(leftType.getNamedStruct != rightType.getNamedStruct) {
+                        rewriteToConstBool(false);
+                        return;
+                    }
+
                     rewriteToMemcmp();
                     return;
                 }
+
+                /// Two anon structs
+                if(leftType.isAnonStruct && rightType.isAnonStruct) {
+                    rewriteToMemcmp();
+                    return;
+                }
+
+                /// Two arrays
                 if(leftType.isArray && rightType.isArray) {
+
+                    /// Must be the same subtype
+                    if(!leftType.getArrayType.subtype.exactlyMatches(rightType.getArrayType.subtype)) {
+                        rewriteToConstBool(false);
+                        return;
+                    }
+
                     rewriteToMemcmp();
                     return;
                 }
@@ -81,29 +111,6 @@ public:
             /// Type is Type
             /// Type is Expression
             /// Expression is Type
-
-
-            /// Special case - array subtype check.
-            /// eg. expr is [:int]
-            ///     [:bool] is expr
-            ///
-            //ArrayStruct leftArray  = leftType.getArrayStruct;
-            //ArrayStruct rightArray = rightType.getArrayStruct;
-            //if(leftArray && rightArray) {
-            //    bool r  = (left.isTypeExpr && leftArray.subtype.isKnown && !leftArray.hasCountExpr);
-            //         r |= (right.isTypeExpr && rightArray.subtype.isKnown && !rightArray.hasCountExpr);
-            //
-            //    if(r) {
-            //        /// Do array subtype check only
-            //        bool result = (leftType.getPtrDepth==rightType.getPtrDepth) &&
-            //                      leftArray.subtype.exactlyMatches(rightArray.subtype);
-            //        rewriteToConstBool(result);
-            //        return;
-            //    }
-            //}
-
-            /// Both sides must be resolved
-            if(leftType.isUnknown || rightType.isUnknown) return;
 
             rewriteToConstBool(leftType.exactlyMatches(rightType));
         }

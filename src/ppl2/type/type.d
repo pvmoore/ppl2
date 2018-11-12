@@ -33,7 +33,6 @@ interface Type {
     final bool isReal() const { int e = getEnum(); return e==HALF || e==FLOAT || e==DOUBLE; }
     final bool isInteger() const { int e = getEnum(); return e==BYTE || e==SHORT || e==INT || e==LONG; }
     final bool isBasicType() { return getEnum() <= VOID && getEnum()!=UNKNOWN; }
-    final bool isStruct() const { return isNamedStruct() || isAnonStruct(); }
     final bool isNamedStruct() const { return getEnum==NAMED_STRUCT; }
     final bool isAnonStruct() const { return getEnum==ANON_STRUCT; }
     final bool isArray() const { return getEnum()==ARRAY; }
@@ -70,7 +69,7 @@ interface Type {
         assert(false, "How did we get here?");
     }
     final AnonStruct getAnonStruct() {
-        if(!isStruct) return null;
+        if(!isAnonStruct && !isNamedStruct) return null;
         auto st     = this.as!AnonStruct; if(st) return st;
         auto ns     = this.as!NamedStruct; if(ns) return ns.type;
         auto alias_ = this.as!Alias; if(alias_) return alias_.type.getAnonStruct;
@@ -114,7 +113,11 @@ Type getBestFit(Type a, Type b) {
     if(a.isPtr || b.isPtr) {
         return null;
     }
-    if(a.isStruct || b.isStruct) {
+    if(a.isAnonStruct || b.isAnonStruct) {
+        // todo - some clever logic here
+        return null;
+    }
+    if(a.isNamedStruct || b.isNamedStruct) {
         // todo - some clever logic here
         return null;
     }

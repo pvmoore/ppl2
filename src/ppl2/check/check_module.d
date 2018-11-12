@@ -412,7 +412,7 @@ public:
             }
         }
 
-        if(n.type.isStruct) {
+        if(n.type.isNamedStruct || n.type.isAnonStruct) {
             /// Check that member names are unique
             stringSet.clear();
             auto struct_ = n.type.getAnonStruct();

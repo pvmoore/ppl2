@@ -136,7 +136,9 @@ public:
             rhs = builder.call(n.target.llvmValue, argValues, n.target.getFunction().getCallingConvention());
         }
 
-        if(returnType.isStruct && (n.parent.isDot || n.parent.isA!Parenthesis) && !returnType.isPtr)
+        if((returnType.isNamedStruct || returnType.isAnonStruct) &&
+           (n.parent.isDot || n.parent.isA!Parenthesis) &&
+           !returnType.isPtr)
         {
             /// Special case for returning struct values.
             /// We need to store the result locally

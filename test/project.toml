@@ -21,9 +21,14 @@ active = 0
 [[openFile]]
 name = "test.p2"
 line = 28
-active = 1
+active = 0
 
 [[openFile]]
 name = "test_misc.p2"
 line = 4
 active = 0
+
+[[openFile]]
+name = "test_arrays.p2"
+line = 67
+active = 1

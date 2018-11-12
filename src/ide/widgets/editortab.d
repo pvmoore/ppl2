@@ -152,22 +152,16 @@ public:
     }
     override bool onTimer(ulong id) {
         if(id!=timerId) return false;
+        if(!isActive) return false;
 
-        if(isActive) {
-            auto seconds = timeSinceLastEdit.peek().total!"seconds";
-            if(seconds > 5) {
-                dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
+        auto seconds = timeSinceLastEdit.peek().total!"seconds";
+        if(seconds > 5) {
+            dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
 
-                /// Reset clock and stop it. Any edit will restart it
-                timeSinceLastEdit.reset();
-                timeSinceLastEdit.stop();
-            }
-
-            //new Thread(() {
-            //
-            //}).start();
+            /// Reset clock and stop it. Any edit will restart it
+            timeSinceLastEdit.reset();
+            timeSinceLastEdit.stop();
         }
-
         return true;
     }
     override string toString() {

@@ -66,8 +66,8 @@ testArrays {
         assert z1 == 1
         assert soa[0].array[1] == 2
 
-        assert soa[0].array is [1 as int,2,3,4,5]
-        assert soa[1].array is [10 as int,20,30,40,50]
+        assert soa[0].array is [1,2,3,4,5]
+        assert soa[1].array is [10,20,30,40,50]
     }
     arrayLength {
         int[4] a

@@ -368,7 +368,7 @@ public:
                 auto dot = n.parent.as!Dot;
                 assert(dot);
 
-                if(!prevType.isStruct) {
+                if(!prevType.isNamedStruct) {
                     module_.addError(prev, "Left of call '%s' must be a struct type not a %s".format(n.name, prevType), true);
                     return;
                 }
@@ -673,7 +673,7 @@ public:
                     break;
             }
 
-            if(!prevType.isStruct) {
+            if(!prevType.isNamedStruct && !prevType.isAnonStruct) {
                 module_.addError(prev, "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev), true);
                 return;
             }
@@ -1089,7 +1089,7 @@ public:
     }
     void visit(Unary n) {
 
-        if(n.expr.getType.isStruct && n.op.isOverloadable) {
+        if(n.expr.getType.isNamedStruct && n.op.isOverloadable) {
             /// Look for an operator overload
             string name = "operator" ~ n.op.value;
 
