@@ -31,70 +31,67 @@ public:
 
         bool found() { return isVar || isFunc; }
     }
-    ///
-    /// Find the first variable or function that matches the given identifier name.
-    ///
-    Result findFirst(string name, ASTNode node, int originalDepth) {
-        chat("%sfindFirst(%s, %s, %s) depth %s",
-            "  ".repeat(node.getDepth), name, node.id, originalDepth, node.getDepth);
-
+    ///==================================================================================
+    Result find(string name, ASTNode node) {
         Result res;
-        auto nid = node.id();
 
-        switch(nid) with(NodeID) {
-            case FUNCTION:
-                if(node.as!Function.name==name) res.set(node.as!Function);
-                break;
-            case VARIABLE:
-                if(node.as!Variable.name==name) res.set(node.as!Variable);
-                break;
-            case MODULE:
-                /// Check all module level variables
-                foreach(n; node.children) {
-                    isThisIt(name, n, res);
-                    if(res.found) return res;
-                }
-                /// We can't find it
-                return res;
-            //case ANON_STRUCT:
-            case NAMED_STRUCT:
-                if(node.getDepth >= originalDepth) {
-                    /// Children of this struct will not be visible to node
-                    break;
-                }
-                /// Check all struct level variables
-                foreach (n; node.children) {
-                    isThisIt(name, n, res);
-                    if (res.found) return res;
-                }
-
-                /// Skip to module level scope
-                return findFirst(name, node.getModule(), originalDepth);
-            case LITERAL_FUNCTION:
-                /// If this is not a closure
-                if(!node.as!LiteralFunction.isClosure) {
-                    /// Go to containing struct if there is one
-                    auto ns = node.getAncestor!NamedStruct();
-                    if(ns) return findFirst(name, ns, originalDepth);
-                }
-
-                /// Go to module scope
-                return findFirst(name, node.getModule(), originalDepth);
-            default:
-                break;
-        }
-        if(res.found) return res;
-
-        /// Check variables that appear before this in the tree
+        /// Check previous siblings at current level
         foreach(n; node.prevSiblings()) {
             isThisIt(name, n, res);
             if(res.found) return res;
         }
+
         /// Recurse up the tree
-        return findFirst(name, node.parent, originalDepth);
+        findRecurse(name, node.parent, res);
+
+        return res;
     }
 private:
+    ///==================================================================================
+    void findRecurse(string name, ASTNode node, ref Result res) {
+
+        isThisIt(name, node, res);
+        if(res.found) return;
+
+        auto nid = node.id();
+
+        switch(nid) with(NodeID) {
+            case MODULE:
+            case ANON_STRUCT:
+            case NAMED_STRUCT:
+                /// Check all variables at this level
+                foreach(n; node.children) {
+                    isThisIt(name, n, res);
+                    if(res.found) return;
+                }
+                if(nid==MODULE) return;
+                break;
+            case LITERAL_FUNCTION:
+                if(!node.as!LiteralFunction.isClosure) {
+                    /// Go to containing struct if there is one
+                    auto ns = node.getAncestor!NamedStruct();
+                    if(ns) {
+                        findRecurse(name, ns, res);
+                        return;
+                    }
+                }
+                /// Go to module scope
+                findRecurse(name, node.getModule(), res);
+                return;
+            default:
+                break;
+        }
+
+        /// Check variables that appear before this in the tree
+        foreach(n; node.prevSiblings()) {
+            isThisIt(name, n, res);
+            if(res.found) return;
+        }
+
+        findRecurse(name, node.parent, res);
+    }
     void isThisIt(string name, ASTNode n, ref Result res) {
+
         switch(n.id) with(NodeID) {
             case COMPOSITE:
                 /// Treat children of Composite as if they were in scope

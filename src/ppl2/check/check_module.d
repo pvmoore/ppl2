@@ -443,8 +443,7 @@ public:
             /// Check for duplicate variable names
             stringSet.clear();
 
-            auto node = n.previous();
-            auto res  = identifierResolver.findFirst(n.name, node, node.getDepth());
+            auto res = identifierResolver.find(n.name, n);
             if(res.found) {
                 if(res.isVar) {
                     auto var = res.var;

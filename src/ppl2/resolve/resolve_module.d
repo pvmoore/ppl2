@@ -443,7 +443,7 @@ public:
             {
                 auto ns = n.getAncestor!NamedStruct;
                 if(ns) {
-                    auto r = identifierResolver.findFirst("this", n, n.getDepth);
+                    auto r = identifierResolver.find("this", n);
                     if(r.found) {
                         n.addImplicitThisArg(r.var);
                         rewrites++;
@@ -553,7 +553,7 @@ public:
     void visit(Identifier n) {
 
         void findLocalOrGlobal() {
-            auto res = identifierResolver.findFirst(n.name, n, n.getDepth);
+            auto res = identifierResolver.find(n.name, n);
             if(!res.found) {
                 /// Ok to continue
                 module_.addError(n, "identifier '%s' not found".format(n.name), true);

@@ -60,7 +60,7 @@ public:
         if(ns && !call.implicitThisArgAdded) {
 
             /// Add implicit this* as 1st arg
-            auto r = identifierResolver.findFirst("this", call, call.getDepth);
+            auto r = identifierResolver.find("this", call);
             if(!r.found) return false;
 
             call.addImplicitThisArg(r.var);
