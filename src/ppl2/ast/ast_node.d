@@ -158,7 +158,8 @@ public:
         child.parent = null;
     }
     void removeLast() {
-        auto child = children.removeAt(children.length-1);
+        assert(children.length>0);
+        auto child = children.removeAt(children.length.as!int-1);
         child.parent = null;
     }
     void replaceChild(ASTNode child, ASTNode otherChild) {
@@ -247,7 +248,7 @@ public:
         }
     }
     //=================================================================================
-    inout Container getContainer() {
+    Container getContainer() inout {
         auto c = cast(Container)parent;
         if(c) return c;
         if(parent) return parent.getContainer();

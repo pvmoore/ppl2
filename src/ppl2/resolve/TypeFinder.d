@@ -82,7 +82,7 @@ public:
         auto type = untemplatedType;
 
         assert(templateParams.length>0);
-        assert(type && type.isAlias || type.isNamedStruct);
+        assert(type && (type.isAlias || type.isNamedStruct));
 
         auto alias_ = type.getAlias;
         auto ns     = type.getNamedStruct;

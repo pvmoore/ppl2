@@ -318,6 +318,7 @@ bool isString(TT t) {
 }
 string toString(TT t) {
     __gshared static string[TT] map;
+
     if(map.length==0) with(TT) {
         map[LCURLY] = "{";
         map[RCURLY] = "}";

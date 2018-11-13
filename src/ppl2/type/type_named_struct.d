@@ -113,13 +113,13 @@ public:
         return getDefaultConstructor() !is null;
     }
     bool hasOperatorOverload(Operator op) {
-        string name = "operator";
+        string fname = "operator";
         if(op==Operator.NEG) {
-            name ~= " neg";
+            fname ~= " neg";
         } else {
-            name ~= op.value;
+            fname ~= op.value;
         }
-        return getMemberFunctions(name).length > 0;
+        return getMemberFunctions(fname).length > 0;
     }
     Function getDefaultConstructor() {
         foreach(f; getConstructors()) {

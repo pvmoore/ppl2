@@ -438,7 +438,7 @@ public:
 
             /// Check to see whether we need to add an implicit "this." prefix
             if(n.isStartOfChain() &&
-               n.argTypes.length == n.target.paramTypes.length-1 &&
+               n.argTypes.length == n.target.paramTypes.length.as!int-1 &&
                !n.implicitThisArgAdded)
             {
                 auto ns = n.getAncestor!NamedStruct;
