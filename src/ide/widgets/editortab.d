@@ -179,7 +179,7 @@ public:
 
         if(builder.build(m)) {
             info.getTokensView().update(m.parser.getInitialTokens()[]);
-            info.getASTView().update(m, true);
+            info.getASTView().update(m);
             info.getIRView().update(builder.getUnoptimisedIR());
             info.getOptIRView().update(builder.getOptimisedIR());
 

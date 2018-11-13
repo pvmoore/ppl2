@@ -6,7 +6,7 @@ import ppl2;
 final class ASTView : TreeWidget {
 private:
     IDE ide;
-    string showingModule;
+
     int[int] nidToLine;
 public:
     this(IDE ide) {
@@ -28,10 +28,7 @@ public:
             }
         };
     }
-    void update(Module m, bool forceUpdate = false) {
-        if(!forceUpdate && m.canonicalName==showingModule) return;
-
-        showingModule = m.canonicalName;
+    void update(Module m) {
         clearAllItems();
         nidToLine.clear();
 
@@ -54,7 +51,6 @@ public:
         recurse(rootItem, m);
     }
     void clear() {
-        showingModule = null;
         clearAllItems();
     }
 }

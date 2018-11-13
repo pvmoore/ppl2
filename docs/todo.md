@@ -3,7 +3,6 @@
 - Nested multiline comments
 - Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
 
-- Use llvm IR phi nodes when emitting loop/if
 - Don't call requireFunction just to get the parameters for function resolution. Use a different lighter-weight
   version eg. requireFunctionParams
 - Ensure we remove static funstions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
@@ -32,7 +31,7 @@ var r = select(x) {
 ```
     struct A { doSomething {} }
     struct B {
-        compose A a // thing about this syntax
+        compose A a // think about this syntax
     }
     B b
     b.doSomething() 
@@ -67,8 +66,8 @@ IR { // or LLVM or similar
 ## Template enhancements
 - Allow template const parameter values eg
 ```
-struct S = <A, int V=10> [ [:A V] array ]
-func     = <A, int V=10> { [:A V] array -> }
+struct S = <A, int V=10> [ A[V] array ]
+func     = <A, int V=10> { A[V] array -> }
 
 var s = S<int,20>()
 func<int,20>(array)

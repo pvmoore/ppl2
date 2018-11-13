@@ -42,6 +42,7 @@ final class IfGenerator {
 
         /// then
         gen.moveToBlock(thenLabel);
+
         n.thenStmt().visit!ModuleGenerator(gen);
 
         if(n.isExpr) {
@@ -56,8 +57,8 @@ final class IfGenerator {
         }
 
         /// else
-        gen.moveToBlock(elseLabel);
         if(n.hasElse) {
+            gen.moveToBlock(elseLabel);
 
             n.elseStmt().visit!ModuleGenerator(gen);
 
