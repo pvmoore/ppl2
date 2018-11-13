@@ -139,7 +139,7 @@ private:
         /// Statements
         while(t.type!=TT.RSQBRACKET) {
 
-            stmtParser().parse(t, s);
+            varParser().parseAnonStructMember(t, s);
 
             if(t.type==TT.COMMA) t.next;
         }
@@ -194,7 +194,7 @@ private:
         /// args
         while(t.type!=TT.RT_ARROW) {
 
-            varParser().parse(t, f, true);
+            varParser().parseFunctionTypeParameter(t, f);
 
             t.expect(TT.RT_ARROW, TT.COMMA);
             if(t.type==TT.COMMA) t.next;
@@ -213,7 +213,7 @@ private:
 
         /// return type
         if(t.type!=TT.RCURLY) {
-            varParser().parse(t, f, true);
+            varParser().parseReturnType(t, f);
         } else {
             /// void return type
             auto v = makeNode!Variable(t);

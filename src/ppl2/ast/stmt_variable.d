@@ -30,13 +30,13 @@ final class Variable : Statement {
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isNamedStructMember() {
-        return !isStatic && parent.isNamedStruct;
+        return !isStatic && parent.id==NodeID.NAMED_STRUCT;
     }
     bool isAnonStructMember() {
-        return !isStatic && parent.isAnonStruct && !parent.isNamedStruct;
+        return !isStatic && parent.id==NodeID.ANON_STRUCT;
     }
-    bool isStructMember() const {
-        return !isStatic && parent.isAnonStruct;
+    bool isStructMember() {
+        return isNamedStructMember() || isAnonStructMember();
     }
     bool isGlobal() const {
         return parent.isModule;

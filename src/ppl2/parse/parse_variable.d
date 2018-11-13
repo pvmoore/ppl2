@@ -6,7 +6,13 @@ final class VariableParser {
 private:
     Module module_;
 
-    auto  exprParser()  { return module_.exprParser; }
+    static struct Flags {
+        bool nameRequired;
+        bool typeRequired;
+        bool nameForbidden;
+    }
+
+    auto exprParser()   { return module_.exprParser; }
     auto typeParser()   { return module_.typeParser; }
     auto typeDetector() { return module_.typeDetector; }
     auto builder()      { return module_.nodeBuilder; }
@@ -14,41 +20,89 @@ public:
     this(Module module_) {
         this.module_ = module_;
     }
-    ///
-    /// Parse parameter list.
-    ///
-    ///            {name ->
-    ///            {int value, byte* str, int base -> }
-    ///  Start here ^
-    void parseParameters(Tokens t, ASTNode parent) {
-        auto params = makeNode!Parameters(t);
-
-
-    }
     Type parseParameterForTemplate(Tokens t, ASTNode parent) {
         Type type;
-        //while(t.hasNext) {
-            if(typeDetector().isType(t, parent)) {
-                type = typeParser.parseForTemplate(t, parent);
-            }
-            if(t.type==TT.COMMA) {
-                assert(false);
-                //t.next;
-            } else {
-                /// name
-                assert(t.type==TT.IDENTIFIER, "type=%s".format(t.get));
-                t.next;
-            }
-        //}
+        if(typeDetector().isType(t, parent)) {
+            type = typeParser.parseForTemplate(t, parent);
+        }
+
+        if(t.type==TT.COMMA) {
+            assert(false);
+        } else {
+            /// name
+            assert(t.type==TT.IDENTIFIER, "type=%s".format(t.get));
+            t.next;
+        }
         return type;
     }
+    /// foo { int a, b ->
+    ///       ^^^^^  ^
+    void parseParameter(Tokens t, ASTNode parent) {
+        Flags flags = {
+            nameRequired:  true,
+            typeRequired:  false,
+            nameForbidden: false
+        };
+        parse(t, parent, flags);
+    }
+    /// {int a -> void}
+    ///  ^^^^^
+    void parseFunctionTypeParameter(Tokens t, ASTNode parent) {
+        Flags flags = {
+            nameRequired:  false,
+            typeRequired:  true,
+            nameForbidden: false
+        };
+        parse(t, parent, flags);
+    }
+    /// {int a->int}
+    ///         ^^^
+    void parseReturnType(Tokens t, ASTNode parent) {
+        Flags flags = {
+            nameRequired:  false,
+            typeRequired:  true,
+            nameForbidden: true
+        };
+        parse(t, parent, flags);
+    }
+    /// struct S { int a ...
+    ///            ^^^^^
+    void parseNamedStructMember(Tokens t, ASTNode parent) {
+        Flags flags = {
+            nameRequired:  true,
+            typeRequired:  true,
+            nameForbidden: false
+        };
+        parse(t, parent, flags);
+    }
+    /// [int a ...
+    ///  ^^^^^
+    void parseAnonStructMember(Tokens t, ASTNode parent) {
+        Flags flags = {
+            nameRequired:  false,
+            typeRequired:  true,
+            nameForbidden: false
+        };
+        parse(t, parent, flags);
+    }
+    /// func { var a ...
+    ///        ^^^^^
+    void parseLocal(Tokens t, ASTNode parent) {
+        Flags flags = {
+            nameRequired:  true,
+            typeRequired:  true,
+            nameForbidden: false
+        };
+        parse(t, parent, flags);
+    }
+private:
     ///
     /// type        // only inside an anonymous struct
     /// id          // only as a LiteralFunction parameter
     /// type id
     /// type id "=" expression
     ///
-    void parse(Tokens t, ASTNode parent, bool requireType=false) {
+    void parse(Tokens t, ASTNode parent, Flags flags) {
         //dd("variable", t.get);
         auto v = makeNode!Variable(t);
         parent.add(v);
@@ -60,7 +114,8 @@ public:
         }
         if("const"==t.value) {
             t.next;
-            v.isConst = true;
+            v.isConst    = true;
+            v.isImplicit = true;
         }
         if("static"==t.value) {
             t.next;
@@ -73,21 +128,29 @@ public:
 
         v.access = t.access();
 
+        /// Type
         if(typeDetector().isType(t, v)) {
             v.type = typeParser.parse(t, v);
         } else {
             /// there is no type
-            if(requireType) {
-                errorMissingType(module_, t, t.value);
-            }
-            if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.IDENTIFIER) {
-                errorMissingType(module_, t, t.value);
+            if(!v.isImplicit) {
+                if(flags.typeRequired) {
+                    errorMissingType(module_, t, t.value);
+                }
+                if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.IDENTIFIER) {
+                    errorMissingType(module_, t, t.value);
+                }
             }
 
             v.type = TYPE_UNKNOWN;
         }
 
+        /// Name
         if(t.type==TT.IDENTIFIER && !t.get.templateType) {
+            if(flags.nameForbidden) {
+                module_.addError(t, "Variable name not allowed here", true);
+            }
+
             v.name = t.value;
             if(v.name=="this") {
                 module_.addError(t, "'this' is a reserved word", true);
@@ -111,6 +174,10 @@ public:
                 if(v.isConst) {
                     module_.addError(v, "Const variable must be initialised", true);
                 }
+            }
+        } else {
+            if(flags.nameRequired) {
+                module_.addError(t, "Variable name required", true);
             }
         }
 

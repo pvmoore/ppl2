@@ -72,7 +72,6 @@ T makeNode(T)(ASTNode p) {
     assert(n.children);
     return n;
 }
-bool isAnonStruct(inout ASTNode n) { return cast(AnonStruct)n !is null; }
 bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
@@ -90,7 +89,6 @@ bool isLiteralNumber(inout ASTNode n) { return n.id()==NodeID.LITERAL_NUMBER; }
 bool isLiteralFunction(inout ASTNode n) { return n.id()==NodeID.LITERAL_FUNCTION; }
 bool isLoop(inout ASTNode n) { return n.id()==NodeID.LOOP; }
 bool isModule(inout ASTNode n) { return n.id()==NodeID.MODULE; }
-bool isNamedStruct(inout ASTNode n) { return n.id()==NodeID.NAMED_STRUCT; }
 bool isReturn(inout ASTNode n) { return n.id()==NodeID.RETURN; }
 bool isTypeExpr(inout ASTNode n) { return n.id()==NodeID.TYPE_EXPR; }
 bool isVariable(inout ASTNode n) { return n.id()==NodeID.VARIABLE; }

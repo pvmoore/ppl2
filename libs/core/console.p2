@@ -1,13 +1,13 @@
 
 public
 
-println {bool b -> print(b) putchar(10) }
-println {long n -> print(n) putchar(10) }
-println {string s ->
+println { bool b -> print(b) putchar(10) }
+println { long n -> print(n) putchar(10) }
+println { string s ->
     print(s.ptr, s.length)
     putchar(10)
 }
-println {byte* ptr,long len ->
+println { byte* ptr,long len ->
     print(ptr,len)
     putchar(10)
 }

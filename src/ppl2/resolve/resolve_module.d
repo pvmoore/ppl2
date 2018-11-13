@@ -1213,7 +1213,7 @@ private:
 
         if(!isAttached(m)) return;
 
-        if(m.isNamedStruct) {
+        if(m.id==NodeID.NAMED_STRUCT) {
             if(m.as!NamedStruct.isTemplateBlueprint) return;
         } else if(m.isFunction) {
             auto f = m.as!Function;

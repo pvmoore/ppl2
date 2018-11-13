@@ -103,7 +103,7 @@ public:
         if(afterNode.isFunction) {
             t.setAccess(afterNode.as!Function.access);
         } else {
-            assert(afterNode.isNamedStruct);
+            assert(afterNode.id==NodeID.NAMED_STRUCT);
             t.setAccess(afterNode.as!NamedStruct.access);
         }
 

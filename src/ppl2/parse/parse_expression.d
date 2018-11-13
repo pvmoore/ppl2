@@ -550,6 +550,7 @@ private:
         type.params = params;
         f.type = PtrType.of(type, 1);
 
+        /// {
         t.skip(TT.LCURLY);
 
         int arrow = t.findInScope(TT.RT_ARROW);
@@ -557,7 +558,7 @@ private:
             /// collect the args
             while(t.type!=TT.RT_ARROW) {
 
-                varParser().parse(t, params);
+                varParser().parseParameter(t, params);
 
                 t.expect(TT.RT_ARROW, TT.COMMA);
                 if(t.type==TT.COMMA) t.next;
@@ -571,6 +572,8 @@ private:
         while(t.type != TT.RCURLY) {
             stmtParser().parse(t, f);
         }
+
+        /// }
         t.skip(TT.RCURLY);
 
         /// If this is a closure we need to handle it differently

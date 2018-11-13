@@ -37,7 +37,7 @@ public:
                 parseBreak(t, parent);
                 return;
             case "const":
-                varParser().parse(t, parent);
+                varParser().parseLocal(t, parent);
                 return;
             case "continue":
                 parseContinue(t, parent);
@@ -83,7 +83,7 @@ public:
                 } else if(t.peek(2).type==TT.LANGLE) {
                     parseFunction(t, parent);
                 } else {
-                    varParser().parse(t, parent);
+                    varParser().parseNamedStructMember(t, parent);
                 }
                 return;
             case "struct":
@@ -139,7 +139,7 @@ public:
                 exprParser.parse(t, parent);
             } else {
                 /// Variable decl
-                varParser().parse(t, parent);
+                varParser().parseLocal(t, parent);
             }
             return;
         }

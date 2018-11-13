@@ -63,7 +63,7 @@ final class NodeBuilder {
         id.target = new Target(module_);
         id.name   = v.name;
 
-        if(v.isStructMember) {
+        if(v.isAnonStructMember || v.isNamedStructMember) {
             auto struct_ = v.parent.as!AnonStruct;
             assert(struct_);
             id.target.set(v, struct_.getMemberIndex(v));

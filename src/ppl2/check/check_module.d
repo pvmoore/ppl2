@@ -407,7 +407,7 @@ public:
             }
         }
         if(n.isStatic) {
-            if(!n.parent.isNamedStruct) {
+            if(!n.parent.id==NodeID.NAMED_STRUCT) {
                 module_.addError(n, "Static variables are not allowed at this scope", true);
             }
         }

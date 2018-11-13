@@ -342,7 +342,9 @@ public:
     void visit(Variable n) {
         if(n.isGlobal) {
 
-        } else if(n.isStructMember) {
+        } else if(n.isAnonStructMember) {
+
+        } else if(n.isNamedStructMember) {
 
         } else {
             //// it must be a local/parameter
