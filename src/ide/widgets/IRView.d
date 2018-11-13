@@ -10,7 +10,7 @@ public:
         super(id);
         this.ide = ide;
 
-        fontSize = 15;
+        fontSize = 16;
         readOnly(true);
 
         setTokenHightlightColor(TokenCategory.Comment, 0x707070);

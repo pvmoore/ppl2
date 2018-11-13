@@ -11,14 +11,18 @@ final class IfGenerator {
         this.builder = gen.builder;
     }
     void generate(If n) {
+        auto ifLabel   = gen.createBlock(n, "if");
         auto thenLabel = gen.createBlock(n, "then");
         auto elseLabel = n.hasElse ? gen.createBlock(n, "else") : null;
         auto endLabel  = gen.createBlock(n, "endif");
 
-        LLVMValueRef result;
-        if(n.isExpr) {
-            result = builder.alloca(n.type.getLLVMType, "if_result");
-        }
+        LLVMValueRef[]      phiValues;
+        LLVMBasicBlockRef[] phiBlocks;
+
+        builder.br(ifLabel);
+
+        /// If
+        gen.moveToBlock(ifLabel);
 
         /// inits
         if(n.hasInitExpr) {
@@ -37,12 +41,14 @@ final class IfGenerator {
         builder.condBr(cmp, thenLabel, n.hasElse ? elseLabel : endLabel);
 
         /// then
-        builder.positionAtEndOf(thenLabel);
+        gen.moveToBlock(thenLabel);
         n.thenStmt().visit!ModuleGenerator(gen);
 
         if(n.isExpr) {
             gen.castType(gen.rhs, n.thenType(), n.type);
-            builder.store(gen.rhs, result);
+
+            phiValues ~= gen.rhs;
+            phiBlocks ~= gen.blocks.peek();
         }
 
         if(!n.thenBlockEndsWithReturn) {
@@ -50,13 +56,16 @@ final class IfGenerator {
         }
 
         /// else
-        builder.positionAtEndOf(elseLabel);
+        gen.moveToBlock(elseLabel);
         if(n.hasElse) {
+
             n.elseStmt().visit!ModuleGenerator(gen);
 
             if(n.isExpr) {
                 gen.castType(gen.rhs, n.elseType(), n.type);
-                builder.store(gen.rhs, result);
+
+                phiValues ~= gen.rhs;
+                phiBlocks ~= gen.blocks.peek();
             }
 
             if(!n.elseBlockEndsWithReturn) {
@@ -65,9 +74,12 @@ final class IfGenerator {
         }
 
         /// end
-        builder.positionAtEndOf(endLabel);
+        gen.moveToBlock(endLabel);
         if(n.isExpr) {
-            gen.rhs = builder.load(result);
+            auto phi = builder.phi(n.type.getLLVMType);
+            phi.addIncoming(phiValues, phiBlocks);
+
+            gen.rhs = phi;
         }
     }
 }

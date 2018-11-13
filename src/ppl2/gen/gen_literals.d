@@ -44,7 +44,9 @@ final class LiteralGenerator {
         auto numParams  = paramTypes.length;
 
         auto entry = llvmValue.appendBasicBlock("entry");
-        builder.positionAtEndOf(entry);
+
+        /// Entry
+        gen.moveToBlock(entry);
 
         /// Visit body statements
         foreach(ch; n.children) {

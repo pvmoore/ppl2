@@ -25,12 +25,12 @@ final class LoopGenerator {
         builder.br(preBB);
 
         /// pre loop statements
-        builder.positionAtEndOf(preBB);
+        gen.moveToBlock(preBB);
         loop.initStmts().visit!ModuleGenerator(gen);
         builder.br(loopStartBB);
 
         /// checkBB: evaluate condition
-        builder.positionAtEndOf(checkBB);
+        gen.moveToBlock(checkBB);
         if(loop.hasCondExpr) {
             loop.condExpr.visit!ModuleGenerator(gen);
             auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntNE, gen.rhs, loop.condExpr.getType.zero);
@@ -40,26 +40,26 @@ final class LoopGenerator {
         }
 
         /// bodyBB: body
-        builder.positionAtEndOf(bodyBB);
+        gen.moveToBlock(bodyBB);
         loop.bodyStmts().visit!ModuleGenerator(gen);
         builder.br(contBB);
 
         /// contBB: post loop statements
-        builder.positionAtEndOf(contBB);
+        gen.moveToBlock(contBB);
         loop.postExprs().visit!ModuleGenerator(gen);
         builder.br(loopStartBB);
 
         /// exitBB: exit
-        builder.positionAtEndOf(exitBB);
+        gen.moveToBlock(exitBB);
     }
     void generate(Break brk) {
         builder.br(brk.loop.breakBB);
         auto bb = gen.createBlock(brk, "after_break");
-        builder.positionAtEndOf(bb);
+        gen.moveToBlock(bb);
     }
     void generate(Continue cont) {
         builder.br(cont.loop.continueBB);
         auto bb = gen.createBlock(cont, "after_continue");
-        builder.positionAtEndOf(bb);
+        gen.moveToBlock(bb);
     }
 }

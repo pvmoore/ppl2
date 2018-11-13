@@ -11,7 +11,7 @@ public:
         super("TOKENS-VIEW");
         this.ide = ide;
 
-        fontSize = 15;
+        fontSize = 16;
         readOnly(true);
     }
     void update(ppl2.Token[] tokens) {

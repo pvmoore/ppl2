@@ -126,14 +126,14 @@ private:
         builder.condBr(cmpResult, afterRightLabel, rightLabel);
 
         /// evaluate right side
-        builder.positionAtEndOf(rightLabel);
+        gen.moveToBlock(rightLabel);
         b.right.visit!ModuleGenerator(gen);
         gen.rhs = gen.castType(gen.rhs, b.rightType, TYPE_BOOL);
         builder.store(gen.rhs, resultVal);
         builder.br(afterRightLabel);
 
         /// after right side
-        builder.positionAtEndOf(afterRightLabel);
+        gen.moveToBlock(afterRightLabel);
         gen.rhs = builder.load(resultVal);
     }
     void eq(Type cmpType, LLVMValueRef left, LLVMValueRef right) {

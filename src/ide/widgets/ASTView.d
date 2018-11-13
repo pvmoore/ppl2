@@ -13,7 +13,7 @@ public:
         super("AST-VIEW");
         this.ide = ide;
 
-        fontSize = 15;
+        fontSize = 16;
 
         selectionChange = (TreeItems source, TreeItem selectedItem, bool activated) {
             if(activated) {

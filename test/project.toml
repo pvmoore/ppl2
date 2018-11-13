@@ -24,11 +24,16 @@ line = 28
 active = 0
 
 [[openFile]]
+name = "test_if.p2"
+line = 37
+active = 1
+
+[[openFile]]
 name = "test_misc.p2"
 line = 4
 active = 0
 
 [[openFile]]
 name = "test_arrays.p2"
-line = 70
-active = 1
+line = 71
+active = 0
