@@ -125,6 +125,7 @@ private:
             "srem",
             "store",
             "sub",
+            "switch",
             "tail",
             "target",
             "to",

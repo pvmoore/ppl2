@@ -498,6 +498,9 @@ public:
     void visit(Calloc n) {
         resolveAlias(n, n.valueType);
     }
+    void visit(Case n) {
+
+    }
     void visit(Closure n) {
 
     }
@@ -937,19 +940,24 @@ public:
     }
     void visit(LiteralNull n) {
         if(n.type.isUnknown) {
+            //if(module_.canonicalName=="test_select") dd("!! null", n.parent.id);
+            auto parent = n.parent;
+            if(parent.isComposite) parent = parent.parent;
+
             Type type;
             /// Determine type from parent
-            switch(n.parent.id()) with(NodeID) {
+            switch(parent.id()) with(NodeID) {
                 case AS:
-                    type = n.parent.as!As.getType;
+                    type = parent.as!As.getType;
                     break;
                 case BINARY:
-                    type = n.parent.as!Binary.leftType();
+                    type = parent.as!Binary.leftType();
                     break;
-                case COMPOSITE:
+                case CASE:
+                    type = parent.as!Case.getSelectType();
                     break;
                 case IF:
-                    auto if_ = n.parent.as!If;
+                    auto if_ = parent.as!If;
                     if(if_.hasThen && if_.hasElse) {
                         if(n.nid==if_.thenStmt().nid) {
                             type = if_.elseType();
@@ -959,16 +967,16 @@ public:
                     }
                     break;
                 case INITIALISER:
-                    type = n.parent.as!Initialiser.getType;
+                    type = parent.as!Initialiser.getType;
                     break;
                 case IS:
-                    type = n.parent.as!Is.oppositeSideType(n);
+                    type = parent.as!Is.oppositeSideType(n);
                     break;
                 case VARIABLE:
-                    type = n.parent.as!Variable.type;
+                    type = parent.as!Variable.type;
                     break;
                 default:
-                    assert(false, "parent is %s".format(n.parent.id()));
+                    assert(false, "parent is %s".format(parent.id()));
             }
 
             if(type && type.isKnown) {
@@ -1070,15 +1078,85 @@ public:
         fold(n, n.expr());
     }
     void visit(Return n) {
-        //if(n.hasExpr) {
-        //    auto p = n.getLiteralFunction().parent;
-        //    if(p.getType.isKnown) {
-        //        auto f = p.as!Function;
-        //        if(module_.canonicalName=="test") {
-        //            dd("!!!", p.getType.getFunctionType.returnType, n.getType);
-        //        }
-        //    }
-        //}
+
+    }
+    void visit(Select n) {
+        if(!n.isResolved) {
+
+            Type[] types = n.casesIncludingDefault().map!(it=>it.getType).array;
+
+            //Type[] types = n.casesIncludingDefault()
+            //                .filter!(it=>
+            //                    it.isResolvable()
+            //                )
+            //                .map!(it=>it.getType)
+            //                .array;
+
+            //foreach(c; n.cases()) {
+            //    auto t = c.getType;
+            //
+            //    if(t.isKnown) {
+            //        types ~= t;
+            //    } else {
+            //        /// Handle literal null
+            //        if(c.stmts().first.isLiteralNull) {
+            //            /// ignore this one
+            //        } else {
+            //            /// We can't continue
+            //            return;
+            //        }
+            //    }
+            //}
+            if(!types.areKnown) return;
+
+            auto type = getBestFit(types);
+            if(type) {
+                n.type = type;
+            }
+        }
+        if(n.isResolved && !n.isSwitch) {
+            ///
+            /// Convert to a series of if/else
+            ///
+            auto cases = n.cases();
+            auto def   = n.defaultStmts();
+
+            /// Exit if this select is badly formed. This will already be an error
+            if(cases.length==0 || def is null) return;
+
+            If first;
+            If prev;
+
+            foreach(c; n.cases()) {
+                If if_ = makeNode!If(n);
+                if(first is null) first = if_;
+
+                if(prev) {
+                    /// else
+                    auto else_ = Composite.make(n, Composite.Usage.PERMANENT);
+                    else_.add(if_);
+                    prev.add(else_);
+                }
+
+                /// No inits
+                if_.add(Composite.make(n, Composite.Usage.PERMANENT));
+
+                /// Condition
+                if_.add(c.cond());
+
+                /// then
+                if_.add(c.stmts());
+
+                prev = if_;
+            }
+            /// Final else
+            assert(first);
+            assert(prev);
+            prev.add(def);
+
+            fold(n, first);
+            return;
+        }
     }
     void visit(TypeExpr n) {
         resolveAlias(n, n.type);
@@ -1100,7 +1178,7 @@ public:
             ///         expr struct
             ///     Call
             ///
-            auto b      = module_.builder(n);
+            auto b = module_.builder(n);
 
             auto left  = n.expr.getType.isValue ? b.addressOf(n.expr) : n.expr;
             auto right = b.call(name, null);
@@ -1108,8 +1186,6 @@ public:
             auto dot = b.dot(left, right);
 
             fold(n, dot);
-            //n.parent.replaceChild(n, dot);
-            //rewrites++;
             return;
         }
         /// If expression is a const literal number then apply the

@@ -13,10 +13,10 @@ import ppl2.internal;
 /// int a = if(b > c) { callSomeone(); 3 } else if(c > d) 4 else 5
 ///
 /// If
-///    composite initExprs
-///    condition
-///    thenStmt
-///    elseStmt // optional
+///    [0] initExprs (Composite)
+///    [1] condition (Expression)
+///    [2] thenStmt  (Composite)
+///    [3] elseStmt // optional (Composite)
 ///
 final class If : Expression {
     Type type;
@@ -46,23 +46,22 @@ final class If : Expression {
         auto p = parent;
         while(p.id==NodeID.COMPOSITE) p = p.parent;
 
-        if(p.id==NodeID.LITERAL_FUNCTION ||
-           p.id==NodeID.LOOP)
-        {
-            return false;
+        switch(p.id) with(NodeID) {
+            case LITERAL_FUNCTION:
+            case LOOP:
+                return false;
+            case BINARY:
+            case INITIALISER:
+            case RETURN:
+            case ADDRESS_OF:
+            case VALUE_OF:
+            case PARENTHESIS:
+                return true;
+            case IF:
+                return p.as!If.isExpr();
+            default:
+                assert(false, "dunno parent=%s".format(p));
         }
-        if(p.id==NodeID.BINARY ||
-           p.id==NodeID.INITIALISER ||
-           p.id==NodeID.RETURN)
-        {
-            return true;
-        }
-        if(p.id==NodeID.IF) return p.as!If.isExpr();
-        if(p.id==NodeID.ADDRESS_OF) return true;
-        if(p.id==NodeID.VALUE_OF) return true;
-        if(p.id==NodeID.PARENTHESIS) return true;
-
-        assert(false, "dunno parent=%s".format(p));
     }
     bool thenBlockEndsWithReturn() {
         if(thenStmt.numChildren==0) return false;

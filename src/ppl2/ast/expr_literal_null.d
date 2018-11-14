@@ -15,11 +15,11 @@ final class LiteralNull : Expression {
         return lit;
     }
 
-    override bool isResolved() { return type.isKnown; }
-    override bool isConst() { return true; }
+    override bool isResolved()    { return type.isKnown; }
+    override bool isConst()       { return true; }
     override int priority() const { return 15; }
-    override Type getType() { return type; }
-    override NodeID id() const { return NodeID.LITERAL_NULL; }
+    override Type getType()       { return type; }
+    override NodeID id() const    { return NodeID.LITERAL_NULL; }
 
     override string toString() {
         return "null (type=const %s)".format(type);

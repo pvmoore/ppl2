@@ -5,7 +5,7 @@ import std.conv : to;
 
 /// filter!(..).frontOrNull!Thing()
 T frontOrNull(T,Range)(Range r) {
-    return r.empty ? null : r.front;
+    return cast(T)(r.empty ? null : r.front);
 }
 string toString(string[] array) {
     auto buf = appender!string;

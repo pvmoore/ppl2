@@ -62,6 +62,9 @@ private:
         } else if("if"==t.value) {
             parseIf(t, parent);
             return;
+        } else if("select"==t.value) {
+            parseSelect(t, parent);
+            return;
         } else if(t.value=="not") {
             parseUnary(t, parent);
             return;
@@ -884,7 +887,108 @@ private:
             }
         }
     }
+    ///
+    /// select_expr ::= "select" "(" [ var  ";" ] expr ")" "{" { case } else_case "}"
+    /// case        ::= const_expr ":" (expr | "{" expr "}" )
+    /// else_case   ::= "else" ":" (expr | "{" expr "}" )
+    ///
+    /// select    ::= "select" "{" { case } else_case "}"
+    /// case      ::= expr ":" ( expr | "{" expr "}" )
+    /// else_case ::= ":" ( expr | "{" expr "}" )
+    ///
+    void parseSelect(Tokens t, ASTNode parent) {
+        auto s = makeNode!Select(t);
+        parent.add(s);
 
+        /// select
+        t.skip("select");
+
+        if(t.type==TT.LBRACKET) {
+            ///
+            /// select switch
+            ///
+            s.isSwitch = true;
+
+            /// (
+            t.skip(TT.LBRACKET);
+
+            /// possible init expressions
+            auto inits = Composite.make(t, Composite.Usage.PERMANENT);
+            s.add(inits);
+
+            bool hasInits() {
+                auto end = t.findInScope(TT.RBRACKET);
+                auto sc  = t.findInScope(TT.SEMICOLON);
+                return sc!=-1 && end!=-1 && sc < end;
+            }
+
+            if(hasInits()) {
+                while(t.type!=TT.SEMICOLON) {
+
+                    stmtParser().parse(t, inits);
+
+                    t.expect(TT.COMMA, TT.SEMICOLON);
+                    if(t.type==TT.COMMA) t.next;
+                }
+                t.skip(TT.SEMICOLON);
+            }
+
+            /// value
+            parse(t, s);
+
+            /// )
+            t.skip(TT.RBRACKET);
+        }
+        /// {
+        t.skip(TT.LCURLY);
+
+        int countDefaults = 0;
+        int countCases    = 0;
+
+        ///
+        /// Cases
+        ///
+        /// case ::= expr "{" { stmt } "}"
+        void parseCase() {
+            auto comp = Composite.make(t, Composite.Usage.PERMANENT);
+
+            if(t.isKeyword("else")) {
+                t.next;
+                s.add(comp);
+                countDefaults++;
+            } else {
+                countCases++;
+                auto case_ = makeNode!Case(t);
+                s.add(case_);
+
+                /// expr
+                parse(t, case_);
+
+                case_.add(comp);
+            }
+
+            t.skip(TT.LCURLY);
+
+            while(t.type!=TT.RCURLY) {
+                stmtParser().parse(t, comp);
+            }
+            t.skip(TT.RCURLY);
+        }
+        while(t.type!=TT.RCURLY) {
+            parseCase();
+        }
+        /// }
+        t.skip(TT.RCURLY);
+
+        if(countDefaults == 0) {
+            module_.addError(s, "Select must have an else clause", true);
+        } else if(countDefaults > 1) {
+            module_.addError(s, "Select can only have one else clause", true);
+        }
+        if(countCases==0) {
+            module_.addError(s, "Select must have at least one non-default clause", true);
+        }
+    }
     ///
     /// literal_struct ::= "[" { [name ":"] expression } [ "," [name ":"] expression ] "]"
     ///

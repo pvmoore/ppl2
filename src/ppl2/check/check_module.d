@@ -108,6 +108,9 @@ public:
     void visit(Calloc n) {
 
     }
+    void visit(Case n) {
+
+    }
     void visit(Closure n) {
 
     }
@@ -388,6 +391,13 @@ public:
     }
     void visit(Return n) {
 
+    }
+    void visit(Select n) {
+        assert(n.isSwitch);
+
+        if(n.isExpr) {
+
+        }
     }
     void visit(TypeExpr n) {
 

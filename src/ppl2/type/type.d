@@ -150,7 +150,6 @@ Type getBestFit(Type[] types) {
     foreach(e; types[1..$]) {
         t = getBestFit(t, e);
         if(t is null) {
-            dd("nope", t, e);
             return null;
         }
     }

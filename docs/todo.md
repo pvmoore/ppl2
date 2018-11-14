@@ -1,5 +1,6 @@
 # Todo  
 
+- enums
 - Nested multiline comments
 - Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
 

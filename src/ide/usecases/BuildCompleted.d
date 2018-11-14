@@ -30,7 +30,26 @@ private:
 
         //b.dumpStats((string it)=>console.logln(it));
 
-        /// Update the current state build if it was successful
+        updateViews(b);
+
+        foreach(l; ide.getBuildListeners()) {
+            l.buildSucceeded(b);
+        }
+    }
+    void buildFailed(BuildState b) {
+
+        updateViews(b);
+
+        auto numErrors = b.getErrors().length;
+        console.logln("Build failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
+        ide.getStatusLine().setBuildStatus("Build Failed", b.getElapsedNanos());
+
+        foreach(i, err; b.getErrors()) {
+            console.logln("[%s] %s\n", i, err.toPrettyString());
+        }
+    }
+    void updateViews(BuildState b) {
+
         ide.setCurrentBuildState(b);
 
         /// Update visible info views
@@ -55,19 +74,6 @@ private:
                 irView.update("");
                 optIrView.update("");
             }
-        }
-        foreach(l; ide.getBuildListeners()) {
-            l.buildSucceeded(b);
-        }
-    }
-    void buildFailed(BuildState b) {
-
-        auto numErrors = b.getErrors().length;
-        console.logln("Build failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
-        ide.getStatusLine().setBuildStatus("Build Failed", b.getElapsedNanos());
-
-        foreach(i, err; b.getErrors()) {
-            console.logln("[%s] %s\n", i, err.toPrettyString());
         }
     }
 }

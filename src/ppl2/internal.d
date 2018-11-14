@@ -60,6 +60,7 @@ import ppl2.ast.expr_literal_struct;
 import ppl2.ast.expr_calloc;
 import ppl2.ast.expr_module_alias;
 import ppl2.ast.expr_parenthesis;
+import ppl2.ast.expr_select;
 import ppl2.ast.expr_type;
 import ppl2.ast.expr_unary;
 import ppl2.ast.statement;
@@ -87,6 +88,7 @@ import ppl2.gen.gen_literals;
 import ppl2.gen.gen_loop;
 import ppl2.gen.gen_if;
 import ppl2.gen.gen_module;
+import ppl2.gen.gen_select;
 import ppl2.gen.gen_struct;
 import ppl2.gen.gen_variable;
 

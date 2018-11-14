@@ -9,8 +9,11 @@ private:
     static struct Flags {
         bool nameRequired;
         bool typeRequired;
-        bool nameForbidden;
-        bool staticForbidden;
+
+        bool nameAllowed;
+        bool staticAllowed;
+        bool constAllowed;
+        bool implicitAllowed;
     }
 
     auto exprParser()   { return module_.exprParser; }
@@ -40,10 +43,12 @@ public:
     ///       ^^^^^  ^
     void parseParameter(Tokens t, ASTNode parent) {
         Flags flags = {
-            nameRequired:  true,
-            typeRequired:  false,
-            nameForbidden: false,
-            staticForbidden: true
+            nameRequired:    true,
+            typeRequired:    false,
+            nameAllowed:     true,
+            staticAllowed:   false,
+            constAllowed:    false,
+            implicitAllowed: true
         };
         parse(t, parent, flags);
     }
@@ -51,10 +56,12 @@ public:
     ///  ^^^^^
     void parseFunctionTypeParameter(Tokens t, ASTNode parent) {
         Flags flags = {
-            nameRequired:  false,
-            typeRequired:  true,
-            nameForbidden: false,
-            staticForbidden: true
+            nameRequired:    false,
+            typeRequired:    true,
+            nameAllowed:     true,
+            staticAllowed:   false,
+            constAllowed:    false,
+            implicitAllowed: false
         };
         parse(t, parent, flags);
     }
@@ -62,10 +69,12 @@ public:
     ///         ^^^
     void parseReturnType(Tokens t, ASTNode parent) {
         Flags flags = {
-            nameRequired:  false,
-            typeRequired:  true,
-            nameForbidden: true,
-            staticForbidden: true
+            nameRequired:    false,
+            typeRequired:    true,
+            nameAllowed:     false,
+            staticAllowed:   false,
+            constAllowed:    false,
+            implicitAllowed: false
         };
         parse(t, parent, flags);
     }
@@ -73,10 +82,12 @@ public:
     ///            ^^^^^
     void parseNamedStructMember(Tokens t, ASTNode parent) {
         Flags flags = {
-            nameRequired:  true,
-            typeRequired:  true,
-            nameForbidden: false,
-            staticForbidden: false
+            nameRequired:    true,
+            typeRequired:    true,
+            nameAllowed:     true,
+            staticAllowed:   true,
+            constAllowed:    false,
+            implicitAllowed: false
         };
         parse(t, parent, flags);
     }
@@ -84,10 +95,12 @@ public:
     ///  ^^^^^
     void parseAnonStructMember(Tokens t, ASTNode parent) {
         Flags flags = {
-            nameRequired:  false,
-            typeRequired:  true,
-            nameForbidden: false,
-            staticForbidden: true
+            nameRequired:    false,
+            typeRequired:    true,
+            nameAllowed:     true,
+            staticAllowed:   false,
+            constAllowed:    false,
+            implicitAllowed: false
         };
         parse(t, parent, flags);
     }
@@ -95,10 +108,12 @@ public:
     ///        ^^^^^
     void parseLocal(Tokens t, ASTNode parent) {
         Flags flags = {
-            nameRequired:  true,
-            typeRequired:  true,
-            nameForbidden: false,
-            staticForbidden: true
+            nameRequired:    true,
+            typeRequired:    true,
+            nameAllowed:     true,
+            staticAllowed:   false,
+            constAllowed:    true,
+            implicitAllowed: true
         };
         parse(t, parent, flags);
     }
@@ -116,19 +131,22 @@ private:
 
         /// Allow "static const" or "const static"
         if("static"==t.value) {
-            if(flags.staticForbidden) {
+            if(!flags.staticAllowed) {
                 module_.addError(t, "static not allowed here", true);
             }
             t.next;
             v.isStatic = true;
         }
         if("const"==t.value) {
+            if(!flags.constAllowed) {
+                module_.addError(t, "const not allowed here", true);
+            }
             t.next;
             v.isConst    = true;
             v.isImplicit = true;
         }
         if("static"==t.value) {
-            if(flags.staticForbidden) {
+            if(!flags.staticAllowed) {
                 module_.addError(t, "static not allowed here", true);
             }
             t.next;
@@ -160,7 +178,7 @@ private:
 
         /// Name
         if(t.type==TT.IDENTIFIER && !t.get.templateType) {
-            if(flags.nameForbidden) {
+            if(!flags.nameAllowed) {
                 module_.addError(t, "Variable name not allowed here", true);
             }
 
@@ -192,6 +210,10 @@ private:
             if(flags.nameRequired) {
                 module_.addError(t, "Variable name required", true);
             }
+        }
+
+        if(v.isImplicit && !flags.implicitAllowed) {
+            module_.addError(v, "Explicit type required, not var/const", true);
         }
 
         if(v.type.isUnknown && t.type==TT.LANGLE) {

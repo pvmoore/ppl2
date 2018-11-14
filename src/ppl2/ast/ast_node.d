@@ -14,6 +14,7 @@ enum NodeID {
     BREAK,
     CALL,
     CALLOC,
+    CASE,
     CLOSURE,
     COMPOSITE,
     CONSTRUCTOR,
@@ -43,6 +44,7 @@ enum NodeID {
     PARAMETERS,
     PARENTHESIS,
     RETURN,
+    SELECT,
     STRUCT_CONSTRUCTOR,
     TYPE_EXPR,
     UNARY,
@@ -75,6 +77,7 @@ T makeNode(T)(ASTNode p) {
 bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
 bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
 bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
+bool isCase(inout ASTNode n) { return n.id()==NodeID.CASE; }
 bool isComposite(inout ASTNode n) { return n.id()==NodeID.COMPOSITE; }
 bool isAlias(inout ASTNode n) { return n.id()==NodeID.ALIAS; }
 bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }
@@ -90,6 +93,7 @@ bool isLiteralFunction(inout ASTNode n) { return n.id()==NodeID.LITERAL_FUNCTION
 bool isLoop(inout ASTNode n) { return n.id()==NodeID.LOOP; }
 bool isModule(inout ASTNode n) { return n.id()==NodeID.MODULE; }
 bool isReturn(inout ASTNode n) { return n.id()==NodeID.RETURN; }
+bool isSelect(inout ASTNode n) { return n.id()==NodeID.SELECT; }
 bool isTypeExpr(inout ASTNode n) { return n.id()==NodeID.TYPE_EXPR; }
 bool isVariable(inout ASTNode n) { return n.id()==NodeID.VARIABLE; }
 
@@ -115,7 +119,7 @@ public:
 /// Override these
     abstract NodeID id() const;
     abstract bool isResolved() { return false; }
-    Type getType() { return TYPE_UNKNOWN; }
+    Type getType()             { return TYPE_UNKNOWN; }
 /// end
 
     bool hasChildren() const { return children.length > 0; }

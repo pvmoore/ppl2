@@ -131,7 +131,7 @@ shared static this() {
         "operator", "or",
         "private", "public",
         "readonly", "return",
-        "short", "static", "struct",
+        "select", "short", "static", "struct",
         "this", "true", "tuple",
         "var", "void"
     ]);

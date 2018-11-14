@@ -9,6 +9,7 @@ public:
     BinaryGenerator binaryGen;
     LiteralGenerator literalGen;
     IfGenerator ifGen;
+    SelectGenerator selectGen;
     LoopGenerator loopGen;
 
     LLVMWrapper llvm;
@@ -32,6 +33,7 @@ public:
         this.binaryGen  = new BinaryGenerator(this);
         this.literalGen = new LiteralGenerator(this);
         this.ifGen      = new IfGenerator(this);
+        this.selectGen  = new SelectGenerator(this);
         this.loopGen    = new LoopGenerator(this);
     }
     void clearState() {
@@ -316,6 +318,9 @@ public:
         } else {
             builder.retVoid();
         }
+    }
+    void visit(Select n) {
+        selectGen.generate(n);
     }
     void visit(TypeExpr n) {
         /// ignore

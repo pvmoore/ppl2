@@ -19,6 +19,11 @@ final class Composite : Expression {
         c.usage = usage;
         return c;
     }
+    static Composite make(ASTNode node, Usage usage) {
+        auto c  = makeNode!Composite(node);
+        c.usage = usage;
+        return c;
+    }
 
     override bool isResolved() { return areResolved(children[]); }
     override NodeID id() const { return NodeID.COMPOSITE; }
@@ -28,6 +33,9 @@ final class Composite : Expression {
     override Type getType() {
         if(hasChildren) return last().getType();
         return TYPE_VOID;
+    }
+    bool endsWithReturn() {
+        return numChildren > 0 && last().isReturn;
     }
 
     bool isPlaceholder() { return usage==Usage.PLACEHOLDER; }

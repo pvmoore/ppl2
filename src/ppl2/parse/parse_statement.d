@@ -73,6 +73,10 @@ public:
             case "return":
                 parseReturn(t, parent);
                 return;
+            case "select":
+                noExprAllowedAtModuleScope();
+                exprParser.parse(t, parent);
+                return;
             case "static":
                 /// static type name
                 /// static type name =
