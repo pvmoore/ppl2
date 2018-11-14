@@ -1,0 +1,24 @@
+
+public
+
+testSelect {
+    var x = 3
+    
+   /* 
+    var r = select(x) {
+        0 { 0 }
+        //1 { 
+        //    var a = 1
+        //    a + 1
+        //}
+        2 { 20 }
+        3 { 30 }
+        else { 100 }
+        
+        // 4 40
+        // else 100
+    }
+    */
+    
+    //assert r == 30
+}

@@ -14,26 +14,11 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "test_variables.p2"
-line = 75
-active = 0
-
-[[openFile]]
-name = "test.p2"
-line = 28
-active = 0
-
-[[openFile]]
-name = "test_if.p2"
-line = 3
+name = "test_select.p2"
+line = 13
 active = 1
 
 [[openFile]]
-name = "test_misc.p2"
-line = 4
-active = 0
-
-[[openFile]]
-name = "test_arrays.p2"
-line = 71
+name = "test.p2"
+line = 96
 active = 0

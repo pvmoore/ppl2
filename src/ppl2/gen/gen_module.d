@@ -15,7 +15,7 @@ public:
     LLVMBuilder builder;
     LLVMValueRef lhs;
     LLVMValueRef rhs;
-    Stack!LLVMBasicBlockRef blocks;
+    LLVMBasicBlockRef currentBlock;
 
     LLVMValueRef memsetFunc;
     LLVMValueRef expectBoolFunc;
@@ -33,7 +33,6 @@ public:
         this.literalGen = new LiteralGenerator(this);
         this.ifGen      = new IfGenerator(this);
         this.loopGen    = new LoopGenerator(this);
-        this.blocks     = new Stack!LLVMBasicBlockRef;
     }
     void clearState() {
         watch.reset();
@@ -265,7 +264,6 @@ public:
     void visit(LiteralFunction n) {
         assert(!n.isClosure);
         literalGen.generate(n, n.getLLVMValue);
-        blocks.clear();
     }
     void visit(LiteralNull n) {
         literalGen.generate(n);
@@ -447,7 +445,7 @@ public:
     }
     void moveToBlock(LLVMBasicBlockRef label) {
         builder.positionAtEndOf(label);
-        blocks.push(label);
+        currentBlock = label;
     }
     ///
 	/// Force a possibly non bool value into a proper bool which

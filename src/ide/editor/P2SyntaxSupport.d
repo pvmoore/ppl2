@@ -87,6 +87,7 @@ public:
 
     /// returns true if smart indent is supported
     bool supportsSmartIndents() { return true; }
+
     /// apply smart indent after edit operation, if needed
     void applySmartIndent(EditOperation op, Object source) {
         if(opInProgress) return;
@@ -97,8 +98,24 @@ public:
             if(line == 0) {
                 return;
             }
-            dstring txt = "    ".repeat(lineInfo[line].openBraceCount).toUTF32;
+            auto count = lineInfo[line].openBraceCount;
+            dstring txt = "    ".repeat(count).toUTF32;
             EditOperation op2 = new EditOperation(EditAction.Replace, TextRange(TextPosition(line, 0), TextPosition(line, 4)), [txt]);
+            opInProgress = true;
+            _content.performOperation(op2, source);
+            opInProgress = false;
+        } else if(op.singleChar == '}') {
+            int line = op.newRange.end.line;
+            int pos  = op.newRange.end.pos;
+            if(pos < 4) return;
+
+            TextLineMeasure lineMeasurement = _content.measureLine(line);
+
+            if(lineMeasurement.firstNonSpace != pos-1) return;
+
+            auto count = line > 0 ? lineInfo[line].openBraceCount-1 : 0;
+            dstring txt = "}"d;
+            EditOperation op2 = new EditOperation(EditAction.Replace, TextRange(TextPosition(line, pos-5), TextPosition(line, pos)), [txt]);
             opInProgress = true;
             _content.performOperation(op2, source);
             opInProgress = false;

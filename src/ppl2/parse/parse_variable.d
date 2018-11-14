@@ -10,6 +10,7 @@ private:
         bool nameRequired;
         bool typeRequired;
         bool nameForbidden;
+        bool staticForbidden;
     }
 
     auto exprParser()   { return module_.exprParser; }
@@ -41,7 +42,8 @@ public:
         Flags flags = {
             nameRequired:  true,
             typeRequired:  false,
-            nameForbidden: false
+            nameForbidden: false,
+            staticForbidden: true
         };
         parse(t, parent, flags);
     }
@@ -51,7 +53,8 @@ public:
         Flags flags = {
             nameRequired:  false,
             typeRequired:  true,
-            nameForbidden: false
+            nameForbidden: false,
+            staticForbidden: true
         };
         parse(t, parent, flags);
     }
@@ -61,7 +64,8 @@ public:
         Flags flags = {
             nameRequired:  false,
             typeRequired:  true,
-            nameForbidden: true
+            nameForbidden: true,
+            staticForbidden: true
         };
         parse(t, parent, flags);
     }
@@ -71,7 +75,8 @@ public:
         Flags flags = {
             nameRequired:  true,
             typeRequired:  true,
-            nameForbidden: false
+            nameForbidden: false,
+            staticForbidden: false
         };
         parse(t, parent, flags);
     }
@@ -81,7 +86,8 @@ public:
         Flags flags = {
             nameRequired:  false,
             typeRequired:  true,
-            nameForbidden: false
+            nameForbidden: false,
+            staticForbidden: true
         };
         parse(t, parent, flags);
     }
@@ -91,7 +97,8 @@ public:
         Flags flags = {
             nameRequired:  true,
             typeRequired:  true,
-            nameForbidden: false
+            nameForbidden: false,
+            staticForbidden: true
         };
         parse(t, parent, flags);
     }
@@ -109,6 +116,9 @@ private:
 
         /// Allow "static const" or "const static"
         if("static"==t.value) {
+            if(flags.staticForbidden) {
+                module_.addError(t, "static not allowed here", true);
+            }
             t.next;
             v.isStatic = true;
         }
@@ -118,6 +128,9 @@ private:
             v.isImplicit = true;
         }
         if("static"==t.value) {
+            if(flags.staticForbidden) {
+                module_.addError(t, "static not allowed here", true);
+            }
             t.next;
             v.isStatic = true;
         }

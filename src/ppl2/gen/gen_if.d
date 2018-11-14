@@ -49,7 +49,7 @@ final class IfGenerator {
             gen.castType(gen.rhs, n.thenType(), n.type);
 
             phiValues ~= gen.rhs;
-            phiBlocks ~= gen.blocks.peek();
+            phiBlocks ~= gen.currentBlock;
         }
 
         if(!n.thenBlockEndsWithReturn) {
@@ -66,7 +66,7 @@ final class IfGenerator {
                 gen.castType(gen.rhs, n.elseType(), n.type);
 
                 phiValues ~= gen.rhs;
-                phiBlocks ~= gen.blocks.peek();
+                phiBlocks ~= gen.currentBlock;
             }
 
             if(!n.elseBlockEndsWithReturn) {

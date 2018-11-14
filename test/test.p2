@@ -89,11 +89,12 @@ someArrays {
 
 struct Array <A,B> {
     A a
-    B b
+    B b 
 }
 
 main {
-    import test_misc;   testMisc()
+    import test_misc;       testMisc() 
+    import test_select;     testSelect()
     
     import texpr = test_expressions
     texpr::testExpressions()
