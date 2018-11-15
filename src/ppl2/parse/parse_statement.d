@@ -21,12 +21,20 @@ public:
         //dd(module_.canonicalName, "statement line=", t.line, " parent", parent, t.get);
         //scope(exit) dd("end statement line", t.line);
 
-        pragma(inline,true) {
-            void noExprAllowedAtModuleScope() {
-                if(parent.isA!Module) {
-                    errorBadSyntax(module_, t, "Expressions not allowed at module scope. Did you mean define?");
-                }
+        void noExprAllowedAtModuleScope() {
+            if(parent.isA!Module) {
+                errorBadSyntax(module_, t, "Expressions not allowed at module scope. Did you mean define?");
             }
+        }
+        void checkAccessScope() {
+            if(parent.id==NodeID.NAMED_STRUCT) return;
+            if(parent.id==NodeID.MODULE) {
+                if(t.value=="readonly") {
+                    module_.addError(t, "readonly access is only allowed inside a struct", true);
+                }
+                return;
+            }
+            module_.addError(t, "Access qualifiers only allowed at module or named struct scope", true);
         }
 
         switch(t.value) {
@@ -60,14 +68,17 @@ public:
                 return;
             case "private":
                 t.setAccess(Access.PRIVATE);
+                checkAccessScope();
                 t.next;
                 return;
             case "public":
                 t.setAccess(Access.PUBLIC);
+                checkAccessScope();
                 t.next;
                 return;
             case "readonly":
                 t.setAccess(Access.READONLY);
+                checkAccessScope();
                 t.next;
                 return;
             case "return":

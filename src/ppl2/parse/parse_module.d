@@ -156,7 +156,7 @@ private:
             } else if(t.isKeyword("private")) {
                 public_ = false;
             } else if(t.isKeyword("readonly")) {
-                module_.addError(t, "readonly access is only allowed inside a struct", true);
+                public_ = false;
             } else if(t.type==TT.LCURLY) {
                 t.next(t.findEndOfBlock(t.type));
             } else if(t.type==TT.LSQBRACKET) {
