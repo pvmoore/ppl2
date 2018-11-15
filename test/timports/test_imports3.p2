@@ -1,0 +1,10 @@
+
+public
+
+i3func {
+    return 77
+}
+
+struct I3Object {
+    int a
+}

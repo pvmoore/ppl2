@@ -228,7 +228,7 @@ private: //=====================================================================
                 import std.file : exists;
                 if(!exists(module_.config.getFullModulePath(moduleName))) {
                     t.resetToMark();
-                    module_.addError(t, "Module %s does not exist".format(moduleName), true);
+                    module_.addError(t, "Module %s does not exist".format(moduleName), false);
                 }
                 t.discardMark();
                 return moduleName;

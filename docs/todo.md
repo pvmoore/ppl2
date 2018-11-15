@@ -1,23 +1,22 @@
 # Todo  
 
+- Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... 
+  (#size already implemented)
+  Maybe do these as builtin funcs instead of properties
+- Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
+  
 - enums
 - Nested multiline comments
-- Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
 
 - Don't call requireFunction just to get the parameters for function resolution. Use a different lighter-weight
   version eg. requireFunctionParams
+  
 - Ensure we remove static funstions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
 - Attributes eg (* inline). (* expect true) (* notnull) or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]
-- Select expression:
-```
-var r = select(x) {
-    1 { 10 }
-    2 { 90+i }
-    else { 0 }
-}
-```
+
 - #if #else #endif compile-time operations. 
   Needs to be able to parse compile-time boolean expressions
+  
 - Investigate co-routines (LLVM)
 
 - Allow string identifiers for function names
@@ -40,17 +39,12 @@ var r = select(x) {
 - Idea: Allow single token comments 
   eg Map<#name String,int> map
 
-- Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... 
-  (#size already implemented)
-  Maybe do these as builtin funcs instead of properties
-
 - LiteralMap (requires core.map implementation)
 - Check optimisation against opt. Use -debug-pass=Arguments to see which passes opt uses.
 - Implement null checks when config.nullChecks==true. In each AST Dot, add an assert that the left hand side is not null. Possibly use LLVM isNull instruction.
 - Is half data type worth using?
 - Built-in vector types eg float4, int2 etc...
 - More constant folding and dce (calls and functions)
-- Run DScanner to highlight unused functions etc
 - Multi level struct access (maybe also add 'outer' keyword)
 ```
 // assume they are always static
