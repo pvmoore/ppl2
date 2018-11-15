@@ -68,6 +68,7 @@ final class Select : Expression {
         return children[1].as!Expression;
     }
     Type valueType() {
+        assert(isSwitch);
         return valueExpr().getType;
     }
 
@@ -117,6 +118,10 @@ final class Case : Expression {
     Type getSelectType() {
         assert(parent.isSelect);
         return parent.as!Select.valueType();
+    }
+    bool isCond(Expression e) {
+        foreach(c; conds()) { if(c.nid == e.nid) return true; }
+        return false;
     }
 
     override string toString() {

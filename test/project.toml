@@ -15,10 +15,5 @@ lib = "thing"
 
 [[openFile]]
 name = "test_select.p2"
-line = 18
-active = 0
-
-[[openFile]]
-name = "test.p2"
-line = 101
+line = 35
 active = 1

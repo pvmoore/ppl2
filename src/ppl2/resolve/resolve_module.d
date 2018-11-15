@@ -7,16 +7,19 @@ private:
     CallResolver callResolver;
     IdentifierResolver identifierResolver;
     StopWatch watch;
-    Set!ASTNode unresolved;
     Array!Callable overloadSet;
     bool addedModuleScopeElements;
     int rewrites;
-    int typesWaiting;
+    Set!ASTNode unresolved;
+    Set!Alias unresolvedAliases;
+    bool stalemate = false;
 public:
     Module module_;
 
     ulong getElapsedNanos()        { return watch.peek().total!"nsecs"; }
     ASTNode[] getUnresolvedNodes() { return unresolved.values; }
+    Alias[] getUnresolvedAliases() { return unresolvedAliases.values; }
+    int getNumRewrites()           { return rewrites; }
 
     this(Module module_) {
         this.module_            = module_;
@@ -24,6 +27,7 @@ public:
         this.identifierResolver = new IdentifierResolver(module_);
         this.unresolved         = new Set!ASTNode;
         this.overloadSet        = new Array!Callable;
+        this.unresolvedAliases  = new Set!Alias;
     }
     void clearState() {
         watch.reset();
@@ -34,25 +38,24 @@ public:
 
     ///
     /// Pass through any unresolved nodes and try to resolve them.   
-    /// Return number of unresolved elements.                        
+    /// Return true if all nodes and aliases are resolved and no rewrites occurred.
     ///
-    int resolve() {
+    bool resolve(bool isStalemate) {
         watch.start();
-        rewrites     = 0;
-        typesWaiting = 0;
+        this.rewrites  = 0;
+        this.stalemate = isStalemate;
 
         collectModuleScopeElements();
 
         unresolved.clear();
+        unresolvedAliases.clear();
 
         foreach(r; module_.getCopyOfActiveRoots()) {
             recursiveVisit(r);
         }
 
-        int numUnresolved = unresolved.length + rewrites + typesWaiting;
-
         watch.stop();
-        return numUnresolved;
+        return unresolved.length==0 && unresolvedAliases.length==0 && rewrites==0;
     }
     void resolveFunction(string funcName) {
         watch.start();
@@ -745,10 +748,13 @@ public:
             }
 
             auto thenType = n.thenType();
-            if(thenType.isUnknown) return;
+            Type elseType = n.hasElse ? n.elseType() : TYPE_UNKNOWN;
+
+            if(thenType.isUnknown) {
+                return;
+            }
 
             if(n.hasElse) {
-                auto elseType = n.elseType();
                 if(elseType.isUnknown) return;
 
                 auto t = getBestFit(thenType, elseType);
@@ -940,9 +946,7 @@ public:
     }
     void visit(LiteralNull n) {
         if(n.type.isUnknown) {
-            //if(module_.canonicalName=="test_select") dd("!! null", n.parent.id);
-            auto parent = n.parent;
-            if(parent.isComposite) parent = parent.parent;
+            auto parent = n.getParentIgnoreComposite();
 
             Type type;
             /// Determine type from parent
@@ -954,16 +958,17 @@ public:
                     type = parent.as!Binary.leftType();
                     break;
                 case CASE:
-                    type = parent.as!Case.getSelectType();
+                    auto c = parent.as!Case;
+                    if(c.isCond(n)) {
+                        type = c.getSelectType();
+                    }
                     break;
                 case IF:
                     auto if_ = parent.as!If;
-                    if(if_.hasThen && if_.hasElse) {
-                        if(n.nid==if_.thenStmt().nid) {
-                            type = if_.elseType();
-                        } else {
-                            type = if_.thenType();
-                        }
+                    if(n.isAncestor(if_.thenStmt())) {
+                        type = if_.thenType();
+                    } else if(if_.hasElse && n.isAncestor(if_.elseStmt())) {
+                        type = if_.elseType();
                     }
                     break;
                 case INITIALISER:
@@ -985,6 +990,8 @@ public:
                 } else {
                     module_.addError(n, "Cannot implicitly cast null to %s".format(type), true);
                 }
+            } else if(stalemate) {
+                module_.addError(n, "Ambiguous null requires explicit cast", true);
             }
         }
     }
@@ -1085,29 +1092,13 @@ public:
 
             Type[] types = n.casesIncludingDefault().map!(it=>it.getType).array;
 
-            //Type[] types = n.casesIncludingDefault()
-            //                .filter!(it=>
-            //                    it.isResolvable()
-            //                )
-            //                .map!(it=>it.getType)
-            //                .array;
+            if(!types.areKnown) {
+                /// Allow cases to resolve if possible
+                if(!stalemate) return;
 
-            //foreach(c; n.cases()) {
-            //    auto t = c.getType;
-            //
-            //    if(t.isKnown) {
-            //        types ~= t;
-            //    } else {
-            //        /// Handle literal null
-            //        if(c.stmts().first.isLiteralNull) {
-            //            /// ignore this one
-            //        } else {
-            //            /// We can't continue
-            //            return;
-            //        }
-            //    }
-            //}
-            if(!types.areKnown) return;
+                /// Stalemate situation. Choose a type from the clauses that are resolved
+                types = types.filter!(it=>it.isKnown).array;
+            }
 
             auto type = getBestFit(types);
             if(type) {
@@ -1405,7 +1396,7 @@ private:
                 resolveAlias(node, def.templateProxyType);
             }
             if(!def.templateProxyType.isNamedStruct) {
-                typesWaiting++;
+                unresolvedAliases.add(def);
                 return;
             }
 
@@ -1424,7 +1415,7 @@ private:
                     auto structModule = module_.buildState.getOrCreateModule(ns.moduleName);
                     structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
 
-                    typesWaiting++;
+                    unresolvedAliases.add(def);
                 }
             }
             return;
@@ -1434,7 +1425,7 @@ private:
             /// Switch to the Aliasd type
             type = PtrType.of(def.type, type.getPtrDepth);
         } else {
-            typesWaiting++;
+            unresolvedAliases.add(def);
         }
     }
 }

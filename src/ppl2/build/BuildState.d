@@ -246,14 +246,13 @@ private:
 protected:
     void parseAndResolve() {
         dd("parseAndResolve");
-        int numModulesParsed     = 0;
-        int numUnresolvedModules = 0;
 
-        for(int loop=1;
-            loop<30 && (numUnresolvedModules>0 || tasksOutstanding() || numModulesParsed>0);
-            loop++)
-        {
+        auto prevUnresolved = new Set!int;
+        bool stalemate      = false;
+
+        for(int loop=1; loop<30; loop++) {
             log("===================================================== Loop %s", loop);
+
             /// Process all pending tasks
             while(tasksOutstanding()) {
                 auto t = getNextTask();
@@ -279,43 +278,63 @@ protected:
             }
             log("All current tasks completed");
 
-            numModulesParsed     = parseModules();
-            numUnresolvedModules = runResolvePass();
-        }
+            bool nodesModified = false;
+            auto unresolved    = new Set!int;
 
-        if(numUnresolvedModules > 0) {
-            convertUnresolvedNodesIntoErrors();
+            parseModules();
+            runResolvePass(unresolved, nodesModified, stalemate);
+
+            if(unresolved.length==0 && !tasksOutstanding() && !nodesModified) return;
+
+            if(!nodesModified && unresolved==prevUnresolved) {
+                if(stalemate) {
+                    log("Couldn't make any further progress");
+                    break;
+                }
+                stalemate = true;
+            } else {
+                stalemate = false;
+            }
+
+            prevUnresolved = unresolved;
         }
+        /// If we get here we couldn't resolve something
+        convertUnresolvedNodesIntoErrors();
     }
-    int parseModules() {
+    void parseModules() {
         log("parseModules");
-        int numModulesParsed = 0;
         foreach(m; allModules) {
             if(!m.isParsed) {
                 m.parser.parse();
-                numModulesParsed++;
             }
         }
-        return numModulesParsed;
     }
-    int runResolvePass() {
+    void runResolvePass(Set!int unresolved, ref bool nodesModified, bool resolveStalemate) {
         log("Running resolvers...");
+        assert(nodesModified==false);
+        assert(unresolved.length==0);
+
         int numUnresolvedModules = 0;
-        int numUnresolvedNodes   = 0;
 
         foreach(m; allModules) {
-            auto num = m.resolver.resolve();
-            numUnresolvedNodes += num;
+            bool resolved  = m.resolver.resolve(resolveStalemate);
+            nodesModified |= (m.resolver.getNumRewrites() > 0);
 
-            if(num == 0) {
+            unresolved.add(
+                m.resolver.getUnresolvedNodes().map!(it=>it.nid).array
+            );
+            unresolved.add(
+                m.resolver.getUnresolvedAliases().map!(it=>it.nid).array
+            );
+
+            if(resolved) {
                 log("\t.. %s is resolved", m.canonicalName);
             } else {
-                log("\t.. %s is unresolved (%s)", m.canonicalName, num);
+                log("\t.. %s is unresolved", m.canonicalName);
                 numUnresolvedModules++;
             }
         }
-        log("There are %s unresolved modules, %s unresolved nodes", numUnresolvedModules, numUnresolvedNodes);
-        return numUnresolvedModules;
+        log("There are %s unresolved modules, %s unresolved nodes", numUnresolvedModules, unresolved.length);
     }
     void removeUnreferencedNodes() {
         dd("remove unreferenced");

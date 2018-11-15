@@ -134,6 +134,10 @@ public:
         if(this.id==NodeID.MODULE) return 0;
         return parent.getDepth() + 1;
     }
+    ASTNode getParentIgnoreComposite() {
+        if(parent.isComposite) return parent.getParentIgnoreComposite();
+        return parent;
+    }
 
     auto addToFront(ASTNode child) {
         child.detach();
