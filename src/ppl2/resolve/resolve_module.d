@@ -1157,6 +1157,20 @@ public:
             fold(n, first);
             return;
         }
+        if(n.isSwitch && n.valueType().isKnown) {
+            /// If value type is bool then change it to int
+            if(n.valueType.isBool) {
+
+                auto val = n.valueExpr();
+                auto as  = makeNode!As(n);
+
+                fold(val, as);
+
+                as.add(val);
+                as.add(TypeExpr.make(TYPE_INT));
+                return;
+            }
+        }
     }
     void visit(TypeExpr n) {
         resolveAlias(n, n.type);

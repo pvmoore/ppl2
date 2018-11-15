@@ -395,8 +395,23 @@ public:
     void visit(Select n) {
         assert(n.isSwitch);
 
-        if(n.isExpr) {
-
+        /// Check that each clause can be converted to the type of the switch value
+        auto valueType = n.valueType();
+        foreach(c; n.cases()) {
+            foreach(expr; c.conds()) {
+                if(!expr.getType.canImplicitlyCastTo(valueType)) {
+                    errorBadImplicitCast(module_, expr, expr.getType, valueType);
+                }
+            }
+        }
+        /// Check that all clauses are const integers
+        foreach(c; n.cases()) {
+            foreach(expr; c.conds()) {
+                auto lit = expr.as!LiteralNumber;
+                if(!lit || (!lit.getType.isInteger && !lit.getType.isBool)) {
+                    module_.addError(expr, "Switch-style Select clauses must be of const integer type", true);
+                }
+            }
         }
     }
     void visit(TypeExpr n) {

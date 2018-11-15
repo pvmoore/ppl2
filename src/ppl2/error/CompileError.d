@@ -205,6 +205,7 @@ void errorBadSyntax(Module m, Tokens t, string msg) {
     m.addError(t, msg, false);
 }
 void errorBadImplicitCast(Module m, ASTNode n, Type from, Type to) {
+    //throw new Error("");
     m.addError(n, "Cannot implicitly cast %s to %s".format(from, to), true);
 }
 void errorBadExplicitCast(Module m, ASTNode n, Type from, Type to) {

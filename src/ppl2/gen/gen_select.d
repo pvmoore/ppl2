@@ -43,14 +43,23 @@ final class SelectGenerator {
 
         /// Case conditions
         foreach(i, c; cases) {
-            c.cond().visit!ModuleGenerator(gen);
-            gen.castType(gen.rhs, c.cond().getType, n.valueType);
 
-            switch_.addCase(gen.rhs, blocks[i]);
+            foreach(expr; c.conds()) {
+                expr.visit!ModuleGenerator(gen);
+                gen.castType(gen.rhs, c.cond().getType, n.valueType);
+
+                switch_.addCase(gen.rhs, blocks[i]);
+            }
+
+            //c.cond().visit!ModuleGenerator(gen);
+            //gen.castType(gen.rhs, c.cond().getType, n.valueType);
+            //
+            //switch_.addCase(gen.rhs, blocks[i]);
         }
         /// Case blocks
         foreach(i, c; cases) {
             gen.moveToBlock(blocks[i]);
+
             c.stmts().visit!ModuleGenerator(gen);
 
             if(n.isExpr) {

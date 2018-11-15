@@ -172,6 +172,7 @@ private:
                 case TT.NUMBER:
                 case TT.COMMA:
                 case TT.SEMICOLON:
+                case TT.COLON:
                 case TT.AT:
                     /// end of expression
                     return;
@@ -888,13 +889,13 @@ private:
         }
     }
     ///
-    /// select_expr ::= "select" "(" [ var  ";" ] expr ")" "{" { case } else_case "}"
+    /// select_expr ::= "select" "(" [ { stmt } ";" ] expr ")" "{" { case } else_case "}"
     /// case        ::= const_expr ":" (expr | "{" expr "}" )
-    /// else_case   ::= "else" ":" (expr | "{" expr "}" )
+    /// else_case   ::= "else"     ":" (expr | "{" expr "}" )
     ///
     /// select    ::= "select" "{" { case } else_case "}"
-    /// case      ::= expr ":" ( expr | "{" expr "}" )
-    /// else_case ::= ":" ( expr | "{" expr "}" )
+    /// case      ::= expr   ":" ( expr | "{" expr "}" )
+    /// else_case ::= "else" ":" ( expr | "{" expr "}" )
     ///
     void parseSelect(Tokens t, ASTNode parent) {
         auto s = makeNode!Select(t);
@@ -948,7 +949,6 @@ private:
         ///
         /// Cases
         ///
-        /// case ::= expr "{" { stmt } "}"
         void parseCase() {
             auto comp = Composite.make(t, Composite.Usage.PERMANENT);
 
@@ -956,23 +956,42 @@ private:
                 t.next;
                 s.add(comp);
                 countDefaults++;
+                t.skip(TT.COLON);
             } else {
                 countCases++;
                 auto case_ = makeNode!Case(t);
                 s.add(case_);
 
-                /// expr
-                parse(t, case_);
+                while(t.type!=TT.COLON) {
+                    /// expr
+                    parse(t, case_);
+
+                    t.expect(TT.COMMA, TT.COLON);
+                    if(t.type==TT.COMMA) {
+                        if(!s.isSwitch) {
+                            module_.addError(t, "Boolean-style Select can not have multiple expressions", true);
+                        }
+                        t.next;
+                    }
+                }
+
+                t.skip(TT.COLON);
 
                 case_.add(comp);
             }
 
-            t.skip(TT.LCURLY);
+            if(t.type==TT.LCURLY) {
+                /// Multiple statements
+                t.skip(TT.LCURLY);
 
-            while(t.type!=TT.RCURLY) {
+                while(t.type!=TT.RCURLY) {
+                    stmtParser().parse(t, comp);
+                }
+                t.skip(TT.RCURLY);
+            } else {
+                /// Must be just a single statement
                 stmtParser().parse(t, comp);
             }
-            t.skip(TT.RCURLY);
         }
         while(t.type!=TT.RCURLY) {
             parseCase();

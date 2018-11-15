@@ -3,8 +3,8 @@ module ppl2.ast.expr_select;
 import ppl2.internal;
 /// Select switch:
 ///     select_expr ::= "select" "(" [ var  ";" ] expr ")" "{" { ( case | else_case ) } "}"
-///     case        ::= const_expr "{" { stmt } "}"
-///     else_case   ::= "else"     "{" { stmt } "}"
+///     case        ::= const_expr ":" ( stmt | "{" { stmt } "}" )
+///     else_case   ::= "else"     ":" ( stmt | "{" { stmt } "}" )
 ///
 ///     Children:
 ///         [0]    init statements  (Composite)
@@ -13,8 +13,8 @@ import ppl2.internal;
 ///
 /// Select Statement:
 ///     select    ::= "select" "{" { ( case | else_case ) } "}"
-///     case      ::= expr   "{" { stmt } "}"
-///     else_case ::= "else" "{" { stmt } "}"
+///     case      ::= expr   ":" ( stmt | "{" { stmt } "}" )
+///     else_case ::= "else" ":" ( stmt | "{" { stmt } "}" )
 ///
 ///     Children:
 ///         [0..$] case expressions (Case[]) | default case (Composite)
@@ -27,7 +27,9 @@ final class Select : Expression {
         type = TYPE_UNKNOWN;
     }
 
-    override bool isResolved()    { return isExpr() ? type.isKnown : true; }
+    override bool isResolved() {
+        return isExpr() ? type.isKnown : true;
+    }
     override NodeID id() const    { return NodeID.SELECT; }
     override bool isConst()       { return false; }
     override int priority() const { return 15; }
@@ -108,12 +110,13 @@ final class Case : Expression {
     override int priority() const { return 15; }
     override Type getType()       { return stmts().getType; }
 
-    Expression cond() { return children[0].as!Expression; }
-    Composite stmts() { return children[1].as!Composite; }
+    Expression cond()    { return children[0].as!Expression; }
+    Expression[] conds() { return children[0..$-1].as!(Expression[]); }
+    Composite stmts()    { return children[$-1].as!Composite; }
 
     Type getSelectType() {
         assert(parent.isSelect);
-        return parent.getType;
+        return parent.as!Select.valueType();
     }
 
     override string toString() {
