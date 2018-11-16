@@ -39,6 +39,7 @@ import ppl2.ast.expression;
 import ppl2.ast.expr_address_of;
 import ppl2.ast.expr_as;
 import ppl2.ast.expr_binary;
+import ppl2.ast.expr_builtin_func;
 import ppl2.ast.expr_call;
 import ppl2.ast.expr_closure;
 import ppl2.ast.expr_composite;

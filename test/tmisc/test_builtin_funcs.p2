@@ -1,0 +1,60 @@
+
+public 
+
+testBuiltinFuncs {
+    sizeof {
+        byte a = 0 as byte;     assert 1 == #sizeof(a)
+        int b = 0;              assert 4 == #sizeof(b)
+        double c = 0;           assert 8 == #sizeof(c)
+        [int,bool] d;           assert 5 == #sizeof(d)
+        
+        assert 4 == #sizeof(0)
+        assert 12 == #sizeof([1,2,3])
+        assert 16 == #sizeof([1,2,3,4] as [int,int,int,int])
+    }
+    typeof {
+        assert #typeof(0)      is int
+        assert #typeof(double) is double
+        
+        #typeof(0) a            ; assert a is int
+        #typeof(1+1.1) b        ; assert b is float
+        
+        alias A = #typeof(1+1)  ; assert A is int
+        alias B = #typeof(A)    ; assert B is int
+        
+        func { #typeof(0) x ->
+            return x+1
+        }
+        assert 7 == func(6)
+    }
+    initof {
+        assert #initof(int) is 0
+        assert #initof(float) is 0.0f
+        assert #initof(byte*) is null
+    }
+    isptr {
+        assert #isptr(int*)
+        assert #isptr(int**)
+        assert not #isptr(int)
+        
+        int a
+        int* b
+        assert not #isptr(a)
+        assert #isptr(b)
+    }
+    isvalue {
+        assert #isvalue(int)
+        assert not #isvalue(int*)
+        assert not #isvalue(int**)
+        
+        int a
+        int* b
+        assert #isvalue(a)
+        assert not #isvalue(b)
+    }
+    sizeof()
+    typeof()
+    initof()
+    isptr() 
+    isvalue()
+}

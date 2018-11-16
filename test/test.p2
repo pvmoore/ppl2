@@ -9,11 +9,10 @@ main {
 
 var s = "hello"
 
-import test_imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
+import timports::test_imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
 import test_literals       
 import test_arrays  
 import test_consts    
-import test_meta
 
 alias AA = int 
 alias BB = AA*     // int*  
@@ -93,15 +92,14 @@ struct Array <A,B> {
 }
 
 main {
-    import test_misc;       testMisc() 
-    import test_select;     testSelect()
+    import tmisc::test_builtin_funcs;       testBuiltinFuncs() 
+    import tnodes::test_select;             testSelect()
     
     import texpr = test_expressions
     texpr::testExpressions()
     
     testLiterals()
     testConsts()
-    testMeta()
     testArrays()
 	
     testGlobals {
@@ -170,7 +168,7 @@ main {
         //float8 v8
     }
     testInnerImport {
-        import test_imports3
+        import timports::test_imports3
 
         assert 77 == i3func()
         I3Object obj = I3Object()
@@ -184,7 +182,7 @@ main {
     test4()
     testInnerImport()
 
-    import test_access
+    import taccess::test_access
     testAccess()
 
     testModules()
@@ -198,7 +196,7 @@ main {
 bool yop
 
 testModules {
-    import test_unreferenced_module
+    import tmisc::test_unreferenced_module
 
     testImports()
     
@@ -220,13 +218,16 @@ testModules {
     [int, Bat berty] bertyStruct
 }
 testStatements {
-    import l = test_loop, v = test_variables
+    import l = tnodes::test_loop, 
+           v = test_variables
 
     l::testLoop()
     v::testVariables()
 }
 testExpressions {
-    import test_as, test_if, test_literal_struct   
+    import tnodes::test_as, 
+           tnodes::test_if, 
+           test_literal_struct   
     
     testAs()
     testIf()
@@ -239,7 +240,10 @@ testFunctions {
     testInnerFunctions()
 }
 testStructures {
-    import test_structs, test_constructors, test_statics, test_operator_overloading
+    import test_structs, 
+           test_constructors, 
+           tstatics::test_statics, 
+           test_operator_overloading
 
     testStructs()
     testConstructors()
@@ -247,13 +251,17 @@ testStructures {
     testOperatorOverloading()
 }
 testTemplates {
-    import test_template_functions, test_implicit_template_funcs
+    import ttemplates::test_template_functions, 
+           ttemplates::test_implicit_template_funcs
 
     testTemplateFunctions()
     testImplicitTemplateFunctions()
 }
 testCore {
-    import test_console, test_list, test_string, test_unsigned
+    import tcore::test_console, 
+           tcore::test_list, 
+           tcore::test_string, 
+           tcore::test_unsigned
 
     testConsole()   
     testList()   

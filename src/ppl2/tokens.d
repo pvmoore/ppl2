@@ -86,8 +86,8 @@ public:
     bool isKeyword(string k) {
         return type()==TT.IDENTIFIER && value()==k;
     }
-    bool onSameLine() {
-        return line==peek(-1).line;
+    bool onSameLine(int offset = 0) {
+        return peek(offset).line==peek(offset-1).line;
     }
     //=======================================
     void next(int numToMove=1) {

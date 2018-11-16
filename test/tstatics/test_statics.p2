@@ -75,7 +75,7 @@ public testStatics {
 		assert A::s == 2
 		assert A::rs == 4
         assert A::ps == 6   
-        assert A::#size == 12
+        assert #sizeof(A) == 12
         assert A::bar() == 2
         assert A::bar2(8) == 3
         assert A::rbar() == 5
@@ -89,7 +89,7 @@ public testStatics {
         assert b.m == 1
         assert b.orange<float>(3.14) == 6
         // static access
-        assert B<int>::#size == 4
+        assert #sizeof(B<int>) == 4
         assert B<int>::s == 2
         assert B<int>::foo() == 3
         assert B<int>::foo(7) == 4
@@ -111,7 +111,7 @@ public testStatics {
         assert Static::s == 20
         assert Static::rs == 40
         //assert Static::ps == 60     // private external
-        assert Static::#size == 12
+        assert #sizeof(Static) == 12
         
         assert Static::bar() == 20
         assert Static::bar2(1) == 30
@@ -125,7 +125,7 @@ public testStatics {
         assert b.m == 1
         assert b.orange<float>(3.14) == 6
         // static access
-        assert Statics2<int>::#size == 4
+        assert #sizeof(Statics2<int>) == 4
         assert Statics2<int>::s == 2
         assert Statics2<int>::foo() == 3
         assert Statics2<int>::foo(7) == 4

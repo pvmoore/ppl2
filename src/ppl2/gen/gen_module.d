@@ -336,7 +336,7 @@ public:
             rhs = builder.not(rhs, "not");
         } else if(n.op is Operator.NEG) {
             auto op = n.getType.isReal ? LLVMOpcode.LLVMFSub : LLVMOpcode.LLVMSub;
-            rhs = builder.binop(op, n.expr().getType.zero, rhs);
+            rhs = builder.binop(op, n.expr().getType.zeroValue, rhs);
         }
     }
     void visit(ValueOf n) {
@@ -458,7 +458,7 @@ public:
 	///
     LLVMValueRef forceToBool(LLVMValueRef v, Type fromType) {
         if(fromType.isBool) return v;
-        auto i1 = builder.icmp(LLVMIntPredicate.LLVMIntNE, v, fromType.zero, "tobool");
+        auto i1 = builder.icmp(LLVMIntPredicate.LLVMIntNE, v, fromType.zeroValue, "tobool");
         return castI1ToI8(i1);
     }
     LLVMValueRef castI1ToI8(LLVMValueRef v) {

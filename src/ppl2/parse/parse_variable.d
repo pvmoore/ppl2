@@ -162,6 +162,7 @@ private:
         /// Type
         if(typeDetector().isType(t, v)) {
             v.type = typeParser.parse(t, v);
+            assert(v.type, "expected to be able to parse this type but couldn't");
         } else {
             /// there is no type
             if(!v.isImplicit) {

@@ -28,57 +28,61 @@ private:
 
         //if(module_.canonicalName=="test") dd("lhs", t.get, "parent=", parent.id);
 
+        /// Simple identifiers
+        if(t.type==TT.IDENTIFIER) {
+            switch(t.value) {
+                case "if":
+                    parseIf(t, parent);
+                    return;
+                case "select":
+                    parseSelect(t, parent);
+                    return;
+                case "not":
+                    parseUnary(t, parent);
+                    return;
+                case "operator":
+                    parseCall(t, parent);
+                    return;
+                case "#typeof":
+                case "#sizeof":
+                case "#initof":
+                case "#isptr":
+                case "#isvalue":
+                    parseBuiltinFunc(t, parent);
+                    return;
+                default:
+                    break;
+            }
+        }
+
         /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);
         if(eot!=-1) {
             auto nextTok = t.peek(eot+1);
 
-            if(nextTok.value=="is" || t.peek(-1).value=="is") {
-                parseTypeExpr(t, parent);
-                return;
-            }
-            if(t.peek(-1).value=="as") {
-                parseTypeExpr(t, parent);
-                return;
-            }
             if(nextTok.type==TT.LBRACKET) {
                 parseConstructor(t, parent);
                 return;
             }
-            if(t.peek(-2).value=="is" && t.peek(-1).value=="not") {
-                parseTypeExpr(t, parent);
-                return;
-            }
-            if(nextTok.type==TT.DOT || nextTok.type==TT.DBL_COLON) {
-                parseTypeExpr(t, parent);
-                return;
-            }
+
+            parseTypeExpr(t, parent);
+            return;
         }
 
         /// Simple literals
         if(t.type==TT.NUMBER || t.type==TT.CHAR || "true"==t.value || "false"==t.value || "null"==t.value) {
             parseLiteral(t, parent);
             return;
-        } else if("if"==t.value) {
-            parseIf(t, parent);
-            return;
-        } else if("select"==t.value) {
-            parseSelect(t, parent);
-            return;
-        } else if(t.value=="not") {
-            parseUnary(t, parent);
-            return;
-        } else if(t.value=="operator") {
-            parseCall(t, parent);
-            return;
         }
 
+        /// More complex identifiers
         /// name (
         /// name.name {
         /// name <
         /// name::
         /// name
         if(t.type==TT.IDENTIFIER) {
+
             if(t.peek(1).type==TT.LBRACKET) {
                 parseCall(t, parent);
                 return;
@@ -1103,6 +1107,23 @@ private:
         parent.add(alias_);
 
         t.next;
+    }
+    void parseBuiltinFunc(Tokens t, ASTNode parent) {
+        auto bif = makeNode!BuiltinFunc(t);
+        parent.add(bif);
+
+        bif.name = t.value;
+        t.next;
+
+        /// (
+        t.skip(TT.LBRACKET);
+
+        while(t.type!=TT.RBRACKET) {
+            parse(t, bif);
+        }
+
+        t.skip(TT.RBRACKET);
+        /// )
     }
 }
 

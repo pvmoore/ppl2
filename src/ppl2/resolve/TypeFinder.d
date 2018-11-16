@@ -102,6 +102,7 @@ public:
         /// Create a template proxy Alias which can
         /// be replaced later by the concrete NamedStruct
         auto proxy                = makeNode!Alias(node);
+        proxy.cat                 = Alias.Category.TEMPLATE_PROXY;
         proxy.name                = module_.makeTemporary("templateProxy");
         proxy.type                = TYPE_UNKNOWN;
         proxy.moduleName          = module_.canonicalName;

@@ -9,6 +9,13 @@ final class Alias : Statement, Type {
     bool isImport;
     int numRefs;
     Type type;
+    Category cat = Category.STANDARD;
+
+    enum Category {
+        STANDARD,       /// alias a = type
+        TEMPLATE_PROXY, /// s<type>
+        TYPEOF_EXPR     /// #typeof ( expr )
+    }
 
 /// template stuff
     Type templateProxyType;     /// Alias or NamedStruct
@@ -36,9 +43,4 @@ final class Alias : Statement, Type {
     override string toString() {
         return "alias of %s".format(type);
     }
-    //override string toString() {
-    //    string val = "%s".format(getType.prettyString);
-    //    string imp = isImport ? " (IMPORT)" : "";
-    //    return "Alias[refs=%s] name=%s (type=%s)%s".format(numRefs, name, val, imp);
-    //}
 }

@@ -30,6 +30,8 @@ public:
         } else if(t.type==TT.LSQBRACKET) {
             /// "[" types "]"
             type = parseAnonStruct(t, node, addToNode);
+        } else if(t.value=="#typeof") {
+            type = parseTypeof(t, node, addToNode);
         } else {
             /// built-in type
             int p = g_builtinTypes.get(value, -1);
@@ -228,6 +230,28 @@ private:
         }
 
         return PtrType.of(f, 1);
+    }
+    /// #typeof ( expr )
+    Type parseTypeof(Tokens t, ASTNode node, bool addToNode) {
+        /// #typeof
+        t.next;
+
+        /// (
+        t.skip(TT.LBRACKET);
+
+        auto a = makeNode!Alias(t);
+        a.cat = Alias.Category.TYPEOF_EXPR;
+        node.add(a);
+
+        exprParser().parse(t, a);
+
+        /// )
+        t.skip(TT.RBRACKET);
+
+        if(!addToNode) {
+            a.detach();
+        }
+        return a;
     }
     Type[] collectTemplateParams(Tokens t, ASTNode node) {
         if(t.type!=TT.LANGLE) return null;

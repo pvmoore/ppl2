@@ -110,6 +110,13 @@ public:
                     return;
                 }
                 break;
+            case "#sizeof":
+            case "#initof":
+            case "#isptr":
+            case "#isvalue":
+                noExprAllowedAtModuleScope();
+                exprParser.parse(t, parent);
+                return;
             default:
                 break;
         }
@@ -156,6 +163,8 @@ public:
                 /// Variable decl
                 varParser().parseLocal(t, parent);
             }
+
+
             return;
         }
 

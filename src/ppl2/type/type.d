@@ -213,7 +213,7 @@ int size(Type t) {
         case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
     }
 }
-LLVMValueRef zero(Type t) {
+LLVMValueRef zeroValue(Type t) {
     if(t.isPtr) {
         return constNullPointer(t.getLLVMType());
     }
@@ -224,7 +224,7 @@ LLVMValueRef zero(Type t) {
         case ARRAY:
         case FUNCTION:
         case VOID:
-            assert(false, "zero - type is %s".format(t));
+            assert(false, "zeroValue - type is %s".format(t));
         case BOOL: return constI8(FALSE);
         case BYTE: return constI8(0);
         case SHORT: return constI16(0);
@@ -234,7 +234,30 @@ LLVMValueRef zero(Type t) {
         case FLOAT: return constF32(0);
         case DOUBLE: return constF64(0);
     }
-    assert(false);
+}
+Expression initExpression(Type t) {
+    if(t.isPtr) {
+        return LiteralNull.makeConst(t);
+    }
+    final switch(t.getEnum) with(Type) {
+        case UNKNOWN:
+        case VOID:
+            assert(false, "initExpression - type is %s".format(t));
+        case NAMED_STRUCT:
+        case ANON_STRUCT:
+        case ARRAY:
+        case FUNCTION:
+            assert(false, "initExpression - implement me");
+        case BOOL:
+        case BYTE:
+        case SHORT:
+        case INT:
+        case LONG:
+        case HALF:
+        case FLOAT:
+        case DOUBLE:
+            return LiteralNumber.makeConst(0, t);
+    }
 }
 string toString(Type[] types) {
     auto buf = new StringBuffer;

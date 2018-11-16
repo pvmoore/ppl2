@@ -33,7 +33,7 @@ final class LoopGenerator {
         gen.moveToBlock(checkBB);
         if(loop.hasCondExpr) {
             loop.condExpr.visit!ModuleGenerator(gen);
-            auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntNE, gen.rhs, loop.condExpr.getType.zero);
+            auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntNE, gen.rhs, loop.condExpr.getType.zeroValue);
             builder.condBr(cmp, bodyBB, exitBB);
         } else {
             builder.br(bodyBB);

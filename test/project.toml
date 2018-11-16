@@ -14,6 +14,26 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "test_select.p2"
-line = 35
+name = "test.p2"
+line = 101
+active = 0
+
+[[openFile]]
+name = "test_arrays.p2"
+line = 106
+active = 0
+
+[[openFile]]
+name = "tstatics/test_statics.p2"
+line = 127
+active = 0
+
+[[openFile]]
+name = "core/list.p2"
+line = 83
 active = 1
+
+[[openFile]]
+name = "tmisc/test_builtin_funcs.p2"
+line = 16
+active = 0

@@ -32,7 +32,7 @@ final class IfGenerator {
         /// condition
         n.condition.visit!ModuleGenerator(gen);
 
-        auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntNE, gen.rhs, n.condition.getType.zero);
+        auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntNE, gen.rhs, n.condition.getType.zeroValue);
 
         //if(i.attributes && i.attributes.has(AttrType.EXPECT)) {
         //    auto expect = i.attributes.get(AttrType.EXPECT);

@@ -104,7 +104,7 @@ testLiteralArrays {
         assert array[n] == 0
         assert array.length==2
         assert array.subtype is int
-        assert array.#size==8
+        assert #sizeof(array) ==8
 
         int[2]* ptr
         assert ptr is null

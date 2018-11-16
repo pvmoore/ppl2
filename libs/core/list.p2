@@ -29,7 +29,7 @@ public
     }
     operator<> { List<T> other ->
         if(length <> other.length) return false
-        return memcmp(array, other.array, length*T.#size)==0
+        return memcmp(array, other.array, length*#sizeof(T))==0
     }
     first {
         assert length > 0
@@ -77,11 +77,11 @@ private
         if(required < 1) return
         if(not array) {
             arrayLength = required + 7
-            array       = malloc(arrayLength*T.#size) as T*
+            array       = malloc(arrayLength*#sizeof(T)) as T*
             assert array
         } else if(length+required > arrayLength) {
             arrayLength = (length+required) * 2
-            array       = realloc(array, arrayLength*T.#size) as T*
+            array       = realloc(array, arrayLength*#sizeof(T)) as T*
             assert array
         }
     }

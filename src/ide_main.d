@@ -21,6 +21,8 @@ extern (C) int UIAppMain(string[] args) {
 
     Window window = Platform.instance.createWindow("PPL IDE", null, WindowFlag.Resizable, 800, 600);
 
+    //Platform.instance().defaultWindowIcon("topaz");
+
     auto ide = new IDE(args, window);
 
     window.mainWidget = ide;

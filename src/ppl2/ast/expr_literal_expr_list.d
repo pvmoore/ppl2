@@ -14,10 +14,6 @@ final class LiteralExpressionList : Expression {
 
     void resolve() {
         switch(parent.id) with(NodeID) {
-            case ADDRESS_OF:
-                /// Assume array
-                convertToLiteralArray();
-                break;
             case AS:
                 As p   = parent.as!As;
                 auto t = p.getType;
@@ -54,11 +50,11 @@ final class LiteralExpressionList : Expression {
                     convertToLiteralArray();
                 }
                 break;
+            case ADDRESS_OF:
+            case BUILTIN_FUNC:
             case DOT:
-                /// Assume array
-                convertToLiteralArray();
-                break;
             case INDEX:
+            case LITERAL_FUNCTION:
                 /// Assume array
                 convertToLiteralArray();
                 break;
@@ -81,10 +77,6 @@ final class LiteralExpressionList : Expression {
                 } else if(t.isAnonStruct) {
                     convertToLiteralStruct();
                 }
-                break;
-            case LITERAL_FUNCTION:
-                /// Assume array
-                convertToLiteralArray();
                 break;
             case RETURN:
                 auto p = parent.as!Return;

@@ -12,6 +12,7 @@ enum NodeID {
     ASSERT,
     BINARY,
     BREAK,
+    BUILTIN_FUNC,
     CALL,
     CALLOC,
     CASE,

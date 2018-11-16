@@ -115,6 +115,16 @@ public:
             return;
         }
     }
+    void visit(Alias n) {
+        if(n.cat==Alias.Category.TYPEOF_EXPR) {
+            if(n.first.isResolved) {
+                n.type = n.first.getType;
+                n.cat  = Alias.Category.STANDARD;
+            }
+        } else {
+            resolveAlias(n, n.type);
+        }
+    }
     void visit(AnonStruct n) {
 
     }
@@ -334,6 +344,49 @@ public:
             }
         }
     }
+    void visit(BuiltinFunc n) {
+        if(!n.exprTypes().areKnown) return;
+
+        int expectedNumExprs = 1;
+        switch(n.name) {
+            case "#sizeof":
+                if(n.numExprs > 0) {
+                    int size = n.exprs()[0].getType().size();
+                    fold(n, LiteralNumber.makeConst(size, TYPE_INT));
+                }
+                break;
+            case "#typeof":
+                if(n.numExprs > 0) {
+                    auto t = n.exprs()[0].getType;
+                    fold(n, TypeExpr.make(t));
+                }
+                break;
+            case "#initof":
+                if(n.numExprs > 0) {
+                    auto ini = initExpression(n.exprs()[0].getType);
+                    fold(n, ini);
+                }
+                break;
+            case "#isptr":
+                if(n.numExprs > 0) {
+                   auto r = n.exprTypes()[0].isPtr;
+                   fold(n, LiteralNumber.makeConst(r, TYPE_BOOL));
+                }
+                break;
+            case "#isvalue":
+                if(n.numExprs > 0) {
+                    auto r = n.exprTypes()[0].isPtr;
+                    fold(n, LiteralNumber.makeConst(!r, TYPE_BOOL));
+                }
+                break;
+            default:
+                assert(false);
+        }
+
+        if(n.numExprs != expectedNumExprs) {
+            module_.addError(n, "Expecting %s expressions".format(expectedNumExprs), true);
+        }
+    }
     void visit(Call n) {
         if(!n.target.isResolved) {
             bool isTemplated = n.isTemplated;
@@ -544,9 +597,6 @@ public:
     void visit(Constructor n) {
         resolveAlias(n, n.type);
     }
-    void visit(Alias n) {
-        resolveAlias(n, n.type);
-    }
     void visit(Dot n) {
         //n.resolve();
     }
@@ -662,12 +712,6 @@ public:
                     ///      prev
                     ///   type*
                     dot.parent.replaceChild(dot, as);
-                    rewrites++;
-                    return;
-                }
-                case "#size": {
-                    int size = prevType.size();
-                    dot.parent.replaceChild(dot, LiteralNumber.makeConst(size, TYPE_INT));
                     rewrites++;
                     return;
                 }
@@ -860,6 +904,8 @@ public:
                 case BINARY:
                     parentType = n.parent.as!Binary.otherSide(n).getType;
                     break;
+                case BUILTIN_FUNC:
+                    break;
                 case CALL: {
                     auto call = n.parent.as!Call;
                     if(call.isResolved) {
@@ -1019,6 +1065,8 @@ public:
                 case BINARY:
                     type = n.parent.as!Binary.otherSide(n).getType;
                     break;
+                case BUILTIN_FUNC:
+                    break;
                 case CALL: {
                     auto call = n.parent.as!Call;
                     if(call.isResolved) {
@@ -1061,6 +1109,9 @@ public:
                 }
                 n.type = type;
             }
+        }
+        if(!n.isResolved && stalemate) {
+            module_.addError(n, "Ambiguous struct literal requires explicit cast", true);
         }
     }
     void visit(Loop n) {
@@ -1302,7 +1353,11 @@ private:
             if(f.isImport) return;
         } else if(m.isAlias) {
             auto d = m.as!Alias;
-            if(!d.type.isAlias) return;
+            if(d.cat==Alias.Category.TYPEOF_EXPR) {
+
+            } else {
+                if(!d.type.isAlias) return;
+            }
         }
 
         //dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);

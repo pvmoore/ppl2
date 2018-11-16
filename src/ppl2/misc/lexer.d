@@ -497,9 +497,6 @@ public:
                 case '~':
                     addToken(TT.TILDE);
                     break;
-                //case '#':
-                //    addToken(TT.HASH);
-                //    break;
                 case '$':
                     addToken(TT.DOLLAR);
                     break;

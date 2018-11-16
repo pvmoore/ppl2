@@ -34,7 +34,10 @@ public:
 
         if("static"==t.value) t.next;
 
-        if(t.type==TT.LSQBRACKET) {
+        if(t.value=="#typeof") {
+            typeof_(t, node);
+            found = true;
+        } else if(t.type==TT.LSQBRACKET) {
             found = possibleArrayTypeOrAnonStruct(t, node);
         } else if(t.type==TT.LCURLY) {
             found = possibleFunctionType(t, node);
@@ -105,12 +108,17 @@ private:
         int end = t.findEndOfBlock(TT.LSQBRACKET);
         if(end==-1) return false;
 
+        /// [
         t.next;
 
         /// First token must be a type
-        if(!isType(t, node)) return false;
+        int end2 = endOffset(t, node);
+        if(end2==-1) return false;
 
-        if(t.type==TT.COLON) errorBadSyntax(module_, t, "Deprecated array declaration");
+        //if(!isType(t, node)) return false;
+
+        /// constructor - this must be a LiteralArray or LiteralStruct
+        if(t.peek(end2+1).type==TT.LBRACKET) return false;
 
         t.next(end);
 
@@ -182,5 +190,17 @@ private:
 
         t.next(i);
         return true;
+    }
+    /// #typeof ( expr )
+    void typeof_(Tokens t, ASTNode node) {
+        /// #typeof
+        t.next;
+
+        /// (
+        int eob = t.findEndOfBlock(TT.LBRACKET);
+        t.next(eob);
+
+        /// )
+        t.skip(TT.RBRACKET);
     }
 }
