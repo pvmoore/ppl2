@@ -64,6 +64,7 @@ public:
 
         auto right = other.getFunctionType;
 
+        /// check returnType
         if(!returnType.exactlyMatches(right.returnType())) return false;
 
         /// Turn {->?} into {void->?}
@@ -85,7 +86,8 @@ public:
         if(!other.isFunction) return false;
         auto right = other.getFunctionType;
 
-        /// check returnType?
+        /// check returnType
+        if(!returnType.exactlyMatches(right.returnType)) return false;
 
         /// Turn {->?} into {void->?}
         auto pt  = paramTypes();

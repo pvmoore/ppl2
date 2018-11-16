@@ -8,7 +8,8 @@ struct Struct {
     memberFunc { // Struct* this ->
         // Struct member func
         // Can see this scope, Struct scope and module scope
-
+        assert this is Struct*
+        
         int memberFuncVar1
 
         memberFuncVar1
@@ -22,7 +23,8 @@ struct Struct {
 
         inner { // Struct* this
             // Can see this scope, Struct scope and module scope
-
+            assert this is Struct*
+            
             int innerVar1
 
             innerVar1  // ok
@@ -40,6 +42,7 @@ struct Struct {
         int memberFuncVar2
     }
     memberFunc2 { // Struct* this ->
+        
     }
     int memberVar2
 }
@@ -101,18 +104,7 @@ globalFunc2 {
     assert 2 == inner(2)
 }
 
-testClosures {
-    var closure1 = { int a -> return 2 }
-    var closure2 = { int a -> return 3 }
-    {int->int} funcptr = closure2
-
-    assert 2 == closure1(1)
-    assert 3 == closure2(1)
-    assert 3 == funcptr(1)
-}
-
 public testInnerFunctions {
-    testClosures()
 
     Struct s
     s.memberFunc()

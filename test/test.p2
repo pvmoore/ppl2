@@ -92,8 +92,9 @@ struct Array <A,B> {
 }
 
 main {
-    import tmisc::test_builtin_funcs;       testBuiltinFuncs() 
-    import tnodes::test_select;             testSelect()
+    import tmisc::test_builtin_funcs;   testBuiltinFuncs() 
+    import tnodes::test_select;         testSelect()
+    import test_closures;               testClosures()
     
     import texpr = test_expressions
     texpr::testExpressions()

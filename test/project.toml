@@ -14,8 +14,13 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
+name = "tmisc/test_builtin_funcs.p2"
+line = 16
+active = 0
+
+[[openFile]]
 name = "test.p2"
-line = 101
+line = 95
 active = 0
 
 [[openFile]]
@@ -29,11 +34,11 @@ line = 127
 active = 0
 
 [[openFile]]
-name = "core/list.p2"
-line = 83
-active = 1
+name = "test_inner_functions.p2"
+line = 104
+active = 0
 
 [[openFile]]
-name = "tmisc/test_builtin_funcs.p2"
-line = 16
-active = 0
+name = "test_closures.p2"
+line = 15
+active = 1

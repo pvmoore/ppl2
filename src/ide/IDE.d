@@ -15,6 +15,8 @@ private:
     Project project;
     BuildState currentBuild;
 
+    BuildJob buildJob;
+
     /// Use cases
     BuildCompleted buildCompleted;
 
@@ -141,8 +143,12 @@ protected:
 
                     editorView.saveAll();
 
-                    auto job = new BuildJob(project.config, false);
-                    job.run((it) {
+                    if(buildJob && buildJob.isRunning) {
+                        consoleView.logln("Build already running");
+                        break;
+                    }
+                    buildJob = new BuildJob(project.config, false);
+                    buildJob.run((it) {
                         executeInUiThread(() {
                             buildCompleted.handle(it);
                         });
@@ -154,8 +160,12 @@ protected:
 
                     editorView.saveAll();
 
-                    auto job = new BuildJob(project.config, true);
-                    job.run((it) {
+                    if(buildJob && buildJob.isRunning) {
+                        consoleView.logln("Build already running");
+                        break;
+                    }
+                    buildJob = new BuildJob(project.config, true);
+                    buildJob.run((it) {
                         executeInUiThread(() {
                             buildCompleted.handle(it);
                         });

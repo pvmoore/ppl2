@@ -1,0 +1,47 @@
+
+struct A
+
+public testClosures {
+    A a = A()
+    a.foo()
+    
+    int hello = 1
+    
+    var closure1 = { int a -> 
+        // this     // nope
+        // hello    // nope
+        return 2 
+    }
+    var closure2 = { int a -> 
+        return 3 
+    }
+    {int->int} funcptr  = closure2
+    {int->int} funcptr2 = closure2  
+
+    assert 2 == closure1(1)
+    assert 3 == closure2(1)
+    assert 3 == funcptr(1)  
+} 
+private struct A {
+    int member = 1
+    foo {
+        assert this is A*
+        int hello = 1
+        member 
+        
+        var closure1 = { int a -> 
+            // this     // nope
+            // hello    // nope
+            // member   // nope
+            return 1
+        }   
+        {void->int} closure2 = {
+            return 2
+        }
+        assert 1 == closure1(1)
+        assert 2 == closure2()
+        
+        assert closure1 is {int->int}
+        assert closure2 is {void->int}
+    }   
+}

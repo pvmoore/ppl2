@@ -100,7 +100,12 @@ public:
             }
             auto count = lineInfo[line].openBraceCount;
             dstring txt = "    ".repeat(count).toUTF32;
-            EditOperation op2 = new EditOperation(EditAction.Replace, TextRange(TextPosition(line, 0), TextPosition(line, 4)), [txt]);
+
+            EditOperation op2 = new EditOperation(
+                EditAction.Replace,
+                TextRange(TextPosition(line, 0), TextPosition(line, 0)),
+                [txt]);
+
             opInProgress = true;
             _content.performOperation(op2, source);
             opInProgress = false;
@@ -113,9 +118,12 @@ public:
 
             if(lineMeasurement.firstNonSpace != pos-1) return;
 
-            auto count = line > 0 ? lineInfo[line].openBraceCount-1 : 0;
             dstring txt = "}"d;
-            EditOperation op2 = new EditOperation(EditAction.Replace, TextRange(TextPosition(line, pos-5), TextPosition(line, pos)), [txt]);
+            EditOperation op2 = new EditOperation(
+                EditAction.Replace,
+                TextRange(TextPosition(line, pos-5), TextPosition(line, pos)),
+                [txt]);
+
             opInProgress = true;
             _content.performOperation(op2, source);
             opInProgress = false;

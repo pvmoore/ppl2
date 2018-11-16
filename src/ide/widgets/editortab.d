@@ -144,6 +144,7 @@ public:
             if(event.modifiers & KeyFlag.Control) {
                 if(event.keyCode==KeyCode.KEY_S) {
                     save(filename);
+                    dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
                     return true;
                 }
             }
@@ -168,28 +169,28 @@ public:
         return "[EditorTab %s]".format(moduleCanonicalName);
     }
     void build() {
-        ide.getConsole().logln("Building module '%s' ... ", moduleCanonicalName);
-
-        auto info = ide.getInfoView();
-        auto src  = convertTabsToSpaces(content().text().toUTF8);
-
-        builder.startNewBuild();
-
-        auto m = builder.getOrCreateModule(moduleCanonicalName, src);
-
-        if(builder.build(m)) {
-            info.getTokensView().update(m.parser.getInitialTokens()[]);
-            info.getASTView().update(m);
-            info.getIRView().update(builder.getUnoptimisedIR());
-            info.getOptIRView().update(builder.getOptimisedIR());
-
-            ide.getConsole().logln("References   : %s", m.getReferencedModules().map!(it=>it.canonicalName));
-            ide.getConsole().logln("Referencedby : %s", builder.allModulesThatReference(m).map!(it=>it.canonicalName));
-
-        } else {
-            ide.getConsole().logln("Unresolved = %s", m.resolver.getUnresolvedNodes);
-        }
-
-        builder.dumpStats((string it)=>ide.getConsole().logln(it));
+        //ide.getConsole().logln("Building module '%s' ... ", moduleCanonicalName);
+        //
+        //auto info = ide.getInfoView();
+        //auto src  = convertTabsToSpaces(content().text().toUTF8);
+        //
+        //builder.startNewBuild();
+        //
+        //auto m = builder.getOrCreateModule(moduleCanonicalName, src);
+        //
+        //if(builder.build(m)) {
+        //    info.getTokensView().update(m.parser.getInitialTokens()[]);
+        //    info.getASTView().update(m);
+        //    info.getIRView().update(builder.getUnoptimisedIR());
+        //    info.getOptIRView().update(builder.getOptimisedIR());
+        //
+        //    ide.getConsole().logln("References   : %s", m.getReferencedModules().map!(it=>it.canonicalName));
+        //    ide.getConsole().logln("Referencedby : %s", builder.allModulesThatReference(m).map!(it=>it.canonicalName));
+        //
+        //} else {
+        //    ide.getConsole().logln("Unresolved = %s", m.resolver.getUnresolvedNodes);
+        //}
+        //
+        //builder.dumpStats((string it)=>ide.getConsole().logln(it));
     }
 }
