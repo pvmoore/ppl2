@@ -323,9 +323,6 @@ protected:
             unresolved.add(
                 m.resolver.getUnresolvedNodes().map!(it=>it.nid).array
             );
-            unresolved.add(
-                m.resolver.getUnresolvedAliases().map!(it=>it.nid).array
-            );
 
             if(resolved) {
                 log("\t.. %s is resolved", m.canonicalName);

@@ -8,9 +8,9 @@ import ::= "import" package_name
 ```
 
 ```
-import core.string
+import core::string
 
-import c = core.c   // using alias
+import c = core::c   // using alias
 ```
 ##### Handling foreign externs
 ```

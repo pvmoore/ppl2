@@ -1,8 +1,5 @@
 # Todo  
 
-- Other compile time meta properties eg. #type, #isptr, #isvalue, #init, #size etc... 
-  (#size already implemented)
-  Maybe do these as builtin funcs instead of properties
 - Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
   
 - enums

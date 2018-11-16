@@ -11,14 +11,12 @@ private:
     bool addedModuleScopeElements;
     int rewrites;
     Set!ASTNode unresolved;
-    Set!Alias unresolvedAliases;
     bool stalemate = false;
 public:
     Module module_;
 
     ulong getElapsedNanos()        { return watch.peek().total!"nsecs"; }
     ASTNode[] getUnresolvedNodes() { return unresolved.values; }
-    Alias[] getUnresolvedAliases() { return unresolvedAliases.values; }
     int getNumRewrites()           { return rewrites; }
 
     this(Module module_) {
@@ -27,7 +25,6 @@ public:
         this.identifierResolver = new IdentifierResolver(module_);
         this.unresolved         = new Set!ASTNode;
         this.overloadSet        = new Array!Callable;
-        this.unresolvedAliases  = new Set!Alias;
     }
     void clearState() {
         watch.reset();
@@ -48,14 +45,13 @@ public:
         collectModuleScopeElements();
 
         unresolved.clear();
-        unresolvedAliases.clear();
 
         foreach(r; module_.getCopyOfActiveRoots()) {
             recursiveVisit(r);
         }
 
         watch.stop();
-        return unresolved.length==0 && unresolvedAliases.length==0 && rewrites==0;
+        return unresolved.length==0 && rewrites==0;
     }
     void resolveFunction(string funcName) {
         watch.start();
@@ -673,6 +669,7 @@ public:
             /// Properties:
             switch(n.name) {
                 case "length":
+                    /// for arrays or anon structs only
                     if(prevType.isArray) {
                         int len = prevType.getArrayType.countAsInt();
                         dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
@@ -686,6 +683,7 @@ public:
                     }
                     break;
                 case "subtype":
+                    /// for arrays only
                     if(prevType.isArray) {
                         dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
                         rewrites++;
@@ -693,6 +691,7 @@ public:
                     }
                     break;
                 case "ptr": {
+                    /// for arrays or anon structs only
                     if(!dot.isMemberAccess()) break;
 
                     auto b = module_.builder(n);
@@ -1451,7 +1450,7 @@ private:
                 resolveAlias(node, def.templateProxyType);
             }
             if(!def.templateProxyType.isNamedStruct) {
-                unresolvedAliases.add(def);
+                unresolved.add(def);
                 return;
             }
 
@@ -1470,7 +1469,7 @@ private:
                     auto structModule = module_.buildState.getOrCreateModule(ns.moduleName);
                     structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
 
-                    unresolvedAliases.add(def);
+                    unresolved.add(def);
                 }
             }
             return;
@@ -1480,7 +1479,7 @@ private:
             /// Switch to the Aliasd type
             type = PtrType.of(def.type, type.getPtrDepth);
         } else {
-            unresolvedAliases.add(def);
+            unresolved.add(def);
         }
     }
 }

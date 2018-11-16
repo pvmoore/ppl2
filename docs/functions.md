@@ -21,14 +21,14 @@ type_list ::= { type [ name ] "," } type [ name ]
 ```
 {int,int->bool} f = { int t, int i-> return true }
 {int,int->bool} f = { t, i -> return true }
-f2 = { int t, int i -> return true }  // {int,int->bool} inferred
+f2 { int t, int i -> return true }  // {int,int->bool} inferred
 ```
 ###### Inline function blocks
 ```
-a = { int a -> return 0 }       // {int->int}
-b = {}                          // {void->void}
+a { int a -> return 0 }       // {int->int}
+b {}                          // {void->void}
 doSomething({a -> return a })   // {?->?}   // type of a needs to be resolved
-doSomething { a->
+doSomething() { a->
     return a
 }   // groovy style
 ```
