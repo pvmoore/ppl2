@@ -158,14 +158,23 @@ private:
             } else if(t.isKeyword("readonly")) {
                 public_ = false;
             } else if(t.type==TT.LCURLY) {
-                t.next(t.findEndOfBlock(t.type));
+                auto eob = t.findEndOfBlock(t.type);
+                if(eob==-1) {
+                    module_.addError(t, "Couldn't find matching bracket }", false);
+                    break;
+                }
+                t.next(eob);
             } else if(t.type==TT.LSQBRACKET) {
-                t.next(t.findEndOfBlock(t.type));
+                auto eob = t.findEndOfBlock(t.type);
+                if(eob==-1) {
+                    module_.addError(t, "Couldn't find matching bracket ]", false);
+                    break;
+                }
+                t.next(eob);
             } else if(public_) {
 
                 if(isStruct() || isAlias()) {
                     t.next;
-                    //module_.exportedTypes.add(t.value);
                     publicTypes.add(t.value);
                 } else if(isFuncDecl()) {
                     if(t.isKeyword("extern")) t.next;
@@ -180,6 +189,7 @@ private:
             }
             t.next;
         }
+
         t.reset();
         watch.stop();
     }

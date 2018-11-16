@@ -5,7 +5,7 @@ globalFunc1 {}
 struct Struct {
     // Can see struct scope + module scope
     int memberVar1
-    memberFunc { // Struct* this
+    memberFunc { // Struct* this ->
         // Struct member func
         // Can see this scope, Struct scope and module scope
 
@@ -39,7 +39,8 @@ struct Struct {
 
         int memberFuncVar2
     }
-    memberFunc2 {}
+    memberFunc2 { // Struct* this ->
+    }
     int memberVar2
 }
 
@@ -94,8 +95,10 @@ func { // {->}
 
 int globalVar2
 globalFunc2 {
-    inner {}
-    inner()
+    inner { return 1 }
+    inner { int a -> return 2 }
+    assert 1 == inner()
+    assert 2 == inner(2)
 }
 
 testClosures {

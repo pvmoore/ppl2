@@ -116,7 +116,7 @@ public:
 
             /// Do some house-keeping
             addDefaultConstructor(t, n);
-            addImplicitReturnThis(n);
+            addImplicitReturnThisToNonDefaultConstructors(n);
             addCallToDefaultConstructor(n);
             moveInitCodeInsideDefaultConstructor(n);
         }
@@ -162,7 +162,7 @@ public:
         }
     }
     /// Add implicit return 'this' at the end of all constructors
-    void addImplicitReturnThis(NamedStruct ns) {
+    void addImplicitReturnThisToNonDefaultConstructors(NamedStruct ns) {
         auto allCons = ns.getConstructors();
         foreach(c; allCons) {
             auto bdy = c.getBody();
