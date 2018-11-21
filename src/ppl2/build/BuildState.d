@@ -176,7 +176,7 @@ public:
     }
 
     /// Symbols
-    void aliasOrStructRequired(string moduleName, string defineName) {
+    void aliasEnumOrStructRequired(string moduleName, string defineName) {
         string key = "%s|%s".format(moduleName, defineName);
 
         if(requestedAliasOrStruct.contains(key)) return;
@@ -272,7 +272,7 @@ protected:
                         mod.resolver.resolveFunction(t.elementName);
                         break;
                     case TYPE:
-                        mod.resolver.resolveAliasOrStruct(t.elementName);
+                        mod.resolver.resolveAliasEnumOrStruct(t.elementName);
                         break;
                 }
             }
@@ -318,7 +318,7 @@ protected:
 
         foreach(m; allModules) {
             bool resolved  = m.resolver.resolve(resolveStalemate);
-            nodesModified |= (m.resolver.getNumRewrites() > 0);
+            nodesModified |= m.resolver.isModified();
 
             unresolved.add(
                 m.resolver.getUnresolvedNodes().map!(it=>it.nid).array

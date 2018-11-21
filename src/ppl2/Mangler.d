@@ -32,6 +32,9 @@ public:
         //uniqueStructAndModuleNames.add(name);
         return name;
     }
+    string mangle(Enum e) {
+        return e.name;
+    }
     string mangle(Function f) {
         if(f.isExtern || f.isProgramEntry) return f.name;
 
@@ -76,7 +79,7 @@ public:
         return "%s".format(t);
 
         //string s;
-        //final switch (t.getEnum) with(Type) {
+        //final switch (t.category) with(Type) {
         //    case UNKNOWN: assert(false, "type must be known");
         //    case BOOL:   s = "o"; break;
         //    case BYTE:   s = "b"; break;

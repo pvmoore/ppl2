@@ -26,6 +26,9 @@ public:
             auto ns = n.as!NamedStruct;
             if(ns && ns.name==name) return ns;
 
+            auto en = n.as!Enum;
+            if(en && en.name==name) return en;
+
             auto comp = n.as!Composite;
             if(comp) {
                 /// Treat children of Composite as if they were in scope
@@ -119,12 +122,15 @@ public:
     private Type found(Type t) {
         auto alias_ = t.getAlias;
         auto ns     = t.getNamedStruct;
-        assert(alias_ !is null || ns !is null);
+        auto en     = t.getEnum;
+        assert(alias_ !is null || ns !is null || en !is null);
 
         if(alias_) {
-            module_.buildState.aliasOrStructRequired(alias_.moduleName, alias_.name);
+            module_.buildState.aliasEnumOrStructRequired(alias_.moduleName, alias_.name);
+        } else if(en) {
+            module_.buildState.aliasEnumOrStructRequired(en.moduleName, en.name);
         } else {
-            module_.buildState.aliasOrStructRequired(ns.moduleName, ns.name);
+            module_.buildState.aliasEnumOrStructRequired(ns.moduleName, ns.name);
         }
         return t;
     }

@@ -48,7 +48,7 @@ public:
                 t.next;
                 found = true;
             }
-            /// Is it a NamedStruct or Define?
+            /// Is it a NamedStruct, Enum or Define?
             if(!found) {
                 auto ty = module_.typeFinder.findType(t.value, node);
                 if(ty) {

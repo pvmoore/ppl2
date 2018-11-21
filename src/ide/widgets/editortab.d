@@ -103,7 +103,7 @@ public:
         tabItem  = t;
         isActive = true;
         timeSinceLastEdit.reset();
-        timeSinceLastEdit.start();
+        //timeSinceLastEdit.start();
 
         if(timerId==0) {
             timerId = setTimer(1000);
@@ -137,7 +137,7 @@ public:
     }
     void setLine(int line) {
         setCaretPos(line-10, 0, true, true);
-        setCaretPos(line, 0, false, false);
+        setCaretPos(line   , 0, false, false);
     }
     override bool onKeyEvent(KeyEvent event) {
         if(event.action==KeyAction.KeyDown) {
@@ -156,6 +156,7 @@ public:
         if(!isActive) return false;
 
         auto seconds = timeSinceLastEdit.peek().total!"seconds";
+        //writefln("seconds=%s", seconds); flushConsole();
         if(seconds > 5) {
             dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
 

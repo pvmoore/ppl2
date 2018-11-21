@@ -38,6 +38,9 @@ public:
         }
 
         switch(t.value) {
+            case "alias":
+                parseAlias(t, parent);
+                return;
             case "assert":
                 parseAssert(t, parent);
                 return;
@@ -50,8 +53,8 @@ public:
             case "continue":
                 parseContinue(t, parent);
                 return;
-            case "alias":
-                parseAlias(t, parent);
+            case "enum":
+                parseEnum(t, parent);
                 return;
             case "extern":
                 parseExtern(t, parent);
@@ -501,6 +504,52 @@ private: //=====================================================================
         while(t.type!=TT.RCURLY) {
             parse(t, body_);
         }
+        t.skip(TT.RCURLY);
+    }
+    void parseEnum(Tokens t, ASTNode parent) {
+
+        auto e = makeNode!Enum(t);
+        parent.add(e);
+
+        /// enum
+        t.skip("enum");
+
+        /// name
+        e.name       = t.value;
+        e.moduleName = module_.canonicalName;
+        t.next;
+
+        /// : type (optional)
+        if(t.type==TT.COLON) {
+            t.next;
+
+            e.elementType = typeParser.parse(t, e);
+        }
+
+        /// {
+        t.skip(TT.LCURLY);
+
+        while(t.type!=TT.RCURLY) {
+
+            auto value = makeNode!EnumMember(t);
+            e.add(value);
+
+            /// name
+            value.name = t.value;
+            value.type = e;
+            t.next;
+
+            if(t.type==TT.EQUALS) {
+                t.next;
+
+                exprParser().parse(t, value);
+            }
+
+            t.expect(TT.COMMA, TT.RCURLY);
+            if(t.type==TT.COMMA) t.next;
+        }
+
+        /// }
         t.skip(TT.RCURLY);
     }
 }

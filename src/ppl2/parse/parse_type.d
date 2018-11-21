@@ -122,7 +122,7 @@ private:
             type = typeFinder.findTemplateType(type, node, templateParams);
         } else {
             auto alias_ = type.as!Alias;
-            module_.buildState.aliasOrStructRequired(alias_.moduleName, alias_.name);
+            module_.buildState.aliasEnumOrStructRequired(alias_.moduleName, alias_.name);
         }
 
         return type;

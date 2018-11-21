@@ -123,7 +123,7 @@ shared static this() {
         "bool", "break", "byte",
         "const", "continue",
         "double",
-        "else", "extern",
+        "else", "enum", "extern",
         "false", "float",
         "half",
         "if", "import", "int", "is",

@@ -15,6 +15,7 @@ public:
         startNewBuild();
         bool buildSuccessful = false;
         watch.start();
+        bool astDumped;
         try{
             /// We know we need the program entry point
             functionRequired(config.mainModuleCanonicalName, "main");
@@ -29,6 +30,9 @@ public:
 
             semanticCheck();
             if(hasErrors()) return;
+
+            dumpAST();
+            astDumped = true;
 
             if(generateIR()) {
                 optimiseModules();
@@ -48,13 +52,14 @@ public:
             auto m = mainModule ? mainModule : modules.values[0];
             addError(new UnknownError(m, "Unhandled exception: %s".format(e)), true);
         }finally{
-            dumpAST();
+            if(!astDumped) dumpAST();
             flushLogs();
             watch.stop();
         }
     }
 private:
     void dumpAST() {
+        dd("dumpAST");
         foreach(m; allModules) {
             m.resolver.writeAST();
         }

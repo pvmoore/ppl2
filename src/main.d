@@ -44,6 +44,7 @@ void main(string[] argv) {
         dumpModuleReferences(builder);
         builder.dumpStats();
     }
+
 }
 void dumpDependencies(BuildState b) {
     writefln("\nDependencies {");

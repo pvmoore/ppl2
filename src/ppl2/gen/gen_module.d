@@ -59,6 +59,9 @@ public:
         generateImportedStructDeclarations(module_);
         generateLocalStructDeclarations(module_);
 
+        generateLocalEnumDeclarations(module_);
+        generateImportedEnumDeclarations(module_);
+
         generateIntrinsicFuncDeclarations();
         generateStandardFunctionDeclarations(module_);
         generateImportedFunctionDeclarations(module_);
@@ -179,6 +182,34 @@ public:
         }
 
         n.right.visit!ModuleGenerator(this);
+    }
+    void visit(Enum n) {
+
+    }
+    void visit(EnumMember n) {
+        auto enum_    = n.type;
+        auto llvmType = enum_.getLLVMType;
+        assert(llvmType);
+
+        n.expr().visit!ModuleGenerator(this);
+        auto elementValue = castType(rhs, n.expr().getType, enum_.elementType);
+
+        if(isConst(elementValue)) {
+            rhs = constNamedStruct(llvmType, [elementValue]);
+        } else {
+            /// Do it the long-winded way
+            lhs = builder.alloca(llvmType, "temp_enum");
+            rhs = builder.insertValue(builder.load(lhs), elementValue, 0);
+        }
+    }
+    void visit(EnumMemberValue n) {
+
+        n.expr().visit!ModuleGenerator(this);
+
+        rhs = builder.extractValue(rhs, 0);
+    }
+    void visit(ExpressionRef n) {
+        n.expr().visit!ModuleGenerator(this);
     }
     void visit(Function n) {
         if(n.isExtern) return;
@@ -517,7 +548,7 @@ public:
             }
         } else {
             /// Size is the same
-            assert(from.isAnonStruct);
+            assert(from.isAnonStruct, "castType size is the same - from %s to %s".format(from, to));
             assert(to.isAnonStruct);
             assert(false, "we shouldn't get here");
         }

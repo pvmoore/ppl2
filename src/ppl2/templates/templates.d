@@ -30,7 +30,7 @@ public:
 
         module_.parser.appendTokensFromTemplate(ns, tokens);
 
-        module_.buildState.aliasOrStructRequired(module_.canonicalName, mangledName);
+        module_.buildState.aliasEnumOrStructRequired(module_.canonicalName, mangledName);
 
         //if(module_.canonicalName=="test_statics") {
         //    dd("Extracted struct template", ns.name, mangledName, module_.canonicalName);

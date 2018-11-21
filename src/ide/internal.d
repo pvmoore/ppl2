@@ -7,7 +7,7 @@ import core.thread : Thread;
 import std.stdio  : writefln;
 import std.format : format;
 import std.array  : array, replace, appender;
-import std.string : lastIndexOf;
+import std.string : indexOf, lastIndexOf;
 import std.datetime.stopwatch : StopWatch;
 
 import std.algorithm.searching : any;

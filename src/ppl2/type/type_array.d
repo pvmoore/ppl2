@@ -18,7 +18,7 @@ public:
     override Type getType() { return this; }
 
 /// Type
-    int getEnum() const { return Type.ARRAY; }
+    int category() const { return Type.ARRAY; }
 
     bool isKnown() {
         return subtype &&

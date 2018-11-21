@@ -22,6 +22,10 @@ enum NodeID {
     CONTINUE,
     DOT,
     LITERAL_EXPR_LIST,
+    ENUM,
+    ENUM_MEMBER,
+    ENUM_MEMBER_REF,
+    ENUM_MEMBER_VALUE,
     FUNC_TYPE,
     FUNCTION,
     IDENTIFIER,
@@ -75,28 +79,29 @@ T makeNode(T)(ASTNode p) {
     assert(n.children);
     return n;
 }
-bool isAs(inout ASTNode n) { return n.id()==NodeID.AS; }
-bool isBinary(inout ASTNode n) { return n.id()==NodeID.BINARY; }
-bool isCall(inout ASTNode n) { return n.id()==NodeID.CALL; }
-bool isCase(inout ASTNode n) { return n.id()==NodeID.CASE; }
-bool isComposite(inout ASTNode n) { return n.id()==NodeID.COMPOSITE; }
-bool isAlias(inout ASTNode n) { return n.id()==NodeID.ALIAS; }
-bool isDot(inout ASTNode n) { return n.id()==NodeID.DOT; }
-bool isExpression(inout ASTNode n) { return n.as!Expression !is null; }
-bool isFunction(inout ASTNode n) { return n.id()==NodeID.FUNCTION; }
-bool isIdentifier(inout ASTNode n) { return n.id()==NodeID.IDENTIFIER; }
-bool isIf(inout ASTNode n) { return n.id()==NodeID.IF; }
-bool isIndex(inout ASTNode n) { return n.id()==NodeID.INDEX; }
-bool isInitialiser(inout ASTNode n) { return n.id()==NodeID.INITIALISER; }
-bool isLiteralNull(inout ASTNode n) { return n.id()==NodeID.LITERAL_NULL; }
-bool isLiteralNumber(inout ASTNode n) { return n.id()==NodeID.LITERAL_NUMBER; }
+bool isAs(inout ASTNode n)              { return n.id()==NodeID.AS; }
+bool isBinary(inout ASTNode n)          { return n.id()==NodeID.BINARY; }
+bool isCall(inout ASTNode n)            { return n.id()==NodeID.CALL; }
+bool isCase(inout ASTNode n)            { return n.id()==NodeID.CASE; }
+bool isComposite(inout ASTNode n)       { return n.id()==NodeID.COMPOSITE; }
+bool isAlias(inout ASTNode n)           { return n.id()==NodeID.ALIAS; }
+bool isDot(inout ASTNode n)             { return n.id()==NodeID.DOT; }
+bool isEnumValueRef(inout ASTNode n)    { return n.id()==NodeID.ENUM_MEMBER_REF; }
+bool isExpression(inout ASTNode n)      { return n.as!Expression !is null; }
+bool isFunction(inout ASTNode n)        { return n.id()==NodeID.FUNCTION; }
+bool isIdentifier(inout ASTNode n)      { return n.id()==NodeID.IDENTIFIER; }
+bool isIf(inout ASTNode n)              { return n.id()==NodeID.IF; }
+bool isIndex(inout ASTNode n)           { return n.id()==NodeID.INDEX; }
+bool isInitialiser(inout ASTNode n)     { return n.id()==NodeID.INITIALISER; }
+bool isLiteralNull(inout ASTNode n)     { return n.id()==NodeID.LITERAL_NULL; }
+bool isLiteralNumber(inout ASTNode n)   { return n.id()==NodeID.LITERAL_NUMBER; }
 bool isLiteralFunction(inout ASTNode n) { return n.id()==NodeID.LITERAL_FUNCTION; }
-bool isLoop(inout ASTNode n) { return n.id()==NodeID.LOOP; }
-bool isModule(inout ASTNode n) { return n.id()==NodeID.MODULE; }
-bool isReturn(inout ASTNode n) { return n.id()==NodeID.RETURN; }
-bool isSelect(inout ASTNode n) { return n.id()==NodeID.SELECT; }
-bool isTypeExpr(inout ASTNode n) { return n.id()==NodeID.TYPE_EXPR; }
-bool isVariable(inout ASTNode n) { return n.id()==NodeID.VARIABLE; }
+bool isLoop(inout ASTNode n)            { return n.id()==NodeID.LOOP; }
+bool isModule(inout ASTNode n)          { return n.id()==NodeID.MODULE; }
+bool isReturn(inout ASTNode n)          { return n.id()==NodeID.RETURN; }
+bool isSelect(inout ASTNode n)          { return n.id()==NodeID.SELECT; }
+bool isTypeExpr(inout ASTNode n)        { return n.id()==NodeID.TYPE_EXPR; }
+bool isVariable(inout ASTNode n)        { return n.id()==NodeID.VARIABLE; }
 
 bool areAll(NodeID ID)(ASTNode[] n) { return n.all!(it=>it.id==ID); }
 bool areResolved(ASTNode[] nodes) { return nodes.all!(it=>it.isResolved); }
@@ -244,14 +249,14 @@ public:
     //================================================================================= Dump
     void dumpToConsole(string indent="") {
         //dd(this.id);
-        dd("[% 4s] %s".format(this.line, indent ~ this.toString()));
+        dd("[% 4s] %s".format(this.line+1, indent ~ this.toString()));
         foreach(ch; this.children) {
             ch.dumpToConsole(indent ~ "   ");
         }
     }
     void dump(FileLogger l, string indent="") {
         //debug if(getModule.canonicalName=="test_arrays") dd(this.id, "line", line);
-        l.log("[% 4s] %s", this.line, indent ~ this.toString());
+        l.log("[% 4s] %s", this.line+1, indent ~ this.toString());
         foreach(ch; children) {
             ch.dump(l, indent ~ "   ");
         }

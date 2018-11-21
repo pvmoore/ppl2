@@ -58,6 +58,19 @@ final class NodeBuilder {
         d.add(right);
         return d;
     }
+    EnumMember enumMember(Enum enum_, Expression expr) {
+        auto em = makeNode!EnumMember(node);
+        em.name = module_.makeTemporary("");
+        em.type = enum_;
+        em.add(expr);
+        return em;
+    }
+    EnumMemberValue enumMemberValue(Enum enum_, Expression expr) {
+        auto emv  = makeNode!EnumMemberValue(node);
+        emv.enum_ = enum_;
+        emv.add(expr);
+        return emv;
+    }
     Identifier identifier(Variable v) {
         auto id   = makeNode!Identifier(node);
         id.target = new Target(module_);

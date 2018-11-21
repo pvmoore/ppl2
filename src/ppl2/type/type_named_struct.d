@@ -33,7 +33,7 @@ public:
     override bool isKnown() { return true; }
 
 /// Type interface
-    override int getEnum() const { return Type.NAMED_STRUCT; }
+    override int category() const { return Type.NAMED_STRUCT; }
 
     override bool exactlyMatches(Type other) {
         /// Do the common checks

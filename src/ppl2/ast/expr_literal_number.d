@@ -125,7 +125,7 @@ struct Value {
                 case SHL.id: i  = getLong() << right.getLong(); break;
                 case SHR.id:
                     /// special case
-                    switch(type.getEnum) with(Type) {
+                    switch(type.category) with(Type) {
                         case BYTE:  i = cast(byte) (getLong()|0xffffffff_ffffff00) >> right.getInt(); break;
                         case SHORT: i = cast(short)(getLong()|0xffffffff_ffff0000) >> right.getInt(); break;
                         case INT:   i = cast(long) (getLong()|0xffffffff_00000000) >> right.getInt(); break;
@@ -161,7 +161,7 @@ struct Value {
                 case SHL.id:  f = getLong() << right.getLong(); break;
                 case SHR.id:
                     /// special case
-                    switch(type.getEnum) with(Type) {
+                    switch(type.category) with(Type) {
                         case BYTE:  f = cast(byte) (getLong()|0xffffffff_ffffff00) >> right.getInt(); break;
                         case SHORT: f = cast(short)(getLong()|0xffffffff_ffff0000) >> right.getInt(); break;
                         case INT:   f = cast(long) (getLong()|0xffffffff_00000000) >> right.getInt(); break;
@@ -190,7 +190,7 @@ struct Value {
         lit.setType(resultType);
     }
     void as(Type t) {
-        switch(t.getEnum) with(Type) {
+        switch(t.category) with(Type) {
             case BOOL:  i = getLong() == 0 ? FALSE : TRUE; break;
             case BYTE:  i = cast(byte)getLong(); break;
             case SHORT: i = cast(short)getLong(); break;

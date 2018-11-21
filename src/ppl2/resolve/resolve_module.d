@@ -4,12 +4,17 @@ import ppl2.internal;
 
 final class ModuleResolver {
 private:
+    AsResolver asResolver;
+    BinaryResolver binaryResolver;
     CallResolver callResolver;
     IdentifierResolver identifierResolver;
+    EnumResolver enumResolver;
+    IsResolver isResolver;
+
     StopWatch watch;
     Array!Callable overloadSet;
     bool addedModuleScopeElements;
-    int rewrites;
+    bool modified;
     Set!ASTNode unresolved;
     bool stalemate = false;
 public:
@@ -17,12 +22,16 @@ public:
 
     ulong getElapsedNanos()        { return watch.peek().total!"nsecs"; }
     ASTNode[] getUnresolvedNodes() { return unresolved.values; }
-    int getNumRewrites()           { return rewrites; }
+    bool isModified()              { return modified; }
 
     this(Module module_) {
         this.module_            = module_;
+        this.asResolver         = new AsResolver(this, module_);
+        this.binaryResolver     = new BinaryResolver(this, module_);
         this.callResolver       = new CallResolver(module_);
-        this.identifierResolver = new IdentifierResolver(module_);
+        this.identifierResolver = new IdentifierResolver(this, module_);
+        this.enumResolver       = new EnumResolver(this, module_);
+        this.isResolver         = new IsResolver(this, module_);
         this.unresolved         = new Set!ASTNode;
         this.overloadSet        = new Array!Callable;
     }
@@ -32,14 +41,17 @@ public:
         overloadSet.clear();
         addedModuleScopeElements = false;
     }
+    void setModified() {
+        this.modified = true;
+    }
 
     ///
     /// Pass through any unresolved nodes and try to resolve them.   
-    /// Return true if all nodes and aliases are resolved and no rewrites occurred.
+    /// Return true if all nodes and aliases are resolved and no modifications occurred.
     ///
     bool resolve(bool isStalemate) {
         watch.start();
-        this.rewrites  = 0;
+        this.modified  = false;
         this.stalemate = isStalemate;
 
         collectModuleScopeElements();
@@ -51,7 +63,7 @@ public:
         }
 
         watch.stop();
-        return unresolved.length==0 && rewrites==0;
+        return unresolved.length==0 && modified==false;
     }
     void resolveFunction(string funcName) {
         watch.start();
@@ -70,33 +82,44 @@ public:
         }
         watch.stop();
     }
-    void resolveAliasOrStruct(string AliasName) {
+    void resolveAliasEnumOrStruct(string AliasName) {
         watch.start();
-        log("Resolving %s Alias|struct '%s'", module_, AliasName);
+        log("Resolving %s Alias|enum|struct '%s'", module_, AliasName);
 
-        module_.recurse!Alias((it) {
-            if(it.name==AliasName) {
-                if(it.parent.isModule) {
-                    log("\t  Adding Alias root %s", it);
-                    //module_.addActiveRoot(it);
-                }
-                module_.addActiveRoot(it);
-                it.numRefs++;
+        module_.recurse!Type((it) {
+            auto ns = it.as!NamedStruct;
+            auto en = it.as!Enum;
+            auto al = it.as!Alias;
 
-                /// Could be a chain of Aliases in different modules
-                if(it.isImport) {
-                    module_.buildState.aliasOrStructRequired(it.moduleName, it.name);
+            if(ns) {
+                if(ns.name==AliasName) {
+                    if(ns.parent.isModule) {
+                        log("\t  Adding NamedStruct root %s", it);
+                    }
+                    module_.addActiveRoot(ns);
+                    ns.numRefs++;
                 }
-            }
-        });
-        module_.recurse!NamedStruct((it) {
-            if(it.name==AliasName) {
-                if(it.parent.isModule) {
-                    log("\t  Adding NamedStruct root %s", it);
-                    //module_.addActiveRoot(it);
+            } else if(en) {
+                if(en.name==AliasName) {
+                    if(en.parent.isModule) {
+                        log("\t  Adding Enum root %s", en);
+                    }
+                    module_.addActiveRoot(en);
+                    en.numRefs++;
                 }
-                module_.addActiveRoot(it);
-                it.numRefs++;
+            } else if(al) {
+                if(al.name==AliasName) {
+                    if(al.parent.isModule) {
+                        log("\t  Adding Alias root %s", al);
+                    }
+                    module_.addActiveRoot(al);
+                    al.numRefs++;
+
+                    /// Could be a chain of Aliases in different modules
+                    if(al.isImport) {
+                        module_.buildState.aliasEnumOrStructRequired(al.moduleName, al.name);
+                    }
+                }
             }
         });
 
@@ -128,70 +151,7 @@ public:
         resolveAlias(n, n.subtype);
     }
     void visit(As n) {
-        auto lt = n.leftType();
-        auto rt = n.rightType();
-
-        if(lt.isKnown && rt.isKnown) {
-
-            bool isValidRewrite(Type t) {
-                return t.isValue && (t.isAnonStruct || t.isArray || t.isNamedStruct);
-            }
-
-            if(isValidRewrite(lt) && isValidRewrite(rt)) {
-                if(!lt.exactlyMatches(rt)) {
-                    /// AnonStruct value -> AnonStruct value
-
-                    /// This is a reinterpret cast
-
-                    /// Rewrite:
-                    ///------------
-                    /// As
-                    ///    left
-                    ///    right
-                    ///------------
-                    /// ValueOf type=rightType
-                    ///    As
-                    ///       AddressOf
-                    ///          left
-                    ///       AddressOf
-                    ///          right
-
-                    auto b = module_.builder(n);
-                    auto p = n.parent;
-
-                    auto value = makeNode!ValueOf(n);
-
-                    fold(n, value);
-
-                    auto left  = b.addressOf(n.left);
-                    auto right = b.addressOf(n.right);
-                    n.add(left);
-                    n.add(right);
-
-                    value.add(n);
-
-                    return;
-                }
-            }
-        }
-        if(n.isResolved) {
-            /// If cast is unnecessary then just remove the As
-            if(lt.exactlyMatches(rt)) {
-                fold(n, n.left);
-                return;
-            }
-
-            /// If left is a literal number then do the cast now
-            auto lit = n.left().as!LiteralNumber;
-            if(lit && rt.isValue) {
-
-                lit.value.as(rt);
-                lit.str = lit.value.getString();
-
-                fold(n, lit);
-                return;
-            }
-        }
+        asResolver.resolve(n);
     }
     void visit(Assert n) {
         if(!n.isResolved) {
@@ -246,91 +206,7 @@ public:
         }
     }
     void visit(Binary n) {
-        auto lt = n.leftType();
-        auto rt = n.rightType();
-
-        if(n.op==Operator.BOOL_AND) {
-            auto p = n.parent.as!Binary;
-            if(p && p.op==Operator.BOOL_OR) {
-                module_.addError(n, "Parenthesis required to disambiguate these expressions", true);
-            }
-        }
-        if(n.op==Operator.BOOL_OR) {
-            auto p = n.parent.as!Binary;
-            if(p && p.op==Operator.BOOL_AND) {
-                module_.addError(n, "Parenthesis required to disambiguate these expressions", true);
-            }
-        }
-
-        /// We need the types before we can continue
-        if(lt.isUnknown || rt.isUnknown) {
-            return;
-        }
-
-        if(lt.isNamedStruct) {
-            if(n.op.isOverloadable || n.op.isComparison) {
-                n.rewriteToOperatorOverloadCall();
-                rewrites++;
-                return;
-            }
-        }
-
-        /// Rewrite anonstruct == anonstruct --> is_expr
-        /// [int] a = [1]
-        /// a == [1,2,3]
-        if(n.op==Operator.BOOL_EQ && lt.isAnonStruct && rt.isAnonStruct) {
-            if(lt.isValue && rt.isValue) {
-
-                auto isExpr = makeNode!Is(n);
-                isExpr.add(n.left);
-                isExpr.add(n.right);
-
-                fold(n, isExpr);
-                return;
-            }
-        }
-
-        if(n.type.isUnknown) {
-
-            if(lt.isKnown && rt.isKnown) {
-                /// If we are assigning then take the type of the lhs expression
-                if(n.op.isAssign) {
-                    n.type = lt;
-                } else if(n.op.isBool) {
-                    n.type = TYPE_BOOL;
-                } else {
-                    /// Set to largest of left or right type
-
-                    auto t = getBestFit(lt, rt);
-                    /// Promote byte, short to int
-                    if(t.isValue && t.isInteger && t.getEnum < TYPE_INT.getEnum) {
-                        n.type = TYPE_INT;
-                    } else {
-                        n.type = t;
-                    }
-                }
-            }
-        }
-        /// If left and right expressions are const numbers then evaluate them now
-        /// and replace the Binary with the result
-        if(n.isResolved && n.isConst) {
-
-            // todo - make this work
-            if(n.op.isAssign) return;
-
-            auto leftLit  = n.left().as!LiteralNumber;
-            auto rightLit = n.right().as!LiteralNumber;
-            if(leftLit && rightLit) {
-
-                auto lit = leftLit.copy();
-
-                lit.value.applyBinary(n.type, n.op, rightLit.value);
-                lit.str = lit.value.getString();
-
-                fold(n, lit);
-                return ;
-            }
-        }
+        binaryResolver.resolve(n);
     }
     void visit(Break n) {
         if(!n.isResolved) {
@@ -461,7 +337,6 @@ public:
                         if(n.paramNames.length>0) n.paramNames ~= "this";
 
                         n.implicitThisArgAdded = true;
-                        //rewrites++;
                     }
 
                     auto callable = callResolver.structFind(n, ns);
@@ -481,7 +356,7 @@ public:
 
             /// We added template params
             if(isTemplated != n.isTemplated) {
-                rewrites++;
+                modified = true;
             }
         }
 
@@ -498,7 +373,7 @@ public:
                     auto r = identifierResolver.find("this", n);
                     if(r.found) {
                         n.addImplicitThisArg(r.var);
-                        rewrites++;
+                        modified = true;
                     }
                 }
             }
@@ -563,7 +438,7 @@ public:
                 /// Can be replaced if contains single child
                 if(n.numChildren==0) {
                     n.detach();
-                    rewrites++;
+                    modified = true;
                 } else if(n.numChildren==1) {
                     auto child = n.first();
                     fold(n, child);
@@ -594,7 +469,31 @@ public:
         resolveAlias(n, n.type);
     }
     void visit(Dot n) {
-        //n.resolve();
+        auto lt      = n.leftType();
+        auto rt      = n.rightType();
+        auto builder = module_.builder(n);
+
+        /// Rewrite Enum::A where A is also a type declared elsewhere
+        //if(lt.isEnum && n.right().isTypeExpr) {
+        //    auto texpr = n.right().as!TypeExpr;
+        //    if(texpr.isResolved) {
+        //        auto id = builder.identifier(texpr.toString());
+        //        fold(n.right(), id);
+        //        return ;
+        //    }
+        //}
+    }
+    void visit(Enum n) {
+        enumResolver.resolve(n);
+    }
+    void visit(EnumMember n) {
+
+    }
+    void visit(EnumMemberValue n) {
+
+    }
+    void visit(ExpressionRef n) {
+
     }
     void visit(Function n) {
 
@@ -603,181 +502,7 @@ public:
 
     }
     void visit(Identifier n) {
-
-        void findLocalOrGlobal() {
-            auto res = identifierResolver.find(n.name, n);
-            if(!res.found) {
-                /// Ok to continue
-                module_.addError(n, "identifier '%s' not found".format(n.name), true);
-                return;
-            }
-
-            if(res.isFunc) {
-                auto func = res.func;
-
-                module_.buildState.functionRequired(func.moduleName, func.name);
-
-                if(func.isStructMember) {
-                    auto ns = n.getAncestor!NamedStruct();
-                    assert(ns);
-
-                    n.target.set(func, ns.getMemberIndex(func));
-                } else {
-                    /// Global, local or parameter
-                    n.target.set(func);
-                }
-            } else {
-                Variable var = res.isVar ? res.var : null;
-
-                if(var.isStructMember) {
-                    auto struct_ = n.getAncestor!AnonStruct();
-                    assert(struct_);
-
-                    n.target.set(var, struct_.getMemberIndex(var));
-                } else {
-                    /// Global, local or parameter
-                    n.target.set(var);
-                }
-
-                /// If var is unknown we need to do some detective work...
-                if(var.type.isUnknown && n.parent.isA!Binary) {
-                    auto bin = n.parent.as!Binary;
-                    if (bin.op == Operator.ASSIGN) {
-                        auto opposite = bin.otherSide(n);
-                        if (opposite && opposite.getType.isKnown) {
-                            var.setType(opposite.getType);
-                        }
-                    }
-                }
-            }
-        }
-        void findStructMember() {
-            Expression prev = n.prevLink();
-            Type prevType   = prev.getType;
-
-            if(!prevType.isKnown) return;
-
-            /// Current structure:
-            ///
-            /// Dot
-            ///    prev
-            ///    ptr
-            ///
-            auto dot = n.parent.as!Dot;
-            assert(dot);
-
-            /// Properties:
-            switch(n.name) {
-                case "length":
-                    /// for arrays or anon structs only
-                    if(prevType.isArray) {
-                        int len = prevType.getArrayType.countAsInt();
-                        dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
-                        rewrites++;
-                        return;
-                    } else if(prevType.isAnonStruct) {
-                        int len = prevType.getAnonStruct.numMemberVariables();
-                        dot.parent.replaceChild(dot, LiteralNumber.makeConst(len, TYPE_INT));
-                        rewrites++;
-                        return;
-                    }
-                    break;
-                case "subtype":
-                    /// for arrays only
-                    if(prevType.isArray) {
-                        dot.parent.replaceChild(dot, TypeExpr.make(prevType.getArrayType.subtype));
-                        rewrites++;
-                        return;
-                    }
-                    break;
-                case "ptr": {
-                    /// for arrays or anon structs only
-                    if(!dot.isMemberAccess()) break;
-
-                    auto b = module_.builder(n);
-                    As as;
-                    if(prevType.isArray) {
-                        as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
-                    } else if(prevType.isAnonStruct) {
-                        as = b.as(b.addressOf(prev), PtrType.of(prevType.getAnonStruct, 1));
-                    } else {
-                        break;
-                    }
-                    if(prevType.isPtr) {
-                        assert(false, "array is a pointer. handle this %s %s %s".format(prevType, module_.canonicalName, n.line));
-                    }
-                    /// As
-                    ///   AddressOf
-                    ///      prev
-                    ///   type*
-                    dot.parent.replaceChild(dot, as);
-                    rewrites++;
-                    return;
-                }
-                default:
-                    break;
-            }
-
-            if(!prevType.isNamedStruct && !prevType.isAnonStruct) {
-                module_.addError(prev, "Left of identifier %s must be a struct type not a %s (prev=%s)".format(n.name, prevType, prev), true);
-                return;
-            }
-
-            AnonStruct struct_ = prevType.getAnonStruct();
-            assert(struct_);
-            NamedStruct ns = prevType.getNamedStruct;
-
-            if(dot.isStaticAccess) {
-                assert(ns);
-
-                auto var = ns.getStaticVariable(n.name);
-                if(var) {
-                    if(var.access.isPrivate && var.getModule.nid != module_.nid) {
-                        module_.addError(n, "%s is external and private".format(var.name), true);
-                    }
-                    n.target.set(var);
-                }
-            } else {
-                auto var = struct_.getMemberVariable(n.name);
-                if (var) {
-                    n.target.set(var, struct_.getMemberIndex(var));
-                } else {
-                    /// If this is a static var then show a nice error
-                    //auto ns = struct_.as!NamedStruct;
-                    //if(ns && (var = ns.getStaticVariable(n.name))!is null) {
-                    //    module_.addError(prev, "struct %s does not have member %s. Did you mean %s::%s ?"
-                    //        .format(ns.name, n.name, ns.name, n.name));
-                    //}
-                }
-            }
-        }
-
-        if(!n.target.isResolved) {
-            if(n.isStartOfChain()) {
-                findLocalOrGlobal();
-            } else {
-                findStructMember();
-            }
-        }
-
-        /// If Identifier target is a const value then just replace with that value
-        if(n.isResolved && n.isConst) {
-            auto type = n.target.getType;
-            auto var  = n.target.getVariable;
-
-            if(type.isValue && (type.isInteger || type.isReal || type.isBool)) {
-                assert(var.hasInitialiser);
-
-                Initialiser ini = var.initialiser();
-                auto lit        = ini.literal();
-
-                if(lit && lit.isResolved) {
-                    fold(n, lit.copy());
-                    n.target.dereference();
-                    return;
-                }
-            }
-        }
+        identifierResolver.resolve(n);
     }
     void visit(If n) {
         if(!n.isResolved) {
@@ -852,7 +577,7 @@ public:
 
                     bin.parent.replaceChild(bin, dot);
 
-                    rewrites++;
+                    modified = true;
                     return;
                 }
             }
@@ -873,9 +598,6 @@ public:
             auto dot = b.dot(left, call);
 
             fold(n, dot);
-
-            //n.parent.replaceChild(n, dot);
-            //rewrites++;
             return;
 
         }
@@ -884,7 +606,7 @@ public:
         n.resolve();
     }
     void visit(Is n) {
-        n.resolve();
+        isResolver.resolve(n);
     }
     void visit(LiteralArray n) {
         if(n.type.isUnknown) {
@@ -975,7 +697,7 @@ public:
     void visit(LiteralExpressionList n) {
         /// Try to convert this into either a LiteralStruct or a LiteralArray
         n.resolve();
-        rewrites++;
+        modified = true;
     }
     void visit(LiteralFunction n) {
         if(n.type.isUnknown) {
@@ -1298,16 +1020,11 @@ public:
                 if(n.initialiserType().isKnown) {
                     n.setType(n.initialiserType());
                 }
+
             } else {
                 /// No initialiser
 
             }
-
-            //if(n.isGlobal() || n.isStructMember()) {
-            //    dd(n.name, n.type);
-            //
-            //    module_.addError(n, "Globals or struct member variables must have explicit type");
-            //}
         }
         if(n.type.isKnown) {
             /// Ensure the function ptr matches the closure type
@@ -1338,59 +1055,16 @@ public:
         }
         f.log("==============================================");
     }
-//==========================================================================
-private:
-    void recursiveVisit(ASTNode m) {
-
-        if(!isAttached(m)) return;
-
-        if(m.id==NodeID.NAMED_STRUCT) {
-            if(m.as!NamedStruct.isTemplateBlueprint) return;
-        } else if(m.isFunction) {
-            auto f = m.as!Function;
-            if(f.isTemplateBlueprint) return;
-            if(f.isImport) return;
-        } else if(m.isAlias) {
-            auto d = m.as!Alias;
-            if(d.cat==Alias.Category.TYPEOF_EXPR) {
-
-            } else {
-                if(!d.type.isAlias) return;
-            }
-        }
-
-        //dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);
-        /// Resolve this node
-        m.visit!ModuleResolver(this);
-
-        if(!isAttached(m)) return;
-
-        if(!m.isResolved) {
-            unresolved.add(m);
-        }
-
-        /// Visit children
-        foreach(n; m.children[].dup) {
-            recursiveVisit(n);
-        }
-    }
-    bool isAttached(ASTNode n) {
-        if(n.parent is null) return false;
-        if(n.parent.isModule) return true;
-        return isAttached(n.parent);
-    }
     void fold(ASTNode replaceMe, ASTNode withMe) {
         auto p = replaceMe.parent;
         p.replaceChild(replaceMe, withMe);
-        rewrites++;
+        modified = true;
 
-        //if(module_.canonicalName=="test_statics") {
-        //    dd("=======> folded", replaceMe.line, replaceMe, "child=", replaceMe.hasChildren ? replaceMe.first : null);
-        //    dd("withMe=", withMe);
-        //}
         /// Ensure active roots remain valid
         module_.addActiveRoot(withMe);
     }
+//==========================================================================
+private:
     ///
     /// If this is the first time we have looked at this module then add           
     /// all module level variables to the list of roots to resolve
@@ -1480,6 +1154,45 @@ private:
             type = PtrType.of(def.type, type.getPtrDepth);
         } else {
             unresolved.add(def);
+        }
+    }
+    bool isAttached(ASTNode n) {
+        if(n.parent is null) return false;
+        if(n.parent.isModule) return true;
+        return isAttached(n.parent);
+    }
+    void recursiveVisit(ASTNode m) {
+
+        if(!isAttached(m)) return;
+
+        if(m.id==NodeID.NAMED_STRUCT) {
+            if(m.as!NamedStruct.isTemplateBlueprint) return;
+        } else if(m.isFunction) {
+            auto f = m.as!Function;
+            if(f.isTemplateBlueprint) return;
+            if(f.isImport) return;
+        } else if(m.isAlias) {
+            auto d = m.as!Alias;
+            if(d.cat==Alias.Category.TYPEOF_EXPR) {
+
+            } else {
+                if(!d.type.isAlias) return;
+            }
+        }
+
+        //dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);
+        /// Resolve this node
+        m.visit!ModuleResolver(this);
+
+        if(!isAttached(m)) return;
+
+        if(!m.isResolved) {
+            unresolved.add(m);
+        }
+
+        /// Visit children
+        foreach(n; m.children[].dup) {
+            recursiveVisit(n);
         }
     }
 }

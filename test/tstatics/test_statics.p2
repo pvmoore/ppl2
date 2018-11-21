@@ -83,6 +83,7 @@ public testStatics {
         assert A::pbar() == 8
         assert A::pbar2(10) == 9
         assert A::foo() == 99
+        var a1 = A::s as float  ; assert a1 is float; assert a1 == 2.0f    
 		
         var b = B<int>()
         // member access

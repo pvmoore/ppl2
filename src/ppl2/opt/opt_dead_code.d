@@ -37,6 +37,7 @@ public:
                 remove(f);
             }
         }
+
         /// Remove ALL Aliases
         auto defines = new Array!Alias;
         module_.selectDescendents!Alias(defines);
@@ -44,6 +45,14 @@ public:
             log("\t alias %s", d.name);
             d.detach();
         }
+
+        /// Remove unused Enums and all EnumMembers whether used or not
+        auto enums = new Array!Enum;
+        module_.selectDescendents!Enum(enums);
+        foreach(e; enums) {
+            // todo
+        }
+
         /// Remove named structs that are not referenced or are template blueprints
         auto namedStructs = new Array!NamedStruct;
         module_.selectDescendents!NamedStruct(namedStructs);
@@ -64,6 +73,7 @@ public:
                 }
             }
         }
+
         /// Remove ALL imports
         auto imports = new Array!Import;
         module_.selectDescendents!Import(imports);

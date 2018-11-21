@@ -7,7 +7,10 @@ import ppl2.internal;
 ///
 final class LiteralExpressionList : Expression {
 
-    override bool isResolved() { return false; }
+    override bool isResolved() {
+        /// This node will be removed before all nodes are resolved
+        return false;
+    }
     override NodeID id() const { return NodeID.LITERAL_EXPR_LIST; }
     override int priority() const { return 15; }
     override Type getType() { return TYPE_UNKNOWN; }

@@ -33,6 +33,11 @@ public:
     void visit(AddressOf n) {
 
     }
+    void visit(Alias n) {
+        if(n.type.isAnonStruct) {
+
+        }
+    }
     void visit(AnonStruct n) {
 
     }
@@ -65,6 +70,15 @@ public:
         }
     }
     void visit(Binary n) {
+
+        assert(n.numChildren==2, "Binary numChildren=%s. Expecting 2".format(n.numChildren));
+
+        if(n.left.isTypeExpr) {
+            module_.addError(n.left, "Expecting an expression here not a type", true);
+        }
+        if(n.right.isTypeExpr) {
+            module_.addError(n.right, "Expecting an expression here not a type", true);
+        }
 
         /// Check the types
         if(!areCompatible(n.rightType, n.leftType)) {
@@ -123,12 +137,20 @@ public:
     void visit(Continue n) {
 
     }
-    void visit(Alias n) {
-        if(n.type.isAnonStruct) {
-
-        }
-    }
     void visit(Dot n) {
+
+    }
+    void visit(Enum n) {
+
+    }
+    void visit(EnumMember n) {
+        /// Must be convertable to element type
+        // todo - should have been removed
+    }
+    void visit(EnumMemberValue n) {
+
+    }
+    void visit(ExpressionRef n) {
 
     }
     void visit(Function n) {
@@ -425,10 +447,13 @@ public:
     }
     void visit(Variable n) {
         if(n.isConst) {
-            /// Initialiser must be const
-            auto ini = n.initialiser();
-            if(!ini.isConst) {
-                module_.addError(n, "Const initialiser must be const", true);
+
+            if(!n.isGlobal && !n.isNamedStructMember) {
+                /// Initialiser must be const
+                auto ini = n.initialiser();
+                if(!ini.isConst) {
+                    module_.addError(n, "Const initialiser must be const", true);
+                }
             }
         }
         if(n.isStatic) {

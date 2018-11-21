@@ -1,5 +1,7 @@
 # Todo  
 
+- use const LLVMValueRefs in gen_literals (ie. constString, constStruct, constNamedStruct and constArray
+
 - Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
   
 - enums

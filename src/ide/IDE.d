@@ -55,6 +55,9 @@ public:
             if(editorView) editorView.onClosing();
             if(project) project.save();
         });
+
+        /// Initiate a build
+        dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
     }
     void setCurrentBuildState(BuildState b) {
         currentBuild = b;

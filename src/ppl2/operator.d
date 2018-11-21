@@ -39,43 +39,44 @@ struct Op {
 enum Operator : Op {
     NOTHING  = Op(0, 0,null),
 
-    /// As    = 1
-
     /// Dot   = 2
     /// Index = 2
 
     INDEX    = Op(1, 2, "[]"),
 
-    /// Call  = 2
+    /// Call        = 2
+    /// BuiltinFunc = 2
 
-    NEG      = Op(2, 3, " neg"),    /// the space in the value is important
-    BIT_NOT  = Op(3, 3, "~"),
-    BOOL_NOT = Op(4, 3, "not"),
+    /// As    = 3
+
+    NEG      = Op(2, 5, " neg"),    /// the space in the value is important
+    BIT_NOT  = Op(3, 5, "~"),
+    BOOL_NOT = Op(4, 5, "not"),
 
     /// & addressof = 3
-    /// @ valueof   = 3
+    /// * valueof   = 3
 
-    DIV      = Op(5, 4, "/"),
-    MUL      = Op(6, 4, "*"),
-    MOD      = Op(7, 4, "%"),
+    DIV      = Op(5, 6, "/"),
+    MUL      = Op(6, 6, "*"),
+    MOD      = Op(7, 6, "%"),
 
-    ADD      = Op(8,  5, "+"),
-    SUB      = Op(9,  5, "-"),
-    SHL      = Op(10, 5, "<<"),
-    SHR      = Op(11, 5, ">>"),
-    USHR     = Op(12, 5, ">>>"),
-    BIT_AND  = Op(13, 5, "&"),
-    BIT_XOR  = Op(14, 5, "^"),
-    BIT_OR   = Op(15, 5, "|"),
+    ADD      = Op(8,  7, "+"),
+    SUB      = Op(9,  7, "-"),
+    SHL      = Op(10, 7, "<<"),
+    SHR      = Op(11, 7, ">>"),
+    USHR     = Op(12, 7, ">>>"),
+    BIT_AND  = Op(13, 7, "&"),
+    BIT_XOR  = Op(14, 7, "^"),
+    BIT_OR   = Op(15, 7, "|"),
 
-    LT       = Op(16, 7, "<"),
-    GT       = Op(17, 7, ">"),
-    LTE      = Op(18, 7, "<="),
-    GTE      = Op(19, 7, ">="),
-    BOOL_EQ  = Op(20, 7, "=="),
-    COMPARE  = Op(21, 7, "<>"),     /// BOOL_NE
+    LT       = Op(16, 9, "<"),
+    GT       = Op(17, 9, ">"),
+    LTE      = Op(18, 9, "<="),
+    GTE      = Op(19, 9, ">="),
+    BOOL_EQ  = Op(20, 9, "=="),
+    COMPARE  = Op(21, 9, "<>"),     /// BOOL_NE
 
-    /// Is = 7
+    /// Is = 9
 
     BOOL_AND = Op(22, 11, "and"),
     BOOL_OR  = Op(23, 11, "or"),
@@ -94,8 +95,38 @@ enum Operator : Op {
     SHR_ASSIGN     = Op(33, 14, ">>="),
     USHR_ASSIGN    = Op(34, 14, ">>>="),
     ASSIGN         = Op(35, 14, "=")
+
+    /// Calloc      = 15
+    /// Closure     = 15
+    /// Composite   = 15
+    /// Constructor = 15
+    /// Identifier  = 15
+    /// If          = 15
+    /// Initialiser = 15
+    /// Literals    = 15
+    /// ModuleAlias = 15
+    /// Parenthesis = 15
+    /// Select      = 15
+    /// TypeExpr    = 15
 }
 //===========================================================================
+Operator removeAssign(Operator o) {
+    switch(o.id) with(Operator) {
+        case ADD_ASSIGN.id:     return ADD;
+        case SUB_ASSIGN.id:     return SUB;
+        case MUL_ASSIGN.id:     return MUL;
+        case DIV_ASSIGN.id:     return DIV;
+        case MOD_ASSIGN.id:     return MOD;
+        case BIT_AND_ASSIGN.id: return BIT_AND;
+        case BIT_XOR_ASSIGN.id: return BIT_XOR;
+        case BIT_OR_ASSIGN.id:  return BIT_OR;
+        case SHL_ASSIGN.id:     return SHL;
+        case SHR_ASSIGN.id:     return SHR;
+        case USHR_ASSIGN.id:    return USHR;
+        default:
+            assert(false, "not an assign operator %s".format(o));
+    }
+}
 bool isAssign(Operator o) {
     return o.id >= Operator.ADD_ASSIGN.id && o.id <= Operator.ASSIGN.id;
 }

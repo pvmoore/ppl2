@@ -26,7 +26,16 @@ public:
                     }
                 }
             }
+            selectedItem.expand();
+            if(selectedItem.childCount>0) {
+                if(selectedItem.child(0).text.indexOf("LITERAL_FUNCTION"d)!=-1 ||
+                   selectedItem.child(0).text.indexOf("INITIALISER"d)!=-1)
+                {
+                    selectedItem.child(0).expand();
+                }
+            }
         };
+
     }
     void update(Module m) {
         clearAllItems();
@@ -49,6 +58,9 @@ public:
             }
         }
         recurse(rootItem, m);
+
+        rootItem.collapseAll();
+        rootItem.expand();
     }
     void clear() {
         clearAllItems();

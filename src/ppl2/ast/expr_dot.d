@@ -8,13 +8,12 @@ import ppl2.internal;
 ///
 final class Dot : Expression {
     enum DotType {
-        MEMBER,     //  struct.member
-        STATIC,     //  Struct::member
-        MODULE      //  Module::member
+        INSTANCE,   //  expr.member
+        STATIC      //  Struct::member, Module::member or Enum::member
     }
-    DotType dotType = DotType.MEMBER;
+    DotType dotType = DotType.INSTANCE;
 
-    override bool isResolved() { return getType.isKnown; }
+    override bool isResolved() { return getType.isKnown && left().isResolved && right().isResolved; }
     override NodeID id() const { return NodeID.DOT; }
     override int priority() const { return 2; }
     override Type getType() {
@@ -22,23 +21,17 @@ final class Dot : Expression {
         return right().getType;
     }
 
-    Expression left() { return cast(Expression)first(); }
+    Expression left()  { return cast(Expression)first(); }
     Expression right() { return cast(Expression)last(); }
 
-    bool isMemberAccess() const { return dotType==DotType.MEMBER; }
-    bool isStaticAccess() const { return dotType==DotType.STATIC; }
-    bool isModuleAccess() const { return dotType==DotType.MODULE; }
+    Type leftType()  { return left().getType; }
+    Type rightType() { return right().getType; }
 
-    //void resolve() {
-        //if(dotType==DotType.STATIC) {
-            /// todo - Find out whether lhs is a struct or a module
-
-            // For now it is always a struct
-        //}
-    //}
+    bool isInstanceAccess() const { return dotType==DotType.INSTANCE; }
+    bool isStaticAccess() const   { return dotType==DotType.STATIC; }
 
     override string toString() {
-        string s = dotType==DotType.MEMBER ? "." : "::";
+        string s = dotType==DotType.INSTANCE ? "." : "::";
         return "%s (type=%s)".format(s, getType);
     }
 }

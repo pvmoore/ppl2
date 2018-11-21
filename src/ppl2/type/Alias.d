@@ -1,4 +1,4 @@
-module ppl2.type.alias_;
+module ppl2.type.Alias;
 
 import ppl2.internal;
 
@@ -33,8 +33,8 @@ final class Alias : Statement, Type {
     override Type getType()    { return type; }
 
 /// Type
-    final int getEnum() const { return type.getEnum(); }
-    final bool isKnown()      { return false; }
+    final int category() const { return type.category(); }
+    final bool isKnown()       { return false; }
 
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }

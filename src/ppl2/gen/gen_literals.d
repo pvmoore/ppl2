@@ -67,7 +67,7 @@ final class LiteralGenerator {
     }
     void generate(LiteralNumber n) {
         LLVMValueRef value;
-        switch(n.type.getEnum) with(Type) {
+        switch(n.type.category) with(Type) {
             case BOOL:   value = constI8(n.value.getInt()); break;
             case BYTE:   value = constI8(n.value.getInt()); break;
             case SHORT:  value = constI16(n.value.getInt()); break;

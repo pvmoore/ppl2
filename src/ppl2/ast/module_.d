@@ -140,6 +140,18 @@ public:
             .map!(it=>cast(Alias)it)
             .array;
     }
+    Enum getEnum(string name) {
+        return children[]
+            .filter!(it=>it.id==NodeID.ENUM)
+            .map!(it=>cast(Enum)it)
+            .filter!(it=>it.name==name)
+            .frontOrNull!Enum;
+    }
+    Enum[] getEnumsRecurse() {
+        auto array = new Array!Enum;
+        selectDescendents!Enum(array);
+        return array[];
+    }
     NamedStruct getNamedStruct(string name) {
         return children[]
             .filter!(it=>it.id==NodeID.NAMED_STRUCT)
@@ -201,6 +213,18 @@ public:
 
         return structs.values;
     }
+    Enum[] getImportedEnums() {
+        Enum[string] enums;
+
+        recurse((ASTNode it) {
+            auto e = it.getType.getEnum;
+            if(e && e.getModule.nid!=nid) {
+                enums[e.getUniqueName] = e;
+            }
+        });
+
+        return enums.values;
+    }
     Function[] getImportedFunctions() {
         auto array = new Array!ASTNode;
         recursiveCollect(array,
@@ -246,6 +270,9 @@ public:
         auto m = new Set!Module;
         foreach(ns; getImportedNamedStructs()) {
             m.add(ns.getModule);
+        }
+        foreach(e; getImportedEnums()) {
+            m.add(e.getModule);
         }
         foreach(v; getImportedStaticVariables()) {
             m.add(v.getModule);

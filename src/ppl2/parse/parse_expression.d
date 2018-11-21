@@ -55,6 +55,18 @@ private:
             }
         }
 
+        /// Handle Enum members. Do this before type detection because the member
+        /// value may look like a type eg. Enum::Thing (where Thing is also a type declared elsewhere)
+        if(parent.isDot && t.type==TT.IDENTIFIER) {
+            assert(parent.hasChildren);
+
+            auto type = parent.first().getType;
+            if(type.isEnum && parent.first.id==NodeID.TYPE_EXPR) {
+                parseIdentifier(t, parent);
+                return;
+            }
+        }
+
         /// Starts with a type
         int eot = typeDetector().endOffset(t, parent);
         if(eot!=-1) {
@@ -319,7 +331,7 @@ private:
 
         if(t.type==TT.DOT) {
             t.skip(TT.DOT);
-            d.dotType = Dot.DotType.MEMBER;
+            d.dotType = Dot.DotType.INSTANCE;
         } else {
             t.skip(TT.DBL_COLON);
             d.dotType = Dot.DotType.STATIC;
@@ -1118,8 +1130,13 @@ private:
         /// (
         t.skip(TT.LBRACKET);
 
+        /// Add args to a Composite to act as a ceiling so that
+        /// the operator precedence never moves them above the call
+        auto composite = Composite.make(t, Composite.Usage.STANDARD);
+        bif.add(composite);
+
         while(t.type!=TT.RBRACKET) {
-            parse(t, bif);
+            parse(t, composite);
         }
 
         t.skip(TT.RBRACKET);

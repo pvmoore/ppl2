@@ -8,7 +8,7 @@ final class BasicType : Type {
     this(int type) {
         this.type = type;
     }
-    int getEnum() const {
+    int category() const {
         return type;
     }
     bool isKnown() {
@@ -33,7 +33,7 @@ final class BasicType : Type {
 
         if(isReal==right.isReal) {
             /// Allow bool -> any other BasicType
-            return getEnum() <= right.getEnum();
+            return category() <= right.category();
         }
         return right.isReal;
     }

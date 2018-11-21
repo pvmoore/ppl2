@@ -3,6 +3,7 @@ module ppl2.type.type;
 import ppl2.internal;
 
 interface Type {
+    /// Category
     enum : int {
         UNKNOWN = 0,
         BOOL, BYTE, SHORT, INT, LONG, HALF, FLOAT, DOUBLE,
@@ -10,77 +11,84 @@ interface Type {
         /// All lower than STRUCT are BasicTypes
         NAMED_STRUCT,
         ANON_STRUCT,
+        ENUM,
         ARRAY,
         FUNCTION
     }
 /// Override these
-    int getEnum() const;
+    int category() const;
     bool isKnown();
     bool exactlyMatches(Type other);
     bool canImplicitlyCastTo(Type other);
     LLVMTypeRef getLLVMType();
 ///
     //-------------------------------------
-    final bool isFloat() const { return getEnum()==FLOAT; }
-    final bool isDouble() const { return getEnum()==DOUBLE; }
-    final bool isInt() const { return getEnum()==INT; }
-    final bool isLong() const { return getEnum()==LONG; }
-    final bool isPtr() const { return this.isA!PtrType; }
-    final bool isValue() const { return !isPtr; }
-    final bool isUnknown() { return !isKnown(); }
-    final bool isVoid() const { return getEnum()==VOID; }
-    final bool isBool() const { return getEnum()==BOOL; }
-    final bool isReal() const { int e = getEnum(); return e==HALF || e==FLOAT || e==DOUBLE; }
-    final bool isInteger() const { int e = getEnum(); return e==BYTE || e==SHORT || e==INT || e==LONG; }
-    final bool isBasicType() { return getEnum() <= VOID && getEnum()!=UNKNOWN; }
-    final bool isNamedStruct() const { return getEnum==NAMED_STRUCT; }
-    final bool isAnonStruct() const { return getEnum==ANON_STRUCT; }
-    final bool isArray() const { return getEnum()==ARRAY; }
-    final bool isFunction() const {  return getEnum()==FUNCTION; }
+    final bool isFloat() const       { return category()==FLOAT; }
+    final bool isDouble() const      { return category()==DOUBLE; }
+    final bool isInt() const         { return category()==INT; }
+    final bool isLong() const        { return category()==LONG; }
+    final bool isPtr() const         { return this.isA!PtrType; }
+    final bool isValue() const       { return !isPtr; }
+    final bool isUnknown()           { return !isKnown(); }
+    final bool isVoid() const        { return category()==VOID; }
+    final bool isBool() const        { return category()==BOOL; }
+    final bool isReal() const        { int e = category(); return e==HALF || e==FLOAT || e==DOUBLE; }
+    final bool isInteger() const     { int e = category(); return e==BYTE || e==SHORT || e==INT || e==LONG; }
+    final bool isBasicType()         { return category() <= VOID && category()!=UNKNOWN; }
+    final bool isNamedStruct() const { return category==NAMED_STRUCT; }
+    final bool isAnonStruct() const  { return category==ANON_STRUCT; }
+    final bool isArray() const       { return category()==ARRAY; }
+    final bool isFunction() const    { return category()==FUNCTION; }
+    final bool isEnum() const        { return category()==ENUM; }
 
     final bool isAlias() const {
         if(this.as!Alias !is null) return true;
         auto ptr = this.as!PtrType;
         return ptr && ptr.decoratedType.isAlias;
     }
+
     final getBasicType() {
         auto basic = this.as!BasicType; if(basic) return basic;
-        auto def   = this.as!Alias; if(def) return def.type.getBasicType;
-        auto ptr   = this.as!PtrType; if(ptr) return ptr.decoratedType().getBasicType;
+        auto def   = this.as!Alias;     if(def) return def.type.getBasicType;
+        auto ptr   = this.as!PtrType;   if(ptr) return ptr.decoratedType().getBasicType;
         return null;
     }
     final Alias getAlias() {
-        auto alias_ = this.as!Alias; if(alias_) return alias_;
+        auto alias_ = this.as!Alias;   if(alias_) return alias_;
         auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getAlias;
         return null;
     }
+    final Enum getEnum() {
+        auto e   = this.as!Enum;    if(e) return e;
+        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getEnum();
+        return null;
+    }
     final FunctionType getFunctionType() {
-        if(getEnum != Type.FUNCTION) return null;
+        if(category != Type.FUNCTION) return null;
         auto f      = this.as!FunctionType; if(f) return f;
-        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getFunctionType;
-        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getFunctionType;
+        auto alias_ = this.as!Alias;        if(alias_) return alias_.type.getFunctionType;
+        auto ptr    = this.as!PtrType;      if(ptr) return ptr.decoratedType().getFunctionType;
         assert(false, "How did we get here?");
     }
     final NamedStruct getNamedStruct() {
-        if(getEnum!=Type.NAMED_STRUCT) return null;
+        if(category!=Type.NAMED_STRUCT) return null;
         auto ns     = this.as!NamedStruct; if(ns) return ns;
-        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getNamedStruct;
-        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType.getNamedStruct;
+        auto alias_ = this.as!Alias;       if(alias_) return alias_.type.getNamedStruct;
+        auto ptr    = this.as!PtrType;     if(ptr) return ptr.decoratedType.getNamedStruct;
         assert(false, "How did we get here?");
     }
     final AnonStruct getAnonStruct() {
         if(!isAnonStruct && !isNamedStruct) return null;
         auto st     = this.as!AnonStruct; if(st) return st;
-        //auto ns     = this.as!NamedStruct; if(ns) return ns.type;
-        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getAnonStruct;
-        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType.getAnonStruct;
+        auto alias_ = this.as!Alias;      if(alias_) return alias_.type.getAnonStruct;
+        auto ptr    = this.as!PtrType;    if(ptr) return ptr.decoratedType.getAnonStruct;
         assert(false, "How did we get here?");
     }
     final ArrayType getArrayType() {
-        if(getEnum != Type.ARRAY) return null;
+        if(category != Type.ARRAY) return null;
         auto a      = this.as!ArrayType; if(a) return a;
-        auto alias_ = this.as!Alias; if(alias_) return alias_.type.getArrayType;
-        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getArrayType;
+        auto alias_ = this.as!Alias;     if(alias_) return alias_.type.getArrayType;
+        auto ptr    = this.as!PtrType;   if(ptr) return ptr.decoratedType().getArrayType;
         assert(false, "How did we get here?");
     }
     /// Return the non pointer version of this type
@@ -110,9 +118,11 @@ bool areCompatible(Type a, Type b) {
 ///
 Type getBestFit(Type a, Type b) {
     if(a.exactlyMatches(b)) return a;
+
     if(a.isPtr || b.isPtr) {
         return null;
     }
+    if(a.isEnum || b.isEnum) return null;
     if(a.isAnonStruct || b.isAnonStruct) {
         // todo - some clever logic here
         return null;
@@ -131,7 +141,7 @@ Type getBestFit(Type a, Type b) {
         return null;
     }
     if(a.isReal == b.isReal) {
-        return a.getEnum() > b.getEnum() ? a : b;
+        return a.category() > b.category() ? a : b;
     }
     if(a.isReal) return a;
     if(b.isReal) return b;
@@ -166,7 +176,7 @@ bool exactlyMatch(Type[] a, Type[] b) {
 /// Do the common checks
 bool prelimExactlyMatches(Type left, Type right) {
     if(left.isUnknown || right.isUnknown) return false;
-    if(left.getEnum() != right.getEnum()) return false;
+    if(left.category() != right.category()) return false;
     if(left.getPtrDepth() != right.getPtrDepth()) return false;
     return true;
 }
@@ -188,14 +198,14 @@ bool prelimCanImplicitlyCastTo(Type left, Type right) {
             return true;
         }
         /// pointers must be exactly the same base type
-        return left.getEnum==right.getEnum;
+        return left.category==right.category;
     }
     /// Do the base checks now
     return true;
 }
 int size(Type t) {
     if(t.isPtr) return 8;
-    final switch(t.getEnum) with(Type) {
+    final switch(t.category) with(Type) {
         case UNKNOWN:
         case FUNCTION:
         case VOID:
@@ -211,13 +221,14 @@ int size(Type t) {
         case NAMED_STRUCT: return t.getNamedStruct.memberVariableTypes().map!(it=>it.size).sum;
         case ANON_STRUCT: return t.getAnonStruct.memberVariableTypes().map!(it=>it.size).sum;
         case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
+        case ENUM: return t.getEnum().elementType.size();
     }
 }
 LLVMValueRef zeroValue(Type t) {
     if(t.isPtr) {
         return constNullPointer(t.getLLVMType());
     }
-    final switch(t.getEnum) with(Type) {
+    final switch(t.category) with(Type) {
         case UNKNOWN:
         case NAMED_STRUCT:
         case ANON_STRUCT:
@@ -233,13 +244,14 @@ LLVMValueRef zeroValue(Type t) {
         case HALF: return constF16(0);
         case FLOAT: return constF32(0);
         case DOUBLE: return constF64(0);
+        case ENUM: return t.getEnum().elementType.zeroValue;
     }
 }
 Expression initExpression(Type t) {
     if(t.isPtr) {
         return LiteralNull.makeConst(t);
     }
-    final switch(t.getEnum) with(Type) {
+    final switch(t.category) with(Type) {
         case UNKNOWN:
         case VOID:
             assert(false, "initExpression - type is %s".format(t));
@@ -248,6 +260,8 @@ Expression initExpression(Type t) {
         case ARRAY:
         case FUNCTION:
             assert(false, "initExpression - implement me");
+        case ENUM:
+            return t.getEnum().firstValue();
         case BOOL:
         case BYTE:
         case SHORT:

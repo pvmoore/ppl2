@@ -39,7 +39,7 @@ public:
     }
     //========================================================================================
 /// Type interface
-    int getEnum() const { return decorated.getEnum; }
+    int category() const { return decorated.category; }
     bool isKnown() { return decorated.isKnown; }
 
     bool exactlyMatches(Type other) {

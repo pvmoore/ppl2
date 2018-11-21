@@ -16,6 +16,7 @@ public:
     override int priority() const { return 15; }
     override NodeID id() const { return NodeID.INITIALISER; }
     override Type getType() {
+        assert(var);
         if(var.type.isKnown) return var.type;
         if(hasChildren) {
             return last().getType;
@@ -30,6 +31,7 @@ public:
     }
 
     void resolve() {
+        assert(var);
         if(astGenerated) return;
         if(var.type.isUnknown && !var.isImplicit) return;
         if(!areResolved(children[])) return;
@@ -43,6 +45,7 @@ public:
     }
 
     override string toString() {
+        assert(var);
         return "Initialiser var=%s, type=%s".format(var.name, getType);
     }
 private:

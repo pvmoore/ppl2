@@ -14,7 +14,7 @@ public:
     override Type getType() { return this; }
 
 /// Type interface
-    int getEnum() const { return Type.ANON_STRUCT; }
+    int category() const { return Type.ANON_STRUCT; }
     bool isKnown() {
         return memberVariableTypes().all!(it=>it.isKnown);
     }

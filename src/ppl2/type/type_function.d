@@ -49,7 +49,7 @@ public:
     }
 
 /// Type interface
-    int getEnum() const {
+    int category() const {
         return Type.FUNCTION;
     }
     bool isKnown() {

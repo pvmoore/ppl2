@@ -52,8 +52,11 @@ final class Variable : Statement {
     }
     Initialiser initialiser() {
         assert(numChildren>0);
+
         foreach(ch; children) {
-            if(ch.isInitialiser) return ch.as!Initialiser;
+            if(ch.isInitialiser) {
+                return ch.as!Initialiser;
+            }
         }
         assert(false, "Where is our Initialiser?");
     }

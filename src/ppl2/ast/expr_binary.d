@@ -12,7 +12,7 @@ public class Binary : Expression {
         type = TYPE_UNKNOWN;
     }
 
-    override bool isResolved() { return type.isKnown; }
+    override bool isResolved() { return type.isKnown && left().isResolved && right.isResolved; }
     override bool isConst() { return left().isConst && right().isConst; }
     override NodeID id() const { return NodeID.BINARY; }
     override int priority() const { return op.priority; }

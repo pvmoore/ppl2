@@ -70,7 +70,8 @@ public:
     /// return true if can toggle line comments for specified text range
     bool canToggleLineComment(TextRange range) { return false; }
     /// toggle line comments for specified text range
-    void toggleLineComment(TextRange range, Object source) {}
+    void toggleLineComment(TextRange range, Object source) {
+    }
 
     /// return true if toggle block comment is supported for file type
     bool supportsToggleBlockComment() { return false; }

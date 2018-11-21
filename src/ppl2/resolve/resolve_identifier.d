@@ -1,6 +1,7 @@
 module ppl2.resolve.resolve_identifier;
 
 import ppl2.internal;
+
 ///
 /// Resolve an identifier.
 /// All identifiers must be found within the same module.
@@ -8,9 +9,14 @@ import ppl2.internal;
 final class IdentifierResolver {
 private:
     Module module_;
+    ModuleResolver resolver;
 public:
     this(Module module_) {
         this.module_ = module_;
+    }
+    this(ModuleResolver resolver, Module module_) {
+        this(module_);
+        this.resolver = resolver;
     }
     struct Result {
         union {
@@ -45,6 +51,37 @@ public:
         findRecurse(name, node.parent, res);
 
         return res;
+    }
+    ///==================================================================================
+    void resolve(Identifier n) {
+        assert(resolver);
+
+        if(!n.target.isResolved) {
+            if(n.isStartOfChain()) {
+                findLocalOrGlobal(n);
+            } else {
+                findStructMember(n);
+            }
+        }
+
+        /// If Identifier target is a const value then just replace with that value
+        if(n.isResolved && n.isConst) {
+            auto type = n.target.getType;
+            auto var  = n.target.getVariable;
+
+            if(type.isValue && (type.isInteger || type.isReal || type.isBool)) {
+                assert(var.hasInitialiser);
+
+                Initialiser ini = var.initialiser();
+                auto lit        = ini.literal();
+
+                if(lit && lit.isResolved) {
+                    resolver.fold(n, lit.copy());
+                    n.target.dereference();
+                    return;
+                }
+            }
+        }
     }
 private:
     ///==================================================================================
@@ -117,6 +154,194 @@ private:
             }
             default:
                 break;
+        }
+    }
+    void findLocalOrGlobal(Identifier n) {
+        auto res = find(n.name, n);
+        if(!res.found) {
+            /// Ok to continue
+            module_.addError(n, "identifier '%s' not found".format(n.name), true);
+            return;
+        }
+
+        if(res.isFunc) {
+            auto func = res.func;
+
+            module_.buildState.functionRequired(func.moduleName, func.name);
+
+            if(func.isStructMember) {
+                auto ns = n.getAncestor!NamedStruct();
+                assert(ns);
+
+                n.target.set(func, ns.getMemberIndex(func));
+            } else {
+                /// Global, local or parameter
+                n.target.set(func);
+            }
+        } else {
+            Variable var = res.isVar ? res.var : null;
+
+            if(var.isStructMember) {
+                auto struct_ = n.getAncestor!AnonStruct();
+                assert(struct_);
+
+                n.target.set(var, struct_.getMemberIndex(var));
+            } else {
+                /// Global, local or parameter
+                n.target.set(var);
+            }
+
+            /// If var is unknown we need to do some detective work...
+            if(var.type.isUnknown && n.parent.isA!Binary) {
+                auto bin = n.parent.as!Binary;
+                if(bin.op == Operator.ASSIGN) {
+                    auto opposite = bin.otherSide(n);
+                    if(opposite && opposite.getType.isKnown) {
+                        var.setType(opposite.getType);
+                    }
+                }
+            }
+        }
+    }
+    void findStructMember(Identifier n) {
+        Expression prev = n.prevLink();
+        Type prevType   = prev.getType;
+
+        if(!prevType.isKnown) return;
+
+        /// Current structure:
+        ///
+        /// Dot
+        ///    prev
+        ///    ptr
+        ///
+        auto dot = n.parent.as!Dot;
+        assert(dot);
+
+        // check this - it might be ok since each dot resolves itself in order
+        // todo - this dot may not be the one we want if we have a complex chain eg imp::static.length
+        // todo - in this case we might need a findStartOfChain method
+
+        /// Properties:
+        switch(n.name) {
+            case "length":
+                /// for arrays or anon structs only
+                if(prevType.isArray) {
+                    int len = prevType.getArrayType.countAsInt();
+                    resolver.fold(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                    return;
+                } else if(prevType.isAnonStruct) {
+                    int len = prevType.getAnonStruct.numMemberVariables();
+                    resolver.fold(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                    return;
+                } else if(prevType.isEnum) {
+                    int len = prevType.getEnum.numChildren;
+                    resolver.fold(dot, LiteralNumber.makeConst(len, TYPE_INT));
+                    return;
+                }
+                break;
+            case "subtype":
+                // todo change this to elementtype
+
+                /// for arrays only
+                if(prevType.isArray) {
+                    resolver.fold(dot, TypeExpr.make(prevType.getArrayType.subtype));
+                    return;
+                } else if(prevType.isEnum) {
+                    assert(false, "implement me");
+                }
+                break;
+            case "ptr": {
+                if(!dot.isInstanceAccess()) break;
+
+                auto b = module_.builder(n);
+                As as;
+                if(prevType.isArray) {
+                    as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
+                } else if(prevType.isAnonStruct) {
+                    as = b.as(b.addressOf(prev), PtrType.of(prevType.getAnonStruct, 1));
+                } else {
+                    break;
+                }
+                if(prevType.isPtr) {
+                    assert(false, "array is a pointer. handle this %s %s %s".format(prevType, module_.canonicalName, n.line));
+                }
+                /// As
+                ///   AddressOf
+                ///      prev
+                ///   type*
+                resolver.fold(dot, as);
+                return;
+            }
+            case "value":
+                /// Enum::ONE::value
+                if(prevType.isEnum) {
+                    auto em = prev.as!EnumMember;
+                    if(em) {
+                        resolver.fold(dot, em.expr());
+                        return;
+                    } else {
+                        /// identifier.value
+                        auto emv  = makeNode!EnumMemberValue(n);
+                        emv.enum_ = prevType.getEnum;
+                        emv.add(dot.left());
+
+                        resolver.fold(dot, emv);
+                        return;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        if(!prevType.isNamedStruct && !prevType.isAnonStruct && !prevType.isEnum) {
+            module_.addError(prev, "Left of identifier %s must be a struct or enum type not a %s (prev=%s)".format(n.name, prevType, prev), true);
+            return;
+        }
+
+        if(dot.isStaticAccess) {
+            Variable var;
+
+            Enum e = prevType.getEnum;
+            if(e) {
+                /// Replace Dot with EnumMember
+                auto em = e.member(n.name);
+                if(!em) {
+                    module_.addError(n, "Enum member %s not found".format(n.name), true);
+                    return;
+                }
+
+                resolver.fold(dot, ExpressionRef.make(em));
+                return;
+            } else {
+                NamedStruct ns = prevType.getNamedStruct;
+                assert(ns);
+
+                var = ns.getStaticVariable(n.name);
+            }
+
+            if(var) {
+                if(var.access.isPrivate && var.getModule.nid != module_.nid) {
+                    module_.addError(n, "%s is external and private".format(var.name), true);
+                }
+                n.target.set(var);
+            }
+        } else {
+            AnonStruct struct_ = prevType.getAnonStruct();
+            assert(struct_);
+
+            auto var = struct_.getMemberVariable(n.name);
+            if (var) {
+                n.target.set(var, struct_.getMemberIndex(var));
+            } else {
+                /// If this is a static var then show a nice error
+                //auto ns = struct_.as!NamedStruct;
+                //if(ns && (var = ns.getStaticVariable(n.name))!is null) {
+                //    module_.addError(prev, "struct %s does not have member %s. Did you mean %s::%s ?"
+                //        .format(ns.name, n.name, ns.name, n.name));
+                //}
+            }
         }
     }
     void chat(A...)(lazy string fmt, lazy A args) {

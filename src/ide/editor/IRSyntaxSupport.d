@@ -90,6 +90,7 @@ private:
             "global",
             "icmp",
             "inbounds",
+            "insertvalue",
             "internal",
             "inttoptr",
             "label",
