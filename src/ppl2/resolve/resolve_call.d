@@ -62,17 +62,182 @@ struct Callable {
 final class CallResolver {
 private:
     Module module_;
+    ModuleResolver resolver;
     Array!Callable overloads;
     Array!Function funcTemplates;
     OverloadCollector collector;
     ImplicitTemplates implicitTemplates;
 public:
-    this(Module module_) {
+    this(ModuleResolver resolver, Module module_) {
         this.module_           = module_;
+        this.resolver          = resolver;
         this.overloads         = new Array!Callable;
         this.funcTemplates     = new Array!Function;
         this.collector         = new OverloadCollector(module_);
         this.implicitTemplates = new ImplicitTemplates(module_);
+    }
+    void resolve(Call n) {
+        if(!n.target.isResolved) {
+            bool isTemplated = n.isTemplated;
+            Expression prev  = n.prevLink();
+
+            if(n.isStartOfChain()) {
+                auto callable = standardFind(n);
+                if(callable.resultReady) {
+                    /// If we get here then we have 1 good match
+                    if(callable.isFunction) {
+                        n.target.set(callable.func);
+                    }
+                    if(callable.isVariable) {
+                        n.target.set(callable.var);
+                    }
+                }
+
+            } else if(prev.id==NodeID.MODULE_ALIAS) {
+                ///
+                auto modAlias = prev.as!ModuleAlias;
+
+                auto callable = standardFind(n, modAlias);
+                if(callable.resultReady) {
+                    /// If we get here then we have 1 good match
+                    assert(callable.isFunction);
+                    n.target.set(callable.func);
+                }
+            } else {
+                assert(prev);
+                Type prevType = prev.getType;
+                assert(prevType);
+
+                if(!prevType.isKnown) return;
+
+                auto dot = n.parent.as!Dot;
+                assert(dot);
+
+                if(!prevType.isNamedStruct) {
+                    module_.addError(prev, "Left of call '%s' must be a struct type not a %s".format(n.name, prevType), true);
+                    return;
+                }
+
+                //dd("module:", module_.canonicalName, "call:", n, "prevType:", prevType);
+
+                NamedStruct ns = prevType.getNamedStruct;
+                assert(ns);
+
+                if(dot.isStaticAccess) {
+                    auto callable = structFind(n, ns, true);
+                    if(callable.resultReady) {
+                        /// If we get here then we have 1 good match
+                        if(callable.isFunction) {
+                            n.target.set(callable.func);
+                        }
+                        if(callable.isVariable) {
+                            n.target.set(callable.var);
+                        }
+                    }
+                } else {
+                    if(n.name!="new" && !n.implicitThisArgAdded) {
+                        /// Rewrite this call so that prev becomes the 1st argument (thisptr)
+
+                        auto dummy = TypeExpr.make(prevType);
+
+                        resolver.fold(prev, dummy);
+                        //dot.replaceChild(prev, dummy);
+
+                        if(prevType.isValue) {
+                            auto ptr = makeNode!AddressOf;
+                            ptr.add(prev);
+                            n.insertAt(0, ptr);
+                        } else {
+                            n.insertAt(0, prev);
+                        }
+
+                        if(n.paramNames.length>0) n.paramNames ~= "this";
+
+                        n.implicitThisArgAdded = true;
+                    }
+
+                    auto callable = structFind(n, ns);
+
+                    if(callable.resultReady) {
+                        /// If we get here then we have 1 good match
+
+                        if(callable.isFunction) {
+                            n.target.set(callable.func, ns.getMemberIndex(callable.func));
+                        }
+                        if(callable.isVariable) {
+                            n.target.set(callable.var, ns.getMemberIndex(callable.var));
+                        }
+                    }
+                }
+            }
+
+            /// We added template params
+            if(isTemplated != n.isTemplated) {
+                resolver.setModified();
+            }
+        }
+
+        if(n.target.isResolved && n.argTypes.areKnown) {
+            /// We have a target and all args are known
+
+            /// Check to see whether we need to add an implicit "this." prefix
+            if(n.isStartOfChain() &&
+            n.argTypes.length == n.target.paramTypes.length.as!int-1 &&
+            !n.implicitThisArgAdded)
+            {
+                auto ns = n.getAncestor!NamedStruct;
+                if(ns) {
+                    auto r = resolver.identifierResolver.find("this", n);
+                    if(r.found) {
+                        n.addImplicitThisArg(r.var);
+                        resolver.setModified();
+                    }
+                }
+            }
+
+            /// Rearrange the args to match the parameter order
+            if(n.paramNames.length>0) {
+
+                //dd("!!!", n.target, n.paramNames, n.target.paramNames());
+
+                if(n.paramNames.length != n.target.paramNames().length) {
+                    module_.addError(n, "Expecting %s arguments, not %s".format(n.target.paramNames().length, n.paramNames.length), true);
+                    return;
+                }
+
+                import common : indexOf;
+                auto targetNames = n.target.paramNames();
+                auto args        = new Expression[n.numArgs];
+
+                foreach(int i, name; n.paramNames) {
+                    auto index = targetNames.indexOf(name);
+                    if(index==-1) {
+                        module_.addError(n, "Parameter name %s not found".format(name), true);
+                        return;
+                    }
+                    args[index] = n.arg(i);
+                }
+                assert(args.length==n.numArgs);
+
+                foreach(a; args) {
+                    a.detach();
+                }
+                foreach(a; args) {
+                    n.add(a);
+                }
+
+                /// We don't need the param names any more
+                n.paramNames = null;
+            } else {
+                if(n.numArgs != n.target.paramTypes.length) {
+                    module_.addError(n, "Expecting %s arguments, not %s".format(n.target.paramTypes.length, n.numArgs), true);
+                }
+            }
+
+            if(!n.argTypes.canImplicitlyCastTo(n.target.paramTypes)) {
+                module_.addError(n, "Cannot implicitly cast arguments (%s) to params (%s)".format(n.argTypes.toString, n.target.paramTypes.toString), true);
+            }
+        }
     }
     /// Assume:
     ///     call.argTypes may not yet be known
