@@ -78,6 +78,7 @@ import ppl2.ast.expr_value_of;
 import ppl2.ast.stmt_variable;
 
 import ppl2.build.BuildState;
+import ppl2.build.ReferenceInformation;
 
 import ppl2.check.check_module;
 

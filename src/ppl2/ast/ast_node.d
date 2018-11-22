@@ -144,6 +144,11 @@ public:
         if(parent.isComposite) return parent.getParentIgnoreComposite();
         return parent;
     }
+    bool isAttached() {
+        if(this.isModule) return true;
+        if(parent is null) return false;
+        return parent.isAttached();
+    }
 
     auto addToFront(ASTNode child) {
         child.detach();

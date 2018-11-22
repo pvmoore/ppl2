@@ -24,6 +24,8 @@ public:
             parseAndResolve();
             if(hasErrors()) return;
 
+            refInfo.process();
+
             removeUnreferencedNodes();
             afterResolution();
             if(hasErrors()) return;

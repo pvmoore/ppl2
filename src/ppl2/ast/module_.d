@@ -263,6 +263,7 @@ public:
         recursiveCollect!Function(array, f=>f.isInner);
         return array[];
     }
+
     ///
     /// Return a list of all modules referenced from this module
     ///
@@ -283,6 +284,7 @@ public:
         m.remove(this);
         return m.values;
     }
+
     ///
     ///  Dump module info to the log.
     ///

@@ -39,18 +39,20 @@ public:
         }
 
         /// Remove ALL Aliases
-        auto defines = new Array!Alias;
-        module_.selectDescendents!Alias(defines);
-        foreach(d; defines) {
-            log("\t alias %s", d.name);
-            d.detach();
+        auto aliases = new Array!Alias;
+        module_.selectDescendents!Alias(aliases);
+        foreach(a; aliases) {
+            log("\t alias %s", a.name);
+            remove(a);
         }
 
         /// Remove unused Enums and all EnumMembers whether used or not
         auto enums = new Array!Enum;
         module_.selectDescendents!Enum(enums);
         foreach(e; enums) {
-            // todo
+            if(e.numRefs==0) {
+                remove(e);
+            }
         }
 
         /// Remove named structs that are not referenced or are template blueprints
@@ -59,16 +61,16 @@ public:
         foreach(ns; namedStructs) {
             if(ns.isTemplateBlueprint) {
                 log("\t  template blueprint named struct %s", ns.name);
-                ns.detach();
+                remove(ns);
             } else if(ns.numRefs==0) {
                 log("\t  unreferenced named struct %s", ns.name);
-                ns.detach();
+                remove(ns);
             } else {
                 /// The struct is referenced but some of the functions may not be
                 foreach(f; ns.getMemberFunctions()) {
                     if(f.numRefs==0) {
                         log("\t  unreferenced func %s.%s", ns.name, f.name);
-                        f.detach();
+                        remove(f);
                     }
                 }
             }
@@ -79,7 +81,7 @@ public:
         module_.selectDescendents!Import(imports);
         foreach(imp; imports) {
             log("\t import %s", imp.moduleName);
-            imp.detach();
+            remove(imp);
         }
         watch.stop();
     }
@@ -102,5 +104,20 @@ private:
         );
 
         f.detach();
+    }
+    void remove(Alias a) {
+        a.detach();
+    }
+    void remove(NamedStruct n) {
+        n.detach();
+    }
+    void remove(Enum e) {
+        e.detach();
+    }
+    void remove(EnumMember e) {
+        e.detach();
+    }
+    void remove(Import i) {
+        i.detach();
     }
 }

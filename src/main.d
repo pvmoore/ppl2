@@ -6,7 +6,8 @@ module main;
 import ppl2;
 import core.memory              : GC;
 import std.stdio                : writefln;
-import std.array                : join;
+import std.array                : join, array;
+import std.format               : format;
 import std.algorithm.sorting    : sort;
 import std.algorithm.iteration  : map, sum;
 
@@ -43,6 +44,12 @@ void main(string[] argv) {
         dumpDependencies(builder);
         dumpModuleReferences(builder);
         builder.dumpStats();
+
+        auto refs = builder.refs();
+
+        auto mods = refs.allReferencedModules().map!(it=>it.canonicalName).array.sort;
+
+        writefln("%s", mods.join("\n"));
     }
 
 }

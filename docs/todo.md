@@ -1,14 +1,18 @@
 # Todo  
 
+- Think about: Do we need :: syntax? Why not just use . ?
+
+- If a var is never modified and no address taken, we can set it to const (Set resolver.setModified() also
+  because we have changed the AST).
+
 - use const LLVMValueRefs in gen_literals (ie. constString, constStruct, constNamedStruct and constArray
 
 - Add module.getInternalRefs, getExternalRefs functions and use these instead of numRefs properties 
   
-- enums
 - Nested multiline comments
 
-- Don't call requireFunction just to get the parameters for function resolution. Use a different lighter-weight
-  version eg. requireFunctionParams
+- Don't call requireFunction just to get the parameters for function resolution. 
+  Use a different lighter-weight version eg. requireFunctionParams
   
 - Ensure we remove static funstions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
 - Attributes eg (* inline). (* expect true) (* notnull) or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]

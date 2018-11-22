@@ -475,14 +475,9 @@ private:
             }
         }
     }
-    bool isAttached(ASTNode n) {
-        if(n.parent is null) return false;
-        if(n.parent.isModule) return true;
-        return isAttached(n.parent);
-    }
     void recursiveVisit(ASTNode m) {
 
-        if(!isAttached(m)) return;
+        if(!m.isAttached) return;
 
         if(m.id==NodeID.NAMED_STRUCT) {
             if(m.as!NamedStruct.isTemplateBlueprint) return;
@@ -503,7 +498,7 @@ private:
         /// Resolve this node
         m.visit!ModuleResolver(this);
 
-        if(!isAttached(m)) return;
+        if(!m.isAttached) return;
 
         if(!m.isResolved) {
             unresolved.add(m);
