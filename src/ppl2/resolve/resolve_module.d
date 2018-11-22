@@ -405,6 +405,12 @@ public:
                         /// Alias is resolved
                         type = PtrType.of(ns, type.getPtrDepth);
                         return;
+                    } else {
+                        auto en = m.getEnum(def.name);
+                        if(en) {
+                            type = PtrType.of(en, type.getPtrDepth);
+                            return;
+                        }
                     }
                     module_.addError(module_, "Import %s not found in module %s".format(def.name, def.moduleName), true);
                     return;

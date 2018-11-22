@@ -37,7 +37,6 @@ public:
 
         foreach(m; modules) {
             Target[] targets;
-            targets.reserve(1000);
             gatherActiveTargets(m, targets);
 
             moduleTargets[m.canonicalName] = targets;

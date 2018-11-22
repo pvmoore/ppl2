@@ -14,36 +14,11 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "tstatics/test_statics.p2"
-line = 127
-active = 0
-
-[[openFile]]
-name = "test_arrays.p2"
-line = 106
-active = 0
-
-[[openFile]]
-name = "test_inner_functions.p2"
-line = 104
+name = "timports/test_imports2.p2"
+line = 10
 active = 0
 
 [[openFile]]
 name = "test_enum.p2"
-line = 116
+line = 120
 active = 1
-
-[[openFile]]
-name = "test_closures.p2"
-line = 21
-active = 0
-
-[[openFile]]
-name = "tmisc/test_builtin_funcs.p2"
-line = 16
-active = 0
-
-[[openFile]]
-name = "test.p2"
-line = 97
-active = 0

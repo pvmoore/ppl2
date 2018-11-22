@@ -7,3 +7,9 @@ struct RedRose <T> {
 
 alias OrangeRose = RedRose<double> 
 alias IntPtr = int*  
+
+enum Colour {
+    RED,
+    GREEN,
+    BLUE   
+}

@@ -139,6 +139,9 @@ private:
         bool isAlias() {
             return t.isKeyword("alias");
         }
+        bool isEnum() {
+            return t.isKeyword("enum");
+        }
         /// Assumes isStruct() and isAlias() returned false
         bool isFuncDecl() {
             if(t.isKeyword("extern")) return true;
@@ -173,7 +176,7 @@ private:
                 t.next(eob);
             } else if(public_) {
 
-                if(isStruct() || isAlias()) {
+                if(isStruct() || isAlias() || isEnum()) {
                     t.next;
                     publicTypes.add(t.value);
                 } else if(isFuncDecl()) {

@@ -116,6 +116,10 @@ public testEnum {
         }   
         assert Enum::A == 3
     }
+    imported {
+        import timports::test_imports2
+        Colour col = Colour::GREEN;     assert col == 1
+    }
     initialisation()
     comparison()
     conversion()
@@ -124,4 +128,5 @@ public testEnum {
     functionParams()  
     properties()
     constValues()
+    imported()
 }
