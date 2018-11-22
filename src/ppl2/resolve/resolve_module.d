@@ -402,7 +402,6 @@ public:
                 } else {
                     auto ns = m.getNamedStruct(def.name);
                     if(ns) {
-                        /// Alias is resolved
                         type = PtrType.of(ns, type.getPtrDepth);
                         return;
                     } else {

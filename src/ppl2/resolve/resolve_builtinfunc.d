@@ -48,7 +48,8 @@ public:
                 }
                 break;
             default:
-                assert(false);
+                module_.addError(n, "Built-in function %s not found".format(n.name), true);
+                break;
         }
 
         if(n.numExprs != expectedNumExprs) {

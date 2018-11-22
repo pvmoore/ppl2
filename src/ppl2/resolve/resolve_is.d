@@ -56,7 +56,6 @@ public:
                     return;
                 }
 
-
                 /// Two named structs
                 if(leftType.isNamedStruct) {
 

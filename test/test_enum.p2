@@ -90,7 +90,9 @@ public testEnum {
         alias A2 = A
         A2 a2 = A::ONE;   assert a2 is A
             
-
+        var a = #typeof(A)::TWO     ;   assert a is A; assert a == 1
+        
+        var b = #typedef(A)
     }
     functionParams {
         foo { int a -> return 0 }
