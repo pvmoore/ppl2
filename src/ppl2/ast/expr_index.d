@@ -55,6 +55,7 @@ final class Index : Expression {
                 auto i = getIndexAsInt();
                 if(i >= array.countAsInt()) {
                     getModule.addError(index(), "Array bounds error. %s >= %s".format(i, array.countAsInt()), true);
+                    return TYPE_UNKNOWN;
                 }
             }
             return array.subtype;
@@ -65,6 +66,7 @@ final class Index : Expression {
                 /// Check for bounds error
                 if(i >= struct_.numMemberVariables()) {
                     getModule.addError(index(), "Array bounds error. %s >= %s".format(i, struct_.numMemberVariables()), true);
+                    return TYPE_UNKNOWN;
                 }
                 return struct_.getMemberVariable(i).type;
             }

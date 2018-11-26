@@ -122,10 +122,10 @@ private:
     Function[] templateFunctions;
     Type[][] templateParams;
 public:
-    this(Module m, Call call, Array!Callable overloadSet) {
+    this(Module m, Call call, Callable[] overloadSet) {
         super(m, call.line, call.column);
         this.call        = call;
-        this.overloadSet = overloadSet.values.dup;
+        this.overloadSet = overloadSet.dup;
     }
     this(Module m, Call call, Function[] templateFunctions, Type[][] templateParams) {
         super(m, call.line, call.column);
@@ -196,7 +196,10 @@ public:
 }
 //====================================================================================
 void warn(Tokens n, string msg) {
-    writefln("WARN [%s Line %s] %s", n.module_.fullPath, n.line, msg);
+    writefln("WARN [%s Line %s] %s", n.module_.fullPath, n.line+1, msg);
+}
+void warn(ASTNode n, string msg) {
+    writefln("WARN [%s Line %s] %s", n.getModule.fullPath, n.line+1, msg);
 }
 void errorBadSyntax(Module m, ASTNode n, string msg) {
     m.addError(n, msg, false);

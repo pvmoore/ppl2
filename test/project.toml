@@ -14,11 +14,26 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "timports/test_imports2.p2"
-line = 10
+name = "tstructs/test_inner_structs.p2"
+line = 3
 active = 0
 
 [[openFile]]
-name = "test_enum.p2"
-line = 92
+name = "test.p2"
+line = 245
+active = 0
+
+[[openFile]]
+name = "tstructs/test_inner_structs2.p2"
+line = 21
 active = 1
+
+[[openFile]]
+name = "tstatics/test_statics.p2"
+line = 72
+active = 0
+
+[[openFile]]
+name = "tstructs/test_structs.p2"
+line = 0
+active = 0

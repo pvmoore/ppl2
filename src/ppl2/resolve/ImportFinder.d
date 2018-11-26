@@ -1,4 +1,4 @@
-module ppl2.resolve.find_import;
+module ppl2.resolve.ImportFinder;
 
 import ppl2.internal;
 

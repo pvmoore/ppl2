@@ -36,63 +36,61 @@ enum D : long {
 
 public testEnum {
     initialisation {
-        var a = A::SIX          ; assert a is A;    assert a.value == 3
-        var b = a               ; assert b is A;    assert b.value == 3
-        var c = A::FIVE.value   ; assert c is int;  assert c == 2
+        var a = A.SIX          ; assert a is A;    assert a.value == 3
+        var b = a              ; assert b is A;    assert b.value == 3
+        var c = A.FIVE.value   ; assert c is int;  assert c == 2
         
         A d
-        A e = A::THREE          ; assert e.value == 5
+        A e = A.THREE          ; assert e.value == 5
         //A f = A             // nope
         //A g = B::ONE        // incompatible types
             
-        C f = C::THREE          ; assert f.value is float;  assert f.value == 11.0
+        C f = C.THREE          ; assert f.value is float;  assert f.value == 11.0
     }
     comparison {
         // is
         // Must be exact enum type and value
-        var a = A::ONE is A::ONE        ; assert a
-        var b = A::ONE is not A::TWO    ; assert b 
-        var c = A::ONE is not B::ONE    ; assert c
+        var a = A.ONE is A.ONE        ; assert a
+        var b = A.ONE is not A.TWO    ; assert b 
+        var c = A.ONE is not B.ONE    ; assert c
         
         // booleans
         // Compares values regardless of enum type
-        var g  = A::ONE == B::ONE   ; assert g is bool; assert g
-        var g2 = A::ONE <> B::TWO   ; assert g2 is bool; assert g2
-        var g3 = A::ONE < A::TWO    ; assert g3
-        var g4 = A::THREE > A::TWO  ; assert g4
-        var h = A::SIX
-        var i = B::TWO
-        assert h == A::SIX        
+        var g  = A.ONE == B.ONE   ; assert g is bool; assert g
+        var g2 = A.ONE <> B.TWO   ; assert g2 is bool; assert g2
+        var g3 = A.ONE < A.TWO    ; assert g3
+        var g4 = A.THREE > A.TWO  ; assert g4
+        var h = A.SIX
+        var i = B.TWO
+        assert h == A.SIX        
         assert h >= i
     }
     conversion {
-        var a = A::THREE as int ; assert a == 5
-        var b = 4 as A          ; assert b is A;    assert b == 4; assert b.value == 4
-        var c = A::FOUR as B    ; assert c is B;    assert c.value == 6
+        var a = A.THREE as int ; assert a == 5
+        var b = 4 as A         ; assert b is A;    assert b == 4; assert b.value == 4
+        var c = A.FOUR as B    ; assert c is B;    assert c.value == 6
     }
     manipulation {
-        var a = A::TWO + A::TWO     ; assert a is A;    assert a.value == 2
-        var b = D::ONE | D::TWO     ; assert b is D;    assert b.value == 3
-        A c = A::TWO + 1            ; assert c.value == 2 
+        var a = A.TWO + A.TWO     ; assert a is A;    assert a.value == 2
+        var b = D.ONE | D.TWO     ; assert b is D;    assert b.value == 3
+        A c = A.TWO + 1           ; assert c.value == 2 
         
-        c = c + A::TWO              ; assert c.value == 3
+        c = c + A.TWO              ; assert c.value == 3
         
         // op assign
-        b += D::THREE               ; assert b is D;    assert b.value == 7
-        b += 1                      ; assert b is D;    assert b.value == 8 
+        b += D.THREE               ; assert b is D;    assert b.value == 7
+        b += 1                     ; assert b is D;    assert b.value == 8 
         
-        var d = D::ONE | D::TWO | D::THREE  ; assert d is D; assert d.value == 7
+        var d = D.ONE | D.TWO | D.THREE  ; assert d is D; assert d.value == 7
     }
     misc {
         assert #sizeof(A) == 4 
-        assert #sizeof(A::ONE) == 4 
+        assert #sizeof(A.ONE) == 4 
             
         alias A2 = A
-        A2 a2 = A::ONE;   assert a2 is A
+        A2 a2 = A.ONE;   assert a2 is A
             
-        var a = #typeof(A)::TWO     ;   assert a is A; assert a == 1
-        
-        var b = #typedef(A)
+        var a = #typeof(A).TWO     ;   assert a is A; assert a == 1
     }
     functionParams {
         foo { int a -> return 0 }
@@ -101,9 +99,9 @@ public testEnum {
         foo { A a, B b -> return 3+a+b }
         
         assert 0 == foo(1)
-        assert 1 == foo(A::ONE)
-        assert 2 == foo(B::TWO)
-        assert 3+5+0 == foo(A::THREE, B::ONE)
+        assert 1 == foo(A.ONE)
+        assert 2 == foo(B.TWO)
+        assert 3+5+0 == foo(A.THREE, B.ONE)
     }
     properties {
         assert A.length == 6
@@ -116,11 +114,11 @@ public testEnum {
         enum Enum {
             A = VALUE    
         }   
-        assert Enum::A == 3
+        assert Enum.A == 3
     }
     imported {
         import timports::test_imports2
-        Colour col = Colour::GREEN;     assert col == 1
+        Colour col = Colour.GREEN;     assert col == 1
     }
     initialisation()
     comparison()

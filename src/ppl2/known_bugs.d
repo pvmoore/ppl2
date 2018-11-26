@@ -12,9 +12,19 @@ module ppl2.known_bugs;
     var c = A::ONE
     assert c.value = 1      // = instead of ==
 
+    3) Assert this
 
+    struct A {
+        foo {
+            assert this     // <--- error
+        }
+    }
 
+    4) Infinite struct should not be allowed:
 
+    struct A {
+        A a
+    }
 
 
  */

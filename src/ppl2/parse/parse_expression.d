@@ -2,6 +2,8 @@ module ppl2.parse.parse_expression;
 
 import ppl2.internal;
 
+private const string VERBOSE_MODULE = null;//"timports::test_imports";
+
 final class ExpressionParser {
 private:
     Module module_;
@@ -25,8 +27,9 @@ public:
     }
 private:
     void parseLHS(Tokens t, ASTNode parent) {
-
-        //if(module_.canonicalName=="test") dd("lhs", t.get, "parent=", parent.id);
+        static if(VERBOSE_MODULE) {
+            if(module_.canonicalName==VERBOSE_MODULE) dd("lhs", t.get, "parent=", parent.id);
+        }
 
         /// Simple identifiers
         if(t.type==TT.IDENTIFIER) {
@@ -67,12 +70,14 @@ private:
             }
         }
 
-        /// Starts with a type
+        /// type
+        /// type (
         int eot = typeDetector().endOffset(t, parent);
         if(eot!=-1) {
             auto nextTok = t.peek(eot+1);
 
             if(nextTok.type==TT.LBRACKET) {
+                /// type(
                 parseConstructor(t, parent);
                 return;
             }
@@ -112,6 +117,14 @@ private:
                 int end;
                 if(isTemplateParams(t, 1, end)) {
                     parseCall(t, parent);
+                    return;
+                }
+            }
+            if(t.peek(1).type==TT.DOT) {
+                auto node = parent.hasChildren ? parent.last : parent;
+                auto imp  = findImportByAlias(t.value, node);
+                if(imp) {
+                    parseModuleAlias(t, parent, imp);
                     return;
                 }
             }
@@ -244,8 +257,10 @@ private:
                     }
                     parent = attachAndRead(t, parent, parseIndex(t, parent), false);
                     break;
-                case TT.DOT:
                 case TT.DBL_COLON:
+                    errorBadSyntax(module_, t, "Not expecting :: Did you mean . ?");
+                    break;
+                case TT.DOT:
                     parent = attachAndRead(t, parent, parseDot(t));
                     break;
                 case TT.IDENTIFIER:
@@ -331,10 +346,8 @@ private:
 
         if(t.type==TT.DOT) {
             t.skip(TT.DOT);
-            d.dotType = Dot.DotType.INSTANCE;
         } else {
             t.skip(TT.DBL_COLON);
-            d.dotType = Dot.DotType.STATIC;
         }
 
         return d;
@@ -714,6 +727,7 @@ private:
 
         /// type
         con.type = typeParser().parse(t, parent);
+
         if(!con.type) {
             errorMissingType(module_, t, t.value);
         }

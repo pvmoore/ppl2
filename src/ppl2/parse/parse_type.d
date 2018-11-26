@@ -56,9 +56,61 @@ public:
             errorBadSyntax(module_, t, "Cannot parameterise this type");
         }
 
-        /// ptr depth
         if(type !is null) {
 
+            if(t.type==TT.DBL_COLON) {
+                /// Inner type eg.
+                /// type:: type2 ::
+                ///        ^^^^^^^^ repeat
+                /// So far we have type
+
+                /// type2 must be one of: ( Enum | NamedStruct | NamedStruct<...> )
+
+                //auto alias_        = makeNode!Alias(t);
+                //alias_.moduleName  = module_.canonicalName;
+                //alias_.isInnerType = true;
+                //alias_.type = type;
+                //type = alias_;
+                //
+                //if(addToNode) {
+                //    node.add(alias_);
+                //}
+
+                Alias alias_;
+
+                while(t.type==TT.DBL_COLON) {
+                    /// ::
+                    t.skip(TT.DBL_COLON);
+
+                    /// ( Enum | NamedStruct | NamedStruct<...> )
+                    auto a        = makeNode!Alias(t);
+                    a.isInnerType = true;
+                    a.name        = t.value;
+                    a.moduleName  = module_.canonicalName;
+                    t.next;
+
+                    if(!alias_) {
+                        a.type = type;
+                    } else {
+                        a.type = alias_;
+                    }
+
+                    /// optional <...>
+                    a.templateParams = collectTemplateParams(t, node);
+
+                    //dd("a:", a);
+
+                    alias_ = a;
+                }
+                if(addToNode) {
+                    node.add(alias_);
+                }
+                type = alias_;
+
+                //dd("alias_:", alias_);
+            }
+
+            /// ptr depth
             while(true) {
                 int pd = 0;
                 while(t.type==TT.ASTERISK) {
@@ -101,15 +153,18 @@ private:
 
         auto imp = findImportByAlias(t.value, node);
         if(!imp) return null;
-        if(t.peek(1).type!=TT.DBL_COLON) return null;
+
+        //if(t.peek(1).type==TT.DBL_COLON) warn(t, "Deprecated module alias ::");
+
+        if(t.peek(1).type!=TT.DOT) return null;
 
         t.next(2);
 
         /// Assuming for now that inner structs don't exist,
         /// these are the only valid types:
 
-        /// imp::  alias
-        /// imp::  alias<>
+        /// imp.  alias
+        /// imp.  alias<>
 
         string name = t.value;
         t.next;
@@ -240,7 +295,7 @@ private:
         t.skip(TT.LBRACKET);
 
         auto a = makeNode!Alias(t);
-        a.cat = Alias.Category.TYPEOF_EXPR;
+        a.isTypeof = true;
         node.add(a);
 
         exprParser().parse(t, a);

@@ -13,6 +13,11 @@ import std.algorithm.iteration  : map, sum;
 
 void main(string[] argv) {
 
+    writefln("");
+    writefln("======================================");
+    writefln("PPL %s".format(VERSION));
+    writefln("======================================");
+
     auto mainFile = "test/./test.p2";
 
     /// Get the PPL2 singleton
@@ -42,14 +47,12 @@ void main(string[] argv) {
         }
     } else {
         dumpDependencies(builder);
-        dumpModuleReferences(builder);
+        //dumpModuleReferences(builder);
         builder.dumpStats();
 
-        auto refs = builder.refs();
-
-        auto mods = refs.allReferencedModules().map!(it=>it.canonicalName).array.sort;
-
-        writefln("%s", mods.join("\n"));
+        //auto refs = builder.refs();
+        //auto mods = refs.allReferencedModules().map!(it=>it.canonicalName).array.sort;
+        //writefln("Active modules ... %s", mods.length);
     }
 
 }

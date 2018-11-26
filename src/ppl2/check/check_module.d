@@ -183,12 +183,12 @@ public:
     }
     void visit(Identifier n) {
 
-        void checkReadOnlyAssignment(Access access, int moduleNID) {
+        void checkReadOnlyAssignment(Access access, string moduleName) {
         //    // allow writing to indexed pointer value
         //    auto idx = findAncestor!Index;
         //    if(idx) return;
         //
-            if(access.isReadOnly && moduleNID!=module_.nid) {
+            if(access.isReadOnly && moduleName!=module_.canonicalName) {
                 auto a = n.getAncestor!Binary;
                 if(a && a.op.isAssign && n.isAncestor(a.left)) {
                     module_.addError(n, "Attempting to modify readonly property", true);
@@ -196,8 +196,8 @@ public:
             }
         }
 
-        void checkPrivateAccess(Access access, int moduleNID) {
-            if(access.isPrivate && moduleNID!=module_.nid) {
+        void checkPrivateAccess(Access access, string moduleName) {
+            if(access.isPrivate && moduleName!=module_.canonicalName) {
                 module_.addError(n, "Attempting to access private property", true);
             }
         }
@@ -205,13 +205,13 @@ public:
 
         if(n.target.isMemberVariable) {
             auto var = n.target.getVariable;
-            checkPrivateAccess(var.access, var.getModule.nid);
-            checkReadOnlyAssignment(var.access, var.getModule.nid);
+            checkPrivateAccess(var.access, var.getModule.canonicalName);
+            checkReadOnlyAssignment(var.access, var.getModule.canonicalName);
         }
         if(n.target.isMemberFunction) {
             auto func = n.target.getFunction;
-            checkPrivateAccess(func.access, func.moduleNID);
-            checkReadOnlyAssignment(func.access, func.moduleNID);
+            checkPrivateAccess(func.access, func.moduleName);
+            checkReadOnlyAssignment(func.access, func.moduleName);
         }
     }
     void visit(If n) {

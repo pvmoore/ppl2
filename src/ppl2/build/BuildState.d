@@ -214,7 +214,7 @@ public:
 
         receiver("\nOK");
         receiver("");
-        receiver("Active modules ......... %s %s".format(allModules.length, modules.keys));
+        receiver("Active modules ......... %s".format(allModules.length));
         receiver("Parser time ............ %.2f ms".format(allModules.map!(it=>it.parser.getElapsedNanos).sum() * 1e-6));
         receiver("Resolver time .......... %.2f ms".format(allModules.map!(it=>it.resolver.getElapsedNanos).sum() * 1e-6));
         receiver("DCE time ............... %.2f ms".format(allModules.map!(it=>it.dce.getElapsedNanos).sum() * 1e-6));

@@ -1,0 +1,197 @@
+
+public
+//====================================================================================
+struct A {
+    int a         = 1
+    static int sa = 2
+    foo         { /*A* this*/ return 1 }
+    static sfoo { return 2 }
+    enum Enum { ONE=3 }
+    
+    struct B {
+        int b         = 3
+        static int sb = 4
+        foo         { /*B* this*/ A ab; return 3 } // fixme shadowing bug A a
+        static sfoo { return 4 }
+        enum Enum { ONE=4 }
+        
+        struct C {
+            int c         = 5
+            static int sc = 6
+            foo         { /*C* this*/ A ac; B bc; return 5 }
+            static sfoo { return 6 }
+            enum Enum { ONE=5 }
+            
+            struct D {
+                int d         = 7
+                static int sd = 8
+                foo         { /*D* this*/ A ad; B bd; C cd; return 7 }
+                static sfoo { return 8 }
+                enum Enum { ONE=6 }
+            }
+        } 
+    }
+    
+public
+    struct E {
+        A a
+    }
+}
+//====================================================================================
+struct TA <T1> {
+    T1 a         = 1
+    static T1 sa = 2
+    foo { /*TA* this*/ return 10 }
+    static sfoo { return 20 }
+    
+    struct B {
+        T1 b = 3
+    }
+    enum Enum : T1 { ONE=2 }
+    
+    struct TB <T2> {
+        T1 a = 100
+        T2 b = 4
+        static T2 sb = 5
+        foo { /*TB* this*/ return 30 }
+        static sfoo { return 40 }
+        
+        struct C {
+            T2 c = 6
+        }
+        enum Enum : T2 { ONE=3 }
+        
+        struct TC <T3> {
+            T1 a = 200
+            T2 b = 300
+            T3 c         = 7 as T3
+            static T3 sc = 8 as T3
+            foo { /*TC* this*/ return 50 }
+            static sfoo { return 60 }
+            
+            struct D {
+                T3 d = 9 as T3  
+            }
+            enum Enum : T3 { ONE=4 }
+        
+            struct TD <T4> {
+                T1 a = 300
+                T2 b = 400
+                T3 c = 500
+                T4 d = 10
+                static T4 sd = 11
+                foo { /*TD* this*/ return 70 }
+                static sfoo { return 80 }
+                
+                struct E {          // fixme struct D already defined
+                    T4 e = 7
+                }
+                enum Enum : T4 { ONE=5 }
+            }
+        }  
+    }
+}
+//====================================================================================
+public
+testInnerStructs {
+    groundLevel {
+        A aa
+        //B b   // not visible
+        //C c   // not visible
+        //D d   // not visible
+        var t    = A()
+        assert 1 == t.a
+        assert 2 == A.sa
+        assert 1 == t.foo()
+        assert 2 == A.sfoo()
+        
+        A::Enum e = A::Enum.ONE;  assert e.value==3
+        
+        TA<int> aaa
+        var t2 = TA<int>()
+        assert 1 == t2.a
+        assert 2 == TA<int>.sa
+        assert 10 == t2.foo()
+        assert 20 == TA<int>.sfoo()
+        
+        TA<int>::Enum e2 = TA<int>::Enum.ONE; assert e2.value==2
+    }
+    level1 {
+        //A.B ab2   // identifier B not found
+    
+        A::B aa
+        var t = A::B()
+        //var a = t.a         // not visible
+        //var sa = A::B.sa    // not visible
+        assert 3 == t.b
+        assert 4 == A::B.sb
+        assert 3 == t.foo()
+        assert 4 == A::B.sfoo()
+        
+        A::B::Enum e = A::B::Enum.ONE;  assert e.value==4
+        
+        TA<int>::B t2 = TA<int>::B()
+        assert 3 == t2.b
+            
+        assert TA<int>::TB<float>::Enum.ONE==3
+        
+        TA<int>::TB<float> t3 = TA<int>::TB<float>()
+        assert 4.0f == t3.b
+        assert 100 == t3.a
+        assert 5.0f == TA<int>::TB<float>.sb
+        assert 30 == t3.foo()
+        assert 40 == TA<int>::TB<float>.sfoo()
+        
+        // TA<int>::C t4        // inner type C not found 
+    }
+    level2 {
+        A::B::C abc  
+        alias ABC = A::B::C     
+        ABC abc3    
+        
+        var t = A::B::C() 
+        assert 5 == t.c
+        assert 6 == A::B::C.sc
+        assert 5 == t.foo()
+        assert 6 == A::B::C.sfoo()
+        
+        assert 5 == A::B::C::Enum.ONE
+        
+        var tt = TA<int>::TB<long>::C()
+        assert 6 == tt.c 
+        
+        var ttt = TA<int>::TB<float>::TC<byte>()
+        assert 7 == ttt.c
+        assert 200 == ttt.a
+        assert 300 == ttt.b
+        assert 8 == TA<int>::TB<float>::TC<byte>.sc
+        assert 50 == ttt.foo()
+        assert 60 == TA<int>::TB<float>::TC<byte>.sfoo()   
+    }
+    level3 {
+        A::B::C::D a
+        var t = A::B::C::D() 
+        assert 7 == t.d
+        assert 8 == A::B::C::D.sd   
+        assert 7 == t.foo()
+        assert 8 == A::B::C::D.sfoo()    
+        
+        assert 6 == A::B::C::D::Enum.ONE 
+        
+        var tt = TA<int>::TB<long>::TC<int>::D()
+        assert 9 == tt.d 
+        
+        var ttt = TA<int>::TB<int>::TC<long>::TD<float>()
+        assert 10 == ttt.d
+        assert 11 == TA<int>::TB<int>::TC<long>::TD<float>.sd
+        assert 70 == ttt.foo()
+        assert 80 == TA<int>::TB<int>::TC<long>::TD<float>.sfoo()
+    }
+    groundLevel()
+    level1()
+    level2()
+    level3()
+    
+    import tstructs::test_inner_structs2
+    testExternalInnerStructs()
+}

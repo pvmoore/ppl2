@@ -10,14 +10,14 @@ public:
         this.module_ = module_;
     }
     ///
-    /// Look for a Alias or NamedStruct with given name starting from node.
+    /// Look for a Alias, Enum or NamedStruct with given name starting from node.
     ///
     /// It is expected that this function is used during the parse phase so that
     /// is why we treat all nodes within a literal function as possible targets.
     /// This allows us to use the parent (literal function) to find a node which
     /// wouldn't normally be necessary if we started from the node itself (which we may not have).
     ///
-    Type findType(string name, ASTNode node) {
+    Type findType(string name, ASTNode node, bool isInnerType = false) {
 
         Type find(ASTNode n) {
             auto def = n.as!Alias;
@@ -66,6 +66,10 @@ public:
                 auto t = find(n);
                 if(t) return found(t);
             }
+            /// If we are looking for an inner type then we haven't found it
+            if(isInnerType) {
+                return null;
+            }
             /// Recurse up the tree
             return findType(name, node.parent);
 
@@ -104,14 +108,12 @@ public:
 
         /// Create a template proxy Alias which can
         /// be replaced later by the concrete NamedStruct
-        auto proxy                = makeNode!Alias(node);
-        proxy.cat                 = Alias.Category.TEMPLATE_PROXY;
-        proxy.name                = module_.makeTemporary("templateProxy");
-        proxy.type                = TYPE_UNKNOWN;
-        proxy.moduleName          = module_.canonicalName;
-        proxy.isImport            = false;
-        proxy.templateProxyType   = type;
-        proxy.templateProxyParams = templateParams;
+        auto proxy           = makeNode!Alias(node);
+        proxy.name           = module_.makeTemporary("templateProxy");
+        proxy.type           = type;
+        proxy.moduleName     = module_.canonicalName;
+        proxy.isImport       = false;
+        proxy.templateParams = templateParams;
 
         type = proxy;
 
@@ -129,8 +131,10 @@ public:
             module_.buildState.aliasEnumOrStructRequired(alias_.moduleName, alias_.name);
         } else if(en) {
             module_.buildState.aliasEnumOrStructRequired(en.moduleName, en.name);
+            en.numRefs++;
         } else {
             module_.buildState.aliasEnumOrStructRequired(ns.moduleName, ns.name);
+            ns.numRefs++;
         }
         return t;
     }

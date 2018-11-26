@@ -252,7 +252,7 @@ private:
                 }
                 break;
             case "ptr": {
-                if(!dot.isInstanceAccess()) break;
+                if(resolver.isAStaticTypeExpr(prev)) break;
 
                 auto b = module_.builder(n);
                 As as;
@@ -274,7 +274,7 @@ private:
                 return;
             }
             case "value":
-                /// Enum::ONE::value
+                /// Enum.ONE.value
                 if(prevType.isEnum) {
                     auto em = prev.as!EnumMember;
                     if(em) {
@@ -300,48 +300,40 @@ private:
             return;
         }
 
-        if(dot.isStaticAccess) {
-            Variable var;
+        Variable var;
 
-            Enum e = prevType.getEnum;
-            if(e) {
-                /// Replace Dot with EnumMember
-                auto em = e.member(n.name);
-                if(!em) {
-                    module_.addError(n, "Enum member %s not found".format(n.name), true);
-                    return;
-                }
-
-                resolver.fold(dot, ExpressionRef.make(em));
+        /// Is it an enum member?
+        Enum e = prevType.getEnum;
+        if(e) {
+            /// Replace Dot with EnumMember
+            auto em = e.member(n.name);
+            if(!em) {
+                module_.addError(n, "Enum member %s not found".format(n.name), true);
                 return;
-            } else {
-                NamedStruct ns = prevType.getNamedStruct;
-                assert(ns);
-
-                var = ns.getStaticVariable(n.name);
             }
 
+            resolver.fold(dot, ExpressionRef.make(em));
+            return;
+        }
+        /// Is it a static member?
+        NamedStruct ns = prevType.getNamedStruct;
+        if(ns) {
+            var = ns.getStaticVariable(n.name);
             if(var) {
                 if(var.access.isPrivate && var.getModule.nid != module_.nid) {
                     module_.addError(n, "%s is external and private".format(var.name), true);
                 }
                 n.target.set(var);
+                return;
             }
-        } else {
-            AnonStruct struct_ = prevType.getAnonStruct();
-            assert(struct_);
+        }
+        /// It must be an instance member
+        AnonStruct struct_ = prevType.getAnonStruct();
+        assert(struct_);
 
-            auto var = struct_.getMemberVariable(n.name);
-            if (var) {
-                n.target.set(var, struct_.getMemberIndex(var));
-            } else {
-                /// If this is a static var then show a nice error
-                //auto ns = struct_.as!NamedStruct;
-                //if(ns && (var = ns.getStaticVariable(n.name))!is null) {
-                //    module_.addError(prev, "struct %s does not have member %s. Did you mean %s::%s ?"
-                //        .format(ns.name, n.name, ns.name, n.name));
-                //}
-            }
+        var = struct_.getMemberVariable(n.name);
+        if(var) {
+            n.target.set(var, struct_.getMemberIndex(var));
         }
     }
     void chat(A...)(lazy string fmt, lazy A args) {

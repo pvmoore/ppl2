@@ -2,6 +2,8 @@ module ppl2.parse.parse_statement;
 
 import ppl2.internal;
 
+private const string VERBOSE_MODULE = null; //"tstructs::test_inner_structs2";
+
 final class StatementParser {
 private:
     Module module_;
@@ -18,23 +20,11 @@ public:
     }
 
     void parse(Tokens t, ASTNode parent) {
-        //dd(module_.canonicalName, "statement line=", t.line, " parent", parent, t.get);
-        //scope(exit) dd("end statement line", t.line);
-
-        void noExprAllowedAtModuleScope() {
-            if(parent.isA!Module) {
-                errorBadSyntax(module_, t, "Expressions not allowed at module scope. Did you mean define?");
+        static if(VERBOSE_MODULE) {
+            if(module_.canonicalName==VERBOSE_MODULE) {
+                dd("[", module_.canonicalName, "] statement line:", t.line+1, " parent:", parent.id, "token:", t.get);
+                //scope(exit) dd("end statement line:", t.line+1);
             }
-        }
-        void checkAccessScope() {
-            if(parent.id==NodeID.NAMED_STRUCT) return;
-            if(parent.id==NodeID.MODULE) {
-                if(t.value=="readonly") {
-                    module_.addError(t, "readonly access is only allowed inside a struct", true);
-                }
-                return;
-            }
-            module_.addError(t, "Access qualifiers only allowed at module or named struct scope", true);
         }
 
         switch(t.value) {
@@ -60,7 +50,7 @@ public:
                 parseExtern(t, parent);
                 return;
             case "if":
-                noExprAllowedAtModuleScope();
+                noExprAllowedAtModuleScope(t, parent);
                 exprParser.parse(t, parent);
                 return;
             case "import":
@@ -71,24 +61,24 @@ public:
                 return;
             case "private":
                 t.setAccess(Access.PRIVATE);
-                checkAccessScope();
+                checkAccessScope(t, parent);
                 t.next;
                 return;
             case "public":
                 t.setAccess(Access.PUBLIC);
-                checkAccessScope();
+                checkAccessScope(t, parent);
                 t.next;
                 return;
             case "readonly":
                 t.setAccess(Access.READONLY);
-                checkAccessScope();
+                checkAccessScope(t, parent);
                 t.next;
                 return;
             case "return":
                 parseReturn(t, parent);
                 return;
             case "select":
-                noExprAllowedAtModuleScope();
+                noExprAllowedAtModuleScope(t, parent);
                 exprParser.parse(t, parent);
                 return;
             case "static":
@@ -117,7 +107,7 @@ public:
             case "#initof":
             case "#isptr":
             case "#isvalue":
-                noExprAllowedAtModuleScope();
+                noExprAllowedAtModuleScope(t, parent);
                 exprParser.parse(t, parent);
                 return;
             default:
@@ -137,48 +127,57 @@ public:
             parseFunction(t, parent);
             return;
         }
-        /// name <T> {
-        if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
-            int end;
-            if(isTemplateParams(t, 1, end) && t.peek(end+1).type==TT.LCURLY) {
-                parseFunction(t, parent);
-                return;
-            }
-        }
 
-        int eot = typeDetector().endOffset(t, parent);
+
+        /// type
+        /// type .
+        /// type (
+        /// type is
+        auto node = parent;
+        if(node.hasChildren) node = node.last();
+        int eot = typeDetector().endOffset(t, node);
         if(eot!=-1) {
             /// First token is a type so this could be one of:
             /// constructor, variable declaration or is_expr
             auto nextTok = t.peek(eot+1);
 
-            if(nextTok.type==TT.LBRACKET) {
+            if(nextTok.type==TT.DOT) {
+                /// dot
+                noExprAllowedAtModuleScope(t, parent);
+                exprParser.parse(t, parent);
+            } else if(nextTok.type==TT.LBRACKET) {
                 /// Constructor
-                noExprAllowedAtModuleScope();
+                noExprAllowedAtModuleScope(t, parent);
                 exprParser.parse(t, parent);
             } else if(nextTok.value=="is") {
-                noExprAllowedAtModuleScope();
-                exprParser.parse(t, parent);
-            } else if(nextTok.type==TT.DOT) {
-                noExprAllowedAtModuleScope();
+                /// is
+                noExprAllowedAtModuleScope(t, parent);
                 exprParser.parse(t, parent);
             } else {
                 /// Variable decl
                 varParser().parseLocal(t, parent);
             }
 
-
             return;
         }
 
-        /// Test for identifier<params> not followed by a '(' or '{'
-        /// which indicates a missing type
+        /// name < ... > {
+        /// name < ... > (
         if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LANGLE) {
 
             int end;
-            if(isTemplateParams(t,1,end)) {
+            if(isTemplateParams(t, 1, end)) {
                 auto nextTok = t.peek(end+1);
-                if(nextTok.type!=TT.LBRACKET && nextTok.type!=TT.LCURLY) {
+
+                /// name <T> {
+                if(nextTok.type==TT.LCURLY) {
+                    parseFunction(t, parent);
+                    return;
+                }
+
+                /// identifier<params> not followed by a '(' or '{'
+                /// indicates a missing type
+                if(nextTok.type!=TT.LBRACKET) {
                     errorMissingType(module_, t);
                 }
             }
@@ -189,10 +188,27 @@ public:
             errorMissingType(module_, t, t.value);
         }
 
-        noExprAllowedAtModuleScope();
+        /// It must be an expression
+        noExprAllowedAtModuleScope(t, parent);
         exprParser.parse(t, parent);
     }
 private: //=============================================================================== private
+    void noExprAllowedAtModuleScope(Tokens t, ASTNode parent) {
+        if(parent.isA!Module) {
+            errorBadSyntax(module_, t, "Expressions not allowed at module scope. Did you mean define?");
+        }
+    }
+    void checkAccessScope(Tokens t, ASTNode parent) {
+        if(parent.id==NodeID.NAMED_STRUCT) return;
+        if(parent.id==NodeID.MODULE) {
+            if(t.value=="readonly") {
+                module_.addError(t, "readonly access is only allowed inside a struct", true);
+            }
+            return;
+        }
+        module_.addError(t, "Access qualifiers only allowed at module or named struct scope", true);
+    }
+
     /// extern putchar {int->int}
     void parseExtern(Tokens t, ASTNode parent) {
         /// "extern"
@@ -270,7 +286,6 @@ private: //=====================================================================
                 auto fn       = makeNode!Function(t);
                 fn.name       = f;
                 fn.moduleName = imp.moduleName;
-                fn.moduleNID  = imp.mod.nid;
                 fn.isImport   = true;
                 imp.add(fn);
             }
@@ -279,7 +294,6 @@ private: //=====================================================================
                 def.name        = d;
                 def.type        = TYPE_UNKNOWN;
                 def.moduleName  = imp.moduleName;
-                def.moduleNID   = imp.mod.nid;
                 def.isImport    = true;
                 imp.add(def);
             }
@@ -332,9 +346,12 @@ private: //=====================================================================
         /// name
         f.name           = t.value;
         f.moduleName     = module_.canonicalName;
-        f.moduleNID      = module_.nid;
         f.isProgramEntry = module_.isMainModule && f.name=="main";
         t.next;
+
+        if(f.isStatic && f.name=="new") {
+            module_.addError(t, "Struct constructors cannot be static", true);
+        }
 
         if(f.name=="operator" && ns) {
             /// Operator overload

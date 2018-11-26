@@ -92,13 +92,14 @@ struct Array <A,B> {
 }
 
 main {
+    import tmisc::test_misc;            testMisc()
     import tmisc::test_builtin_funcs;   testBuiltinFuncs() 
     import tnodes::test_select;         testSelect()
     import test_closures;               testClosures()
     import test_enum;                   testEnum()
     
     import texpr = test_expressions
-    texpr::testExpressions()
+    texpr.testExpressions()
     
     testLiterals()
     testConsts()
@@ -223,8 +224,8 @@ testStatements {
     import l = tnodes::test_loop, 
            v = test_variables
 
-    l::testLoop()
-    v::testVariables()
+    l.testLoop()
+    v.testVariables()
 }
 testExpressions {
     import tnodes::test_as, 
@@ -242,7 +243,7 @@ testFunctions {
     testInnerFunctions()
 }
 testStructures {
-    import test_structs, 
+    import tstructs::test_structs, 
            test_constructors, 
            tstatics::test_statics, 
            test_operator_overloading
@@ -254,8 +255,10 @@ testStructures {
 }
 testTemplates {
     import ttemplates::test_template_functions, 
+           ttemplates::test_template_structs,
            ttemplates::test_implicit_template_funcs
-
+           
+    testTemplateStructs()
     testTemplateFunctions()
     testImplicitTemplateFunctions()
 }

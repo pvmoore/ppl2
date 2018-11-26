@@ -61,7 +61,18 @@ public:
         }
         return _llvmType;
     }
-    //========================================================================================
+    ///========================================================================================
+    Enum getInnerEnum(string name) {
+        return children[]
+                .filter!(it=>it.id==NodeID.ENUM && it.as!Enum.name==name)
+                .frontOrNull!Enum;
+    }
+    NamedStruct getInnerNamedStruct(string name) {
+        return children[]
+                .filter!(it=>it.id==NodeID.NAMED_STRUCT && it.as!NamedStruct.name==name)
+                .frontOrNull!NamedStruct;
+    }
+    ///========================================================================================
     Variable[] getStaticVariables() {
         return children[]
                    .filter!(it=>it.id==NodeID.VARIABLE)
@@ -74,7 +85,7 @@ public:
             .filter!(it=>it.name==name)
             .frontOrNull!Variable;
     }
-    ////========================================================================================
+    ///========================================================================================
     Function[] getStaticFunctions() {
         return children[]
                    .filter!(it=>it.id==NodeID.FUNCTION)
@@ -87,7 +98,7 @@ public:
                     .filter!(it=>name==it.name)
                     .array;
     }
-    //========================================================================================
+    ///========================================================================================
     Function[] getMemberFunctions() {
         return children[]
                    .filter!(it=>it.id==NodeID.FUNCTION)
@@ -100,27 +111,10 @@ public:
                     .filter!(it=>name==it.name)
                     .array;
     }
-    int getMemberIndex(Function var) {
-        foreach(int i, v; getMemberFunctions()) {
-            if(var is v) return i;
-        }
-        return -1;
-    }
-    override int getMemberIndex(Variable var) {
-        return super.getMemberIndex(var);
-    }
     bool hasDefaultConstructor() {
         return getDefaultConstructor() !is null;
     }
-    bool hasOperatorOverload(Operator op) {
-        string fname = "operator";
-        if(op==Operator.NEG) {
-            fname ~= " neg";
-        } else {
-            fname ~= op.value;
-        }
-        return getMemberFunctions(fname).length > 0;
-    }
+
     Function getDefaultConstructor() {
         foreach(f; getConstructors()) {
             if(f.isDefaultConstructor) return f;
@@ -135,7 +129,16 @@ public:
         recursiveCollect!Function(array, f=>f.isInner);
         return array[];
     }
-    //========================================================================================
+    int getMemberIndex(Function var) {
+        foreach(int i, v; getMemberFunctions()) {
+            if(var is v) return i;
+        }
+        return -1;
+    }
+    override int getMemberIndex(Variable var) {
+        return super.getMemberIndex(var);
+    }
+    ///========================================================================================
     bool isAtModuleScope() {
         return parent.isModule;
     }
@@ -144,6 +147,15 @@ public:
             _uniqueName = getModule().buildState.mangler.mangle(this);
         }
         return _uniqueName;
+    }
+    bool hasOperatorOverload(Operator op) {
+        string fname = "operator";
+        if(op==Operator.NEG) {
+            fname ~= " neg";
+        } else {
+            fname ~= op.value;
+        }
+        return getMemberFunctions(fname).length > 0;
     }
     //========================================================================================
     override string toString() {

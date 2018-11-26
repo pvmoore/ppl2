@@ -11,7 +11,6 @@ private:
 public:
     string name;
     string moduleName;      /// canonical name of module (!=this.getModule.canonicalName if isImport)
-    int moduleNID;          /// nid of module (!=this.getModule.nid if isImport)
     Access access = Access.PUBLIC;
     bool isStatic;
     bool isProgramEntry;    /// true if this is the program main function

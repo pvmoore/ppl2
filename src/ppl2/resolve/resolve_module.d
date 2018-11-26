@@ -2,6 +2,8 @@ module ppl2.resolve.resolve_module;
 
 import ppl2.internal;
 
+private const bool VERBOSE = false;
+
 final class ModuleResolver {
 private:
     AssertResolver assertResolver;
@@ -152,10 +154,13 @@ public:
         }
     }
     void visit(Alias n) {
-        if(n.cat==Alias.Category.TYPEOF_EXPR) {
+        if(n.isTypeof) {
             if(n.first.isResolved) {
-                n.type = n.first.getType;
-                n.cat  = Alias.Category.STANDARD;
+                n.type     = n.first.getType;
+                n.isTypeof = false;
+                modified   = true;
+                n.first().detach();
+                assert(!n.hasChildren());
             }
         } else {
             resolveAlias(n, n.type);
@@ -382,87 +387,153 @@ public:
         /// Ensure active roots remain valid
         module_.addActiveRoot(withMe);
     }
+    bool isAStaticTypeExpr(Expression expr) {
+        auto exprType       = expr.getType;
+        bool isStaticAccess = exprType.isValue;
+        if(isStaticAccess) {
+            switch(expr.id) with(NodeID) {
+                case CONSTRUCTOR:
+                case IDENTIFIER:
+                case COMPOSITE:
+                    isStaticAccess = false;
+                    break;
+                case DOT:
+                    auto d = expr.as!Dot;
+                    if(d.left.id==MODULE_ALIAS) {
+                        isStaticAccess = d.right().isTypeExpr;
+                    } else {
+                        assert(false, "implement me %s %s %s".format(d.left.id, expr.line+1, module_.canonicalName));
+                    }
+                    break;
+                case TYPE_EXPR:
+                    break;
+                default:
+                    assert(false, "implement me %s %s %s".format(expr.id, expr.line+1, module_.canonicalName));
+            }
+        }
+        return isStaticAccess;
+    }
     ///
     /// If type is a Alias then we need to resolve it
     ///
     void resolveAlias(ASTNode node, ref Type type) {
         if(!type.isAlias) return;
 
-        auto def = type.getAlias;
+        auto alias_ = type.getAlias;
 
         /// Handle import
-        if(def.isImport) {
-            auto m = module_.buildState.getOrCreateModule(def.moduleName);
-            if(m.isParsed) {
-                auto externDef = m.getAlias(def.name);
-                if(externDef) {
-                    /// Switch to the external Alias
-                    def  = externDef;
-                    type = PtrType.of(externDef, type.getPtrDepth);
-                } else {
-                    auto ns = m.getNamedStruct(def.name);
-                    if(ns) {
-                        type = PtrType.of(ns, type.getPtrDepth);
-                        return;
-                    } else {
-                        auto en = m.getEnum(def.name);
-                        if(en) {
-                            type = PtrType.of(en, type.getPtrDepth);
-                            return;
-                        }
-                    }
-                    module_.addError(module_, "Import %s not found in module %s".format(def.name, def.moduleName), true);
-                    return;
-                }
-            } else {
+        if(alias_.isImport) {
+            auto m = module_.buildState.getOrCreateModule(alias_.moduleName);
+            if(!m.isParsed) {
                 /// Come back when m is parsed
                 return;
             }
+            Type externalType = m.getAlias(alias_.name);
+            if(!externalType) externalType = m.getNamedStruct(alias_.name);
+            if(!externalType) externalType = m.getEnum(alias_.name);
+            if(!externalType) {
+                module_.addError(module_, "Import %s not found in module %s".format(alias_.name, alias_.moduleName), true);
+                return;
+            }
+
+            type     = PtrType.of(externalType, type.getPtrDepth);
+            modified = true;
+            return;
         }
 
-        /// Handle template proxy Alias
-        if(def.isTemplateProxy) {
+        /// type<...>
+        if(alias_.isTemplateProxy) {
 
             /// Ensure template params are resolved
-            foreach(ref t; def.templateProxyParams) {
+            foreach (ref t; alias_.templateParams) {
                 resolveAlias(node, t);
             }
 
             /// Resolve until we have the NamedStruct
-            if(def.templateProxyType.isAlias) {
-                resolveAlias(node, def.templateProxyType);
+            if (alias_.type.isAlias) {
+                resolveAlias(node, alias_.type);
             }
-            if(!def.templateProxyType.isNamedStruct) {
-                unresolved.add(def);
+            if (!alias_.type.isNamedStruct) {
+                unresolved.add(alias_);
                 return;
             }
 
-            /// We now have a NamedStruct to work with
-            if(def.templateProxyParams.areKnown) {
-                auto ns            = def.templateProxyType.getNamedStruct;
-                string mangledName = ns.getUniqueName ~ "<" ~ module_.buildState.mangler.mangle(def.templateProxyParams) ~ ">";
+            if (!alias_.templateParams.areKnown) {
+                unresolved.add(alias_);
+                return;
+            }
+        }
+        /// type::type2::type3 etc...
+        if(alias_.isInnerType) {
+            //dd("!! resolve inner type", "alias:", alias_);
 
-                auto t = module_.typeFinder.findType(mangledName, ns);
-                if(t) {
-                    assert(t.isNamedStruct);
-                    type = PtrType.of(t, type.getPtrDepth);
-                    t.getNamedStruct.numRefs++;
-                } else {
+            resolveAlias(node, alias_.type);
+
+            if(alias_.type.isAlias) {
+                //dd("  !! unresolved:", alias_.type);
+                unresolved.add(alias_);
+                return;
+            }
+
+            //dd("  !! resolved", alias_.type);
+        }
+
+        if(alias_.isTemplateProxy || alias_.isInnerType) {
+
+            /// We now have a NamedStruct to work with
+            auto ns            = alias_.type.getNamedStruct;
+            string mangledName;
+            if(alias_.isInnerType) {
+                mangledName ~= alias_.name;
+                //dd("  !! looking for", mangledName, "inside", ns);
+            } else {
+                mangledName ~= ns.getUniqueName;
+            }
+            if(alias_.isTemplateProxy) {
+                mangledName ~= "<" ~ module_.buildState.mangler.mangle(alias_.templateParams) ~ ">";
+            }
+
+            auto t = module_.typeFinder.findType(mangledName, ns, alias_.isInnerType);
+            if(t) {
+                /// Found
+
+                //if(alias_.isInnerType) {
+                //    dd("  !! found", t);
+                //}
+
+                type     = PtrType.of(t, type.getPtrDepth);
+                modified = true;
+
+                alias_.detach();
+            } else {
+
+                if(alias_.isInnerType) {
+                    /// Find the template blueprint
+                    string parentName = ns.name;
+                    ns = ns.getInnerNamedStruct(alias_.name);
+                    if(!ns) {
+                        module_.addError(alias_, "Struct %s does not have inner type %s".format(parentName, alias_.name), true);
+                        return;
+                    }
+                }
+
+                if(alias_.isTemplateProxy) {
                     /// Extract the template
                     auto structModule = module_.buildState.getOrCreateModule(ns.moduleName);
-                    structModule.templates.extract(ns, node, mangledName, def.templateProxyParams);
+                    structModule.templates.extract(ns, node, mangledName, alias_.templateParams);
 
-                    unresolved.add(def);
+                    unresolved.add(alias_);
                 }
             }
             return;
         }
 
-        if(def.type.isKnown || def.type.isAlias) {
-            /// Switch to the Aliasd type
-            type = PtrType.of(def.type, type.getPtrDepth);
+        if(alias_.type.isKnown || alias_.type.isAlias) {
+            /// Switch to the Aliased type
+            type     = PtrType.of(alias_.type, type.getPtrDepth);
+            modified = true;
         } else {
-            unresolved.add(def);
+            unresolved.add(alias_);
         }
     }
 //==========================================================================
@@ -491,15 +562,15 @@ private:
             if(f.isTemplateBlueprint) return;
             if(f.isImport) return;
         } else if(m.isAlias) {
-            auto d = m.as!Alias;
-            if(d.cat==Alias.Category.TYPEOF_EXPR) {
-
-            } else {
-                if(!d.type.isAlias) return;
-            }
+            auto a = m.as!Alias;
+            // todo - detach these?
+            if(a.isStandard && !a.type.isAlias) return;
+            if(a.isInnerType && !a.type.isAlias) return;
         }
 
-        //dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);
+        static if(VERBOSE) {
+            dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);
+        }
         /// Resolve this node
         m.visit!ModuleResolver(this);
 

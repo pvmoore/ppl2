@@ -74,7 +74,6 @@ public:
     }
     override string toString() {
         auto buf = new StringBuffer;
-        buf.add("PPL %s\n".format(VERSION));
         buf.add("Main file .... %s\n".format(mainFile));
         buf.add("Base path .... %s\n".format(basePath));
         buf.add("Target path .. %s\n".format(targetPath));

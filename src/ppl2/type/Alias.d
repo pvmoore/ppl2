@@ -1,31 +1,33 @@
 module ppl2.type.Alias;
 
 import ppl2.internal;
+/// STANDARD
+///     type     = aliased type
+///     children = type (if anonstruct or function)
+/// INNER_TYPE
+///     type     = start type
+///     children = aliases of subsequent types (with templateParams if given)
+/// TYPEOF
+///     type     = not set
+///     children = expression
 
 final class Alias : Statement, Type {
+private:
+
+public:
     string name;
     string moduleName;
-    int moduleNID;
     bool isImport;
-    int numRefs;
     Type type;
-    Category cat = Category.STANDARD;
+    Type[] templateParams;
+    int numRefs;
 
-    enum Category {
-        STANDARD,       /// alias a = type
-        TEMPLATE_PROXY, /// s<type>
-        TYPEOF_EXPR     /// #typeof ( expr )
-    }
-
-/// template stuff
-    Type templateProxyType;     /// Alias or NamedStruct
-    Type[] templateProxyParams;
+    bool isTypeof;      /// true if this is a #typeof(expr) alias
+    bool isInnerType;   /// true if this is an inner type alias eg. type::type
 
     this() {
         type = TYPE_UNKNOWN;
     }
-
-    bool isTemplateProxy() { return templateProxyType !is null; }
 
 /// ASTNode
     override bool isResolved() { return false; }
@@ -39,8 +41,25 @@ final class Alias : Statement, Type {
     bool exactlyMatches(Type other)      { assert(false); }
     bool canImplicitlyCastTo(Type other) { assert(false); }
     LLVMTypeRef getLLVMType()            { assert(false); }
-    //=======================================================================================
+
+    bool isStandard()      { return !isTypeof && !isInnerType && !isTemplateProxy(); }
+    bool isTemplateProxy() { return templateParams.length>0; }
+
+    //Alias[] childAliases() {
+    //    return children.values.as!(Alias[]);
+    //}
+    //bool childAliasesAreResolved() {
+    //    return childAliases().all!(it=>it.type.isKnown);
+    //}
+
     override string toString() {
-        return "alias of %s".format(type);
+        string tt = templateParams ? "<%s>".format(templateParams.toString) : "";
+        if(isInnerType) {
+            return "alias inner (%s:: '%s'%s)".format(type, name, tt);
+        }
+        if(isTypeof) {
+            return "#typeof(%s%s)".format(type, tt);
+        }
+        return "alias '%s' = %s%s".format(name, type, tt);
     }
 }

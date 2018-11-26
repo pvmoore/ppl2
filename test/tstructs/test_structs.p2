@@ -72,4 +72,7 @@ public testStructs {
     t.retThis().foo()
 
     //Colour col
+    
+    import tstructs::test_inner_structs
+    testInnerStructs()
 }

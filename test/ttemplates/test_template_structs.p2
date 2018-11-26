@@ -1,0 +1,13 @@
+
+struct A <T> {
+    int a
+}
+
+public
+
+testTemplateStructs {
+    A<int> a
+    
+    alias AA = A<float>
+    AA b    ; assert b is A<float>
+}

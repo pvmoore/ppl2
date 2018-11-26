@@ -72,18 +72,18 @@ public testStatics {
         // static access
         //var ss = a.s      // not allowed
         
-		assert A::s == 2
-		assert A::rs == 4
-        assert A::ps == 6   
+		assert A.s == 2
+		assert A.rs == 4
+        assert A.ps == 6   
         assert #sizeof(A) == 12
-        assert A::bar() == 2
-        assert A::bar2(8) == 3
-        assert A::rbar() == 5
-        assert A::rbar2(5) == 6
-        assert A::pbar() == 8
-        assert A::pbar2(10) == 9
-        assert A::foo() == 99
-        var a1 = A::s as float  ; assert a1 is float; assert a1 == 2.0f    
+        assert A.bar() == 2
+        assert A.bar2(8) == 3
+        assert A.rbar() == 5
+        assert A.rbar2(5) == 6
+        assert A.pbar() == 8
+        assert A.pbar2(10) == 9
+        assert A.foo() == 99
+        var a1 = A.s as float  ; assert a1 is float; assert a1 == 2.0f    
 		
         var b = B<int>()
         // member access
@@ -91,10 +91,10 @@ public testStatics {
         assert b.orange<float>(3.14) == 6
         // static access
         assert #sizeof(B<int>) == 4
-        assert B<int>::s == 2
-        assert B<int>::foo() == 3
-        assert B<int>::foo(7) == 4
-        assert B<int>::yellow<float>(3.14) == 5
+        assert B<int>.s == 2
+        assert B<int>.foo() == 3
+        assert B<int>.foo(7) == 4
+        assert B<int>.yellow<float>(3.14) == 5
         
         //A::foo()         // not allowed - (fixme.needs better error msg)
         //a.bar()           // not allowed
@@ -109,15 +109,15 @@ public testStatics {
         assert a.foo() == 10
         
         // static access
-        assert Static::s == 20
-        assert Static::rs == 40
+        assert Static.s == 20
+        assert Static.rs == 40
         //assert Static::ps == 60     // private external
         assert #sizeof(Static) == 12
         
-        assert Static::bar() == 20
-        assert Static::bar2(1) == 30
-        assert Static::rbar() == 50
-        assert Static::rbar2(5) == 60
+        assert Static.bar() == 20
+        assert Static.bar2(1) == 30
+        assert Static.rbar() == 50
+        assert Static.rbar2(5) == 60
         //assert Static::pbar() == 80       // private external
         //assert Static::pbar2(10) == 90    // private external
         
@@ -127,10 +127,10 @@ public testStatics {
         assert b.orange<float>(3.14) == 6
         // static access
         assert #sizeof(Statics2<int>) == 4
-        assert Statics2<int>::s == 2
-        assert Statics2<int>::foo() == 3
-        assert Statics2<int>::foo(7) == 4
-        assert Statics2<int>::yellow<float>(3.14) == 5
+        assert Statics2<int>.s == 2
+        assert Statics2<int>.foo() == 3
+        assert Statics2<int>.foo(7) == 4
+        assert Statics2<int>.yellow<float>(3.14) == 5
     }
 	testNameClashes {
 		a {
@@ -158,7 +158,7 @@ public testStatics {
 			static bool boo
 		}
 		test_statics t
-		t::boo = true
+		t.boo = true
 	}
     testLocal()
     testExternal()

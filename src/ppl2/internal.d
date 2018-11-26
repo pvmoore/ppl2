@@ -115,8 +115,9 @@ import ppl2.parse.parse_statement;
 import ppl2.parse.parse_type;
 import ppl2.parse.parse_variable;
 
-import ppl2.resolve.after_resolution;
-import ppl2.resolve.find_import;
+import ppl2.resolve.AfterResolution;
+import ppl2.resolve.FunctionFinder;
+import ppl2.resolve.ImportFinder;
 import ppl2.resolve.TypeFinder;
 import ppl2.resolve.OverloadCollector;
 import ppl2.resolve.resolve_as;
