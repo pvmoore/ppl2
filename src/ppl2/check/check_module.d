@@ -191,14 +191,14 @@ public:
             if(access.isReadOnly && moduleName!=module_.canonicalName) {
                 auto a = n.getAncestor!Binary;
                 if(a && a.op.isAssign && n.isAncestor(a.left)) {
-                    module_.addError(n, "Attempting to modify readonly property", true);
+                    module_.addError(n, "Property is readonly", true);
                 }
             }
         }
 
         void checkPrivateAccess(Access access, string moduleName) {
             if(access.isPrivate && moduleName!=module_.canonicalName) {
-                module_.addError(n, "Attempting to access private property", true);
+                module_.addError(n, "Property is private", true);
             }
         }
 
@@ -501,7 +501,7 @@ public:
                     if(sameScope) {
                         module_.addError(n, "Variable %s declared more than once in this scope".format(n.name), true);
                     }
-                    module_.addError(n, "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line), true);
+                    module_.addError(n, "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line+1), true);
                 } else {
                     /// check function?
                 }

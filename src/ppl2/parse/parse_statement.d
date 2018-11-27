@@ -311,6 +311,8 @@ private: //=====================================================================
         auto alias_ = makeNode!Alias(t);
         parent.add(alias_);
 
+        alias_.access = t.access();
+
         /// "alias"
         t.skip("alias");
 
@@ -527,6 +529,8 @@ private: //=====================================================================
 
         auto e = makeNode!Enum(t);
         parent.add(e);
+
+        e.access = t.access();
 
         /// enum
         t.skip("enum");

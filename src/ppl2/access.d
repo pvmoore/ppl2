@@ -15,3 +15,16 @@ bool isReadOnly(Access a) { return a==Access.READONLY; }
 string toString(Access a) {
     return "%s".format(a).toLower;
 }
+
+Access getAccess(ASTNode n) {
+    switch(n.id) with(NodeID) {
+        case NAMED_STRUCT:
+            return n.as!NamedStruct.access;
+        case ALIAS:
+            return n.as!Alias.access;
+        case ENUM:
+            return n.as!Enum.access;
+        default:
+            assert(false, "implement me %s".format(n.id));
+    }
+}

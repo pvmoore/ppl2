@@ -18,6 +18,7 @@ public:
     string name;
     string moduleName;
     bool isImport;
+    Access access = Access.PUBLIC;
     Type type;
     Type[] templateParams;
     int numRefs;

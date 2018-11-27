@@ -421,6 +421,23 @@ public:
 
         auto alias_ = type.getAlias;
 
+        void resolveTo(Type toType) {
+            type     = PtrType.of(toType, type.getPtrDepth);
+            modified = true;
+
+            auto node = cast(ASTNode)toType;
+            if(node) {
+                auto access = node.getAccess();
+                if(access.isPrivate && module_.nid!=node.getModule().nid) {
+                    module_.addError(alias_, "Type %s is private".format(node), true);
+                }
+            }
+
+            if(!type.isAlias) {
+                alias_.detach();
+            }
+        }
+
         /// Handle import
         if(alias_.isImport) {
             auto m = module_.buildState.getOrCreateModule(alias_.moduleName);
@@ -436,8 +453,7 @@ public:
                 return;
             }
 
-            type     = PtrType.of(externalType, type.getPtrDepth);
-            modified = true;
+            resolveTo(externalType);
             return;
         }
 
@@ -445,20 +461,20 @@ public:
         if(alias_.isTemplateProxy) {
 
             /// Ensure template params are resolved
-            foreach (ref t; alias_.templateParams) {
+            foreach(ref t; alias_.templateParams) {
                 resolveAlias(node, t);
             }
 
             /// Resolve until we have the NamedStruct
-            if (alias_.type.isAlias) {
+            if(alias_.type.isAlias) {
                 resolveAlias(node, alias_.type);
             }
-            if (!alias_.type.isNamedStruct) {
+            if(!alias_.type.isNamedStruct) {
                 unresolved.add(alias_);
                 return;
             }
 
-            if (!alias_.templateParams.areKnown) {
+            if(!alias_.templateParams.areKnown) {
                 unresolved.add(alias_);
                 return;
             }
@@ -496,15 +512,7 @@ public:
             auto t = module_.typeFinder.findType(mangledName, ns, alias_.isInnerType);
             if(t) {
                 /// Found
-
-                //if(alias_.isInnerType) {
-                //    dd("  !! found", t);
-                //}
-
-                type     = PtrType.of(t, type.getPtrDepth);
-                modified = true;
-
-                alias_.detach();
+                resolveTo(t);
             } else {
 
                 if(alias_.isInnerType) {
@@ -530,8 +538,7 @@ public:
 
         if(alias_.type.isKnown || alias_.type.isAlias) {
             /// Switch to the Aliased type
-            type     = PtrType.of(alias_.type, type.getPtrDepth);
-            modified = true;
+            resolveTo(alias_.type);
         } else {
             unresolved.add(alias_);
         }
@@ -563,9 +570,7 @@ private:
             if(f.isImport) return;
         } else if(m.isAlias) {
             auto a = m.as!Alias;
-            // todo - detach these?
             if(a.isStandard && !a.type.isAlias) return;
-            if(a.isInnerType && !a.type.isAlias) return;
         }
 
         static if(VERBOSE) {

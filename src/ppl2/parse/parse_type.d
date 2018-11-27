@@ -46,9 +46,9 @@ public:
             if(type is null) {
                 type = parseImportAlias(t, node);
             }
-            /// Is it a NamedStruct or Alias?
+            /// Is it a NamedStruct, Enum or Alias?
             if(type is null) {
-                type = parseAliasOrNamedStruct(t, node);
+                type = parseAliasOrEnumOrNamedStruct(t, node);
             }
         }
 
@@ -130,7 +130,7 @@ public:
         return type;
     }
 private:
-    Type parseAliasOrNamedStruct(Tokens t, ASTNode node) {
+    Type parseAliasOrEnumOrNamedStruct(Tokens t, ASTNode node) {
 
         /// Get the name
         string name = t.value;

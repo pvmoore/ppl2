@@ -13,6 +13,7 @@ public:
     string name;
     string moduleName;
     Type elementType;
+    Access access = Access.PUBLIC;
     int numRefs;
 
     this() {

@@ -2,6 +2,7 @@
 public
 //====================================================================================
 struct A {
+public
     int a         = 1
     static int sa = 2
     foo         { /*A* this*/ return 1 }
@@ -9,13 +10,15 @@ struct A {
     enum Enum { ONE=3 }
     
     struct B {
+    public
         int b         = 3
         static int sb = 4
-        foo         { /*B* this*/ A ab; return 3 } // fixme shadowing bug A a
+        foo         { /*B* this*/ A a; return 3 } 
         static sfoo { return 4 }
         enum Enum { ONE=4 }
         
         struct C {
+        public
             int c         = 5
             static int sc = 6
             foo         { /*C* this*/ A ac; B bc; return 5 }
@@ -23,6 +26,7 @@ struct A {
             enum Enum { ONE=5 }
             
             struct D {
+            public
                 int d         = 7
                 static int sd = 8
                 foo         { /*D* this*/ A ad; B bd; C cd; return 7 }
@@ -31,25 +35,40 @@ struct A {
             }
         } 
     }
-    
-public
+    // For external testing. E is public
     struct E {
-        A a
+    private
+        int a        = 98
+        static int b = 99 
+    public
+        int c        = 100
+        static int d = 101
     }
+private
+    // For external testing. F is private
+    struct F {
+        int a        = 102
+        static int b = 103
+    }
+    // private enum
+    enum G { ONE }
 }
 //====================================================================================
 struct TA <T1> {
+public
     T1 a         = 1
     static T1 sa = 2
     foo { /*TA* this*/ return 10 }
     static sfoo { return 20 }
     
     struct B {
+    public
         T1 b = 3
     }
     enum Enum : T1 { ONE=2 }
     
     struct TB <T2> {
+    public
         T1 a = 100
         T2 b = 4
         static T2 sb = 5
@@ -57,11 +76,13 @@ struct TA <T1> {
         static sfoo { return 40 }
         
         struct C {
+        public
             T2 c = 6
         }
         enum Enum : T2 { ONE=3 }
         
         struct TC <T3> {
+        public
             T1 a = 200
             T2 b = 300
             T3 c         = 7 as T3
@@ -70,11 +91,13 @@ struct TA <T1> {
             static sfoo { return 60 }
             
             struct D {
+            public
                 T3 d = 9 as T3  
             }
             enum Enum : T3 { ONE=4 }
         
             struct TD <T4> {
+            public
                 T1 a = 300
                 T2 b = 400
                 T3 c = 500
@@ -83,12 +106,28 @@ struct TA <T1> {
                 foo { /*TD* this*/ return 70 }
                 static sfoo { return 80 }
                 
-                struct E {          // fixme struct D already defined
+                struct E {          
+                public
                     T4 e = 7
                 }
                 enum Enum : T4 { ONE=5 }
             }
         }  
+    }
+    // For external testing. TE is public
+    struct TE <T5> {
+    public
+        int a = 50
+        static int b = 51
+    private
+        int c = 52
+        static int d = 53
+    }
+private
+    // For external testing. TF is private
+    struct TF <T6> {
+        int a = 54
+        static int b = 55
     }
 }
 //====================================================================================
@@ -143,6 +182,16 @@ testInnerStructs {
         assert 40 == TA<int>::TB<float>.sfoo()
         
         // TA<int>::C t4        // inner type C not found 
+        
+        var ae = A::E()
+        assert ae.a == 98
+        assert A::E.b == 99
+        assert ae.c == 100
+        assert A::E.d == 101
+        
+        var af = A::F()
+        assert af.a == 102
+        assert A::F.b == 103
     }
     level2 {
         A::B::C abc  

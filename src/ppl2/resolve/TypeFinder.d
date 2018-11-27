@@ -39,7 +39,7 @@ public:
             }
 
             auto imp = n.as!Import;
-            if(imp) {
+            if(imp && !imp.hasAliasName) {
                 foreach(ch; imp.children) {
                     auto t = find(ch);
                     if(t) return t;
@@ -54,9 +54,9 @@ public:
 
         if(nid==NodeID.MODULE) {
             /// Check all module level nodes
-            foreach(n; node.children) {
+            foreach (n; node.children) {
                 auto t = find(n);
-                if(t) return found(t);
+                if (t) return found(t);
             }
             return null;
 
@@ -70,9 +70,9 @@ public:
             if(isInnerType) {
                 return null;
             }
+
             /// Recurse up the tree
             return findType(name, node.parent);
-
         }
         /// Check nodes that appear before 'node' in current scope
         foreach(n; node.prevSiblings()) {
@@ -122,6 +122,7 @@ public:
         return type;
     }
     private Type found(Type t) {
+
         auto alias_ = t.getAlias;
         auto ns     = t.getNamedStruct;
         auto en     = t.getEnum;
@@ -136,6 +137,7 @@ public:
             module_.buildState.aliasEnumOrStructRequired(ns.moduleName, ns.name);
             ns.numRefs++;
         }
+
         return t;
     }
 }

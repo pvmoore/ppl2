@@ -29,7 +29,8 @@ public:
         n.access     = t.access();
 
         /// Is this type already defined?
-        auto type = typeFinder.findType(t.value, parent);
+        auto node = parent; if(node.hasChildren) node = node.last();
+        auto type = typeFinder.findType(t.value, node);
 
         //dd("parseNamedStruct", t.value);
         if(type) {

@@ -6,6 +6,7 @@ public
 testExternalInnerStructs {
     testAccess {
         import tstructs::test_inner_structs
+        // these are all public structs
         A a
         A::B ab
         A::B::C abc
@@ -15,19 +16,42 @@ testExternalInnerStructs {
         TA<float>::TB<int> tab
         TA<double>::TB<long>::TC<int> tabc
         TA<int>::TB<int>::TC<float>::TD<int> tabcd
+        
+        // this is a public struct but a and b are private, c and d are public
+        var ae = A::E()
+        //assert ae.a == 98     // private
+        //assert A::E.b == 99   // private
+        assert ae.c == 100      // public
+        assert A::E.d == 101    // public
+        
+        //var af = A::F()       // A::F is private
+        //var ago = A::G.ONE    // G is private
+        
+        // TA::TE is public
+        var te = TA<int>::TE<int>()
+        assert te.a == 50                   // public
+        assert TA<int>::TE<int>.b == 51     // public
+        //assert te.c == 52                 // private
+        //assert TA<int>::TE<int>.d == 52   // private 
     }
     testImportAlias {
-         import imp = tstructs::test_inner_structs
+        import imp = tstructs::test_inner_structs
 
-         imp.A a
-         imp.A::B ab
-         imp.A::B::C abc
-         imp.A::B::C::D abcd
+        imp.A a
+        imp.A::B ab
+        imp.A::B::C abc
+        imp.A::B::C::D abcd
          
-         imp.TA<int> ta
-         imp.TA<float>::TB<int> tab
-         imp.TA<double>::TB<long>::TC<int> tabc
-         imp.TA<int>::TB<int>::TC<float>::TD<int> tabcd
+        imp.TA<int> ta
+        imp.TA<float>::TB<int> tab
+        imp.TA<double>::TB<long>::TC<int> tabc
+        imp.TA<int>::TB<int>::TC<float>::TD<int> tabcd
+        
+        alias AL = imp.A::B
+        AL al = imp.A::B()
+        
+        //var af = imp.A::F()       // A::F is private
+        //var ago = imp.A::G.ONE    // G is private
     }
     testAccess()
     testImportAlias()

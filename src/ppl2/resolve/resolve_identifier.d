@@ -101,8 +101,12 @@ private:
                     isThisIt(name, n, res);
                     if(res.found) return;
                 }
+
                 if(nid==MODULE) return;
-                break;
+
+                /// Go to module scope
+                findRecurse(name, node.getModule(), res);
+                return;
             case LITERAL_FUNCTION:
                 if(!node.as!LiteralFunction.isClosure) {
                     /// Go to containing struct if there is one
@@ -321,7 +325,7 @@ private:
             var = ns.getStaticVariable(n.name);
             if(var) {
                 if(var.access.isPrivate && var.getModule.nid != module_.nid) {
-                    module_.addError(n, "%s is external and private".format(var.name), true);
+                    module_.addError(n, "%s is private".format(var.name), true);
                 }
                 n.target.set(var);
                 return;
@@ -333,6 +337,9 @@ private:
 
         var = struct_.getMemberVariable(n.name);
         if(var) {
+            if(var.access.isPrivate && var.getModule.nid != module_.nid) {
+                module_.addError(n, "%s is private".format(var.name), true);
+            }
             n.target.set(var, struct_.getMemberIndex(var));
         }
     }

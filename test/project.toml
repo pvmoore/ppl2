@@ -15,7 +15,7 @@ lib = "thing"
 
 [[openFile]]
 name = "tstructs/test_inner_structs.p2"
-line = 3
+line = 166
 active = 0
 
 [[openFile]]
@@ -25,7 +25,7 @@ active = 0
 
 [[openFile]]
 name = "tstructs/test_inner_structs2.p2"
-line = 21
+line = 30
 active = 1
 
 [[openFile]]
