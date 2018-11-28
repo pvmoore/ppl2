@@ -234,7 +234,7 @@ testInnerStructs {
         assert 10 == ttt.d
         assert 11 == TA<int>::TB<int>::TC<long>::TD<float>.sd
         assert 70 == ttt.foo()
-        assert 80 == TA<int>::TB<int>::TC<long>::TD<float>.sfoo()
+        assert 80 == TA<int>::TB<int>::TC<long>::TD<float>.sfoo() 
     }
     groundLevel()
     level1()

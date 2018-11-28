@@ -111,7 +111,7 @@ public:
     }
     void expect(TT[] types...) {
         foreach(t; types) if(type()==t) return;
-        module_.addError(this, "Expecting one of %s".format(types), false);
+        module_.addError(this, "Expecting one of %s".format(types.toString()), false);
     }
     void dontExpect(TT[] types...) {
         foreach(t; types) if(type()==t) {
@@ -243,6 +243,14 @@ string toSimpleString(Token[] tokens) {
     foreach(i, t; tokens) {
         if(i>0) buf.add(" ");
         buf.add(toSimpleString(t));
+    }
+    return buf.toString();
+}
+string toString(TT[] tt) {
+    auto buf = new StringBuffer;
+    foreach(i, t; tt) {
+        if(i>0) buf.add(" ");
+        buf.add(toString(t));
     }
     return buf.toString();
 }

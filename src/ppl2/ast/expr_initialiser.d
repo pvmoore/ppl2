@@ -17,6 +17,7 @@ public:
     override NodeID id() const { return NodeID.INITIALISER; }
     override Type getType() {
         assert(var);
+
         if(var.type.isKnown) return var.type;
         if(hasChildren && last().isResolved) {
             return last().getType;

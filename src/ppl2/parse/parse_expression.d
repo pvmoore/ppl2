@@ -175,9 +175,11 @@ private:
                 break;
             default:
                 //errorBadSyntax(t, "Syntax error");
-                writefln("BAD LHS %s", t.get);
-                parent.getModule.dumpToConsole();
-                module_.addError(t, "Bad LHS", false);
+                //writefln("BAD LHS %s", t.get);
+                //parent.getModule.dumpToConsole();
+                //module_.addError(t, "Bad LHS", false);
+                errorBadSyntax(module_, t, "Syntax error at %s".format(t.type));
+                break;
         }
     }
     void parseRHS(Tokens t, ASTNode parent) {

@@ -260,7 +260,7 @@ public:
         }
     }
     void dump(FileLogger l, string indent="") {
-        //debug if(getModule.canonicalName=="test_arrays") dd(this.id, "line", line);
+        //debug if(getModule.canonicalName=="tstructs::test_inner_structs") dd(this.id, "line", line);
         l.log("[% 4s] %s", this.line+1, indent ~ this.toString());
         foreach(ch; children) {
             ch.dump(l, indent ~ "   ");

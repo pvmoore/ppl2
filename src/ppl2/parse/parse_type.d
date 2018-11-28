@@ -82,6 +82,10 @@ public:
                     /// ::
                     t.skip(TT.DBL_COLON);
 
+                    if(t.type!=TT.IDENTIFIER) {
+                        errorBadSyntax(module_, t, "Expecting a type name");
+                    }
+
                     /// ( Enum | NamedStruct | NamedStruct<...> )
                     auto a        = makeNode!Alias(t);
                     a.isInnerType = true;
