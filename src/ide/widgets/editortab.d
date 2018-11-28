@@ -61,6 +61,8 @@ public:
             setTokenHightlightColor(TokenCategory.Comment_MultyLine, 0x405040);
 
             setTokenHightlightColor(TokenCategory.Keyword, 0xAD83D7);
+            setTokenHightlightColor(TokenCategory.Keyword | 1, 0xAD83D7 - 0x606060);
+
             setTokenHightlightColor(TokenCategory.String, 0x008000);
             setTokenHightlightColor(TokenCategory.Character, 0xd0d000);
             setTokenHightlightColor(TokenCategory.Integer, 0xd0d000);

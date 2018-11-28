@@ -19,6 +19,7 @@ private:
         int start;
         int end;
     }
+    Set!string keywords2;
     string moduleCanonicalName;
     EditableContent _content;
     ppl2.Lexer lexer;
@@ -28,9 +29,12 @@ private:
 public:
     this(string moduleCanonicalName) {
         this.moduleCanonicalName = moduleCanonicalName;
-        this.lexer    = new ppl2.Lexer(null);
-        this.lineInfo = new Array!LineInfo(1024);
-        this.errors   = new Array!Error;
+        this.lexer     = new ppl2.Lexer(null);
+        this.lineInfo  = new Array!LineInfo(1024);
+        this.errors    = new Array!Error;
+        this.keywords2 = new Set!string;
+
+        keywords2.add(["public", "private", "readonly"]);
     }
     EditableContent content() {
         return _content;
@@ -318,6 +322,7 @@ private:
             if(j>=toks.length-1) return false;
             if(j>0 && toks[j-1].type==ppl2.TT.DOT) return false;
             if(j>0 && toks[j-1].value=="struct") return false;
+            if(j>0 && toks[j-1].value=="enum") return false;
             if(j>0 && toks[j-1].value=="operator") return false;
             if(toks[j+1].type==ppl2.TT.LANGLE) {
                 auto nav = new ppl2.Tokens(null, toks[j+1..$]);
@@ -339,6 +344,9 @@ private:
                     return cast(TokenCategory)(TokenCategory.Identifier+5);
                 }
                 if(ppl2.g_keywords.contains(t.value)) {
+                    if(keywords2.contains(t.value)) {
+                        return cast(TokenCategory)(TokenCategory.Keyword | 1);
+                    }
                     return TokenCategory.Keyword;
                 }
                 if(isFuncDecl()) {

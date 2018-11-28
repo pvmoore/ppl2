@@ -1,7 +1,5 @@
 # Todo  
 
-- Think about: Do we need :: syntax? Why not just use . ?
-
 - If a var is never modified and no address taken, we can set it to const (Set resolver.setModified() also
   because we have changed the AST).
 
@@ -48,12 +46,7 @@
 - Is half data type worth using?
 - Built-in vector types eg float4, int2 etc...
 - More constant folding and dce (calls and functions)
-- Multi level struct access (maybe also add 'outer' keyword)
-```
-// assume they are always static
-A::B ab = A::B()
-a::B::a = 3
-```
+
 - Allow block of raw LLVM IR eg.
 ```
 IR { // or LLVM or similar

@@ -421,6 +421,7 @@ public:
 
         auto alias_ = type.getAlias;
 
+        /+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ inner +/
         void resolveTo(Type toType) {
             type     = PtrType.of(toType, type.getPtrDepth);
             modified = true;
@@ -437,6 +438,7 @@ public:
                 alias_.detach();
             }
         }
+        /+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++/
 
         /// Handle import
         if(alias_.isImport) {
@@ -481,17 +483,13 @@ public:
         }
         /// type::type2::type3 etc...
         if(alias_.isInnerType) {
-            //dd("!! resolve inner type", "alias:", alias_);
 
             resolveAlias(node, alias_.type);
 
             if(alias_.type.isAlias) {
-                //dd("  !! unresolved:", alias_.type);
                 unresolved.add(alias_);
                 return;
             }
-
-            //dd("  !! resolved", alias_.type);
         }
 
         if(alias_.isTemplateProxy || alias_.isInnerType) {
@@ -501,7 +499,6 @@ public:
             string mangledName;
             if(alias_.isInnerType) {
                 mangledName ~= alias_.name;
-                //dd("  !! looking for", mangledName, "inside", ns);
             } else {
                 mangledName ~= ns.getUniqueName;
             }

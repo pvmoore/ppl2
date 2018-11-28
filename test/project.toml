@@ -15,8 +15,8 @@ lib = "thing"
 
 [[openFile]]
 name = "tstructs/test_inner_structs.p2"
-line = 166
-active = 0
+line = 63
+active = 1
 
 [[openFile]]
 name = "test.p2"
@@ -25,8 +25,8 @@ active = 0
 
 [[openFile]]
 name = "tstructs/test_inner_structs2.p2"
-line = 30
-active = 1
+line = 37
+active = 0
 
 [[openFile]]
 name = "tstatics/test_statics.p2"
@@ -35,5 +35,10 @@ active = 0
 
 [[openFile]]
 name = "tstructs/test_structs.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_enum.p2"
 line = 0
 active = 0
