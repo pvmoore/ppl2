@@ -16,9 +16,6 @@ public:
             /// Look for an operator overload
             string name = "operator" ~ n.op.value;
 
-            auto struct_ = n.expr.getType.getAnonStruct;
-            assert(struct_);
-
             /// Rewrite to operator overload:
             /// Unary
             ///     expr struct

@@ -28,8 +28,8 @@ final class LiteralExpressionList : Expression {
                         t.getArrayType.add(count);
                     }
                     convertToLiteralArray();
-                } else if(p.getType.isAnonStruct) {
-                    convertToLiteralStruct();
+                } else if(p.getType.isTuple) {
+                    convertToLiteralTuple();
                 }
                 break;
             case BINARY:
@@ -37,8 +37,8 @@ final class LiteralExpressionList : Expression {
                 auto other = p.otherSide(this);
                 if(other.getType.isArray) {
                     convertToLiteralArray();
-                } else if(other.getType.isAnonStruct) {
-                    convertToLiteralStruct();
+                } else if(other.getType.isTuple) {
+                    convertToLiteralTuple();
                 }
                 break;
             case CALL:
@@ -46,8 +46,8 @@ final class LiteralExpressionList : Expression {
                 auto t = p.isResolved ? p.target.paramTypes()[index()] : TYPE_UNKNOWN;
                 if(t.isArray) {
                     convertToLiteralArray();
-                } else if(t.isAnonStruct) {
-                    convertToLiteralStruct();
+                } else if(t.isTuple) {
+                    convertToLiteralTuple();
                 } else {
                     /// Assume array
                     convertToLiteralArray();
@@ -68,8 +68,8 @@ final class LiteralExpressionList : Expression {
                     convertToLiteralArray();
                 } else if(p.var.type.isArray) {
                     convertToLiteralArray();
-                } else if(p.var.type.isAnonStruct) {
-                    convertToLiteralStruct();
+                } else if(p.var.type.isTuple) {
+                    convertToLiteralTuple();
                 }
                 break;
             case IS:
@@ -77,16 +77,16 @@ final class LiteralExpressionList : Expression {
                 auto t = p.oppositeSideType(this);
                 if(t.isArray) {
                     convertToLiteralArray();
-                } else if(t.isAnonStruct) {
-                    convertToLiteralStruct();
+                } else if(t.isTuple) {
+                    convertToLiteralTuple();
                 }
                 break;
             case RETURN:
                 auto p = parent.as!Return;
                 if(p.getReturnType().isArray) {
                     convertToLiteralArray();
-                } else if(p.getReturnType().isAnonStruct) {
-                    convertToLiteralStruct();
+                } else if(p.getReturnType().isTuple) {
+                    convertToLiteralTuple();
                 }
                 break;
             default:
@@ -107,8 +107,8 @@ private:
 
         parent.replaceChild(this, array);
     }
-    void convertToLiteralStruct() {
-        auto struct_ = makeNode!LiteralStruct(this);
+    void convertToLiteralTuple() {
+        auto struct_ = makeNode!LiteralTuple(this);
 
         foreach(ch; children[].dup) {
             struct_.add(ch);

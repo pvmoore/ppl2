@@ -47,9 +47,9 @@ testImplicitTemplateFunctions {
         func <A> { int a, int b, [A a, A b ,A c] c -> return 40 }
         
         assert 10 == func(5,6)
-        assert 20 == func(2,3, [4,5] as struct)
+        assert 20 == func(2,3, [4,5] as tuple)
         assert 30 == func(2,3, [4,5])
-        assert 40 == func(2,3, [4,5,6] as struct)
+        assert 40 == func(2,3, [4,5,6] as tuple)
     }
     singleArg()
     multipleArgs()

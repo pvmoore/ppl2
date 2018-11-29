@@ -94,7 +94,7 @@ private:
 
         switch(nid) with(NodeID) {
             case MODULE:
-            case ANON_STRUCT:
+            case TUPLE:
             case NAMED_STRUCT:
                 /// Check all variables at this level
                 foreach(n; node.children) {
@@ -186,10 +186,10 @@ private:
             Variable var = res.isVar ? res.var : null;
 
             if(var.isStructMember) {
-                auto struct_ = n.getAncestor!AnonStruct();
-                assert(struct_);
+                auto tuple = n.getAncestor!Tuple();
+                assert(tuple);
 
-                n.target.set(var, struct_.getMemberIndex(var));
+                n.target.set(var, tuple.getMemberIndex(var));
             } else {
                 /// Global, local or parameter
                 n.target.set(var);
@@ -234,8 +234,8 @@ private:
                     int len = prevType.getArrayType.countAsInt();
                     resolver.fold(dot, LiteralNumber.makeConst(len, TYPE_INT));
                     return;
-                } else if(prevType.isAnonStruct) {
-                    int len = prevType.getAnonStruct.numMemberVariables();
+                } else if(prevType.isTuple) {
+                    int len = prevType.getTuple.numMemberVariables();
                     resolver.fold(dot, LiteralNumber.makeConst(len, TYPE_INT));
                     return;
                 } else if(prevType.isEnum) {
@@ -262,8 +262,8 @@ private:
                 As as;
                 if(prevType.isArray) {
                     as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
-                } else if(prevType.isAnonStruct) {
-                    as = b.as(b.addressOf(prev), PtrType.of(prevType.getAnonStruct, 1));
+                } else if(prevType.isTuple) {
+                    as = b.as(b.addressOf(prev), PtrType.of(prevType.getTuple, 1));
                 } else {
                     break;
                 }
@@ -299,7 +299,7 @@ private:
                 break;
         }
 
-        if(!prevType.isNamedStruct && !prevType.isAnonStruct && !prevType.isEnum) {
+        if(!prevType.isNamedStruct && !prevType.isTuple && !prevType.isEnum) {
             module_.addError(prev, "Left of identifier %s must be a struct or enum type not a %s (prev=%s)".format(n.name, prevType, prev), true);
             return;
         }
@@ -332,15 +332,15 @@ private:
             }
         }
         /// It must be an instance member
-        AnonStruct struct_ = prevType.getAnonStruct();
-        assert(struct_);
+        Tuple tuple = prevType.getTuple();
+        assert(tuple);
 
-        var = struct_.getMemberVariable(n.name);
+        var = tuple.getMemberVariable(n.name);
         if(var) {
             if(var.access.isPrivate && var.getModule.nid != module_.nid) {
                 module_.addError(n, "%s is private".format(var.name), true);
             }
-            n.target.set(var, struct_.getMemberIndex(var));
+            n.target.set(var, tuple.getMemberIndex(var));
         }
     }
     void chat(A...)(lazy string fmt, lazy A args) {

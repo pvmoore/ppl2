@@ -6,7 +6,6 @@ import ppl2.internal;
 enum NodeID {
     ADDRESS_OF,
     ALIAS,
-    ANON_STRUCT,
     ARRAY,
     AS,
     ASSERT,
@@ -40,7 +39,7 @@ enum NodeID {
     LITERAL_NULL,
     LITERAL_NUMBER,
     LITERAL_STRING,
-    LITERAL_STRUCT,
+    LITERAL_TUPLE,
     LOOP,
     META_FUNCTION,
     MODULE,
@@ -51,6 +50,7 @@ enum NodeID {
     RETURN,
     SELECT,
     STRUCT_CONSTRUCTOR,
+    TUPLE,
     TYPE_EXPR,
     UNARY,
     VALUE_OF,
@@ -86,7 +86,6 @@ bool isCase(inout ASTNode n)            { return n.id()==NodeID.CASE; }
 bool isComposite(inout ASTNode n)       { return n.id()==NodeID.COMPOSITE; }
 bool isAlias(inout ASTNode n)           { return n.id()==NodeID.ALIAS; }
 bool isDot(inout ASTNode n)             { return n.id()==NodeID.DOT; }
-bool isEnumValueRef(inout ASTNode n)    { return n.id()==NodeID.ENUM_MEMBER_REF; }
 bool isExpression(inout ASTNode n)      { return n.as!Expression !is null; }
 bool isFunction(inout ASTNode n)        { return n.id()==NodeID.FUNCTION; }
 bool isIdentifier(inout ASTNode n)      { return n.id()==NodeID.IDENTIFIER; }

@@ -1,20 +1,20 @@
-module ppl2.type.type_anon_struct;
+module ppl2.type.Tuple;
 
 import ppl2.internal;
 ///
 ///
 ///
-class AnonStruct : ASTNode, Type, Container {
+class Tuple : ASTNode, Type, Container {
 protected:
     LLVMTypeRef _llvmType;
 public:
 /// ASTNode interface
     override bool isResolved() { return isKnown; }
-    override NodeID id() const { return NodeID.ANON_STRUCT; }
+    override NodeID id() const { return NodeID.TUPLE; }
     override Type getType() { return this; }
 
 /// Type interface
-    int category() const { return Type.ANON_STRUCT; }
+    int category() const { return Type.TUPLE; }
     bool isKnown() {
         return memberVariableTypes().all!(it=>it.isKnown);
     }
@@ -26,9 +26,9 @@ public:
         if(this.size != other.size) return false;
 
         /// Now check the base type
-        if(!other.isAnonStruct) return false;
+        if(!other.isTuple) return false;
 
-        auto right = other.getAnonStruct;
+        auto right = other.getTuple;
         return .exactlyMatch(memberVariableTypes(), right.memberVariableTypes);
     }
     bool canImplicitlyCastTo(Type other) {
@@ -39,9 +39,9 @@ public:
         if(this.size != other.size) return false;
 
         /// Now check the base type
-        if(!other.isAnonStruct) return false;
+        if(!other.isTuple) return false;
 
-        auto right = other.getAnonStruct;
+        auto right = other.getTuple;
 
         /// Types must match exactly
         return .exactlyMatch(memberVariableTypes(), right.memberVariableTypes);

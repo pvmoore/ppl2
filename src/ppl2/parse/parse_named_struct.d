@@ -15,7 +15,7 @@ public:
         this.module_ = module_;
     }
     ///
-    /// "struct" name "=" [ <> ] AnonStruct
+    /// "struct" name "=" [ <> ] "{" { statement } "}"
     ///
     void parse(Tokens t, ASTNode parent) {
 

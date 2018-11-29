@@ -17,9 +17,6 @@ public:
 
             auto ns = n.exprType.getNamedStruct;
 
-            auto struct_ = n.exprType.getAnonStruct;
-            assert(struct_);
-
             auto b = module_.builder(n);
 
             if(n.parent.isBinary) {

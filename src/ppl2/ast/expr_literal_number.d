@@ -48,8 +48,7 @@ public:
     override NodeID id() const { return NodeID.LITERAL_NUMBER; }
 
     void determineType() {
-        import std.typecons : Tuple, tuple;
-        Tuple!(Type,string) r = parseNumberLiteral(str);
+        From!"std.typecons".Tuple!(Type,string) r = parseNumberLiteral(str);
         _type  = r[0];
         str    = r[1];
         value  = Value(this);

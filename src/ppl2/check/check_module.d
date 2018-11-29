@@ -34,11 +34,6 @@ public:
 
     }
     void visit(Alias n) {
-        if(n.type.isAnonStruct) {
-
-        }
-    }
-    void visit(AnonStruct n) {
 
     }
     void visit(Parameters n) {
@@ -253,10 +248,10 @@ public:
                 }
             } else if(n.isStructIndex) {
 
-                AnonStruct struct_ = n.exprType().getAnonStruct;
-                assert(struct_);
+                Tuple tuple = n.exprType().getTuple;
+                assert(tuple);
 
-                auto count = struct_.numMemberVariables();
+                auto count = tuple.numMemberVariables();
                 assert(count);
 
                 if(lit.value.getInt() >= count) {
@@ -327,14 +322,14 @@ public:
     void visit(LiteralString n) {
 
     }
-    void visit(LiteralStruct n) {
-        AnonStruct struct_ = n.type.getAnonStruct;
-        assert(struct_);
+    void visit(LiteralTuple n) {
+        Tuple tuple = n.type.getTuple;
+        assert(tuple);
 
-        auto structTypes = struct_.memberVariableTypes();
+        auto structTypes = tuple.memberVariableTypes();
 
         /// Check for too many values
-        if(n.numElements > struct_.numMemberVariables) {
+        if(n.numElements > tuple.numMemberVariables) {
             module_.addError(n, "Too many values specified", true);
         }
 
@@ -348,19 +343,19 @@ public:
             stringSet.clear();
             foreach(i, name; n.names) {
                 if(stringSet.contains(name)) {
-                    module_.addError(n.children[i], "Struct member %s initialised more than once".format(name), true);
+                    module_.addError(n.children[i], "Tuple member %s initialised more than once".format(name), true);
                 }
                 stringSet.add(name);
-                auto v = struct_.getMemberVariable(name);
+                auto v = tuple.getMemberVariable(name);
                 if(!v) {
-                    module_.addError(n.children[i], "Struct does not have member %s".format(name), true);
+                    module_.addError(n.children[i], "Tuple does not have member %s".format(name), true);
                 }
             }
 
             auto elementTypes = n.elementTypes();
 
             foreach(i, name; n.names) {
-                auto var   = struct_.getMemberVariable(name);
+                auto var   = tuple.getMemberVariable(name);
 
                 auto left  = elementTypes[i];
                 auto right = var.type;
@@ -436,6 +431,9 @@ public:
             }
         }
     }
+    void visit(Tuple n) {
+
+    }
     void visit(TypeExpr n) {
 
     }
@@ -462,11 +460,11 @@ public:
             }
         }
 
-        if(n.type.isNamedStruct || n.type.isAnonStruct) {
+        if(n.type.isNamedStruct || n.type.isTuple) {
             /// Check that member names are unique
             stringSet.clear();
-            auto struct_ = n.type.getAnonStruct();
-            auto vars    = struct_.getMemberVariables();
+            auto tuple = n.type.getTuple();
+            auto vars  = tuple.getMemberVariables();
             foreach(v; vars) {
                 if(v.name) {
                     if(stringSet.contains(v.name)) {
@@ -476,8 +474,8 @@ public:
                 }
             }
             /// Anon structs must only contain variable declarations
-            if(n.type.isAnonStruct) {
-                foreach(v; struct_.children) {
+            if(n.type.isTuple) {
+                foreach(v; tuple.children) {
                     if(!v.isVariable) {
                         module_.addError(n, "An anonymous struct must only contain variable declarations", true);
                     } else {

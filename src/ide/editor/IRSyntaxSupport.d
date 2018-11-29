@@ -94,6 +94,7 @@ private:
             "internal",
             "inttoptr",
             "label",
+            "linkonce_odr",
             "load",
             "local_unnamed_addr",
             "lshr",

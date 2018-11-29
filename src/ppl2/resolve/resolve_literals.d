@@ -98,7 +98,7 @@ public:
         //}
     }
     void resolve(LiteralExpressionList n) {
-        /// Try to convert this into either a LiteralStruct or a LiteralArray
+        /// Try to convert this into either a LiteralTuple or a LiteralArray
         n.resolve();
         resolver.setModified();
     }
@@ -178,7 +178,7 @@ public:
             resolver.resolveAlias(n, n.type);
         }
     }
-    void resolve(LiteralStruct n) {
+    void resolve(LiteralTuple n) {
         if(n.type.isUnknown) {
             Type type;
             /// Determine type from parent
@@ -224,18 +224,18 @@ public:
                     type = n.parent.as!Variable.type;
                     break;
                 default:
-                    assert(false, "Parent of LiteralStruct is %s".format(n.parent.id));
+                    assert(false, "Parent of LiteralTuple is %s".format(n.parent.id));
             }
             if(type && type.isKnown) {
-                if(!type.isAnonStruct) {
-                    module_.addError(n, "Cannot cast struct literal to %s".format(type), true);
+                if(!type.isTuple) {
+                    module_.addError(n, "Cannot cast tuple literal to %s".format(type), true);
                     return;
                 }
                 n.type = type;
             }
         }
         if(!n.isResolved && resolver.isStalemate) {
-            module_.addError(n, "Ambiguous struct literal requires explicit cast", true);
+            module_.addError(n, "Ambiguous tuple literal requires explicit cast", true);
         }
     }
 }

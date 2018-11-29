@@ -72,12 +72,12 @@ public:
         }
 
         bool isValidRewrite(Type t) {
-            return t.isValue && (t.isAnonStruct || t.isArray || t.isNamedStruct);
+            return t.isValue && (t.isTuple || t.isArray || t.isNamedStruct);
         }
 
         if(isValidRewrite(lt) && isValidRewrite(rt)) {
             if(!lt.exactlyMatches(rt)) {
-                /// AnonStruct value -> AnonStruct value
+                /// Tuple value -> Tuple value
 
                 /// This is a reinterpret cast
 

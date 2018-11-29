@@ -1,15 +1,15 @@
-module ppl2.ast.expr_literal_struct;
+module ppl2.ast.expr_literal_tuple;
 
 import ppl2.internal;
 ///
-/// literal_struct ::= "[" struct_param { "," struct_param } "]"
-/// struct_param   ::= expression | name "=" expression
+/// literal_tuple ::= "[" tuple_param { "," tuple_param } "]"
+/// tuple_param   ::= expression | name "=" expression
 ///
-/// LiteralStruct
+/// LiteralTuple
 ///     expression
 ///     expression etc...
 ///
-final class LiteralStruct : Expression {
+final class LiteralTuple : Expression {
     Type type;
     string[] names;  /// name = expression
 
@@ -18,7 +18,7 @@ final class LiteralStruct : Expression {
     }
 
     override bool isResolved() { return type.isKnown; }
-    override NodeID id() const { return NodeID.LITERAL_STRUCT; }
+    override NodeID id() const { return NodeID.LITERAL_TUPLE; }
     override int priority() const { return 15; }
     override Type getType() { return type; }
 
@@ -28,10 +28,10 @@ final class LiteralStruct : Expression {
     ///     var a = [1,2]
     ///     [1,2][index]
     ///
-    AnonStruct getInferredType() {
+    Tuple getInferredType() {
         if(!areKnown(elementTypes())) return null;
 
-        auto t = makeNode!AnonStruct(this);
+        auto t = makeNode!Tuple(this);
 
         if(names.length>0) {
             /// name = value
@@ -55,7 +55,7 @@ final class LiteralStruct : Expression {
                 t.add(v);
             }
         }
-        /// Add this AnonStruct at module scope because we need it to be in the AST
+        /// Add this Tuple at module scope because we need it to be in the AST
         /// but we don't want it as our own child node
         getModule.add(t);
 
@@ -73,7 +73,7 @@ final class LiteralStruct : Expression {
     }
     bool allValuesSpecified() {
         assert(isResolved);
-        return elements().length == type.getAnonStruct.numMemberVariables;
+        return elements().length == type.getTuple.numMemberVariables;
     }
 
     override string toString() {

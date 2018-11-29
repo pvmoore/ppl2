@@ -29,7 +29,7 @@ public:
             type = parseFunctionType(t, node, addToNode);
         } else if(t.type==TT.LSQBRACKET) {
             /// "[" types "]"
-            type = parseAnonStruct(t, node, addToNode);
+            type = parseTuple(t, node, addToNode);
         } else if(t.value=="#typeof") {
             type = parseTypeof(t, node, addToNode);
         } else {
@@ -187,12 +187,12 @@ private:
         return type;
     }
     ///
-    /// anon_struct ::= "[" statement { statement } "]"
+    /// tuple ::= "[" statement { statement } "]"
     ///
-    Type parseAnonStruct(Tokens t, ASTNode node, bool addToNode) {
+    Type parseTuple(Tokens t, ASTNode node, bool addToNode) {
 
         /// [
-        auto s = makeNode!AnonStruct(t);
+        auto s = makeNode!Tuple(t);
         node.add(s);
 
         t.skip(TT.LSQBRACKET);
@@ -200,7 +200,7 @@ private:
         /// Statements
         while(t.type!=TT.RSQBRACKET) {
 
-            varParser().parseAnonStructMember(t, s);
+            varParser().parseTupleMember(t, s);
 
             if(t.type==TT.COMMA) t.next;
         }

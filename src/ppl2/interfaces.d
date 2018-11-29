@@ -4,7 +4,7 @@ import ppl2.internal;
 ///
 /// Variable or Function container.
 ///
-/// Module, LiteralFunction, AnonStruct
+/// Module, LiteralFunction, Tuple
 ///
 interface Container {
     NodeID id() const;

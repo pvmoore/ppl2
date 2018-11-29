@@ -87,9 +87,6 @@ public:
 
         rhs = lhs;
     }
-    void visit(AnonStruct n) {
-
-    }
     void visit(As n) {
         n.left.visit!ModuleGenerator(this);
 
@@ -115,10 +112,10 @@ public:
 
             /// Get the "this" variable
             if(n.target.getVariable.isNamedStructMember) {
-                auto struct_ = n.target.getVariable.getNamedStruct;
-                assert(struct_);
+                auto ns = n.target.getVariable.getNamedStruct;
+                assert(ns);
 
-                lhs = structMemberThis[struct_.name];
+                lhs = structMemberThis[ns.name];
             }
 
             int index = n.target.structMemberIndex;
@@ -142,7 +139,7 @@ public:
             rhs = builder.call(n.target.llvmValue, argValues, n.target.getFunction().getCallingConvention());
         }
 
-        if((returnType.isNamedStruct || returnType.isAnonStruct) &&
+        if((returnType.isNamedStruct || returnType.isTuple) &&
            (n.parent.isDot || n.parent.isA!Parenthesis) &&
            !returnType.isPtr)
         {
@@ -228,10 +225,10 @@ public:
 
             /// Get the "this" variable
             if(!n.parent.isDot && n.target.getVariable.isNamedStructMember) {
-                auto struct_ = n.target.getVariable.getNamedStruct;
-                assert(struct_);
+                auto ns = n.target.getVariable.getNamedStruct;
+                assert(ns);
 
-                lhs = structMemberThis[struct_.name];
+                lhs = structMemberThis[ns.name];
             }
 
             int index = n.target.structMemberIndex;
@@ -307,7 +304,7 @@ public:
     void visit(LiteralString n) {
         literalGen.generate(n);
     }
-    void visit(LiteralStruct n) {
+    void visit(LiteralTuple n) {
         literalGen.generate(n);
     }
     void visit(Loop n) {
@@ -330,11 +327,11 @@ public:
 
             /// Remember values of "this" so that we can access member variables later
             if(v.name=="this") {
-                auto struct_ = v.type.getNamedStruct;
-                assert(struct_);
+                auto ns = v.type.getNamedStruct;
+                assert(ns);
 
                 rhs = builder.load(lhs, "this");
-                structMemberThis[struct_.name] = params[i]; // rhs
+                structMemberThis[ns.name] = params[i]; // rhs
             }
         }
     }
@@ -352,6 +349,9 @@ public:
     }
     void visit(Select n) {
         selectGen.generate(n);
+    }
+    void visit(Tuple n) {
+
     }
     void visit(TypeExpr n) {
         /// ignore
@@ -379,7 +379,7 @@ public:
     void visit(Variable n) {
         if(n.isGlobal) {
 
-        } else if(n.isAnonStructMember) {
+        } else if(n.isTupleMember) {
 
         } else if(n.isNamedStructMember) {
 
@@ -548,8 +548,8 @@ public:
             }
         } else {
             /// Size is the same
-            assert(from.isAnonStruct, "castType size is the same - from %s to %s".format(from, to));
-            assert(to.isAnonStruct);
+            assert(from.isTuple, "castType size is the same - from %s to %s".format(from, to));
+            assert(to.isTuple);
             assert(false, "we shouldn't get here");
         }
         return rhs;

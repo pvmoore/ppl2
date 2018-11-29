@@ -166,9 +166,6 @@ public:
             resolveAlias(n, n.type);
         }
     }
-    void visit(AnonStruct n) {
-
-    }
     void visit(ArrayType n) {
         resolveAlias(n, n.subtype);
     }
@@ -313,7 +310,7 @@ public:
     void visit(LiteralString n) {
         literalResolver.resolve(n);
     }
-    void visit(LiteralStruct n) {
+    void visit(LiteralTuple n) {
         literalResolver.resolve(n);
     }
     void visit(Loop n) {
@@ -342,6 +339,9 @@ public:
     }
     void visit(Select n) {
         selectResolver.resolve(n);
+    }
+    void visit(Tuple n) {
+
     }
     void visit(TypeExpr n) {
         resolveAlias(n, n.type);

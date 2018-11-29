@@ -50,7 +50,7 @@ private:
             return;
         }
 
-        if(nid==NodeID.ANON_STRUCT || nid==NodeID.NAMED_STRUCT) {
+        if(nid==NodeID.TUPLE || nid==NodeID.NAMED_STRUCT) {
             /// Check all struct level variables
             foreach(n; node.children) {
                 check(n);
@@ -66,8 +66,8 @@ private:
             /// If this is not a closure
             if(!node.as!LiteralFunction.isClosure) {
                 /// Go to containing struct if there is one
-                auto struct_ = node.getAncestor!AnonStruct();
-                if(struct_) return subCollect(struct_);
+                auto tuple = node.getAncestor!Tuple();
+                if(tuple) return subCollect(tuple);
             }
 
             /// Go to module scope

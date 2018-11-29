@@ -72,8 +72,8 @@ private:
             return JSONValue(["id" : "ALIAS"]);
         } else if(n.isBasicType) {
             return JSONValue(["id" : g_typeToString[n.as!BasicType.type] ]);
-        } else if(n.isAnonStruct) {
-            return JSONValue(["id" : "ANON_STRUCT"]);
+        } else if(n.isTuple) {
+            return JSONValue(["id" : "TUPLE"]);
         } else if(n.isNamedStruct) {
             auto ns = n.as!NamedStruct;
             return JSONValue(["id"   : "NAMED_STRUCT",

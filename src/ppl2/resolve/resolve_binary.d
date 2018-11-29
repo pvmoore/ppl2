@@ -48,7 +48,7 @@ public:
         /// ==
         if(n.op==Operator.BOOL_EQ) {
             bool bothValues = lt.isValue && rt.isValue;
-            bool bothTuples = lt.isAnonStruct && rt.isAnonStruct;
+            bool bothTuples = lt.isTuple && rt.isTuple;
 
             /// Rewrite anonstruct == anonstruct --> is_expr
             /// [int] a = [1]

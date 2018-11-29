@@ -32,11 +32,11 @@ final class Variable : Statement {
     bool isNamedStructMember() {
         return !isStatic && parent.id==NodeID.NAMED_STRUCT;
     }
-    bool isAnonStructMember() {
-        return !isStatic && parent.id==NodeID.ANON_STRUCT;
+    bool isTupleMember() {
+        return !isStatic && parent.id==NodeID.TUPLE;
     }
     bool isStructMember() {
-        return isNamedStructMember() || isAnonStructMember();
+        return isNamedStructMember() || isTupleMember();
     }
     bool isGlobal() const {
         return parent.isModule;
@@ -64,9 +64,9 @@ final class Variable : Statement {
         return hasInitialiser() ? initialiser().getType() : null;
     }
 
-    AnonStruct getAnonStruct() {
-        assert(isAnonStructMember);
-        return parent.as!AnonStruct;
+    Tuple getATuple() {
+        assert(isTupleMember);
+        return parent.as!Tuple;
     }
     NamedStruct getNamedStruct() {
         assert(isNamedStructMember());

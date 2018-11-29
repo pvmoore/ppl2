@@ -93,7 +93,7 @@ public:
     }
     /// [int a ...
     ///  ^^^^^
-    void parseAnonStructMember(Tokens t, ASTNode parent) {
+    void parseTupleMember(Tokens t, ASTNode parent) {
         Flags flags = {
             nameRequired:    false,
             typeRequired:    true,

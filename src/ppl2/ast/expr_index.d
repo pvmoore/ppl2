@@ -6,7 +6,7 @@ import ppl2.internal;
 ///
 /// Index
 ///     index
-///     ArrayType | AnonStruct | PtrType
+///     ArrayType | Tuple | PtrType
 ///
 final class Index : Expression {
 
@@ -34,10 +34,10 @@ final class Index : Expression {
         /// This might happen if an error is thrown
         if(numChildren < 2) return TYPE_UNKNOWN;
 
-        auto t       = exprType();
-        auto struct_ = t.getAnonStruct;
-        auto ns      = t.getNamedStruct;
-        auto array   = t.getArrayType;
+        auto t     = exprType();
+        auto tuple = t.getTuple;
+        auto ns    = t.getNamedStruct;
+        auto array = t.getArrayType;
 
         if(t.isPtr) {
             return PtrType.of(t, -1);
@@ -60,22 +60,22 @@ final class Index : Expression {
             }
             return array.subtype;
         }
-        if(struct_) {
+        if(tuple) {
             if(index().isResolved && index().isA!LiteralNumber) {
                 auto i = getIndexAsInt();
                 /// Check for bounds error
-                if(i >= struct_.numMemberVariables()) {
-                    getModule.addError(index(), "Array bounds error. %s >= %s".format(i, struct_.numMemberVariables()), true);
+                if(i >= tuple.numMemberVariables()) {
+                    getModule.addError(index(), "Array bounds error. %s >= %s".format(i, tuple.numMemberVariables()), true);
                     return TYPE_UNKNOWN;
                 }
-                return struct_.getMemberVariable(i).type;
+                return tuple.getMemberVariable(i).type;
             }
         }
         return TYPE_UNKNOWN;
     }
 
     bool isArrayIndex()  { return exprType().isValue && exprType().isArray; }
-    bool isStructIndex() { return exprType().isValue && exprType().isAnonStruct; }
+    bool isStructIndex() { return exprType().isValue && exprType().isTuple; }
     bool isPtrIndex()    { return exprType().isPtr; }
 
     Expression expr()  { return cast(Expression)children[1]; }

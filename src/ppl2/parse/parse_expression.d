@@ -150,10 +150,10 @@ private:
                 parseParenthesis(t, parent);
                 break;
             case TT.LSQBRACKET:
-                if(isObviouslyAStructLiteral(t)) {
-                    parseLiteralStruct(t, parent);
+                if(isObviouslyATupleLiteral(t)) {
+                    parseLiteralTuple(t, parent);
                 } else {
-                    /// Could be a LiteralStruct or a LiteralArray
+                    /// Could be a LiteralTuple or a LiteralArray
                     parseLiteralExprList(t, parent);
                 }
                 break;
@@ -253,7 +253,7 @@ private:
                     /// array literal
                     if(t.peek(1).type==TT.COLON) return;
 
-                    /// AnonStruct or ArrayStruct
+                    /// Tuple or Array
                     if(typeDetector().isType(t, parent, 1)) {
                         return;
                     }
@@ -550,7 +550,7 @@ private:
 
         /// Two identifiers in a row means one was probably a type that we don't know about
         auto prev = id.prevSibling;
-        if(prev && prev.isA!Identifier && parent.id==NodeID.ANON_STRUCT) {
+        if(prev && prev.isA!Identifier && parent.id==NodeID.TUPLE) {
             errorMissingType(module_, prev, prev.as!Identifier.name);
         }
 
@@ -1041,10 +1041,10 @@ private:
         }
     }
     ///
-    /// literal_struct ::= "[" { [name ":"] expression } [ "," [name ":"] expression ] "]"
+    /// literal_tuple ::= "[" { [name ":"] expression } [ "," [name ":"] expression ] "]"
     ///
-    void parseLiteralStruct(Tokens t, ASTNode parent) {
-        auto e = makeNode!LiteralStruct(t);
+    void parseLiteralTuple(Tokens t, ASTNode parent) {
+        auto e = makeNode!LiteralTuple(t);
         parent.add(e);
 
         /// [
@@ -1057,7 +1057,7 @@ private:
             if(t.peek(1).type==TT.COLON) {
                 /// name = expression
                 if(e.hasChildren && e.names.length==0) {
-                    module_.addError(t, "Struct literals must be either all named or all unnamed", true);
+                    module_.addError(t, "Tuple literals must be either all named or all unnamed", true);
                 }
 
                 e.names ~= t.value;
@@ -1068,7 +1068,7 @@ private:
             } else {
                 /// expression
                 if(e.names.length>0) {
-                    module_.addError(t, "Struct literals must be either all named or all unnamed", true);
+                    module_.addError(t, "Tuple literals must be either all named or all unnamed", true);
                 }
 
                 parse(t, e);
@@ -1078,8 +1078,8 @@ private:
         }
         t.skip(TT.RSQBRACKET);
 
-        /// Consume "as struct"
-        if(t.isKeyword("as") && t.peek(1).value=="struct") {
+        /// Consume "as tuple"
+        if(t.isKeyword("as") && t.peek(1).value=="tuple") {
             t.next(2);
         }
     }

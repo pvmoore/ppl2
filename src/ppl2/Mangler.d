@@ -41,11 +41,11 @@ public:
         string name  = f.name;
 
         if(f.isStructMember) {
-            auto struct_ = f.getAncestor!AnonStruct();
-            if(struct_.isNamedStruct) {
+            auto tuple = f.getAncestor!Tuple();
+            if(tuple.isNamedStruct) {
                 string sep = ".";
                 if(f.isStatic) sep = "::";
-                name = struct_.as!NamedStruct.name ~ sep ~ name;
+                name = tuple.as!NamedStruct.name ~ sep ~ name;
             }
         } else {
             auto m = f.getModule;
@@ -94,8 +94,8 @@ public:
         //        auto n = t.getNamedStruct;
         //        s = "N[%s]".format(n.getUniqueName());
         //        break;
-        //    case ANON_STRUCT:
-        //        auto st = t.getAnonStruct;
+        //    case TUPLE:
+        //        auto st = t.getTuple;
         //        s = "[%s]".format(mangle(st.memberVariableTypes()));
         //        break;
         //    case ARRAY:

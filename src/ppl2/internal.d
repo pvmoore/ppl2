@@ -56,7 +56,7 @@ import ppl2.ast.expr_literal_function;
 import ppl2.ast.expr_literal_map;
 import ppl2.ast.expr_literal_null;
 import ppl2.ast.expr_literal_string;
-import ppl2.ast.expr_literal_struct;
+import ppl2.ast.expr_literal_tuple;
 import ppl2.ast.expr_calloc;
 import ppl2.ast.expr_module_alias;
 import ppl2.ast.expr_parenthesis;
@@ -147,7 +147,7 @@ import ppl2.type.type_array;
 import ppl2.type.type_basic;
 import ppl2.type.Enum;
 import ppl2.type.type_function;
-import ppl2.type.type_anon_struct;
+import ppl2.type.Tuple;
 import ppl2.type.type_named_struct;
 import ppl2.type.type_ptr;
 

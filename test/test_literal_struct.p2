@@ -61,25 +61,25 @@ testLiteralStruct {
         //assert s.#length==1
         //assert #size(s)==4
 
-        var s2 = [] as struct
+        var s2 = [] as tuple
 
         //assert #length(s2)==0
         //assert #size(s2)==0
     }
     test6 {
         // implicit [int,int]
-        var s = [7,8] as struct     ; assert s is [int,int]
+        var s = [7,8] as tuple     ; assert s is [int,int]
         assert s[0] is int
         assert s[1] is int
 
         // [byte,int]
-        var s2 = [7 as byte, 8] as struct
+        var s2 = [7 as byte, 8] as tuple
         assert s2[0] is byte
         assert s2[1] is int
     }
     test7 {
         // [bool, float, long]
-        var s = [true,2f,3L] as struct  ; assert s is [bool,float,long]
+        var s = [true,2f,3L] as tuple  ; assert s is [bool,float,long]
         s = [true]
 
         assert s[0] == true
@@ -88,10 +88,10 @@ testLiteralStruct {
     }
     test8 {
         // standalone
-        [7,8] as struct
+        [7,8] as tuple
 
         // index standalone
-        var s = [9,10] as struct [1]
+        var s = [9,10] as tuple [1]
         assert s is int
         assert s==10
     }

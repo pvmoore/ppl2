@@ -5,7 +5,7 @@ import common : contains;
 ///
 ///
 ///
-final class NamedStruct : AnonStruct {
+final class NamedStruct : Tuple {
     string name;
     string moduleName;
     int numRefs;

@@ -39,7 +39,7 @@ public:
             typeof_(t, node);
             found = true;
         } else if(t.type==TT.LSQBRACKET) {
-            found = possibleAnonStruct(t, node);
+            found = possibleTuple(t, node);
         } else if(t.type==TT.LCURLY) {
             found = possibleFunctionType(t, node);
         } else {
@@ -126,10 +126,10 @@ public:
 private:
     /// Starts with '['
     /// Could be one of:
-    ///     [type ...       AnonStruct
-    ///     [expr ...       Not a type (LiteralArray or LiteralStruct)
+    ///     [type ...       Tuple
+    ///     [expr ...       Not a type (LiteralArray or LiteralTuple)
     ///
-    bool possibleAnonStruct(Tokens t, ASTNode node) {
+    bool possibleTuple(Tokens t, ASTNode node) {
         assert(t.type==TT.LSQBRACKET);
 
         int end = t.findEndOfBlock(TT.LSQBRACKET);
@@ -144,7 +144,7 @@ private:
 
         /// [ type
 
-        /// constructor - this must be a LiteralArray or LiteralStruct
+        /// constructor - this must be a LiteralArray or LiteralTuple
         if(t.peek(end2+1).type==TT.LBRACKET) return false;
         /// is expression
         if(t.peek(end2+1).value=="is") return false;

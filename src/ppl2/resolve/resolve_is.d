@@ -35,8 +35,8 @@ public:
                     rewriteToConstBool(n, false);
                     return;
                 }
-                /// If one side is an anon struct then the other side must be too
-                if(leftType.isAnonStruct != rightType.isAnonStruct) {
+                /// If one side is a tuple then the other side must be too
+                if(leftType.isTuple != rightType.isTuple) {
                     rewriteToConstBool(n, false);
                     return;
                 }
@@ -69,8 +69,8 @@ public:
                     return;
                 }
 
-                /// Two anon structs
-                if(leftType.isAnonStruct) {
+                /// Two tuples
+                if(leftType.isTuple) {
                     rewriteToMemcmp(n);
                     return;
                 }

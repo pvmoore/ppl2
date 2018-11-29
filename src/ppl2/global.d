@@ -67,7 +67,7 @@ shared static this() {
     g_typeToString[Type.FLOAT]        = "float";
     g_typeToString[Type.DOUBLE]       = "double";
     g_typeToString[Type.VOID]         = "void";
-    g_typeToString[Type.ANON_STRUCT]  = "anon_struct";
+    g_typeToString[Type.TUPLE]        = "tuple";
     g_typeToString[Type.NAMED_STRUCT] = "named_struct";
     g_typeToString[Type.ARRAY]        = "array";
     g_typeToString[Type.FUNCTION]     = "function";

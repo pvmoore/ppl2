@@ -34,8 +34,6 @@ public class Binary : Expression {
     }
 
     void rewriteToOperatorOverloadCall() {
-        auto struct_ = leftType.getAnonStruct;
-        assert(struct_);
 
         auto b = getModule.builder(this);
 

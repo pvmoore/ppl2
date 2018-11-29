@@ -41,9 +41,9 @@ final class NodeBuilder {
         call.name   = name;
         if(f) {
             if(f.isStructMember) {
-                auto struct_ = f.parent.as!AnonStruct;
-                assert(struct_);
-                auto ns = struct_.parent.as!NamedStruct;
+                auto tuple = f.parent.as!Tuple;
+                assert(tuple);
+                auto ns = tuple.parent.as!NamedStruct;
                 assert(ns);
                 call.target.set(f, ns.getMemberIndex(f));
             } else {
@@ -76,10 +76,10 @@ final class NodeBuilder {
         id.target = new Target(module_);
         id.name   = v.name;
 
-        if(v.isAnonStructMember || v.isNamedStructMember) {
-            auto struct_ = v.parent.as!AnonStruct;
-            assert(struct_);
-            id.target.set(v, struct_.getMemberIndex(v));
+        if(v.isTupleMember || v.isNamedStructMember) {
+            auto tuple = v.parent.as!Tuple;
+            assert(tuple);
+            id.target.set(v, tuple.getMemberIndex(v));
         } else {
             id.target.set(v);
         }

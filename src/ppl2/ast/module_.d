@@ -292,7 +292,7 @@ public:
     //    writefln("\tExported types ............ %s", exportedTypes);
     //    writefln("\tExported functions ........ %s", exportedFunctions);
     //
-    //    writefln("\tLocal anon structs ........ %s", getAnonStructs());
+    //    writefln("\tLocal tuples .............. %s", getTuples());
     //    writefln("\tLocal named structs ....... %s", getAllNamedStructs().map!(it=>it.name));
     //    writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
     //

@@ -85,32 +85,32 @@ final class LiteralGenerator {
         assert(n.llvmValue);
         gen.rhs = n.llvmValue;
     }
-    void generate(LiteralStruct n) {
-        AnonStruct struct_    = n.type.getAnonStruct;
+    void generate(LiteralTuple n) {
+        Tuple tuple           = n.type.getTuple;
         Type[] structTypes    = n.elementTypes();
-        Variable[] structVars = struct_.getMemberVariables();
+        Variable[] structVars = tuple.getMemberVariables();
 
         /// alloca
-        gen.lhs = builder.alloca(struct_.getLLVMType(), "struct_literal");
+        gen.lhs = builder.alloca(tuple.getLLVMType(), "tuple_literal");
         LLVMValueRef structPtr = gen.lhs;
 
         /// Zero the struct if not all values are being set
         if(!n.allValuesSpecified()) {
-            builder.store(constAllZeroes(struct_.getLLVMType()), structPtr);
+            builder.store(constAllZeroes(tuple.getLLVMType()), structPtr);
         }
 
         auto elements     = n.elements();
         auto elementTypes = n.elementTypes();
 
-        auto varNames = struct_.getMemberVariables().map!(it=>it.name).array;
-        auto varTypes = struct_.memberVariableTypes();
+        auto varNames = tuple.getMemberVariables().map!(it=>it.name).array;
+        auto varTypes = tuple.memberVariableTypes();
 
         if(n.names.length>0) {
             foreach(i, name; n.names) {
                 auto e = elements[i];
 
-                auto var   = struct_.getMemberVariable(name);
-                auto index = struct_.getMemberIndex(var);
+                auto var   = tuple.getMemberVariable(name);
+                auto index = tuple.getMemberIndex(var);
 
                 e.visit!ModuleGenerator(gen);
                 gen.rhs = gen.castType(gen.rhs, elementTypes[i], var.type);
