@@ -45,7 +45,7 @@ public:
             if(struct_.isNamedStruct) {
                 string sep = ".";
                 if(f.isStatic) sep = "::";
-                name = struct_.as!NamedStruct.getUniqueName ~ sep ~ name;
+                name = struct_.as!NamedStruct.name ~ sep ~ name;
             }
         } else {
             auto m = f.getModule;

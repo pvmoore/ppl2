@@ -13,7 +13,6 @@ final class Call : Expression {
 
     bool implicitThisArgAdded;  /// true if 1st arg thisptr has been added
 
-
     int numArgs() {
         return numChildren();
     }
@@ -52,38 +51,6 @@ final class Call : Expression {
 
         implicitThisArgAdded = true;
     }
-    //void addImplicitThisArg(Expression prev) {
-    //    auto prevType = prev.getType;
-    //    auto dummy    = TypeExpr.make(prevType);
-    //
-    //    resolver.fold(prev, dummy);
-    //
-    //    prev.parent.replaceChild()
-    //
-    //    if(prevType.isValue) {
-    //        auto ptr = makeNode!AddressOf;
-    //        ptr.add(prev);
-    //        n.insertAt(0, ptr);
-    //    } else {
-    //        n.insertAt(0, prev);
-    //    }
-    //
-    //    if(n.paramNames.length>0) n.paramNames ~= "this";
-    //
-    //    n.implicitThisArgAdded = true;
-    //}
-    //void removeImplicitThisArg() {
-    //    assert(implicitThisArgAdded);
-    //    assert(hasChildren);
-    //
-    //    first().detach();
-    //
-    //    if(paramNames.length>0) {
-    //        assert(paramNames[0]=="this");
-    //        paramNames = paramNames[1..$];
-    //    }
-    //    implicitThisArgAdded = false;
-    //}
 
     override string toString() {
         if(target.isResolved){

@@ -298,7 +298,7 @@ public:
             } else {
                 msg ~= "Struct %s does not have %s function %s(%s)";
             }
-            msg = msg.format(ns.getUniqueName, desc, call.name, argsStr);
+            msg = msg.format(ns.name, desc, call.name, argsStr);
 
             module_.addError(call, msg, true);
 

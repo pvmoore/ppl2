@@ -7,7 +7,7 @@ import common : contains;
 ///
 final class Function : Statement {
 private:
-    string _uniqueName;
+    string _mangledName;
 public:
     string name;
     string moduleName;      /// canonical name of module (!=this.getModule.canonicalName if isImport)
@@ -84,13 +84,13 @@ public:
     }
     void resetName(string newName) {
         this.name = newName;
-        this._uniqueName = null;
+        this._mangledName = null;
     }
-    string getUniqueName() {
-        if(!_uniqueName) {
-            _uniqueName = getModule().buildState.mangler.mangle(this);
+    string getMangledName() {
+        if(!_mangledName) {
+            _mangledName = getModule().buildState.mangler.mangle(this);
         }
-        return _uniqueName;
+        return _mangledName;
     }
     LLVMCallConv getCallingConvention() {
         if(isExtern) return LLVMCallConv.LLVMCCallConv;

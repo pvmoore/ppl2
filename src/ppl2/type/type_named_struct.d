@@ -6,9 +6,6 @@ import common : contains;
 ///
 ///
 final class NamedStruct : AnonStruct {
-private:
-    string _uniqueName;
-public:
     string name;
     string moduleName;
     int numRefs;
@@ -57,7 +54,7 @@ public:
     }
     override LLVMTypeRef getLLVMType() {
         if(!_llvmType) {
-            _llvmType = struct_(getUniqueName());
+            _llvmType = struct_(name);
         }
         return _llvmType;
     }
@@ -142,12 +139,6 @@ public:
     bool isAtModuleScope() {
         return parent.isModule;
     }
-    string getUniqueName() {
-        if(!_uniqueName) {
-            _uniqueName = getModule().buildState.mangler.mangle(this);
-        }
-        return _uniqueName;
-    }
     bool hasOperatorOverload(Operator op) {
         string fname = "operator";
         if(op==Operator.NEG) {
@@ -159,6 +150,6 @@ public:
     }
     //========================================================================================
     override string toString() {
-        return getUniqueName();
+        return name;
     }
 }

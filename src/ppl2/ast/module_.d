@@ -207,7 +207,7 @@ public:
         recurse((ASTNode it) {
             auto ns = it.getType.getNamedStruct;
             if(ns && ns.getModule.nid!=nid) {
-                structs[ns.getUniqueName] = ns;
+                structs[ns.name] = ns;
             }
         });
 
@@ -219,7 +219,7 @@ public:
         recurse((ASTNode it) {
             auto e = it.getType.getEnum;
             if(e && e.getModule.nid!=nid) {
-                enums[e.getUniqueName] = e;
+                enums[e.name] = e;
             }
         });
 

@@ -58,7 +58,7 @@ public:
             if(f.isStructMember || f.isStatic) {
                 ns = f.getNamedStruct();
                 assert(ns);
-                key = ns.getUniqueName ~ "." ~ mangledName;
+                key = ns.name ~ "." ~ mangledName;
             }
 
             //dd("    key=", key);

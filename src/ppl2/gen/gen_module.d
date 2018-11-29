@@ -118,7 +118,7 @@ public:
                 auto struct_ = n.target.getVariable.getNamedStruct;
                 assert(struct_);
 
-                lhs = structMemberThis[struct_.getUniqueName];
+                lhs = structMemberThis[struct_.name];
             }
 
             int index = n.target.structMemberIndex;
@@ -231,7 +231,7 @@ public:
                 auto struct_ = n.target.getVariable.getNamedStruct;
                 assert(struct_);
 
-                lhs = structMemberThis[struct_.getUniqueName];
+                lhs = structMemberThis[struct_.name];
             }
 
             int index = n.target.structMemberIndex;
@@ -334,7 +334,7 @@ public:
                 assert(struct_);
 
                 rhs = builder.load(lhs, "this");
-                structMemberThis[struct_.getUniqueName] = params[i]; // rhs
+                structMemberThis[struct_.name] = params[i]; // rhs
             }
         }
     }

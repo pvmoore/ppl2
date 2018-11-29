@@ -10,7 +10,6 @@ import std.stdio     : writefln, writeln;
 import std.format    : format;
 import std.string    : toLower, indexOf, lastIndexOf;
 import std.conv      : to;
-import std.typecons  : Tuple, tuple;
 import std.array     : Appender, appender, array, join;
 import std.range     : takeOne;
 import std.json      : JSONValue, toJSON, JSONOptions;

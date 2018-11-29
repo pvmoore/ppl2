@@ -81,7 +81,7 @@ private:
 void generateFunctionDeclaration(Module module_, Function f) {
     auto type = f.getType.getFunctionType;
     auto func = module_.llvmValue.addFunction(
-        f.getUniqueName(),
+        f.getMangledName(),
         type.returnType.getLLVMType(),
         type.paramTypes().map!(it=>it.getLLVMType()).array,
         f.getCallingConvention()

@@ -91,6 +91,7 @@ int parseCharLiteral(string s) {
     }
     return s[0];
 }
+import std.typecons : Tuple, tuple;
 Tuple!(Type,string) parseNumberLiteral(string v) {
     auto t = tuple(TYPE_UNKNOWN, v);
     assert(v.length>0);

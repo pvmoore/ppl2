@@ -500,7 +500,7 @@ public:
             if(alias_.isInnerType) {
                 mangledName ~= alias_.name;
             } else {
-                mangledName ~= ns.getUniqueName;
+                mangledName ~= ns.name;
             }
             if(alias_.isTemplateProxy) {
                 mangledName ~= "<" ~ module_.buildState.mangler.mangle(alias_.templateParams) ~ ">";
