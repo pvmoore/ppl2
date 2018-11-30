@@ -46,13 +46,6 @@ public:
     bool isStandard()      { return !isTypeof && !isInnerType && !isTemplateProxy(); }
     bool isTemplateProxy() { return templateParams.length>0; }
 
-    //Alias[] childAliases() {
-    //    return children.values.as!(Alias[]);
-    //}
-    //bool childAliasesAreResolved() {
-    //    return childAliases().all!(it=>it.type.isKnown);
-    //}
-
     override string toString() {
         string tt = templateParams ? "<%s>".format(templateParams.toString) : "";
         if(isInnerType) {

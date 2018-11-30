@@ -26,17 +26,14 @@ final class Variable : Statement {
     override Type getType()    { return type; }
 
     bool isLocal() const {
-        return parent.isLiteralFunction || parent.isIf || parent.isLoop;
+        return parent.isLiteralFunction || parent.isIf || parent.isLoop || parent.isSelect;
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
-    bool isNamedStructMember() {
-        return !isStatic && parent.id==NodeID.NAMED_STRUCT;
+    bool isStructMember() {
+        return !isStatic && parent.id==NodeID.STRUCT;
     }
     bool isTupleMember() {
         return !isStatic && parent.id==NodeID.TUPLE;
-    }
-    bool isStructMember() {
-        return isNamedStructMember() || isTupleMember();
     }
     bool isGlobal() const {
         return parent.isModule;
@@ -64,13 +61,13 @@ final class Variable : Statement {
         return hasInitialiser() ? initialiser().getType() : null;
     }
 
-    Tuple getATuple() {
+    Tuple getTuple() {
         assert(isTupleMember);
         return parent.as!Tuple;
     }
-    NamedStruct getNamedStruct() {
-        assert(isNamedStructMember());
-        return parent.as!NamedStruct;
+    Struct getStruct() {
+        assert(isStructMember());
+        return parent.as!Struct;
     }
     Function getFunction() {
         assert(isParameter());

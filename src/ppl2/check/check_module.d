@@ -394,12 +394,12 @@ public:
     void visit(ModuleAlias n) {
 
     }
-    void visit(NamedStruct n) {
+    void visit(Struct n) {
         /// All variables must have a name
         stringSet.clear();
         foreach(v; n.getMemberVariables()) {
             if(v.name.length==0) {
-                module_.addError(v, "Named struct variable must have a name", true);
+                module_.addError(v, "Struct variable must have a name", true);
             }
         }
     }
@@ -446,7 +446,7 @@ public:
     void visit(Variable n) {
         if(n.isConst) {
 
-            if(!n.isGlobal && !n.isNamedStructMember) {
+            if(!n.isGlobal && !n.isStructMember) {
                 /// Initialiser must be const
                 auto ini = n.initialiser();
                 if(!ini.isConst) {
@@ -455,12 +455,12 @@ public:
             }
         }
         if(n.isStatic) {
-            if(!n.parent.id==NodeID.NAMED_STRUCT) {
+            if(!n.parent.id==NodeID.STRUCT) {
                 module_.addError(n, "Static variables are not allowed at this scope", true);
             }
         }
 
-        if(n.type.isNamedStruct || n.type.isTuple) {
+        if(n.type.isStruct || n.type.isTuple) {
             /// Check that member names are unique
             stringSet.clear();
             auto tuple = n.type.getTuple();

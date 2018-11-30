@@ -30,7 +30,7 @@ public:
     ExpressionParser exprParser;
     TypeParser typeParser;
     TypeDetector typeDetector;
-    NamedStructParser namedStructParser;
+    StructParser structParser;
     VariableParser varParser;
     NodeBuilder nodeBuilder;
     TypeFinder typeFinder;
@@ -61,7 +61,7 @@ public:
         exprParser        = new ExpressionParser(this);
         typeParser        = new TypeParser(this);
         typeDetector      = new TypeDetector(this);
-        namedStructParser = new NamedStructParser(this);
+        structParser      = new StructParser(this);
         varParser         = new VariableParser(this);
         nodeBuilder       = new NodeBuilder(this);
         typeFinder        = new TypeFinder(this);
@@ -152,16 +152,16 @@ public:
         selectDescendents!Enum(array);
         return array[];
     }
-    NamedStruct getNamedStruct(string name) {
+    Struct getStruct(string name) {
         return children[]
-            .filter!(it=>it.id==NodeID.NAMED_STRUCT)
-            .map!(it=>cast(NamedStruct)it)
+            .filter!(it=>it.id==NodeID.STRUCT)
+            .map!(it=>cast(Struct)it)
             .filter!(it=>it.name==name)
-            .frontOrNull!NamedStruct;
+            .frontOrNull!Struct;
     }
-    NamedStruct[] getNamedStructsRecurse() {
-        auto array = new Array!NamedStruct;
-        selectDescendents!NamedStruct(array);
+    Struct[] getStructsRecurse() {
+        auto array = new Array!Struct;
+        selectDescendents!Struct(array);
         return array[];
     }
     ///
@@ -201,11 +201,11 @@ public:
         return false;
     }
     //================================================================================
-    NamedStruct[] getImportedNamedStructs() {
-        NamedStruct[string] structs;
+    Struct[] getImportedStructs() {
+        Struct[string] structs;
 
         recurse((ASTNode it) {
-            auto ns = it.getType.getNamedStruct;
+            auto ns = it.getType.getStruct;
             if(ns && ns.getModule.nid!=nid) {
                 structs[ns.name] = ns;
             }
@@ -269,7 +269,7 @@ public:
     ///
     Module[] getReferencedModules() {
         auto m = new Set!Module;
-        foreach(ns; getImportedNamedStructs()) {
+        foreach(ns; getImportedStructs()) {
             m.add(ns.getModule);
         }
         foreach(e; getImportedEnums()) {
@@ -284,22 +284,6 @@ public:
         m.remove(this);
         return m.values;
     }
-
-    ///
-    ///  Dump module info to the log.
-    ///
-    //void dumpInfo() {
-    //    writefln("\tExported types ............ %s", exportedTypes);
-    //    writefln("\tExported functions ........ %s", exportedFunctions);
-    //
-    //    writefln("\tLocal tuples .............. %s", getTuples());
-    //    writefln("\tLocal named structs ....... %s", getAllNamedStructs().map!(it=>it.name));
-    //    writefln("\tImported named structs .... %s", getImportedNamedStructs().map!(it=>it.name));
-    //
-    //    writefln("\tLocal functions ........... %s", getFunctions().map!(it=>it.getUniqueName));
-    //    writefln("\tImported functions ........ %s", getImportedFunctions.map!(it=>it.getUniqueName));
-    //    writefln("\tExternal functions ........ %s", getExternalFunctions().map!(it=>it.getUniqueName));
-    //}
 
     override int opCmp(Object o) const {
         import std.algorithm.comparison;

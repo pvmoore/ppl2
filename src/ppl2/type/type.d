@@ -9,7 +9,7 @@ interface Type {
         BOOL, BYTE, SHORT, INT, LONG, HALF, FLOAT, DOUBLE,
         VOID,
         /// All lower than STRUCT are BasicTypes
-        NAMED_STRUCT,
+        STRUCT,
         TUPLE,
         ENUM,
         ARRAY,
@@ -23,23 +23,23 @@ interface Type {
     LLVMTypeRef getLLVMType();
 ///
     //-------------------------------------
-    final bool isFloat() const       { return category()==FLOAT; }
-    final bool isDouble() const      { return category()==DOUBLE; }
-    final bool isInt() const         { return category()==INT; }
-    final bool isLong() const        { return category()==LONG; }
-    final bool isPtr() const         { return this.isA!PtrType; }
-    final bool isValue() const       { return !isPtr; }
-    final bool isUnknown()           { return !isKnown(); }
-    final bool isVoid() const        { return category()==VOID; }
-    final bool isBool() const        { return category()==BOOL; }
-    final bool isReal() const        { int e = category(); return e==HALF || e==FLOAT || e==DOUBLE; }
-    final bool isInteger() const     { int e = category(); return e==BYTE || e==SHORT || e==INT || e==LONG; }
-    final bool isBasicType()         { return category() <= VOID && category()!=UNKNOWN; }
-    final bool isNamedStruct() const { return category==NAMED_STRUCT; }
-    final bool isArray() const       { return category()==ARRAY; }
-    final bool isEnum() const        { return category()==ENUM; }
-    final bool isFunction() const    { return category()==FUNCTION; }
-    final bool isTuple() const       { return category==TUPLE; }
+    final bool isFloat() const    { return category()==FLOAT; }
+    final bool isDouble() const   { return category()==DOUBLE; }
+    final bool isInt() const      { return category()==INT; }
+    final bool isLong() const     { return category()==LONG; }
+    final bool isPtr() const      { return this.isA!PtrType; }
+    final bool isValue() const    { return !isPtr; }
+    final bool isUnknown()        { return !isKnown(); }
+    final bool isVoid() const     { return category()==VOID; }
+    final bool isBool() const     { return category()==BOOL; }
+    final bool isReal() const     { int e = category(); return e==HALF || e==FLOAT || e==DOUBLE; }
+    final bool isInteger() const  { int e = category(); return e==BYTE || e==SHORT || e==INT || e==LONG; }
+    final bool isBasicType()      { return category() <= VOID && category()!=UNKNOWN; }
+    final bool isStruct() const   { return category()==STRUCT; }
+    final bool isArray() const    { return category()==ARRAY; }
+    final bool isEnum() const     { return category()==ENUM; }
+    final bool isFunction() const { return category()==FUNCTION; }
+    final bool isTuple() const    { return category()==TUPLE; }
 
     final bool isAlias() const {
         if(this.as!Alias !is null) return true;
@@ -70,15 +70,15 @@ interface Type {
         auto ptr    = this.as!PtrType;      if(ptr) return ptr.decoratedType().getFunctionType;
         assert(false, "How did we get here?");
     }
-    final NamedStruct getNamedStruct() {
-        if(category!=Type.NAMED_STRUCT) return null;
-        auto ns     = this.as!NamedStruct; if(ns) return ns;
-        auto alias_ = this.as!Alias;       if(alias_) return alias_.type.getNamedStruct;
-        auto ptr    = this.as!PtrType;     if(ptr) return ptr.decoratedType.getNamedStruct;
+    final Struct getStruct() {
+        if(category!=Type.STRUCT) return null;
+        auto ns     = this.as!Struct;      if(ns) return ns;
+        auto alias_ = this.as!Alias;       if(alias_) return alias_.type.getStruct;
+        auto ptr    = this.as!PtrType;     if(ptr) return ptr.decoratedType.getStruct;
         assert(false, "How did we get here?");
     }
     final Tuple getTuple() {
-        if(!isTuple && !isNamedStruct) return null;
+        if(!isTuple && !isStruct) return null;
         auto st     = this.as!Tuple;      if(st) return st;
         auto alias_ = this.as!Alias;      if(alias_) return alias_.type.getTuple;
         auto ptr    = this.as!PtrType;    if(ptr) return ptr.decoratedType.getTuple;
@@ -126,7 +126,7 @@ Type getBestFit(Type a, Type b) {
         // todo - some clever logic here
         return null;
     }
-    if(a.isNamedStruct || b.isNamedStruct) {
+    if(a.isStruct || b.isStruct) {
         // todo - some clever logic here
         return null;
     }
@@ -217,7 +217,7 @@ int size(Type t) {
         case HALF: return 2;
         case FLOAT: return 4;
         case DOUBLE: return 8;
-        case NAMED_STRUCT: return t.getNamedStruct.memberVariableTypes().map!(it=>it.size).sum;
+        case STRUCT: return t.getStruct.memberVariableTypes().map!(it=>it.size).sum;
         case TUPLE: return t.getTuple.memberVariableTypes().map!(it=>it.size).sum;
         case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
         case ENUM: return t.getEnum().elementType.size();
@@ -229,7 +229,7 @@ LLVMValueRef zeroValue(Type t) {
     }
     final switch(t.category) with(Type) {
         case UNKNOWN:
-        case NAMED_STRUCT:
+        case STRUCT:
         case TUPLE:
         case ARRAY:
         case FUNCTION:
@@ -254,7 +254,7 @@ Expression initExpression(Type t) {
         case UNKNOWN:
         case VOID:
             assert(false, "initExpression - type is %s".format(t));
-        case NAMED_STRUCT:
+        case STRUCT:
         case TUPLE:
         case ARRAY:
         case FUNCTION:

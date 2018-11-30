@@ -35,7 +35,7 @@ public:
         }
         return -1;
     }
-    void setStructTokens(NamedStruct ns, string[] paramNames, Token[] tokens) {
+    void setStructTokens(Struct ns, string[] paramNames, Token[] tokens) {
         assert(tokens.length>0);
         assert(tokens[0].type==TT.LCURLY);
         assert(tokens[$-1].type==TT.RCURLY);
@@ -43,7 +43,7 @@ public:
         this.paramNames = paramNames;
         this.tokens     = tokens;
     }
-    void setFunctionTokens(NamedStruct ns, string[] paramNames, Token[] tokens) {
+    void setFunctionTokens(Struct ns, string[] paramNames, Token[] tokens) {
         assert(tokens.length>0);
         assert(tokens[0].type==TT.LCURLY);
         assert(tokens[$-1].type==TT.RCURLY);

@@ -46,9 +46,9 @@ public:
             if(type is null) {
                 type = parseImportAlias(t, node);
             }
-            /// Is it a NamedStruct, Enum or Alias?
+            /// Is it a Struct, Enum or Alias?
             if(type is null) {
-                type = parseAliasOrEnumOrNamedStruct(t, node);
+                type = parseAliasOrEnumOrStruct(t, node);
             }
         }
 
@@ -64,17 +64,7 @@ public:
                 ///        ^^^^^^^^ repeat
                 /// So far we have type
 
-                /// type2 must be one of: ( Enum | NamedStruct | NamedStruct<...> )
-
-                //auto alias_        = makeNode!Alias(t);
-                //alias_.moduleName  = module_.canonicalName;
-                //alias_.isInnerType = true;
-                //alias_.type = type;
-                //type = alias_;
-                //
-                //if(addToNode) {
-                //    node.add(alias_);
-                //}
+                /// type2 must be one of: ( Enum | Struct | Struct<...> )
 
                 Alias alias_;
 
@@ -86,7 +76,7 @@ public:
                         errorBadSyntax(module_, t, "Expecting a type name");
                     }
 
-                    /// ( Enum | NamedStruct | NamedStruct<...> )
+                    /// ( Enum | Struct | Struct<...> )
                     auto a        = makeNode!Alias(t);
                     a.isInnerType = true;
                     a.name        = t.value;
@@ -134,7 +124,7 @@ public:
         return type;
     }
 private:
-    Type parseAliasOrEnumOrNamedStruct(Tokens t, ASTNode node) {
+    Type parseAliasOrEnumOrStruct(Tokens t, ASTNode node) {
 
         /// Get the name
         string name = t.value;

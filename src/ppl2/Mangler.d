@@ -21,7 +21,7 @@ public:
         if(i!=-1) name = canonicalName[i+2..$];
         //uniqueStructAndModuleNames.add(name);
     }
-    string mangle(NamedStruct ns) {
+    string mangle(Struct ns) {
         string name = ns.name;
         //int i = 2;
         //string prefix = name;
@@ -42,10 +42,10 @@ public:
 
         if(f.isStructMember) {
             auto tuple = f.getAncestor!Tuple();
-            if(tuple.isNamedStruct) {
+            if(tuple.isStruct) {
                 string sep = ".";
                 if(f.isStatic) sep = "::";
-                name = tuple.as!NamedStruct.name ~ sep ~ name;
+                name = tuple.as!Struct.name ~ sep ~ name;
             }
         } else {
             auto m = f.getModule;
@@ -90,8 +90,8 @@ public:
         //    case FLOAT:  s = "f"; break;
         //    case DOUBLE: s = "d"; break;
         //    case VOID:   s = "v"; break;
-        //    case NAMED_STRUCT:
-        //        auto n = t.getNamedStruct;
+        //    case STRUCT:
+        //        auto n = t.getStruct;
         //        s = "N[%s]".format(n.getUniqueName());
         //        break;
         //    case TUPLE:

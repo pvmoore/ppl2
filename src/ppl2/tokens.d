@@ -51,12 +51,12 @@ public:
         _access.pop();
         _access.push(a);
     }
-    /// Start of Module level NamedStruct
+    /// Start of Module level Struct
     void startAccessScope() {
         _access.push(Access.PRIVATE);
         assert(_access.length==2);
     }
-    /// End of Module level NamedStruct
+    /// End of Module level Struct
     void endAccessScope() {
         _access.pop();
         assert(_access.length==1);

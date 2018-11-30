@@ -109,7 +109,7 @@ import ppl2.parse.detect_type;
 import ppl2.parse.parse_expression;
 import ppl2.parse.parse_helper;
 import ppl2.parse.parse_module;
-import ppl2.parse.parse_named_struct;
+import ppl2.parse.parse_struct;
 import ppl2.parse.parse_statement;
 import ppl2.parse.parse_type;
 import ppl2.parse.parse_variable;
@@ -148,6 +148,6 @@ import ppl2.type.type_basic;
 import ppl2.type.Enum;
 import ppl2.type.type_function;
 import ppl2.type.Tuple;
-import ppl2.type.type_named_struct;
+import ppl2.type.Struct;
 import ppl2.type.type_ptr;
 

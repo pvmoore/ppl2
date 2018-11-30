@@ -61,14 +61,14 @@ public:
                 auto dot = n.parent.as!Dot;
                 assert(dot);
 
-                if(!prevType.isNamedStruct) {
+                if(!prevType.isStruct) {
                     module_.addError(prev, "Left of call '%s' must be a struct type not a %s".format(n.name, prevType), true);
                     return;
                 }
 
                 //dd("module:", module_.canonicalName, "call:", n, "prevType:", prevType);
 
-                NamedStruct ns = prevType.getNamedStruct;
+                Struct ns = prevType.getStruct;
                 assert(ns);
 
 
@@ -146,7 +146,7 @@ public:
                n.argTypes.length == n.target.paramTypes.length.as!int-1 &&
               !n.implicitThisArgAdded)
             {
-                auto ns = n.getAncestor!NamedStruct;
+                auto ns = n.getAncestor!Struct;
                 if(ns) {
                     auto r = resolver.identifierResolver.find("this", n);
                     if(r.found) {

@@ -57,20 +57,20 @@ shared static this() {
     g_builtinTypes["double"] = Type.DOUBLE;
     g_builtinTypes["void"]   = Type.VOID;
 
-    g_typeToString[Type.UNKNOWN]      = "?type";
-    g_typeToString[Type.BOOL]         = "bool";
-    g_typeToString[Type.BYTE]         = "byte";
-    g_typeToString[Type.SHORT]        = "short";
-    g_typeToString[Type.INT]          = "int";
-    g_typeToString[Type.LONG]         = "long";
-    g_typeToString[Type.HALF]         = "half";
-    g_typeToString[Type.FLOAT]        = "float";
-    g_typeToString[Type.DOUBLE]       = "double";
-    g_typeToString[Type.VOID]         = "void";
-    g_typeToString[Type.TUPLE]        = "tuple";
-    g_typeToString[Type.NAMED_STRUCT] = "named_struct";
-    g_typeToString[Type.ARRAY]        = "array";
-    g_typeToString[Type.FUNCTION]     = "function";
+    g_typeToString[Type.UNKNOWN]  = "?type";
+    g_typeToString[Type.BOOL]     = "bool";
+    g_typeToString[Type.BYTE]     = "byte";
+    g_typeToString[Type.SHORT]    = "short";
+    g_typeToString[Type.INT]      = "int";
+    g_typeToString[Type.LONG]     = "long";
+    g_typeToString[Type.HALF]     = "half";
+    g_typeToString[Type.FLOAT]    = "float";
+    g_typeToString[Type.DOUBLE]   = "double";
+    g_typeToString[Type.VOID]     = "void";
+    g_typeToString[Type.TUPLE]    = "tuple";
+    g_typeToString[Type.STRUCT]   = "named_struct";
+    g_typeToString[Type.ARRAY]    = "array";
+    g_typeToString[Type.FUNCTION] = "function";
 
     // unary
     //ttOperator[NEG] =

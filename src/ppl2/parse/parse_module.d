@@ -103,8 +103,8 @@ public:
         if(afterNode.isFunction) {
             t.setAccess(afterNode.as!Function.access);
         } else {
-            assert(afterNode.id==NodeID.NAMED_STRUCT);
-            t.setAccess(afterNode.as!NamedStruct.access);
+            assert(afterNode.id==NodeID.STRUCT);
+            t.setAccess(afterNode.as!Struct.access);
         }
 
         auto composite = Composite.make(t, Composite.Usage.PLACEHOLDER);

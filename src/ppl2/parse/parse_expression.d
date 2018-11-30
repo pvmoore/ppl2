@@ -733,7 +733,7 @@ private:
         if(!con.type) {
             errorMissingType(module_, t, t.value);
         }
-        if(!con.type.isAlias && !con.type.isNamedStruct) {
+        if(!con.type.isAlias && !con.type.isStruct) {
             errorBadSyntax(module_, t, "Expecting a struct name here");
         }
 

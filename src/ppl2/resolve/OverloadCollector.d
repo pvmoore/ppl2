@@ -50,7 +50,7 @@ private:
             return;
         }
 
-        if(nid==NodeID.TUPLE || nid==NodeID.NAMED_STRUCT) {
+        if(nid==NodeID.TUPLE || nid==NodeID.STRUCT) {
             /// Check all struct level variables
             foreach(n; node.children) {
                 check(n);

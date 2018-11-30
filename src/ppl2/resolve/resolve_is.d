@@ -30,8 +30,8 @@ public:
                     return;
                 }
 
-                /// If one side is a named struct then the other must be too
-                if(leftType.isNamedStruct != rightType.isNamedStruct) {
+                /// If one side is a struct then the other must be too
+                if(leftType.isStruct != rightType.isStruct) {
                     rewriteToConstBool(n, false);
                     return;
                 }
@@ -56,11 +56,11 @@ public:
                     return;
                 }
 
-                /// Two named structs
-                if(leftType.isNamedStruct) {
+                /// Two structs
+                if(leftType.isStruct) {
 
                     /// Must be the same type
-                    if(leftType.getNamedStruct != rightType.getNamedStruct) {
+                    if(leftType.getStruct != rightType.getStruct) {
                         rewriteToConstBool(n, false);
                         return;
                     }

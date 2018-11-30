@@ -95,7 +95,7 @@ private:
         switch(nid) with(NodeID) {
             case MODULE:
             case TUPLE:
-            case NAMED_STRUCT:
+            case STRUCT:
                 /// Check all variables at this level
                 foreach(n; node.children) {
                     isThisIt(name, n, res);
@@ -110,7 +110,7 @@ private:
             case LITERAL_FUNCTION:
                 if(!node.as!LiteralFunction.isClosure) {
                     /// Go to containing struct if there is one
-                    auto ns = node.getAncestor!NamedStruct();
+                    auto ns = node.getAncestor!Struct();
                     if(ns) {
                         findRecurse(name, ns, res);
                         return;
@@ -174,7 +174,7 @@ private:
             module_.buildState.functionRequired(func.moduleName, func.name);
 
             if(func.isStructMember) {
-                auto ns = n.getAncestor!NamedStruct();
+                auto ns = n.getAncestor!Struct();
                 assert(ns);
 
                 n.target.set(func, ns.getMemberIndex(func));
@@ -186,10 +186,17 @@ private:
             Variable var = res.isVar ? res.var : null;
 
             if(var.isStructMember) {
+                auto struct_ = n.getAncestor!Struct();
+                assert(struct_);
+
+                n.target.set(var, struct_.getMemberIndex(var));
+
+            } else if(var.isTupleMember) {
                 auto tuple = n.getAncestor!Tuple();
                 assert(tuple);
 
                 n.target.set(var, tuple.getMemberIndex(var));
+
             } else {
                 /// Global, local or parameter
                 n.target.set(var);
@@ -299,7 +306,7 @@ private:
                 break;
         }
 
-        if(!prevType.isNamedStruct && !prevType.isTuple && !prevType.isEnum) {
+        if(!prevType.isStruct && !prevType.isTuple && !prevType.isEnum) {
             module_.addError(prev, "Left of identifier %s must be a struct or enum type not a %s (prev=%s)".format(n.name, prevType, prev), true);
             return;
         }
@@ -320,7 +327,7 @@ private:
             return;
         }
         /// Is it a static member?
-        NamedStruct ns = prevType.getNamedStruct;
+        Struct ns = prevType.getStruct;
         if(ns) {
             var = ns.getStaticVariable(n.name);
             if(var) {

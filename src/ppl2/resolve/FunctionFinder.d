@@ -78,8 +78,8 @@ public:
         //    return CALLABLE_NOT_READY;
         //}
 
-        NamedStruct ns = call.isStartOfChain() ?
-        call.getAncestor!NamedStruct : null;
+        Struct ns = call.isStartOfChain() ?
+        call.getAncestor!Struct : null;
 
         if(call.isTemplated && !call.name.contains("<")) {
             /// We can't do anything until the template types are known
@@ -186,10 +186,10 @@ public:
         return CALLABLE_NOT_READY;
     }
     /// Assume:
-    ///     NamedStruct is known
+    ///     Struct is known
     ///     call.argTypes may not yet be known
     ///
-    Callable structFind(Call call, NamedStruct ns, bool staticOnly) {
+    Callable structFind(Call call, Struct ns, bool staticOnly) {
         chat("structFind %s", call.name);
 
         assert(ns);
@@ -356,7 +356,7 @@ private:
         call.name!="new" &&
         !call.implicitThisArgAdded &&
         call.isStartOfChain &&
-        call.hasAncestor!NamedStruct;
+        call.hasAncestor!Struct;
 
         lp:foreach(callable; overloads[].dup) {
 
@@ -376,8 +376,8 @@ private:
             if(isPossibleImplicitThisCall) {
                 /// There may be an implied "this." in front of this call
                 if(callable.isStructMember) {
-                    auto callerStruct = call.getAncestor!NamedStruct;
-                    auto funcStruct   = callable.getNode.getAncestor!NamedStruct;
+                    auto callerStruct = call.getAncestor!Struct;
+                    auto funcStruct   = callable.getNode.getAncestor!Struct;
                     if(callerStruct.nid==funcStruct.nid) {
                         /// This is a call within the same struct
                         args = params[0] ~ args;
@@ -530,7 +530,7 @@ private:
     ///
     /// Extract one or more struct function templates
     ///
-    void extractTemplates(NamedStruct ns, Call call, string mangledName, bool staticOnly)
+    void extractTemplates(Struct ns, Call call, string mangledName, bool staticOnly)
     {
         assert(call.isTemplated);
 

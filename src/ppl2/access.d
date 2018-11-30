@@ -18,8 +18,8 @@ string toString(Access a) {
 
 Access getAccess(ASTNode n) {
     switch(n.id) with(NodeID) {
-        case NAMED_STRUCT:
-            return n.as!NamedStruct.access;
+        case STRUCT:
+            return n.as!Struct.access;
         case ALIAS:
             return n.as!Alias.access;
         case ENUM:

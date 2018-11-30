@@ -12,7 +12,7 @@ public:
         this.module_  = module_;
     }
     void resolve(Unary n) {
-        if(n.expr.getType.isNamedStruct && n.op.isOverloadable) {
+        if(n.expr.getType.isStruct && n.op.isOverloadable) {
             /// Look for an operator overload
             string name = "operator" ~ n.op.value;
 

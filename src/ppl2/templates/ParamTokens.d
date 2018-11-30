@@ -14,7 +14,7 @@ private:
 public:
     int numParams;
 
-    this(NamedStruct ns, string[] proxyNames, Token[] tokens) {
+    this(Struct ns, string[] proxyNames, Token[] tokens) {
         this.proxyNames = new Set!string;
         this.proxyNames.add(proxyNames);
 
@@ -39,7 +39,7 @@ public:
         return proxyLists[paramIndex];
     }
 private:
-    void extractParams(NamedStruct ns, Token[] tokens) {
+    void extractParams(Struct ns, Token[] tokens) {
         assert(tokens.length>0);
         assert(tokens[0].type==TT.LCURLY);
         assert(tokens[$-1].type==TT.RCURLY);

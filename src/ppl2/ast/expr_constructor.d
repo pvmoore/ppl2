@@ -17,7 +17,7 @@ import ppl2.internal;
 ///             calloc
 ///
 final class Constructor : Expression {
-    Type type;      /// Alias (later resolved to NamedStruct) or NamedStruct
+    Type type;      /// Alias (later resolved to Struct)
 
     override bool isResolved() { return type.isKnown; }
     override bool isConst() { return false; }
@@ -26,7 +26,7 @@ final class Constructor : Expression {
     override Type getType() { return type; }
 
     string getName() {
-        return type.isNamedStruct ? type.getNamedStruct.name : type.getAlias.name;
+        return type.isStruct ? type.getStruct.name : type.getAlias.name;
     }
     bool isPtr()     { return type.isPtr; }
 

@@ -27,7 +27,7 @@ final class JsonWriter {
         v["value"]  = n.value.getString;
         v["type"]   = toJson(n.type);
     }
-    void visit(NamedStruct n, ref JSONValue v) {
+    void visit(Struct n, ref JSONValue v) {
         v["name"]   = n.name;
         v["access"] = toJson(n.access);
         v["refs"]   = n.numRefs;
@@ -74,9 +74,9 @@ private:
             return JSONValue(["id" : g_typeToString[n.as!BasicType.type] ]);
         } else if(n.isTuple) {
             return JSONValue(["id" : "TUPLE"]);
-        } else if(n.isNamedStruct) {
-            auto ns = n.as!NamedStruct;
-            return JSONValue(["id"   : "NAMED_STRUCT",
+        } else if(n.isStruct) {
+            auto ns = n.as!Struct;
+            return JSONValue(["id"   : "STRUCT",
                               "name" : ns.name ]);
         } else if(n.isFunction) {
             return JSONValue(["id" : "FUNCTION"]);

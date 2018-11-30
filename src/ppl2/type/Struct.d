@@ -1,11 +1,8 @@
-module ppl2.type.type_named_struct;
+module ppl2.type.Struct;
 
 import ppl2.internal;
-import common : contains;
-///
-///
-///
-final class NamedStruct : Tuple {
+
+final class Struct : Tuple {
     string name;
     string moduleName;
     int numRefs;
@@ -22,23 +19,26 @@ final class NamedStruct : Tuple {
 /// Template stuff
     TemplateBlueprint blueprint;
     bool isTemplateBlueprint() { return blueprint !is null; }
-    bool isTemplateInstance()  { return name.contains('<'); }
+    bool isTemplateInstance()  {
+        import common : contains;
+        return name.contains('<');
+    }
 /// end of template stuff
 
 /// ASTNode interface
-    override NodeID id() const { return NodeID.NAMED_STRUCT; }
+    override NodeID id() const { return NodeID.STRUCT; }
     override bool isKnown() { return true; }
 
 /// Type interface
-    override int category() const { return Type.NAMED_STRUCT; }
+    override int category() const { return Type.STRUCT; }
 
     override bool exactlyMatches(Type other) {
         /// Do the common checks
         if(!prelimExactlyMatches(this, other)) return false;
         /// Now check the base type
-        if(!other.isNamedStruct) return false;
+        if(!other.isStruct) return false;
 
-        auto right = other.getNamedStruct;
+        auto right = other.getStruct;
 
         return name==right.name;
     }
@@ -46,9 +46,9 @@ final class NamedStruct : Tuple {
         /// Do the common checks
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
         /// Now check the base type
-        if(!other.isNamedStruct) return false;
+        if(!other.isStruct) return false;
 
-        auto right = other.getNamedStruct;
+        auto right = other.getStruct;
 
         return name==right.name;
     }
@@ -64,10 +64,10 @@ final class NamedStruct : Tuple {
                 .filter!(it=>it.id==NodeID.ENUM && it.as!Enum.name==name)
                 .frontOrNull!Enum;
     }
-    NamedStruct getInnerNamedStruct(string name) {
+    Struct getInnerStruct(string name) {
         return children[]
-                .filter!(it=>it.id==NodeID.NAMED_STRUCT && it.as!NamedStruct.name==name)
-                .frontOrNull!NamedStruct;
+                .filter!(it=>it.id==NodeID.STRUCT && it.as!Struct.name==name)
+                .frontOrNull!Struct;
     }
     ///========================================================================================
     Variable[] getStaticVariables() {

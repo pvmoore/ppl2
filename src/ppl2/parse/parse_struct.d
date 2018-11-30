@@ -1,8 +1,8 @@
-module ppl2.parse.parse_named_struct;
+module ppl2.parse.parse_struct;
 
 import ppl2.internal;
 
-final class NamedStructParser {
+final class StructParser {
 private:
     Module module_;
 
@@ -22,7 +22,7 @@ public:
         /// struct
         t.skip("struct");
 
-        NamedStruct n = makeNode!NamedStruct(t);
+        Struct n = makeNode!Struct(t);
         parent.add(n);
 
         n.moduleName = module_.canonicalName;
@@ -32,7 +32,6 @@ public:
         auto node = parent; if(node.hasChildren) node = node.last();
         auto type = typeFinder.findType(t.value, node);
 
-        //dd("parseNamedStruct", t.value);
         if(type) {
             //dd("redefinition", type);
             if(type.isAlias) {
@@ -41,8 +40,8 @@ public:
                 } else {
                     module_.addError(n, "Type %s already defined".format(t.value), true);
                 }
-            } else if(type.isNamedStruct) {
-                auto ns = type.getNamedStruct;
+            } else if(type.isStruct) {
+                auto ns = type.getStruct;
 
                 if(ns.isDeclarationOnly) {
                     /// Re-use previous definition
@@ -126,7 +125,7 @@ public:
             t.endAccessScope();
         }
     }
-    void parseBody(Tokens t, NamedStruct ns) {
+    void parseBody(Tokens t, Struct ns) {
         /// {
         t.skip(TT.LCURLY);
 
@@ -141,7 +140,7 @@ public:
         t.skip(TT.RCURLY);
     }
     /// If there is no default constructor 'new()' then create one
-    void addDefaultConstructor(Tokens t, NamedStruct ns) {
+    void addDefaultConstructor(Tokens t, Struct ns) {
         auto defCons = ns.getDefaultConstructor();
         if(!defCons) {
 
@@ -163,7 +162,7 @@ public:
         }
     }
     /// Add implicit return 'this' at the end of all constructors
-    void addImplicitReturnThisToNonDefaultConstructors(NamedStruct ns) {
+    void addImplicitReturnThisToNonDefaultConstructors(Struct ns) {
         auto allCons = ns.getConstructors();
         foreach(c; allCons) {
             auto bdy = c.getBody();
@@ -179,7 +178,7 @@ public:
         }
     }
     /// Every non-default constructor should start with a call to the default constructor
-    void addCallToDefaultConstructor(NamedStruct ns) {
+    void addCallToDefaultConstructor(Struct ns) {
         auto allCons = ns.getConstructors();
         foreach(c; allCons) {
             if(!c.isDefaultConstructor) {
@@ -197,7 +196,7 @@ public:
         }
     }
     /// Move struct member variable initialisers into the default constructor
-    void moveInitCodeInsideDefaultConstructor(NamedStruct ns) {
+    void moveInitCodeInsideDefaultConstructor(Struct ns) {
         auto initFunc = ns.getDefaultConstructor();
         assert(initFunc);
 

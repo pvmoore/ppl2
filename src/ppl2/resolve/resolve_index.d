@@ -12,10 +12,10 @@ public:
         this.module_  = module_;
     }
     void resolve(Index n) {
-        if(n.exprType().isNamedStruct) {
+        if(n.exprType().isStruct) {
             /// Rewrite this to a call to operator[]
 
-            auto ns = n.exprType.getNamedStruct;
+            auto ns = n.exprType.getStruct;
 
             auto b = module_.builder(n);
 

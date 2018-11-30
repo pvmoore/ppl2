@@ -43,7 +43,7 @@ final class NodeBuilder {
             if(f.isStructMember) {
                 auto tuple = f.parent.as!Tuple;
                 assert(tuple);
-                auto ns = tuple.parent.as!NamedStruct;
+                auto ns = tuple.parent.as!Struct;
                 assert(ns);
                 call.target.set(f, ns.getMemberIndex(f));
             } else {
@@ -76,7 +76,7 @@ final class NodeBuilder {
         id.target = new Target(module_);
         id.name   = v.name;
 
-        if(v.isTupleMember || v.isNamedStructMember) {
+        if(v.isTupleMember || v.isStructMember) {
             auto tuple = v.parent.as!Tuple;
             assert(tuple);
             id.target.set(v, tuple.getMemberIndex(v));

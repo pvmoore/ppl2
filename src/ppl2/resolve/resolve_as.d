@@ -72,7 +72,7 @@ public:
         }
 
         bool isValidRewrite(Type t) {
-            return t.isValue && (t.isTuple || t.isArray || t.isNamedStruct);
+            return t.isValue && (t.isTuple || t.isArray || t.isStruct);
         }
 
         if(isValidRewrite(lt) && isValidRewrite(rt)) {

@@ -106,14 +106,14 @@ public:
         log("Resolving %s Alias|enum|struct '%s'", module_, AliasName);
 
         module_.recurse!Type((it) {
-            auto ns = it.as!NamedStruct;
+            auto ns = it.as!Struct;
             auto en = it.as!Enum;
             auto al = it.as!Alias;
 
             if(ns) {
                 if(ns.name==AliasName) {
                     if(ns.parent.isModule) {
-                        log("\t  Adding NamedStruct root %s", it);
+                        log("\t  Adding Struct root %s", it);
                     }
                     module_.addActiveRoot(ns);
                     ns.numRefs++;
@@ -322,7 +322,7 @@ public:
     void visit(ModuleAlias n) {
 
     }
-    void visit(NamedStruct n) {
+    void visit(Struct n) {
 
     }
     void visit(Parameters n) {
@@ -448,7 +448,7 @@ public:
                 return;
             }
             Type externalType = m.getAlias(alias_.name);
-            if(!externalType) externalType = m.getNamedStruct(alias_.name);
+            if(!externalType) externalType = m.getStruct(alias_.name);
             if(!externalType) externalType = m.getEnum(alias_.name);
             if(!externalType) {
                 module_.addError(module_, "Import %s not found in module %s".format(alias_.name, alias_.moduleName), true);
@@ -467,11 +467,11 @@ public:
                 resolveAlias(node, t);
             }
 
-            /// Resolve until we have the NamedStruct
+            /// Resolve until we have the Struct
             if(alias_.type.isAlias) {
                 resolveAlias(node, alias_.type);
             }
-            if(!alias_.type.isNamedStruct) {
+            if(!alias_.type.isStruct) {
                 unresolved.add(alias_);
                 return;
             }
@@ -494,8 +494,8 @@ public:
 
         if(alias_.isTemplateProxy || alias_.isInnerType) {
 
-            /// We now have a NamedStruct to work with
-            auto ns            = alias_.type.getNamedStruct;
+            /// We now have a Struct to work with
+            auto ns = alias_.type.getStruct;
             string mangledName;
             if(alias_.isInnerType) {
                 mangledName ~= alias_.name;
@@ -515,7 +515,7 @@ public:
                 if(alias_.isInnerType) {
                     /// Find the template blueprint
                     string parentName = ns.name;
-                    ns = ns.getInnerNamedStruct(alias_.name);
+                    ns = ns.getInnerStruct(alias_.name);
                     if(!ns) {
                         module_.addError(alias_, "Struct %s does not have inner type %s".format(parentName, alias_.name), true);
                         return;
@@ -559,8 +559,8 @@ private:
 
         if(!m.isAttached) return;
 
-        if(m.id==NodeID.NAMED_STRUCT) {
-            if(m.as!NamedStruct.isTemplateBlueprint) return;
+        if(m.id==NodeID.STRUCT) {
+            if(m.as!Struct.isTemplateBlueprint) return;
         } else if(m.isFunction) {
             auto f = m.as!Function;
             if(f.isTemplateBlueprint) return;

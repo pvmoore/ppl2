@@ -8,12 +8,12 @@ final class StatementParser {
 private:
     Module module_;
 
-    auto namedStructParser() { return module_.namedStructParser; }
-    auto varParser()         { return module_.varParser; }
-    auto typeParser()        { return module_.typeParser; }
-    auto typeDetector()      { return module_.typeDetector; }
-    auto exprParser()        { return module_.exprParser; }
-    auto builder()           { return module_.nodeBuilder; }
+    auto structParser() { return module_.structParser; }
+    auto varParser()    { return module_.varParser; }
+    auto typeParser()   { return module_.typeParser; }
+    auto typeDetector() { return module_.typeDetector; }
+    auto exprParser()   { return module_.exprParser; }
+    auto builder()      { return module_.nodeBuilder; }
 public:
     this(Module module_) {
         this.module_ = module_;
@@ -91,11 +91,11 @@ public:
                 } else if(t.peek(2).type==TT.LANGLE) {
                     parseFunction(t, parent);
                 } else {
-                    varParser().parseNamedStructMember(t, parent);
+                    varParser().parseStructMember(t, parent);
                 }
                 return;
             case "struct":
-                namedStructParser().parse(t, parent);
+                structParser().parse(t, parent);
                 return;
             case "operator":
                 if(isOperatorOverloadFunction(module_, t)) {
@@ -199,14 +199,14 @@ private: //=====================================================================
         }
     }
     void checkAccessScope(Tokens t, ASTNode parent) {
-        if(parent.id==NodeID.NAMED_STRUCT) return;
+        if(parent.id==NodeID.STRUCT) return;
         if(parent.id==NodeID.MODULE) {
             if(t.value=="readonly") {
                 module_.addError(t, "readonly access is only allowed inside a struct", true);
             }
             return;
         }
-        module_.addError(t, "Access qualifiers only allowed at module or named struct scope", true);
+        module_.addError(t, "Access qualifiers only allowed at module or struct scope", true);
     }
 
     /// extern putchar {int->int}
@@ -338,7 +338,7 @@ private: //=====================================================================
         auto f = makeNode!Function(t);
         parent.add(f);
 
-        auto ns = f.getAncestor!NamedStruct;
+        auto ns = f.getAncestor!Struct;
 
         if(t.value=="static") {
             f.isStatic = true;

@@ -18,9 +18,9 @@ final class Index : Expression {
         if(isPtrIndex) {
             return true;
         }
-        if(exprType().isNamedStruct) {
+        if(exprType().isStruct) {
             /// Check if we are waiting to be rewritten to operator:
-            auto ns = exprType().getNamedStruct;
+            auto ns = exprType().getStruct;
             assert(ns);
             if(ns.getMemberFunctions("operator:")) return false;
         }
@@ -36,13 +36,13 @@ final class Index : Expression {
 
         auto t     = exprType();
         auto tuple = t.getTuple;
-        auto ns    = t.getNamedStruct;
+        auto ns    = t.getStruct;
         auto array = t.getArrayType;
 
         if(t.isPtr) {
             return PtrType.of(t, -1);
         }
-        if(t.isNamedStruct) {
+        if(t.isStruct) {
             assert(ns);
             if(ns.hasOperatorOverload(Operator.INDEX)) {
                 /// This will be replaced with an operator overload later

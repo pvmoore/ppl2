@@ -49,7 +49,7 @@ public:
                 t.next;
                 found = true;
             }
-            /// Is it a NamedStruct, Enum or Alias?
+            /// Is it a Struct, Enum or Alias?
             if(!found) {
                 auto ty = module_.typeFinder.findType(t.value, node);
                 if(ty) {
@@ -86,13 +86,13 @@ public:
                 ///             ^^^^^^^^ repeat
                 /// So far we have type1
 
-                /// type2 must be one of: ( Enum | NamedStruct | NamedStruct<...> )
+                /// type2 must be one of: ( Enum | Struct | Struct<...> )
 
                 while(t.type==TT.DBL_COLON) {
                     /// ::
                     t.skip(TT.DBL_COLON);
 
-                    /// ( Enum | NamedStruct | NamedStruct<...> )
+                    /// ( Enum | Struct | Struct<...> )
                     t.next;
 
                     if(t.type==TT.LANGLE) {

@@ -56,8 +56,8 @@ public:
         }
 
         /// Remove named structs that are not referenced or are template blueprints
-        auto namedStructs = new Array!NamedStruct;
-        module_.selectDescendents!NamedStruct(namedStructs);
+        auto namedStructs = new Array!Struct;
+        module_.selectDescendents!Struct(namedStructs);
         foreach(ns; namedStructs) {
             if(ns.isTemplateBlueprint) {
                 log("\t  template blueprint named struct %s", ns.name);
@@ -108,7 +108,7 @@ private:
     void remove(Alias a) {
         a.detach();
     }
-    void remove(NamedStruct n) {
+    void remove(Struct n) {
         n.detach();
     }
     void remove(Enum e) {

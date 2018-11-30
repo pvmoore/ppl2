@@ -10,7 +10,7 @@ public:
         this.module_ = module_;
     }
     ///
-    /// Look for a Alias, Enum or NamedStruct with given name starting from node.
+    /// Look for a Alias, Enum or Struct with given name starting from node.
     ///
     /// It is expected that this function is used during the parse phase so that
     /// is why we treat all nodes within a literal function as possible targets.
@@ -23,7 +23,7 @@ public:
             auto def = n.as!Alias;
             if(def && def.name==name) return def;
 
-            auto ns = n.as!NamedStruct;
+            auto ns = n.as!Struct;
             if(ns && ns.name==name) return ns;
 
             auto en = n.as!Enum;
@@ -60,7 +60,7 @@ public:
             }
             return null;
 
-        } else if(nid==NodeID.TUPLE || nid==NodeID.NAMED_STRUCT || nid==NodeID.LITERAL_FUNCTION) {
+        } else if(nid==NodeID.TUPLE || nid==NodeID.STRUCT || nid==NodeID.LITERAL_FUNCTION) {
             /// Check all scope level nodes
             foreach(n; node.children) {
                 auto t = find(n);
@@ -89,10 +89,10 @@ public:
         auto type = untemplatedType;
 
         assert(templateParams.length>0);
-        assert(type && (type.isAlias || type.isNamedStruct));
+        assert(type && (type.isAlias || type.isStruct));
 
         auto alias_ = type.getAlias;
-        auto ns     = type.getNamedStruct;
+        auto ns     = type.getStruct;
         assert(alias_ !is null || ns !is null);
 
         found(type);
@@ -107,7 +107,7 @@ public:
         }
 
         /// Create a template proxy Alias which can
-        /// be replaced later by the concrete NamedStruct
+        /// be replaced later by the concrete Struct
         auto proxy           = makeNode!Alias(node);
         proxy.name           = module_.makeTemporary("templateProxy");
         proxy.type           = type;
@@ -124,7 +124,7 @@ public:
     private Type found(Type t) {
 
         auto alias_ = t.getAlias;
-        auto ns     = t.getNamedStruct;
+        auto ns     = t.getStruct;
         auto en     = t.getEnum;
         assert(alias_ !is null || ns !is null || en !is null);
 

@@ -15,7 +15,7 @@ public:
     ///
     /// Extract a struct template
     ///
-    void extract(NamedStruct ns, ASTNode requestingNode, string mangledName, Type[] templateTypes) {
+    void extract(Struct ns, ASTNode requestingNode, string mangledName, Type[] templateTypes) {
         assert(ns.moduleName==module_.canonicalName);
 
         if(templateTypes.length != ns.blueprint.numTemplateParams) {
@@ -52,11 +52,11 @@ public:
                 return;
             }
 
-            NamedStruct ns;
+            Struct ns;
             string key = mangledName;
 
             if(f.isStructMember || f.isStatic) {
-                ns = f.getNamedStruct();
+                ns = f.getStruct();
                 assert(ns);
                 key = ns.name ~ "." ~ mangledName;
             }

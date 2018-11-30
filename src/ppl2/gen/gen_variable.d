@@ -16,7 +16,7 @@ void generateLocalGlobalVariableDeclarations(Module module_) {
     }
 }
 void generateLocalStaticVariableDeclarations(Module module_) {
-    foreach(ns; module_.getNamedStructsRecurse) {
+    foreach(ns; module_.getStructsRecurse) {
         foreach(v; ns.getStaticVariables) {
             string name = "%s::%s".format(ns.name, v.name);
             auto g = module_.llvmValue.addGlobal(v.type.getLLVMType(), name);
@@ -27,7 +27,7 @@ void generateLocalStaticVariableDeclarations(Module module_) {
     }
 }
 void generateImportedStaticVariableDeclarations(Module module_) {
-    foreach(ns; module_.getImportedNamedStructs()) {
+    foreach(ns; module_.getImportedStructs()) {
         foreach(v; ns.getStaticVariables()) {
             if(v.access.isPrivate) continue;
 

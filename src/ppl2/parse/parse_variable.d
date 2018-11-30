@@ -80,7 +80,7 @@ public:
     }
     /// struct S { int a ...
     ///            ^^^^^
-    void parseNamedStructMember(Tokens t, ASTNode parent) {
+    void parseStructMember(Tokens t, ASTNode parent) {
         Flags flags = {
             nameRequired:    true,
             typeRequired:    true,

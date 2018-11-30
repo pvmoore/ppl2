@@ -111,8 +111,8 @@ public:
         if(n.target.isMemberVariable) {
 
             /// Get the "this" variable
-            if(n.target.getVariable.isNamedStructMember) {
-                auto ns = n.target.getVariable.getNamedStruct;
+            if(n.target.getVariable.isStructMember) {
+                auto ns = n.target.getVariable.getStruct;
                 assert(ns);
 
                 lhs = structMemberThis[ns.name];
@@ -139,7 +139,7 @@ public:
             rhs = builder.call(n.target.llvmValue, argValues, n.target.getFunction().getCallingConvention());
         }
 
-        if((returnType.isNamedStruct || returnType.isTuple) &&
+        if((returnType.isStruct || returnType.isTuple) &&
            (n.parent.isDot || n.parent.isA!Parenthesis) &&
            !returnType.isPtr)
         {
@@ -224,8 +224,8 @@ public:
         } else if(n.target.isMemberVariable) {
 
             /// Get the "this" variable
-            if(!n.parent.isDot && n.target.getVariable.isNamedStructMember) {
-                auto ns = n.target.getVariable.getNamedStruct;
+            if(!n.parent.isDot && n.target.getVariable.isStructMember) {
+                auto ns = n.target.getVariable.getStruct;
                 assert(ns);
 
                 lhs = structMemberThis[ns.name];
@@ -313,7 +313,7 @@ public:
     void visit(ModuleAlias n) {
 
     }
-    void visit(NamedStruct n) {
+    void visit(Struct n) {
 
     }
     void visit(Parameters n) {
@@ -327,7 +327,7 @@ public:
 
             /// Remember values of "this" so that we can access member variables later
             if(v.name=="this") {
-                auto ns = v.type.getNamedStruct;
+                auto ns = v.type.getStruct;
                 assert(ns);
 
                 rhs = builder.load(lhs, "this");
@@ -381,7 +381,7 @@ public:
 
         } else if(n.isTupleMember) {
 
-        } else if(n.isNamedStructMember) {
+        } else if(n.isStructMember) {
 
         } else {
             //// it must be a local/parameter
