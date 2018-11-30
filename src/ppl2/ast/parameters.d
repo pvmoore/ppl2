@@ -47,7 +47,7 @@ final class Parameters : ASTNode {
 
         auto a = makeNode!Variable(ns);
         a.name = "this";
-        a.type = PtrType.of(ns, 1);
+        a.type = Pointer.of(ns, 1);
         addToFront(a);
     }
 

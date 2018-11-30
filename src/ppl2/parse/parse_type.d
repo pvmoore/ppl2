@@ -111,7 +111,7 @@ public:
                     t.next;
                     pd++;
                 }
-                type = PtrType.of(type, pd);
+                type = Pointer.of(type, pd);
 
 
                 if(t.onSameLine && t.type==TT.LSQBRACKET) {
@@ -210,7 +210,7 @@ private:
             subtype.as!ASTNode.detach();
         }
 
-        auto a = makeNode!ArrayType(t);
+        auto a = makeNode!Array(t);
         node.add(a);
 
         /// [
@@ -278,7 +278,7 @@ private:
             f.detach();
         }
 
-        return PtrType.of(f, 1);
+        return Pointer.of(f, 1);
     }
     /// #typeof ( expr )
     Type parseTypeof(Tokens t, ASTNode node, bool addToNode) {

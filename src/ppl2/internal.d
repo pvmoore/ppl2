@@ -19,20 +19,21 @@ import std.algorithm.iteration : each, map, filter, sum;
 import std.algorithm.searching : any, all, count, startsWith;
 import std.algorithm.sorting   : sort;
 
-import common : Array, From, Hash, Hasher, Queue, Set, Stack, StringBuffer,
+import common : DynamicArray = Array;
+import common : From, Hash, Hasher, Queue, Set, Stack, StringBuffer,
                 as, dynamicDispatch, isA, firstNotNull, flushConsole, endsWith,
                 removeChars, repeat, visit;
 
 import llvm.all;
 import ppl2;
 
-import ppl2.access;
-import ppl2.interfaces;
+import ppl2.Access;
+import ppl2.Container;
 import ppl2.Mangler;
 import ppl2.ppl2;
 import ppl2.global;
-import ppl2.operator;
-import ppl2.target;
+import ppl2.Operator;
+import ppl2.Target;
 
 import ppl2.ast.expression;
 import ppl2.ast.expr_address_of;
@@ -142,12 +143,11 @@ import ppl2.templates.ParamTypeMatcherRegex;
 import ppl2.templates.templates;
 
 import ppl2.type.Alias;
-import ppl2.type.type;
-import ppl2.type.type_array;
-import ppl2.type.type_basic;
+import ppl2.type.Array;
 import ppl2.type.Enum;
+import ppl2.type.Pointer;
+import ppl2.type.type;
+import ppl2.type.type_basic;
 import ppl2.type.type_function;
-import ppl2.type.Tuple;
 import ppl2.type.Struct;
-import ppl2.type.type_ptr;
-
+import ppl2.type.Tuple;

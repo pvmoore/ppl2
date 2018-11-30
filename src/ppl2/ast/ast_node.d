@@ -111,14 +111,14 @@ abstract class ASTNode {
 private:
     Module module_;
 public:
-    Array!ASTNode children;
+    DynamicArray!ASTNode children;
     ASTNode parent;
     int line   = -1;
     int column = -1;
     int nid;
 
     this() {
-        children = new Array!ASTNode;
+        children = new DynamicArray!ASTNode;
     }
 
 /// Override these
@@ -319,7 +319,7 @@ public:
     ///
     /// Return a list of all descendents that are of type T.
     ///
-    void selectDescendents(T)(Array!T array) {
+    void selectDescendents(T)(DynamicArray!T array) {
         auto t = cast(T)this;
         if(t) array.add(t);
 
@@ -330,13 +330,13 @@ public:
     ///
     /// Collect all nodes where filter returns true, recursively.
     ///
-    void recursiveCollect(Array!ASTNode array, bool delegate(ASTNode n) filter) {
+    void recursiveCollect(DynamicArray!ASTNode array, bool delegate(ASTNode n) filter) {
         if(filter(this)) array.add(this);
         foreach(n; children) {
             n.recursiveCollect(array, filter);
         }
     }
-    void recursiveCollect(T)(Array!T array, bool delegate(T n) filter) {
+    void recursiveCollect(T)(DynamicArray!T array, bool delegate(T n) filter) {
         T t = this.as!T;
         if(t && filter(t)) array.add(t);
         foreach(n; children) {

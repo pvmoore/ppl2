@@ -1,4 +1,4 @@
-module ppl2.type.type_array;
+module ppl2.type.Array;
 
 import ppl2.internal;
 ///
@@ -7,7 +7,7 @@ import ppl2.internal;
 /// array_type
 ///     count_expr
 ///
-final class ArrayType : ASTNode, Type {
+final class Array : ASTNode, Type {
 private:
     LLVMTypeRef _llvmType;
 public:

@@ -16,7 +16,7 @@ public:
         Module mainModule  = buildState.mainModule;
         Function entry     = hasMainModule ? mainModule.getFunctions("main")[0] : null;
 
-        auto calls = new Array!Call;
+        auto calls = new DynamicArray!Call;
 
         foreach(mod; modules) {
 

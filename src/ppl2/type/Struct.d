@@ -2,7 +2,10 @@ module ppl2.type.Struct;
 
 import ppl2.internal;
 
-final class Struct : Tuple {
+final class Struct : ASTNode, Type, Container {
+protected:
+    LLVMTypeRef _llvmType;
+public:
     string name;
     string moduleName;
     int numRefs;
@@ -26,11 +29,13 @@ final class Struct : Tuple {
 /// end of template stuff
 
 /// ASTNode interface
+    override bool isResolved() { return true; }
     override NodeID id() const { return NodeID.STRUCT; }
-    override bool isKnown() { return true; }
+    override Type getType()    { return this; }
 
 /// Type interface
     override int category() const { return Type.STRUCT; }
+    override bool isKnown() { return true; }
 
     override bool exactlyMatches(Type other) {
         /// Do the common checks
@@ -108,10 +113,38 @@ final class Struct : Tuple {
                     .filter!(it=>name==it.name)
                     .array;
     }
+    ///========================================================================================
+    int numMemberVariables() {
+        return getMemberVariables().length.as!int;
+    }
+    Variable[] getMemberVariables() {
+        return children[].filter!(it=>it.id==NodeID.VARIABLE)
+                .map!(it=>cast(Variable)it)
+                .filter!(it=>it.isStatic==false)
+                .array;
+    }
+    Variable getMemberVariable(string name) {
+        return getMemberVariables()
+                .filter!(it=>name==it.name)
+                .frontOrNull!Variable;
+    }
+    Variable getMemberVariable(int index) {
+        return getMemberVariables()[index];
+    }
+    Type[] memberVariableTypes() {
+        return getMemberVariables()
+                .map!(it=>(cast(Variable)it).type)
+                .array;
+    }
+    LLVMTypeRef[] getLLVMTypes() {
+        return memberVariableTypes()
+                .map!(it=>it.getLLVMType())
+                .array;
+    }
+    ///========================================================================================
     bool hasDefaultConstructor() {
         return getDefaultConstructor() !is null;
     }
-
     Function getDefaultConstructor() {
         foreach(f; getConstructors()) {
             if(f.isDefaultConstructor) return f;
@@ -122,9 +155,19 @@ final class Struct : Tuple {
         return getMemberFunctions("new");
     }
     Function[] getInnerFunctions() {
-        auto array = new Array!Function;
+        auto array = new DynamicArray!Function;
         recursiveCollect!Function(array, f=>f.isInner);
         return array[];
+    }
+    ///
+    /// Return true if there are Composites at root level which signifies
+    /// that a template function has just been added
+    ///
+    bool containsComposites() {
+        foreach(ch; children) {
+            if(ch.isComposite) return true;
+        }
+        return false;
     }
     int getMemberIndex(Function var) {
         foreach(int i, v; getMemberFunctions()) {
@@ -132,13 +175,14 @@ final class Struct : Tuple {
         }
         return -1;
     }
-    override int getMemberIndex(Variable var) {
-        return super.getMemberIndex(var);
+    int getMemberIndex(Variable var) {
+        assert(!var.isStatic);
+        foreach(int i, v; getMemberVariables()) {
+            if(var is v) return i;
+        }
+        return -1;
     }
     ///========================================================================================
-    bool isAtModuleScope() {
-        return parent.isModule;
-    }
     bool hasOperatorOverload(Operator op) {
         string fname = "operator";
         if(op==Operator.NEG) {

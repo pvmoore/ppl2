@@ -1,4 +1,4 @@
-module ppl2.operator;
+module ppl2.Operator;
 
 import ppl2.internal;
 

@@ -23,7 +23,7 @@ public:
         }
 
         auto t = expr().getType();
-        type = PtrType.of(t, 1);
+        type = Pointer.of(t, 1);
         return type;
     }
 

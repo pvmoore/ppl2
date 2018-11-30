@@ -12,7 +12,7 @@ import ppl2.internal;
 ///     statement (0 - *)
 ///
 final class LiteralFunction : Expression, Container {
-    Type type;      /// PtrType -> FunctionType
+    Type type;      /// Pointer -> FunctionType
 
     override bool isResolved() { return type.isKnown; }
     override NodeID id() const { return NodeID.LITERAL_FUNCTION; }
@@ -39,7 +39,7 @@ final class LiteralFunction : Expression, Container {
         return parent.as!Function;
     }
     Return[] getReturns() {
-        auto array = new Array!Return;
+        auto array = new DynamicArray!Return;
         selectDescendents!Return(array);
         return array[].filter!(it=>
             /// Don't include closure or inner struct
@@ -47,7 +47,7 @@ final class LiteralFunction : Expression, Container {
         ).array;
     }
     Call[] getCalls() {
-        auto array = new Array!Call;
+        auto array = new DynamicArray!Call;
         selectDescendents!Call(array);
         return array[].filter!(it=>
             /// Don't include closure or inner struct

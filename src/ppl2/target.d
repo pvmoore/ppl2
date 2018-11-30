@@ -1,4 +1,4 @@
-module ppl2.target;
+module ppl2.Target;
 
 import ppl2.internal;
 ///

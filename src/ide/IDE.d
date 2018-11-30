@@ -21,7 +21,7 @@ private:
     BuildCompleted buildCompleted;
 
     /// Build listeners
-    Array!BuildListener buildListeners;
+    DynamicArray!BuildListener buildListeners;
 public:
     auto getConsole()               { return consoleView; }
     auto getInfoView()              { return infoView; }
@@ -33,7 +33,7 @@ public:
 
     this(string[] args, Window window) {
         this.window         = window;
-        this.buildListeners = new Array!BuildListener;
+        this.buildListeners = new DynamicArray!BuildListener;
     }
     void ready() {
         this.buildCompleted = new BuildCompleted(this);

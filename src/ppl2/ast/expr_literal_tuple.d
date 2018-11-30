@@ -17,10 +17,10 @@ final class LiteralTuple : Expression {
         type = TYPE_UNKNOWN;
     }
 
-    override bool isResolved() { return type.isKnown; }
-    override NodeID id() const { return NodeID.LITERAL_TUPLE; }
+    override bool isResolved()    { return type.isKnown; }
+    override NodeID id() const    { return NodeID.LITERAL_TUPLE; }
     override int priority() const { return 15; }
-    override Type getType() { return type; }
+    override Type getType()       { return type; }
 
     ///
     /// Try to infer the type based on the elements.

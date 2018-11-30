@@ -23,7 +23,7 @@ public:
         log("Removing dead nodes from module %s", module_.canonicalName);
 
         /// Remove functions that are not referenced or are template blueprints
-        auto functions = new Array!Function;
+        auto functions = new DynamicArray!Function;
         module_.selectDescendents!Function(functions);
         foreach(f; functions) {
             if(f.isImport) {
@@ -39,7 +39,7 @@ public:
         }
 
         /// Remove ALL Aliases
-        auto aliases = new Array!Alias;
+        auto aliases = new DynamicArray!Alias;
         module_.selectDescendents!Alias(aliases);
         foreach(a; aliases) {
             log("\t alias %s", a.name);
@@ -47,7 +47,7 @@ public:
         }
 
         /// Remove unused Enums and all EnumMembers whether used or not
-        auto enums = new Array!Enum;
+        auto enums = new DynamicArray!Enum;
         module_.selectDescendents!Enum(enums);
         foreach(e; enums) {
             if(e.numRefs==0) {
@@ -56,7 +56,7 @@ public:
         }
 
         /// Remove named structs that are not referenced or are template blueprints
-        auto namedStructs = new Array!Struct;
+        auto namedStructs = new DynamicArray!Struct;
         module_.selectDescendents!Struct(namedStructs);
         foreach(ns; namedStructs) {
             if(ns.isTemplateBlueprint) {
@@ -77,7 +77,7 @@ public:
         }
 
         /// Remove ALL imports
-        auto imports = new Array!Import;
+        auto imports = new DynamicArray!Import;
         module_.selectDescendents!Import(imports);
         foreach(imp; imports) {
             log("\t import %s", imp.moduleName);

@@ -259,7 +259,7 @@ public:
             auto indices = [constI32(0), arrayIndex];
             lhs = builder.getElementPointer_inBounds(lhs, indices);
 
-        } else if(n.isStructIndex) {
+        } else if(n.isTupleIndex) {
             // todo - handle "this"?
 
             lhs = builder.getElementPointer_struct(lhs, n.getIndexAsInt());

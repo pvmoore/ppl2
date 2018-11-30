@@ -6,7 +6,7 @@ import ppl2.internal;
 ///
 /// Index
 ///     index
-///     ArrayType | Tuple | PtrType
+///     ArrayType | Tuple | Pointer
 ///
 final class Index : Expression {
 
@@ -34,20 +34,22 @@ final class Index : Expression {
         /// This might happen if an error is thrown
         if(numChildren < 2) return TYPE_UNKNOWN;
 
-        auto t     = exprType();
-        auto tuple = t.getTuple;
-        auto ns    = t.getStruct;
-        auto array = t.getArrayType;
+        auto t       = exprType();
+        auto struct_ = t.getStruct;
+        auto tuple   = t.getTuple;
+        auto array   = t.getArrayType;
 
         if(t.isPtr) {
-            return PtrType.of(t, -1);
+            return Pointer.of(t, -1);
         }
         if(t.isStruct) {
-            assert(ns);
-            if(ns.hasOperatorOverload(Operator.INDEX)) {
+            assert(struct_);
+
+            if(struct_.hasOperatorOverload(Operator.INDEX)) {
                 /// This will be replaced with an operator overload later
                 return TYPE_UNKNOWN;
             }
+            return TYPE_UNKNOWN;
         }
         if(array) {
             /// Check for bounds error
@@ -74,9 +76,9 @@ final class Index : Expression {
         return TYPE_UNKNOWN;
     }
 
-    bool isArrayIndex()  { return exprType().isValue && exprType().isArray; }
-    bool isStructIndex() { return exprType().isValue && exprType().isTuple; }
-    bool isPtrIndex()    { return exprType().isPtr; }
+    bool isArrayIndex() { return exprType().isValue && exprType().isArray; }
+    bool isTupleIndex() { return exprType().isValue && exprType().isTuple; }
+    bool isPtrIndex()   { return exprType().isPtr; }
 
     Expression expr()  { return cast(Expression)children[1]; }
     Expression index() { return cast(Expression)children[0]; }

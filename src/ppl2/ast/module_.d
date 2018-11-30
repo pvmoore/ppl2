@@ -148,7 +148,7 @@ public:
             .frontOrNull!Enum;
     }
     Enum[] getEnumsRecurse() {
-        auto array = new Array!Enum;
+        auto array = new DynamicArray!Enum;
         selectDescendents!Enum(array);
         return array[];
     }
@@ -160,7 +160,7 @@ public:
             .frontOrNull!Struct;
     }
     Struct[] getStructsRecurse() {
-        auto array = new Array!Struct;
+        auto array = new DynamicArray!Struct;
         selectDescendents!Struct(array);
         return array[];
     }
@@ -226,7 +226,7 @@ public:
         return enums.values;
     }
     Function[] getImportedFunctions() {
-        auto array = new Array!ASTNode;
+        auto array = new DynamicArray!ASTNode;
         recursiveCollect(array,
             it=> it.id()==NodeID.CALL &&
                  it.as!Call.target.isFunction() &&
@@ -244,7 +244,7 @@ public:
     /// These should all be non-private statics.
     ///
     Variable[] getImportedStaticVariables() {
-        auto array = new Array!ASTNode;
+        auto array = new DynamicArray!ASTNode;
         recursiveCollect(array, it=>
             it.id()==NodeID.IDENTIFIER &&
             it.as!Identifier.target.isVariable() &&
@@ -259,7 +259,7 @@ public:
         return set.values;
     }
     Function[] getInnerFunctions() {
-        auto array = new Array!Function;
+        auto array = new DynamicArray!Function;
         recursiveCollect!Function(array, f=>f.isInner);
         return array[];
     }

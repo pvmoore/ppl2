@@ -16,7 +16,7 @@ public:
     override int priority() const { return 15; }
     override Type getType() {
         if(!ptrType) {
-            auto t = PtrType.of(valueType, 1);
+            auto t = Pointer.of(valueType, 1);
             if(!valueType.isAlias) ptrType = t;
             return t;
         }

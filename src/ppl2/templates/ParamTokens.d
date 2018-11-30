@@ -47,7 +47,7 @@ private:
         /// Add this* as first parameter if this is a struct function template
         if(ns) {
             this.paramTokens ~= [
-                tokens[0].copy("__this*", PtrType.of(ns, 1)),
+                tokens[0].copy("__this*", Pointer.of(ns, 1)),
                 tokens[0].copy("this")
             ];
             regexes      ~= regex("");

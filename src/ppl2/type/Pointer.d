@@ -1,13 +1,13 @@
-module ppl2.type.type_ptr;
+module ppl2.type.Pointer;
 
 import ppl2.internal;
 
 ///
 /// A view of a Type but with a different ptr depth.
 ///
-final class PtrType : Type {
+final class Pointer : Type {
 private:
-    Type decorated; /// This should never be a PtrType
+    Type decorated; /// This should never be a Pointer
     int ptrDepth;
 
     this(Type d, int ptrDepth) {
@@ -24,15 +24,15 @@ public:
             assert(addPtrDepth >= 0);
 
             if(addPtrDepth > 0) {
-                return new PtrType(t.as!PtrType.decoratedType, addPtrDepth);
+                return new Pointer(t.as!Pointer.decoratedType, addPtrDepth);
             }
 
             /// Type is not a ptr any more
-            return t.as!PtrType.decoratedType;
+            return t.as!Pointer.decoratedType;
         }
         assert(addPtrDepth >= 0, "%s".format(addPtrDepth));
         if(addPtrDepth>0) {
-            return new PtrType(t, addPtrDepth);
+            return new Pointer(t, addPtrDepth);
         }
         /// Just return the type
         return t;
@@ -45,14 +45,14 @@ public:
     bool exactlyMatches(Type other) {
         if(!prelimExactlyMatches(this, other)) return false;
 
-        auto otherPtr = other.as!PtrType;
+        auto otherPtr = other.as!Pointer;
         assert(otherPtr);
 
         return decorated.exactlyMatches(otherPtr.decorated);
     }
     bool canImplicitlyCastTo(Type other) {
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
-        auto otherPtr = other.as!PtrType;
+        auto otherPtr = other.as!Pointer;
         assert(otherPtr);
 
         /// Can implicitly cast all pointers to void*

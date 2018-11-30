@@ -583,7 +583,7 @@ private:
 
         auto type   = makeNode!FunctionType(t);
         type.params = params;
-        f.type = PtrType.of(type, 1);
+        f.type = Pointer.of(type, 1);
 
         /// {
         t.skip(TT.LCURLY);

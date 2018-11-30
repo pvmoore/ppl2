@@ -25,7 +25,14 @@ final class Variable : Statement {
     override NodeID id() const { return NodeID.VARIABLE; }
     override Type getType()    { return type; }
 
-    bool isLocal() const {
+    bool isLocal() {
+        //return !isStatic &&
+        //       parent.id != NodeID.STRUCT &&
+        //       parent.id != NodeID.TUPLE &&
+        //       //parent.id != NodeID.PARAMETERS &&
+        //       parent.id != NodeID.FUNC_TYPE &&
+        //       parent.id != NodeID.MODULE;
+
         return parent.isLiteralFunction || parent.isIf || parent.isLoop || parent.isSelect;
         //return getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
@@ -35,12 +42,13 @@ final class Variable : Statement {
     bool isTupleMember() {
         return !isStatic && parent.id==NodeID.TUPLE;
     }
-    bool isGlobal() const {
-        return parent.isModule;
+    bool isGlobal() {
+        return parent.id==NodeID.MODULE;
     }
     bool isParameter() {
         return parent.isA!Parameters;
     }
+
     bool isFunctionPtr() {
         return type.isKnown && type.isFunction;
     }

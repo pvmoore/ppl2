@@ -236,7 +236,6 @@ private:
         /// Properties:
         switch(n.name) {
             case "length":
-                /// for arrays or anon structs only
                 if(prevType.isArray) {
                     int len = prevType.getArrayType.countAsInt();
                     resolver.fold(dot, LiteralNumber.makeConst(len, TYPE_INT));
@@ -268,9 +267,9 @@ private:
                 auto b = module_.builder(n);
                 As as;
                 if(prevType.isArray) {
-                    as = b.as(b.addressOf(prev), PtrType.of(prevType.getArrayType.subtype, 1));
+                    as = b.as(b.addressOf(prev), Pointer.of(prevType.getArrayType.subtype, 1));
                 } else if(prevType.isTuple) {
-                    as = b.as(b.addressOf(prev), PtrType.of(prevType.getTuple, 1));
+                    as = b.as(b.addressOf(prev), Pointer.of(prevType.getTuple, 1));
                 } else {
                     break;
                 }
@@ -312,6 +311,7 @@ private:
         }
 
         Variable var;
+        int index;
 
         /// Is it an enum member?
         Enum e = prevType.getEnum;
@@ -327,9 +327,9 @@ private:
             return;
         }
         /// Is it a static member?
-        Struct ns = prevType.getStruct;
-        if(ns) {
-            var = ns.getStaticVariable(n.name);
+        Struct struct_ = prevType.getStruct;
+        if(struct_) {
+            var = struct_.getStaticVariable(n.name);
             if(var) {
                 if(var.access.isPrivate && var.getModule.nid != module_.nid) {
                     module_.addError(n, "%s is private".format(var.name), true);
@@ -338,16 +338,24 @@ private:
                 return;
             }
         }
-        /// It must be an instance member
-        Tuple tuple = prevType.getTuple();
-        assert(tuple);
 
-        var = tuple.getMemberVariable(n.name);
+        /// It must be an instance member
+        Tuple tuple = prevType.getTuple;
+        assert(tuple || struct_);
+
+        if(tuple) {
+            var   = tuple.getMemberVariable(n.name);
+            index = tuple.getMemberIndex(var);
+        } else {
+            var   = struct_.getMemberVariable(n.name);
+            index = struct_.getMemberIndex(var);
+        }
+
         if(var) {
             if(var.access.isPrivate && var.getModule.nid != module_.nid) {
                 module_.addError(n, "%s is private".format(var.name), true);
             }
-            n.target.set(var, tuple.getMemberIndex(var));
+            n.target.set(var,index);
         }
     }
     void chat(A...)(lazy string fmt, lazy A args) {

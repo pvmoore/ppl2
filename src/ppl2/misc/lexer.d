@@ -16,7 +16,7 @@ public:
     /// text   - the text to tokenise
     ///
     Token[] tokenise(bool forIDE=false)(string text, BuildState buildState = null) {
-        auto tokens           = new Array!Token(256);
+        auto tokens           = new DynamicArray!Token(256);
         auto buf              = new StringBuffer;
         int index             = 0;
         int line              = 0;

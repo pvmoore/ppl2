@@ -3,7 +3,7 @@ module ppl2.type.Alias;
 import ppl2.internal;
 /// STANDARD
 ///     type     = aliased type
-///     children = type (if anonstruct or function)
+///     children = type (if tuple or function)
 /// INNER_TYPE
 ///     type     = start type
 ///     children = aliases of subsequent types (with templateParams if given)

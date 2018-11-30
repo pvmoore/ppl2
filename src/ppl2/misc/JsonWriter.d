@@ -65,8 +65,8 @@ private:
     }
     JSONValue toJson(Type n) {
         if(n.isPtr) {
-            auto v = toJson(n.as!PtrType.decoratedType);
-            v["ptr_depth"] = n.as!PtrType.getPtrDepth();
+            auto v = toJson(n.as!Pointer.decoratedType);
+            v["ptr_depth"] = n.as!Pointer.getPtrDepth();
             return v;
         } else if(n.isAlias) {
             return JSONValue(["id" : "ALIAS"]);

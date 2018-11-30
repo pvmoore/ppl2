@@ -9,10 +9,10 @@ import ppl2.internal;
 ///     expr
 ///     expr etc...
 final class LiteralArray : Expression {
-    ArrayType type;
+    Array type;
 
     this() {
-        type         = makeNode!ArrayType(this);
+        type         = makeNode!Array(this);
         type.subtype = TYPE_UNKNOWN;
         type.add(LiteralNumber.makeConst(0, TYPE_INT));
     }

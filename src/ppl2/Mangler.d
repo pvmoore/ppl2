@@ -41,12 +41,12 @@ public:
         string name  = f.name;
 
         if(f.isStructMember) {
-            auto tuple = f.getAncestor!Tuple();
-            if(tuple.isStruct) {
-                string sep = ".";
-                if(f.isStatic) sep = "::";
-                name = tuple.as!Struct.name ~ sep ~ name;
-            }
+            auto struct_ = f.getAncestor!Struct();
+            assert(struct_);
+
+            string sep = ".";
+            if(f.isStatic) sep = "::";
+            name = struct_.name ~ sep ~ name;
         } else {
             auto m = f.getModule;
             name = m.canonicalName ~ "::" ~ name;

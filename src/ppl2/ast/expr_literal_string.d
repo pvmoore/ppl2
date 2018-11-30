@@ -28,7 +28,7 @@ public:
     }
 
     this() {
-        type = PtrType.of(new BasicType(Type.BYTE), 1);
+        type = Pointer.of(new BasicType(Type.BYTE), 1);
         enc  = Encoding.U8;
     }
     LiteralString copy() {

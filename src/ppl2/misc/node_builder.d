@@ -76,10 +76,14 @@ final class NodeBuilder {
         id.target = new Target(module_);
         id.name   = v.name;
 
-        if(v.isTupleMember || v.isStructMember) {
+        if(v.isTupleMember) {
             auto tuple = v.parent.as!Tuple;
             assert(tuple);
             id.target.set(v, tuple.getMemberIndex(v));
+        } else if(v.isStructMember) {
+            auto struct_ = v.parent.as!Struct;
+            assert(struct_);
+            id.target.set(v, struct_.getMemberIndex(v));
         } else {
             id.target.set(v);
         }

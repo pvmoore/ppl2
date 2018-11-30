@@ -100,7 +100,7 @@ public:
                         /// Make a dummy ptr to insert in the hole we are going to make
                         /// by moving prev to the first child of Call
                         auto dummy = TypeExpr.make(
-                            prevType.isPtr ? prevType : PtrType.of(prevType,1)
+                            prevType.isPtr ? prevType : Pointer.of(prevType,1)
                         );
                         resolver.fold(prev, dummy);
 

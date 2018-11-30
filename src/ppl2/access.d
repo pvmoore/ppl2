@@ -1,4 +1,4 @@
-module ppl2.access;
+module ppl2.Access;
 
 import ppl2.internal;
 
@@ -24,6 +24,10 @@ Access getAccess(ASTNode n) {
             return n.as!Alias.access;
         case ENUM:
             return n.as!Enum.access;
+        case FUNCTION:
+            return n.as!Function.access;
+        case VARIABLE:
+            return n.as!Variable.access;
         default:
             assert(false, "implement me %s".format(n.id));
     }

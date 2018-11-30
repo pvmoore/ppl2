@@ -23,15 +23,15 @@ private:
     string moduleCanonicalName;
     EditableContent _content;
     ppl2.Lexer lexer;
-    Array!LineInfo lineInfo;
-    Array!Error errors;
+    DynamicArray!LineInfo lineInfo;
+    DynamicArray!Error errors;
     bool opInProgress;
 public:
     this(string moduleCanonicalName) {
         this.moduleCanonicalName = moduleCanonicalName;
         this.lexer     = new ppl2.Lexer(null);
-        this.lineInfo  = new Array!LineInfo(1024);
-        this.errors    = new Array!Error;
+        this.lineInfo  = new DynamicArray!LineInfo(1024);
+        this.errors    = new DynamicArray!Error;
         this.keywords2 = new Set!string;
 
         keywords2.add(["public", "private", "readonly"]);

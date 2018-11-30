@@ -27,7 +27,7 @@ interface Type {
     final bool isDouble() const   { return category()==DOUBLE; }
     final bool isInt() const      { return category()==INT; }
     final bool isLong() const     { return category()==LONG; }
-    final bool isPtr() const      { return this.isA!PtrType; }
+    final bool isPtr() const      { return this.isA!Pointer; }
     final bool isValue() const    { return !isPtr; }
     final bool isUnknown()        { return !isKnown(); }
     final bool isVoid() const     { return category()==VOID; }
@@ -43,61 +43,61 @@ interface Type {
 
     final bool isAlias() const {
         if(this.as!Alias !is null) return true;
-        auto ptr = this.as!PtrType;
+        auto ptr = this.as!Pointer;
         return ptr && ptr.decoratedType.isAlias;
     }
 
     final getBasicType() {
         auto basic = this.as!BasicType; if(basic) return basic;
         auto def   = this.as!Alias;     if(def) return def.type.getBasicType;
-        auto ptr   = this.as!PtrType;   if(ptr) return ptr.decoratedType().getBasicType;
+        auto ptr   = this.as!Pointer;   if(ptr) return ptr.decoratedType().getBasicType;
         return null;
     }
     final Alias getAlias() {
         auto alias_ = this.as!Alias;   if(alias_) return alias_;
-        auto ptr    = this.as!PtrType; if(ptr) return ptr.decoratedType().getAlias;
+        auto ptr    = this.as!Pointer; if(ptr) return ptr.decoratedType().getAlias;
         return null;
     }
     final Enum getEnum() {
         auto e   = this.as!Enum;    if(e) return e;
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType().getEnum();
+        auto ptr = this.as!Pointer; if(ptr) return ptr.decoratedType().getEnum();
         return null;
     }
     final FunctionType getFunctionType() {
         if(category != Type.FUNCTION) return null;
         auto f      = this.as!FunctionType; if(f) return f;
         auto alias_ = this.as!Alias;        if(alias_) return alias_.type.getFunctionType;
-        auto ptr    = this.as!PtrType;      if(ptr) return ptr.decoratedType().getFunctionType;
+        auto ptr    = this.as!Pointer;      if(ptr) return ptr.decoratedType().getFunctionType;
         assert(false, "How did we get here?");
     }
     final Struct getStruct() {
-        if(category!=Type.STRUCT) return null;
+        if(!isStruct) return null;
         auto ns     = this.as!Struct;      if(ns) return ns;
         auto alias_ = this.as!Alias;       if(alias_) return alias_.type.getStruct;
-        auto ptr    = this.as!PtrType;     if(ptr) return ptr.decoratedType.getStruct;
+        auto ptr    = this.as!Pointer;     if(ptr) return ptr.decoratedType.getStruct;
         assert(false, "How did we get here?");
     }
     final Tuple getTuple() {
-        if(!isTuple && !isStruct) return null;
+        if(!isTuple) return null;
         auto st     = this.as!Tuple;      if(st) return st;
         auto alias_ = this.as!Alias;      if(alias_) return alias_.type.getTuple;
-        auto ptr    = this.as!PtrType;    if(ptr) return ptr.decoratedType.getTuple;
+        auto ptr    = this.as!Pointer;    if(ptr) return ptr.decoratedType.getTuple;
         assert(false, "How did we get here?");
     }
-    final ArrayType getArrayType() {
+    final Array getArrayType() {
         if(category != Type.ARRAY) return null;
-        auto a      = this.as!ArrayType; if(a) return a;
+        auto a      = this.as!Array; if(a) return a;
         auto alias_ = this.as!Alias;     if(alias_) return alias_.type.getArrayType;
-        auto ptr    = this.as!PtrType;   if(ptr) return ptr.decoratedType().getArrayType;
+        auto ptr    = this.as!Pointer;   if(ptr) return ptr.decoratedType().getArrayType;
         assert(false, "How did we get here?");
     }
     /// Return the non pointer version of this type
     final Type getValueType() {
-        auto ptr = this.as!PtrType; if(ptr) return ptr.decoratedType;
+        auto ptr = this.as!Pointer; if(ptr) return ptr.decoratedType;
         return this;
     }
     final int getPtrDepth() {
-        if(this.isPtr) return this.as!PtrType.getPtrDepth;
+        if(this.isPtr) return this.as!Pointer.getPtrDepth;
         return 0;
     }
 }

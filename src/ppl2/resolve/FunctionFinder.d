@@ -57,15 +57,15 @@ private:
     Module module_;
     OverloadCollector collector;
     ImplicitTemplates implicitTemplates;
-    Array!Callable overloads;
-    Array!Function funcTemplates;
+    DynamicArray!Callable overloads;
+    DynamicArray!Function funcTemplates;
 public:
     this(Module module_) {
         this.module_           = module_;
         this.collector         = new OverloadCollector(module_);
         this.implicitTemplates = new ImplicitTemplates(module_);
-        this.overloads         = new Array!Callable;
-        this.funcTemplates     = new Array!Function;
+        this.overloads         = new DynamicArray!Callable;
+        this.funcTemplates     = new DynamicArray!Function;
     }
     /// Assume:
     ///     call.argTypes may not yet be known
@@ -432,7 +432,7 @@ private:
     ///     overloads.length > 1
     ///     all overloads match the call implicitly
     ///
-    void selectExactMatch(Call call, Array!Callable overloads) {
+    void selectExactMatch(Call call, DynamicArray!Callable overloads) {
         assert(overloads.length>0);
         import common : indexOf;
 

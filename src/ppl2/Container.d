@@ -1,10 +1,10 @@
-module ppl2.interfaces;
+module ppl2.Container;
 
 import ppl2.internal;
 ///
 /// Variable or Function container.
 ///
-/// Module, LiteralFunction, Tuple
+/// Module, LiteralFunction, Struct, Tuple
 ///
 interface Container {
     NodeID id() const;

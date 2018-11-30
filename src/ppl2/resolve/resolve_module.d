@@ -21,7 +21,7 @@ private:
     VariableResolver variableResolver;
 
     StopWatch watch;
-    Array!Callable overloadSet;
+    DynamicArray!Callable overloadSet;
     bool addedModuleScopeElements;
     bool modified;
     Set!ASTNode unresolved;
@@ -52,7 +52,7 @@ public:
         this.unaryResolver       = new UnaryResolver(this, module_);
         this.variableResolver    = new VariableResolver(this, module_);
         this.unresolved          = new Set!ASTNode;
-        this.overloadSet         = new Array!Callable;
+        this.overloadSet         = new DynamicArray!Callable;
     }
     void clearState() {
         watch.reset();
@@ -166,7 +166,7 @@ public:
             resolveAlias(n, n.type);
         }
     }
-    void visit(ArrayType n) {
+    void visit(Array n) {
         resolveAlias(n, n.subtype);
     }
     void visit(As n) {
@@ -423,7 +423,7 @@ public:
 
         /+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ inner +/
         void resolveTo(Type toType) {
-            type     = PtrType.of(toType, type.getPtrDepth);
+            type     = Pointer.of(toType, type.getPtrDepth);
             modified = true;
 
             auto node = cast(ASTNode)toType;

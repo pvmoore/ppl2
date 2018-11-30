@@ -340,7 +340,7 @@ protected:
         dd("remove unreferenced");
 
         log("Removing dead nodes...");
-        auto removeMe = new Array!Module;
+        auto removeMe = new DynamicArray!Module;
         foreach(m; allModules) {
             if(m.numRefs==0) {
                 log("\t  Removing unreferenced module %s", m.canonicalName);

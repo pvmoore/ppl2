@@ -5,7 +5,7 @@ import ppl2.internal;
 final class OverloadCollector {
 private:
     Module module_;
-    Array!Callable results;
+    DynamicArray!Callable results;
     string name;
     bool ready;
 public:
@@ -18,7 +18,7 @@ public:
     /// Return true - if results contains the full overload set and all types are known,
     ///       false - if we are waiting for imports or some types are waiting to be known.
     ///
-    bool collect(Call call, ModuleAlias modAlias, Array!Callable results) {
+    bool collect(Call call, ModuleAlias modAlias, DynamicArray!Callable results) {
         this.name     = call.name;
         this.ready    = true;
         this.results  = results;
@@ -66,8 +66,8 @@ private:
             /// If this is not a closure
             if(!node.as!LiteralFunction.isClosure) {
                 /// Go to containing struct if there is one
-                auto tuple = node.getAncestor!Tuple();
-                if(tuple) return subCollect(tuple);
+                auto struct_ = node.getAncestor!Struct;
+                if(struct_) return subCollect(struct_);
             }
 
             /// Go to module scope

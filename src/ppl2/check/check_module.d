@@ -47,7 +47,7 @@ public:
         }
     }
 
-    void visit(ArrayType n) {
+    void visit(Array n) {
         if(!n.countExpr().isA!LiteralNumber) {
             module_.addError(n.countExpr(), "Array count expression must be a const", true);
         }
@@ -222,7 +222,7 @@ public:
             }
 
             /// Don't allow any returns in then or else block
-            auto array = new Array!Return;
+            auto array = new DynamicArray!Return;
             n.selectDescendents!Return(array);
             if(array.length>0) {
                 module_.addError(array[0], "An if used as a result cannot return", true);
@@ -237,7 +237,7 @@ public:
         if(lit) {
             /// Index is a const. Check the bounds
             if(n.isArrayIndex) {
-                ArrayType array = n.exprType().getArrayType;
+                Array array = n.exprType().getArrayType;
                 assert(array);
 
                 auto count = array.countExpr().as!LiteralNumber;
@@ -246,7 +246,7 @@ public:
                 if(lit.value.getInt() >= count.value.getInt()) {
                     module_.addError(n, "Array bounds error. %s >= %s".format(lit.value.getInt(), count.value.getInt()), true);
                 }
-            } else if(n.isStructIndex) {
+            } else if(n.isTupleIndex) {
 
                 Tuple tuple = n.exprType().getTuple;
                 assert(tuple);
@@ -262,8 +262,8 @@ public:
 
             }
         } else {
-            if(n.isStructIndex) {
-                module_.addError(n, "Struct index must be a const number", true);
+            if(n.isTupleIndex) {
+                module_.addError(n, "Tuple index must be a const number", true);
             }
 
             /// We could add a runtime check here in debug mode
@@ -456,15 +456,16 @@ public:
         }
         if(n.isStatic) {
             if(!n.parent.id==NodeID.STRUCT) {
-                module_.addError(n, "Static variables are not allowed at this scope", true);
+                module_.addError(n, "Static variables are only allowed in a struct", true);
             }
         }
-
-        if(n.type.isStruct || n.type.isTuple) {
+        if(n.type.isStruct) {
             /// Check that member names are unique
             stringSet.clear();
-            auto tuple = n.type.getTuple();
-            auto vars  = tuple.getMemberVariables();
+
+            auto struct_ = n.type.getStruct;
+            auto vars    = struct_.getMemberVariables();
+
             foreach(v; vars) {
                 if(v.name) {
                     if(stringSet.contains(v.name)) {
@@ -473,21 +474,40 @@ public:
                     stringSet.add(v.name);
                 }
             }
-            /// Anon structs must only contain variable declarations
-            if(n.type.isTuple) {
-                foreach(v; tuple.children) {
-                    if(!v.isVariable) {
-                        module_.addError(n, "An anonymous struct must only contain variable declarations", true);
-                    } else {
-                        auto var = cast(Variable)v;
-                        if(var.hasInitialiser) {
-                            module_.addError(n, "An anonymous struct must not have variable initialisation", true);
-                        }
+        }
+
+        if(n.type.isTuple) {
+            /// Check that member names are unique
+            stringSet.clear();
+
+            auto tuple = n.type.getTuple();
+            auto vars  = tuple.getMemberVariables();
+
+            foreach(v; vars) {
+                if(v.name) {
+                    if(stringSet.contains(v.name)) {
+                        module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name), true);
+                    }
+                    stringSet.add(v.name);
+                }
+            }
+
+            /// Tuples must only contain variable declarations
+            foreach(v; tuple.children) {
+                if(!v.isVariable) {
+                    module_.addError(n, "A tuple must only contain variable declarations", true);
+                } else {
+                    auto var = cast(Variable)v;
+                    if(var.hasInitialiser) {
+                        module_.addError(n, "A tuple must not have variable initialisation", true);
                     }
                 }
             }
         }
-        if(n.isLocal) {
+        if(n.isParameter) {
+
+        }
+        if(n.isLocal && !n.isParameter) {
             /// Check for duplicate variable names
             stringSet.clear();
 

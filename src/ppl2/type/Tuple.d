@@ -4,20 +4,18 @@ import ppl2.internal;
 ///
 ///
 ///
-class Tuple : ASTNode, Type, Container {
-protected:
+final class Tuple : ASTNode, Type, Container {
+private:
     LLVMTypeRef _llvmType;
 public:
 /// ASTNode interface
     override bool isResolved() { return isKnown; }
     override NodeID id() const { return NodeID.TUPLE; }
-    override Type getType() { return this; }
+    override Type getType()    { return this; }
 
 /// Type interface
     int category() const { return Type.TUPLE; }
-    bool isKnown() {
-        return memberVariableTypes().all!(it=>it.isKnown);
-    }
+    bool isKnown() { return memberVariableTypes().all!(it=>it.isKnown); }
     bool exactlyMatches(Type other) {
         /// Do the common checks
         if(!prelimExactlyMatches(this, other)) return false;
@@ -52,18 +50,7 @@ public:
         }
         return _llvmType;
     }
-/// end of Type interface
-
-    ///
-    /// Return true if there are Composites at root level which signifies
-    /// that a template function has just been added
-    ///
-    bool containsComposites() {
-        foreach(ch; children) {
-            if(ch.isComposite) return true;
-        }
-        return false;
-    }
+    ///========================================================================================
     int numMemberVariables() {
         return getMemberVariables().length.as!int;
     }
@@ -88,7 +75,6 @@ public:
         }
         return -1;
     }
-    //===============================================================
     Type[] memberVariableTypes() {
         return getMemberVariables()
                     .map!(it=>(cast(Variable)it).type)
