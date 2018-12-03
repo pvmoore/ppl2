@@ -17,10 +17,7 @@ final class RangeAttribute : Attribute {
 }
 /// @expect(true)
 final class ExpectAttribute : Attribute {
-    union {
-        long i;
-        double f;
-    }
+    long value;
 }
 /// @inline(true)
 /// Applies to functions

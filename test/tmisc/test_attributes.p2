@@ -6,6 +6,13 @@ testAttributes {
     func()
     func2()   
     func3()
+    
+    int v = 0
+    
+    @expect(true)
+    if(v<2) {
+        
+    }
 }
 
 private

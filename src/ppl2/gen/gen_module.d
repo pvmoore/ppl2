@@ -19,7 +19,7 @@ public:
     LLVMBasicBlockRef currentBlock;
 
     LLVMValueRef memsetFunc;
-    LLVMValueRef expectBoolFunc;
+    LLVMValueRef expectI1Func;
     //LLVMValueRef memcmpFunc;
 
     LLVMValueRef[string] structMemberThis;  /// key = struct.getUniqueName
@@ -438,7 +438,7 @@ public:
             [bytePointerType(), i8Type(), i32Type(), i1Type()],
             LLVMCallConv.LLVMCCallConv
         );
-        expectBoolFunc = module_.llvmValue.addFunction(
+        expectI1Func = module_.llvmValue.addFunction(
             "llvm.expect.i1",
             i1Type(),
             [i1Type(), i1Type()],
@@ -459,8 +459,8 @@ public:
 
         builder.ccall(memsetFunc, args);
     }
-    LLVMValueRef expect(LLVMValueRef value, LLVMValueRef expectedValue) {
-        return builder.ccall(expectBoolFunc, [value, expectedValue]);
+    LLVMValueRef expectI1(LLVMValueRef value, LLVMValueRef expectedValue) {
+        return builder.ccall(expectI1Func, [value, expectedValue]);
     }
     void setArrayValue(LLVMValueRef arrayPtr, LLVMValueRef value, uint index, string name=null) {
         auto indices = [constI32(0), constI32(index)];

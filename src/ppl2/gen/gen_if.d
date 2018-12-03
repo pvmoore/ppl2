@@ -34,10 +34,12 @@ final class IfGenerator {
 
         auto cmp = builder.icmp(LLVMIntPredicate.LLVMIntNE, gen.rhs, n.condition.getType.zeroValue);
 
-        //if(i.attributes && i.attributes.has(AttrType.EXPECT)) {
-        //    auto expect = i.attributes.get(AttrType.EXPECT);
-        //    cmp = gen.expect(cmp, expect.llvmValue);
-        //}
+        auto expect = n.attributes.get!ExpectAttribute;
+        if(expect) {
+            auto expectValue = expect.value ? constI1(1) : constI1(0);
+            cmp = gen.expectI1(cmp, expectValue);
+        }
+
         builder.condBr(cmp, thenLabel, n.hasElse ? elseLabel : endLabel);
 
         /// then

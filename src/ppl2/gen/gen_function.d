@@ -101,8 +101,6 @@ void generateFunctionDeclaration(Module module_, Function f) {
     /// Check if the user has set an attribute
     auto attr = f.attributes.get!InlineAttribute;
     if(attr) {
-        dd("!! inline attribute", f.name);
-
         isInline   = attr.value;
         isNoInline = !isInline;
     }

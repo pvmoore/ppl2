@@ -348,8 +348,6 @@ private: //=====================================================================
         auto f = makeNode!Function(t);
         parent.add(f);
 
-        if(f.attributes.length>0) dd("!!!!-----attribs", f.attributes);
-
         auto ns = f.getAncestor!Struct;
 
         if(t.value=="static") {

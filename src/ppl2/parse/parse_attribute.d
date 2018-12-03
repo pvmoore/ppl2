@@ -17,6 +17,9 @@ public:
         t.next;
 
         switch(name) {
+            case "expect":
+                parseExpectAttribute(t);
+                break;
             case "inline":
                 parseInlineAttribute(t);
                 break;
@@ -30,6 +33,18 @@ public:
         }
     }
 private:
+    void parseExpectAttribute(Tokens t) {
+        import std.array : replace;
+
+        auto a = new ExpectAttribute;
+
+        string value = getValueProperty(t);
+
+        auto r = parseNumberLiteral(value);
+        a.value = r[1].replace("_","").to!long;
+
+        t.addAttribute(a);
+    }
     /// @inline(true)
     /// @inline(false)
     void parseInlineAttribute(Tokens t) {
