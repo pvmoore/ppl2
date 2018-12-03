@@ -38,16 +38,28 @@ public:
                     initBody.insertAt(1, v.initialiser);
                 }
             }
-
-            if(hasMainModule) {
-                // todo - get this in the right order
-                /// Call module init function at start of program entry
-                auto call = mainModule.nodeBuilder.call("new", mod.getInitFunction());
-
-                /// Arguments should always be the 1st child of body
-                entry.getBody().insertAt(1, call);
-            }
         }
+
+        addModuleConstructorCalls();
     }
 private:
+    void addModuleConstructorCalls() {
+        if(buildState.mainModule is null) return;
+
+        Module mainModule = buildState.mainModule;
+        Function entry    = mainModule.getFunctions("main")[0];
+
+        alias comparator = (Module a, Module b) {
+            return a.getPriority < b.getPriority;
+        };
+
+        foreach_reverse(mod; buildState.allModules.sort!(comparator)) {
+            //writefln("[%s] %s", mod.getPriority, mod.canonicalName);
+
+            auto call = mainModule.nodeBuilder.call("new", mod.getInitFunction());
+
+            /// Arguments should always be the 1st child of body
+            entry.getBody().insertAt(1, call);
+        }
+    }
 }

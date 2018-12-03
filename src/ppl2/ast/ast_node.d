@@ -64,10 +64,11 @@ T makeNode(T)() {
     return n;
 }
 T makeNode(T)(Tokens t) {
-    T n      = new T;
-    n.nid    = g_nodeid++;
-    n.line   = t.line;
-    n.column = t.column;
+    T n          = new T;
+    n.nid        = g_nodeid++;
+    n.line       = t.line;
+    n.column     = t.column;
+    n.attributes = t.getAttributesAndClear();
     assert(n.children);
     return n;
 }
@@ -112,6 +113,7 @@ private:
     Module module_;
 public:
     DynamicArray!ASTNode children;
+    Attribute[] attributes;
     ASTNode parent;
     int line   = -1;
     int column = -1;

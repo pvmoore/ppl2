@@ -13,7 +13,8 @@ import std.datetime.stopwatch : StopWatch;
 import std.algorithm.searching : any;
 import std.algorithm.iteration : map;
 
-import common;
+import common : DynamicArray = Array, From, Set, StringBuffer;
+import common : as, containsKey, endsWith, flushConsole, repeat, startsWith;
 import dlangui;
 import ppl2 = ppl2;
 

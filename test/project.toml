@@ -14,46 +14,21 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "tstatics/test_statics.p2"
-line = 72
-active = 0
-
-[[openFile]]
-name = "ttemplates/test_implicit_template_funcs.p2"
-line = 51
+name = "tmisc/test_attributes.p2"
+line = 11
 active = 1
 
 [[openFile]]
-name = "test_enum.p2"
-line = 0
-active = 0
-
-[[openFile]]
-name = "tstructs/test_inner_structs.p2"
-line = 67
-active = 0
-
-[[openFile]]
-name = "tstructs/test_structs.p2"
-line = 0
-active = 0
-
-[[openFile]]
-name = "tstructs/test_inner_structs2.p2"
-line = 37
-active = 0
-
-[[openFile]]
-name = "ttemplates/test_template_functions.p2"
-line = 110
-active = 0
-
-[[openFile]]
-name = "test_literal_struct.p2"
-line = 93
+name = "core/c.p2"
+line = 11
 active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 245
+line = 99
+active = 0
+
+[[openFile]]
+name = "core/memory.p2"
+line = 4
 active = 0

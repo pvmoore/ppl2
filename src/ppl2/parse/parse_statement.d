@@ -13,6 +13,8 @@ private:
     auto typeParser()   { return module_.typeParser; }
     auto typeDetector() { return module_.typeDetector; }
     auto exprParser()   { return module_.exprParser; }
+    auto attrParser()   { return module_.attrParser; }
+
     auto builder()      { return module_.nodeBuilder; }
 public:
     this(Module module_) {
@@ -27,107 +29,115 @@ public:
             }
         }
 
-        switch(t.value) {
-            case "alias":
-                parseAlias(t, parent);
-                return;
-            case "assert":
-                parseAssert(t, parent);
-                return;
-            case "break":
-                parseBreak(t, parent);
-                return;
-            case "const":
-                varParser().parseLocal(t, parent);
-                return;
-            case "continue":
-                parseContinue(t, parent);
-                return;
-            case "enum":
-                parseEnum(t, parent);
-                return;
-            case "extern":
-                parseExtern(t, parent);
-                return;
-            case "if":
-                noExprAllowedAtModuleScope(t, parent);
-                exprParser.parse(t, parent);
-                return;
-            case "import":
-                parseImport(t, parent);
-                return;
-            case "loop":
-                parseLoop(t, parent);
-                return;
-            case "private":
-                t.setAccess(Access.PRIVATE);
-                checkAccessScope(t, parent);
-                t.next;
-                return;
-            case "public":
-                t.setAccess(Access.PUBLIC);
-                checkAccessScope(t, parent);
-                t.next;
-                return;
-            case "readonly":
-                t.setAccess(Access.READONLY);
-                checkAccessScope(t, parent);
-                t.next;
-                return;
-            case "return":
-                parseReturn(t, parent);
-                return;
-            case "select":
-                noExprAllowedAtModuleScope(t, parent);
-                exprParser.parse(t, parent);
-                return;
-            case "static":
-                /// static type name
-                /// static type name =
-                /// static name {
-                /// static name <
-                if(t.peek(2).type==TT.LCURLY) {
-                    parseFunction(t, parent);
-                } else if(t.peek(2).type==TT.LANGLE) {
-                    parseFunction(t, parent);
-                } else {
-                    varParser().parseStructMember(t, parent);
-                }
-                return;
-            case "struct":
-                structParser().parse(t, parent);
-                return;
-            case "operator":
-                if(isOperatorOverloadFunction(module_, t)) {
-                    parseFunction(t, parent);
+        /// Consume and add any attributes
+        while(t.type==TT.AT) {
+            attrParser().parse(t, parent);
+        }
+
+        if(t.type==TT.IDENTIFIER)  {
+            switch(t.value) {
+                case "alias":
+                    parseAlias(t, parent);
                     return;
-                }
-                break;
-            case "#sizeof":
-            case "#initof":
-            case "#isptr":
-            case "#isvalue":
-                noExprAllowedAtModuleScope(t, parent);
-                exprParser.parse(t, parent);
+                case"assert":
+                    parseAssert(t, parent);
+                    return;
+                case "break":
+                    parseBreak(t, parent);
+                    return;
+                case "const":
+                    varParser().parseLocal(t, parent);
+                    return;
+                case "continue":
+                    parseContinue(t, parent);
+                    return;
+                case "enum":
+                    parseEnum(t, parent);
+                    return;
+                case "extern":
+                    parseExtern(t, parent);
+                    return;
+                case "if":
+                    noExprAllowedAtModuleScope(t, parent);
+                    exprParser.parse(t, parent);
+                    return;
+                case "import":
+                    parseImport(t, parent);
+                    return;
+                case"loop":
+                    parseLoop(t, parent);
+                    return;
+                case "private":
+                    t.setAccess(Access.PRIVATE);
+                    checkAccessScope(t, parent);
+                    t.next;
+                    return;
+                case "public":
+                    t.setAccess(Access.PUBLIC);
+                    checkAccessScope(t, parent);
+                    t.next;
+                    return;
+                case "readonly":
+                    t.setAccess(Access.READONLY);
+                    checkAccessScope(t, parent);
+                    t.next;
+                    return;
+                case "return":
+                    parseReturn(t, parent);
+                    return;
+                case "select":
+                    noExprAllowedAtModuleScope(t, parent);
+                    exprParser.parse(t, parent);
+                    return;
+                case "static":
+                    /// static type name
+                    /// static type name =
+                    /// static name {
+                    /// static name <
+                    if (t.peek(2).type==TT.LCURLY) {
+                        parseFunction(t, parent);
+                    } else if (t.peek(2).type==TT.LANGLE) {
+                        parseFunction(t, parent);
+                    } else {
+                        varParser().parseStructMember(t, parent);
+                    }
+                    return;
+                case "struct":
+                    structParser().parse(t, parent);
+                    return;
+                case "operator":
+                    if(isOperatorOverloadFunction(module_, t)) {
+                        parseFunction(t, parent);
+                        return;
+                    }
+                    break;
+                case "#sizeof":
+                case "#initof":
+                case "#isptr":
+                case "#isvalue":
+                    noExprAllowedAtModuleScope(t, parent);
+                    exprParser.parse(t, parent);
+                    return;
+                default:
+                    break;
+            }
+
+            /// name {
+            if(t.peek(1).type==TT.LCURLY) {
+                parseFunction(t, parent);
                 return;
+            }
+        }
+        switch(t.type) with(TT) {
+            case SEMICOLON:
+                t.next;
+                return;
+            case LBRACKET:
+                errorBadSyntax(module_, t, "Parenthesis not allowed here");
+                break;
             default:
                 break;
         }
-
-        if(t.type==TT.SEMICOLON) {
-            t.next;
-            return;
-        }
-        if(t.type==TT.LBRACKET) {
-            errorBadSyntax(module_, t, "Parenthesis not allowed here");
-        }
-
-        /// name {
-        if(t.type==TT.IDENTIFIER && t.peek(1).type==TT.LCURLY) {
-            parseFunction(t, parent);
-            return;
-        }
-
 
         /// type
         /// type .
@@ -337,6 +347,8 @@ private: //=====================================================================
 
         auto f = makeNode!Function(t);
         parent.add(f);
+
+        if(f.attributes.length>0) dd("!!!!-----attribs", f.attributes);
 
         auto ns = f.getAncestor!Struct;
 

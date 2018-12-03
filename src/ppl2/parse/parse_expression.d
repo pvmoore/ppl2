@@ -12,6 +12,7 @@ private:
     auto typeDetector() { return module_.typeDetector; }
     auto stmtParser()   { return module_.stmtParser; }
     auto varParser()    { return module_.varParser; }
+    auto attrParser()   { return module_.attrParser; }
     auto typeFinder()   { return module_.typeFinder; }
     auto builder()      { return module_.nodeBuilder; }
 public:
@@ -29,6 +30,11 @@ private:
     void parseLHS(Tokens t, ASTNode parent) {
         static if(VERBOSE_MODULE) {
             if(module_.canonicalName==VERBOSE_MODULE) dd("lhs", t.get, "parent=", parent.id);
+        }
+
+        /// Consume and add any attributes
+        while(t.type==TT.AT) {
+            attrParser().parse(t, parent);
         }
 
         /// Simple identifiers
@@ -142,14 +148,14 @@ private:
         }
 
         /// Everything else
-        switch(t.type) {
-            case TT.STRING:
+        switch(t.type) with(TT) {
+            case STRING:
                 parseLiteralString(t, parent);
                 break;
-            case TT.LBRACKET:
+            case LBRACKET:
                 parseParenthesis(t, parent);
                 break;
-            case TT.LSQBRACKET:
+            case LSQBRACKET:
                 if(isObviouslyATupleLiteral(t)) {
                     parseLiteralTuple(t, parent);
                 } else {
@@ -157,20 +163,20 @@ private:
                     parseLiteralExprList(t, parent);
                 }
                 break;
-            case TT.LCURLY:
+            case LCURLY:
                 parseLiteralFunction(t, parent);
                 break;
-            case TT.MINUS:
-            case TT.TILDE:
+            case MINUS:
+            case TILDE:
                 parseUnary(t, parent);
                 break;
-            case TT.AMPERSAND:
+            case AMPERSAND:
                 parseAddressOf(t, parent);
                 break;
-            case TT.ASTERISK:
+            case ASTERISK:
                 parseValueOf(t, parent);
                 break;
-            case TT.EXCLAMATION:
+            case EXCLAMATION:
                 errorBadSyntax(module_, t, "Did you mean 'not'");
                 break;
             default:

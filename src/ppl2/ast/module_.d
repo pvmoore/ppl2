@@ -1,7 +1,6 @@
 module ppl2.ast.module_;
 
 import ppl2.internal;
-import std.array : replace;
 
 final class Module : ASTNode, Container {
 private:
@@ -26,12 +25,15 @@ public:
     DeadCodeEliminator dce;
     ModuleGenerator gen;
     Templates templates;
+
+    AttributeParser attrParser;
     StatementParser stmtParser;
     ExpressionParser exprParser;
     TypeParser typeParser;
     TypeDetector typeDetector;
     StructParser structParser;
     VariableParser varParser;
+
     NodeBuilder nodeBuilder;
     TypeFinder typeFinder;
 
@@ -40,6 +42,8 @@ public:
     LiteralString moduleNameLiteral;
 
     this(string canonicalName, LLVMWrapper llvmWrapper, BuildState buildState) {
+        import std.array : replace;
+
         this.nid               = g_nodeid++;
         this.canonicalName     = canonicalName;
         this.buildState        = buildState;
@@ -57,6 +61,7 @@ public:
         templates         = new Templates(this);
         activeRoots       = new Set!ASTNode;
 
+        attrParser        = new AttributeParser(this);
         stmtParser        = new StatementParser(this);
         exprParser        = new ExpressionParser(this);
         typeParser        = new TypeParser(this);
@@ -66,7 +71,7 @@ public:
         nodeBuilder       = new NodeBuilder(this);
         typeFinder        = new TypeFinder(this);
 
-        moduleNameLiteral = makeNode!LiteralString;
+        moduleNameLiteral = makeNode!LiteralString(this);
         moduleNameLiteral.value = canonicalName;
         addLiteralString(moduleNameLiteral);
     }
@@ -95,6 +100,14 @@ public:
 ///
 
     bool isParsed() { return parser.isParsed; }
+
+    /// Order of construction. Lower priorities get constructed first.
+    int getPriority() {
+        auto attr = attributes.get!ModuleAttribute;
+        if(attr) return attr.priority;
+        if(this is buildState.mainModule) return 0;
+        return 10000+nid;
+    }
 
     auto getLiteralStrings()               { return literalStrings.values; }
     void addLiteralString(LiteralString s) { literalStrings[s.value] ~= s; }

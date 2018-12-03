@@ -8,6 +8,7 @@ private:
     int pos = 0;
     Stack!int marks;
     Stack!Access _access;
+    Attribute[] attributes;
 public:
     Module module_;
 
@@ -62,6 +63,15 @@ public:
         assert(_access.length==1);
     }
     //=======================================
+    void addAttribute(Attribute a) {
+        attributes ~= a;
+    }
+    Attribute[] getAttributesAndClear() {
+        auto copy = attributes.dup;
+        attributes.length = 0;
+        return copy;
+    }
+    //=======================================
     int index()    { return pos; }
     int line()     { return get().line; }
     int column()   { return get().column; }
@@ -97,7 +107,7 @@ public:
         pos -= numToMove;
     }
     void skip(TT t) {
-        if(type()!=t) module_.addError(this, "Expecting %s".format(t), false);
+        if(type()!=t) module_.addError(this, "Expecting %s".format(t.toString()), false);
         next();
     }
     void skip(string kw) {

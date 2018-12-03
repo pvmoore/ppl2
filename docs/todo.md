@@ -1,5 +1,14 @@
 # Todo  
 
+- Add gc
+
+- Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
+  string range
+
+- Add object files in config to be added to the linker
+
+- Parallelise compilation 
+
 - If a var is never modified and no address taken, we can set it to const (Set resolver.setModified() also
   because we have changed the AST).
 
@@ -12,14 +21,20 @@
 - Don't call requireFunction just to get the parameters for function resolution. 
   Use a different lighter-weight version eg. requireFunctionParams
   
-- Ensure we remove static funstions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
-- Attributes eg (* inline). (* expect true) (* notnull) or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]
+- Ensure we remove static functions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
+
+- Attributes eg (* inline). (* expect true) (* notnull) (* memoize)
+  or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]
 
 - #if #else #endif compile-time operations. 
   Needs to be able to parse compile-time boolean expressions
   
 - Investigate co-routines (LLVM)
 
+- #is_visible(identifier)
+  Return true if identifier is visible from current position
+  This can be used for testing
+  
 - Allow string identifiers for function names
 ```
     "i am a function" {}
@@ -72,7 +87,6 @@ func<int>(10,20) // 1 explicit param, 1 missing
 ## Think about
 - Do we need to worry about alignment?
 - How to do closures with captures
-- How to do named structs within named structs (this, super etc...) A.B
 - Should we allow ptr arithmentic?
 
 - Allow type inference here:
@@ -82,7 +96,15 @@ func<int>(10,20) // 1 explicit param, 1 missing
 [a,b] r = getResult()
 ```
 
-- Do something with these ideas
+## Ref counting or garbage collection
+- Garbage collection option
+    - Look at https://github.com/orangeduck/tgc or similar
+    - Need to provide some mechanism for memory ownership to be transferred to a different thread since this
+      gc is per thread but this can be done with some lib routine in core.thread for example.
+    - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
+      string range and it also holds the original ptr which is required by the gc
+- Some sort of unique ptr / memory owner
+- Try to examine ptr lifetimes
 ```
 ref<Object> r
 ptr<Object> r

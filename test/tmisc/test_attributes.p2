@@ -1,0 +1,23 @@
+@module(priority=10)
+
+public
+
+testAttributes {
+    func()
+    func2()   
+    func3()
+}
+
+private
+
+@inline(true)
+func {
+    
+}
+@inline(false)
+func2 {
+    
+}
+func3 {
+
+}

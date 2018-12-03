@@ -28,6 +28,7 @@ import llvm.all;
 import ppl2;
 
 import ppl2.Access;
+import ppl2.Attribute;
 import ppl2.Container;
 import ppl2.Mangler;
 import ppl2.ppl2;
@@ -107,6 +108,7 @@ import ppl2.misc.util;
 import ppl2.misc.writer;
 
 import ppl2.parse.detect_type;
+import ppl2.parse.parse_attribute;
 import ppl2.parse.parse_expression;
 import ppl2.parse.parse_helper;
 import ppl2.parse.parse_module;

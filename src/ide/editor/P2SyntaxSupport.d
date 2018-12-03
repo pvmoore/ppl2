@@ -332,6 +332,11 @@ private:
             }
             return toks[j+1].type==ppl2.TT.LCURLY;
         }
+        bool isAttribute() {
+            if(j==0) return false;
+            if(toks[j-1].type==ppl2.TT.AT) return true;
+            return false;
+        }
 
         switch(t.type) with(ppl2.TT) {
             case LINE_COMMENT: return TokenCategory.Comment_SingleLine;
@@ -339,7 +344,9 @@ private:
             case STRING: return TokenCategory.String;
             case CHAR: return TokenCategory.Character;
             case NUMBER: return TokenCategory.Integer;
+            case AT: return cast(TokenCategory)(TokenCategory.Keyword | 2);
             case IDENTIFIER:
+
                 if(t.value=="operator") {
                     return cast(TokenCategory)(TokenCategory.Identifier+5);
                 }
@@ -348,6 +355,9 @@ private:
                         return cast(TokenCategory)(TokenCategory.Keyword | 1);
                     }
                     return TokenCategory.Keyword;
+                }
+                if(isAttribute()) {
+                    return cast(TokenCategory)(TokenCategory.Keyword | 2);
                 }
                 if(isFuncDecl()) {
                     return cast(TokenCategory)(TokenCategory.Identifier+5);

@@ -134,7 +134,7 @@ private:
 
         /// Remove any open files that don't exist
         foreach(k; openFiles.keys.idup) {
-            if(!exists(directory~k)) openFiles.remove(k);
+            if(!exists(getAbsPath(k))) openFiles.remove(k);
         }
 
         targetDirectory = normaliseDir(targetDirectory);
@@ -175,9 +175,9 @@ private:
             foreach (map; doc["openFile"].array) {
                 auto t = map.table;
                 this.openFiles[t["name"].str] = OpenFile(
-                t["name"].str,
-                t.get("line", TOMLValue(0)).integer.to!int,
-                t.get("active", TOMLValue(0)).integer!=0,
+                    t["name"].str,
+                    t.get("line", TOMLValue(0)).integer.to!int,
+                    t.get("active", TOMLValue(0)).integer!=0,
                 );
             }
         }

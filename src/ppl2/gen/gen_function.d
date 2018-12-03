@@ -98,12 +98,15 @@ void generateFunctionDeclaration(Module module_, Function f) {
         isInline = false;
     }
 
-    //// check if user has set a preference
-    //if(f.attributes && f.attributes.has(AttrType.INLINE)) {
-    //    auto inline = f.attributes.get(AttrType.INLINE);
-    //    isInline   = "-1"==inline.value;
-    //    isNoInline = !isInline;
-    //}
+    /// Check if the user has set an attribute
+    auto attr = f.attributes.get!InlineAttribute;
+    if(attr) {
+        dd("!! inline attribute", f.name);
+
+        isInline   = attr.value;
+        isNoInline = !isInline;
+    }
+
     if(isInline) {
         addFunctionAttribute(func, LLVMAttribute.AlwaysInline);
     } else if(isNoInline) {
