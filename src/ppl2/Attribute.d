@@ -17,7 +17,7 @@ final class RangeAttribute : Attribute {
 }
 /// @expect(true)
 final class ExpectAttribute : Attribute {
-    long value;
+    bool value;
 }
 /// @inline(true)
 /// Applies to functions

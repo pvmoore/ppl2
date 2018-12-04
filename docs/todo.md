@@ -109,3 +109,8 @@ func<int>(10,20) // 1 explicit param, 1 missing
 ref<Object> r
 ptr<Object> r
 ```
+- Find out how to add fast math flags via the LLVM C API 
+
+- Read this:
+  http://llvm.org/docs/Frontend/PerformanceTips.html
+  

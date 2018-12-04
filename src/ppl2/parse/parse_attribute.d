@@ -39,9 +39,16 @@ private:
         auto a = new ExpectAttribute;
 
         string value = getValueProperty(t);
+        a.value = "true"==value;
 
-        auto r = parseNumberLiteral(value);
-        a.value = r[1].replace("_","").to!long;
+        if(value!="true" && value!="false") {
+            t.prev(2);
+            module_.addError(t, "Expecting 'true' or 'false'", true);
+            t.next(2);
+        }
+
+        //auto r = parseNumberLiteral(value);
+        //a.value = r[1].replace("_","").to!long;
 
         t.addAttribute(a);
     }
@@ -52,6 +59,12 @@ private:
 
         string value = getValueProperty(t);
         a.value = "true"==value;
+
+        if(value!="true" && value!="false") {
+            t.prev(2);
+            module_.addError(t, "Expecting 'true' or 'false'", true);
+            t.next(2);
+        }
 
         t.addAttribute(a);
     }

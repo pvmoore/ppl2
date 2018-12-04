@@ -1,3 +1,5 @@
+@module(priority=-900_000)
+
 /*
     Compiler hooks
 */

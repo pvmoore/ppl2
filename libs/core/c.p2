@@ -1,4 +1,4 @@
-@module(priority=-99_999)
+@module(priority=-900_000)
 
 public
 

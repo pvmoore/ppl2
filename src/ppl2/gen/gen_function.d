@@ -111,6 +111,7 @@ void generateFunctionDeclaration(Module module_, Function f) {
         addFunctionAttribute(func, LLVMAttribute.NoInline);
     }
 
+    /// We don't support exceptions
     addFunctionAttribute(func, LLVMAttribute.NoUnwind);
 
     //// linkage

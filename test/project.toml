@@ -15,20 +15,5 @@ lib = "thing"
 
 [[openFile]]
 name = "tmisc/test_attributes.p2"
-line = 11
+line = 19
 active = 1
-
-[[openFile]]
-name = "core/c.p2"
-line = 11
-active = 0
-
-[[openFile]]
-name = "test.p2"
-line = 99
-active = 0
-
-[[openFile]]
-name = "core/memory.p2"
-line = 4
-active = 0

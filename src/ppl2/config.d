@@ -31,7 +31,9 @@ public:
     bool enableAsserts          = true;
     bool enableInlining         = true;
     bool enableOptimisation     = true;
+    bool fastMaths              = true;
     bool enableLink             = true;
+
     bool disableInternalLinkage = false;
     int maxErrors               = int.max;
 
