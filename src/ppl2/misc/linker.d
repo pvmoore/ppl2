@@ -34,7 +34,6 @@ public:
         string targetObj = m.config.targetPath ~ m.canonicalName ~ ".obj";
         string targetExe = m.config.targetPath ~ m.config.targetExe;
 
-        writeASM(llvm, m);
         writeOBJ(llvm, m);
 
         auto args = [

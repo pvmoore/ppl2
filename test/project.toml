@@ -15,5 +15,10 @@ lib = "thing"
 
 [[openFile]]
 name = "tmisc/test_attributes.p2"
-line = 19
+line = 21
+active = 0
+
+[[openFile]]
+name = "test_literal_struct.p2"
+line = 17
 active = 1

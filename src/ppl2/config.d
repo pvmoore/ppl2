@@ -35,6 +35,7 @@ public:
     bool enableLink             = true;
 
     bool disableInternalLinkage = false;
+    bool collectOutput          = false;
     int maxErrors               = int.max;
 
     bool dumpStats        = true;

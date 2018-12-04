@@ -17,7 +17,7 @@ public:
     ProjectBuilder createProjectBuilder(Config config) {
         return new ProjectBuilder(g_llvmWrapper, config);
     }
-    ModuleBuilder createModuleBuilder(Config config) {
-        return new ModuleBuilder(g_llvmWrapper, config);
-    }
+    //ModuleBuilder createModuleBuilder(Config config) {
+    //    return new ModuleBuilder(g_llvmWrapper, config);
+    //}
 }

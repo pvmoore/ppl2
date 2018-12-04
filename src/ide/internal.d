@@ -30,6 +30,7 @@ import ide.editor.P2SyntaxSupport;
 
 import ide.usecases.BuildCompleted;
 
+import ide.widgets.ASMView;
 import ide.widgets.ASTView;
 import ide.widgets.ConsoleView;
 import ide.widgets.editortab;

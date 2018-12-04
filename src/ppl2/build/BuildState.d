@@ -13,6 +13,9 @@ protected:
     Module[/*canonicalName*/string] modules;
     string[string] unoptimisedIr;
     string[string] optimisedIr;
+    string linkedIr;
+    string linkedASM;
+
     StopWatch watch;
 
     CompileError[string] errors;
@@ -48,6 +51,8 @@ public:
 
     string getOptimisedIR(string canonicalName)   { return optimisedIr.get(canonicalName, null); }
     string getUnoptimisedIR(string canonicalName) { return unoptimisedIr.get(canonicalName, null); }
+    string getLinkedIR()                          { return linkedIr; }
+    string getLinkedASM()                         { return linkedASM; }
 
     this(LLVMWrapper llvmWrapper, Config config) {
         this.llvmWrapper            = llvmWrapper;
@@ -376,7 +381,10 @@ protected:
         bool allOk = true;
         foreach(m; allModules) {
             allOk &= m.gen.generate();
-            unoptimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
+
+            if(config.collectOutput) {
+                unoptimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
+            }
         }
         dd("IR ok:", allOk);
         return allOk;

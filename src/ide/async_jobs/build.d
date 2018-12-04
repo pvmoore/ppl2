@@ -46,6 +46,8 @@ private:
             builder.config.writeAST   = false;
             builder.config.writeIR    = false;
 
+            builder.config.collectOutput = true;
+
             builder.build();
 
             callback(this);

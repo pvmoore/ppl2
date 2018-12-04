@@ -39,9 +39,9 @@ public:
             if(generateIR()) {
                 optimiseModules();
 
-                if(config.enableLink) {
-                    combineModules();
+                combineModules();
 
+                if(config.enableLink) {
                     if(link()) {
                         /// Link succeeded
                     }
@@ -72,7 +72,9 @@ private:
         log("Optimising");
         foreach(m; modules.values) {
             optimiser.optimise(m);
-            optimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
+            if(config.collectOutput) {
+                optimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
+            }
         }
     }
     void combineModules() {
@@ -81,6 +83,7 @@ private:
                                 .filter!(it=>it.nid != mainModule.nid)
                                 .map!(it=>it.llvmValue)
                                 .array;
+
         if(otherModules.length>0) {
             llvmWrapper.linkModules(mainModule.llvmValue, otherModules);
         }
@@ -89,8 +92,13 @@ private:
             /// Run optimiser again on combined file
             optimiser.optimiseCombined(mainModule);
         }
+        if(config.collectOutput) {
+            linkedIr  = mainModule.llvmValue.dumpToString();
+            linkedASM = llvmWrapper.x86Target.writeToStringASM(mainModule.llvmValue);
+        }
 
         writeLL(mainModule, "");
+        writeASM(llvmWrapper, mainModule);
     }
     bool link() {
         dd("linking");

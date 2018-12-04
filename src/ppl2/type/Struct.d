@@ -28,6 +28,10 @@ public:
     }
 /// end of template stuff
 
+    int getSize() {
+        return memberVariableTypes().map!(it=>it.size).sum;
+    }
+
 /// ASTNode interface
     override bool isResolved() { return true; }
     override NodeID id() const { return NodeID.STRUCT; }

@@ -124,6 +124,7 @@ private:
             "sgt",          // icmp (signed greater than)
             "sle",          // icmp (signed less than or equal)
             "slt",          // icmp (signed less than)
+            "source_filename",
             "srem",
             "store",
             "sub",

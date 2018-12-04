@@ -3,7 +3,7 @@ module ppl2.build.ModuleBuilder;
 /// Build a specified Module (including any referenced modules)
 ///
 import ppl2.internal;
-
+/+
 final class ModuleBuilder : BuildState {
 private:
     string ir;
@@ -62,3 +62,4 @@ private:
         afterResolution();
     }
 }
++/

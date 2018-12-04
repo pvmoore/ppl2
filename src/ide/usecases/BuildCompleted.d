@@ -58,16 +58,20 @@ private:
         if(editorTab) {
             auto m = b.getModule(editorTab.moduleCanonicalName);
 
-            auto tokensView = infoView.getTokensView();
-            auto astView    = infoView.getASTView();
-            auto irView     = infoView.getIRView();
-            auto optIrView  = infoView.getOptIRView();
+            auto tokensView   = infoView.getTokensView();
+            auto astView      = infoView.getASTView();
+            auto irView       = infoView.getIRView();
+            auto optIrView    = infoView.getOptIRView();
+            auto linkedIrView = infoView.getLinkedIRView();
+            auto asmView      = infoView.getASMView();
 
             if(m) {
                 tokensView.update(m.parser.getInitialTokens()[]);
                 astView.update(m);
                 irView.update(b.getUnoptimisedIR(editorTab.moduleCanonicalName));
                 optIrView.update(b.getOptimisedIR(editorTab.moduleCanonicalName));
+                linkedIrView.update(b.getLinkedIR);
+                asmView.update(b.getLinkedASM());
             } else {
                 tokensView.clear();
                 astView.clear();

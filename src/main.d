@@ -32,6 +32,7 @@ void main(string[] argv) {
     builder.config.writeOBJ   = true;
     builder.config.writeAST   = true;
     builder.config.writeIR    = true;
+    builder.config.enableOptimisation = true;
     writefln("\n%s", builder.config.toString());
 
     /// Build the project

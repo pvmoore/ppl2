@@ -15,7 +15,7 @@ testLiteralStruct {
         assert s[1] is int
         assert s[2] is float
 
-        assert s[0]==false
+        assert s[0]==false  
         assert s[1]==0
         assert s[2]==0.0f
     }

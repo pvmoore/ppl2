@@ -9,7 +9,7 @@ private:
     TabItem tabItem;
     ulong timerId;
     Project project;
-    ModuleBuilder builder;
+    //ModuleBuilder builder;
     StopWatch timeSinceLastEdit;
 public:
     string relFilename;
@@ -23,7 +23,7 @@ public:
         this.relFilename         = relFilename;
         this.filename            = filename;
         this.project             = ide.getProject();
-        this.builder             = PPL2.instance().createModuleBuilder(project.config);
+        //this.builder             = PPL2.instance().createModuleBuilder(project.config);
 
         import std.path;
         this.moduleCanonicalName = stripExtension(relFilename).replace("/", "::");
