@@ -15,7 +15,7 @@ lib = "thing"
 
 [[openFile]]
 name = "tmisc/test_attributes.p2"
-line = 34
+line = 16
 active = 1
 
 [[openFile]]

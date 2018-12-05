@@ -32,7 +32,7 @@ func3 {
 
 }
 
-@pack(true)
+@pack
 struct A {      // size = 9, align = 4
     byte a      // 0
     short b     // 1
@@ -40,34 +40,28 @@ struct A {      // size = 9, align = 4
     byte d      // 7
     byte e      // 8
 }
-@pack(false)
 struct B {      // size = 12, align = 4
     byte a      // 0
     short b     // 2
     int c       // 4
     byte d      // 8
 }
-@pack(false)
 struct C {     // size = 24, align = 8     
     byte a     // offset 0, size 1, align 1
     short b    // offset 2, size 2, align 2
     long c     // offset 8, size 8, align 8
     byte d     // offset 16, size 1, align 1
 }
-@pack(false)
 struct D {     // size = 1, align = 1 
     byte a     // offset 0, size 1, align 1
 }
-@pack(false)
 struct E {    // size = 0, align = 1   
 }
-@pack(false)
 struct F {  // size = 40, align = 8   
     short a // offset 0, size 2, align 2
     C b     // offset 8, size 24, align 8
     byte c  // offset 32, size 1, align 1
 }
-@pack(false)
 struct G {  // size = 16, align 4
     byte a  // offset 0, size 1, align 1
     A b     // offset 4, size 9, align 4

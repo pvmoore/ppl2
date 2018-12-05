@@ -24,7 +24,7 @@ public:
                 parseInlineAttribute(t);
                 break;
             case "module":
-                parseModuleAttribute(t);
+                parseModuleAttribute(t, parent);
                 break;
             case "pack":
                 parsePackAttribute(t);
@@ -71,13 +71,19 @@ private:
 
         t.addAttribute(a);
     }
-    void parseModuleAttribute(Tokens t) {
+    void parseModuleAttribute(Tokens t, ASTNode parent) {
         import std.array : replace;
 
         auto a = new ModuleAttribute;
 
         /// Add this attribute to the current module directly
         module_.attributes ~= a;
+
+        if(!parent.isModule) {
+            t.prev;
+            module_.addError(t, "@module attribute must be at module scope", true);
+            t.next;
+        }
 
         foreach(k,v; getNameValueProperties(t, "module", ["priority"])) {
             if(k=="priority") {

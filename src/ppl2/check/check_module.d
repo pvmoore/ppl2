@@ -27,6 +27,8 @@ public:
 
         recursiveVisit(module_);
 
+        checkAttributes();
+
         watch.stop();
     }
     //==========================================================================
@@ -534,5 +536,38 @@ private:
         foreach(n; m.children) {
             recursiveVisit(n);
         }
+    }
+    void checkAttributes() {
+
+        void check(ASTNode node, Attribute a, Attribute.ValidNode v) {
+            bool ok = true;
+            final switch(v) with(Attribute.ValidNode) {
+                case FUNCTION:
+                    ok = node.isFunction;
+                    break;
+                case IF:
+                    ok = node.isIf;
+                    break;
+                case MODULE:
+                    ok = node.isModule;
+                    break;
+                case STRUCT:
+                    ok = node.id==NodeID.STRUCT;
+                    break;
+            }
+            if(!ok) {
+                module_.addError(node, "%s attribute cannot be applied to %s".
+                    format(a.name(), node.id.to!string.toLower), true);
+            }
+        }
+
+        module_.recurse!ASTNode((n) {
+            auto attribs = n.attributes;
+            foreach(a; attribs) {
+                foreach(v; a.getValidNodes()) {
+                    check(n, a, v);
+                }
+            }
+        });
     }
 }
