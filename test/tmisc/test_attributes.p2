@@ -2,6 +2,7 @@
 
 public
 
+@inline(false)
 testAttributes {
     func()
     func2()   
@@ -13,6 +14,8 @@ testAttributes {
     if(v<2) {
         
     }
+        
+    testPack()
 }
 
 private
@@ -27,4 +30,84 @@ func2 {
 }
 func3 {
 
+}
+
+@pack(true)
+struct A {      // size = 9, align = 4
+    byte a      // 0
+    short b     // 1
+    int c       // 3
+    byte d      // 7
+    byte e      // 8
+}
+@pack(false)
+struct B {      // size = 12, align = 4
+    byte a      // 0
+    short b     // 2
+    int c       // 4
+    byte d      // 8
+}
+@pack(false)
+struct C {     // size = 24, align = 8     
+    byte a     // offset 0, size 1, align 1
+    short b    // offset 2, size 2, align 2
+    long c     // offset 8, size 8, align 8
+    byte d     // offset 16, size 1, align 1
+}
+@pack(false)
+struct D {     // size = 1, align = 1 
+    byte a     // offset 0, size 1, align 1
+}
+@pack(false)
+struct E {    // size = 0, align = 1   
+}
+@pack(false)
+struct F {  // size = 40, align = 8   
+    short a // offset 0, size 2, align 2
+    C b     // offset 8, size 24, align 8
+    byte c  // offset 32, size 1, align 1
+}
+@pack(false)
+struct G {  // size = 16, align 4
+    byte a  // offset 0, size 1, align 1
+    A b     // offset 4, size 9, align 4
+    byte c  // offset 13, size 1, align 1 
+}
+
+@inline(false)
+testPack {
+    A a = A()
+    a.a = 1 as byte
+    a.b = 2 as short
+    a.c = 3
+    a.d = 4 as byte
+    B b = B()
+    b.a = 1 as byte
+    b.b = 2 as short
+    b.c = 3
+    b.d = 4 as byte
+    C c = C()
+    c.a = 1 as byte
+    c.b = 2 as short
+    c.c = 3
+    c.d = 4 as byte
+    D d = D()
+    E e = E()
+    F f = F()
+    
+    assert #sizeof(A)==9
+    assert #sizeof(B)==12  
+    assert #sizeof(C)==24   
+    assert #sizeof(D)==1   
+    assert #sizeof(E)==0 
+    assert #sizeof(F)==40
+    assert #sizeof(G)==16
+    
+    assert #alignof(A) == 4
+    assert #alignof(B) == 4
+    assert #alignof(C) == 8
+    assert #alignof(D) == 1
+    assert #alignof(E) == 1
+    assert #alignof(F) == 8
+    assert #alignof(G) == 4
 }

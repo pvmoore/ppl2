@@ -7,11 +7,34 @@ import ppl2.internal;
 final class Tuple : ASTNode, Type, Container {
 private:
     LLVMTypeRef _llvmType;
+    int _size      = -1;
+    int _alignment = -1;
 public:
 /// ASTNode interface
     override bool isResolved() { return isKnown; }
     override NodeID id() const { return NodeID.TUPLE; }
     override Type getType()    { return this; }
+
+    /// Tuples are all @pack(false)
+    int getSize() {
+        if(_size==-1) {
+            _size = calculateAggregateSize(memberVariableTypes());
+        }
+        return _size;
+    }
+    /// Alignment is alignment of largest member
+    int getAlignment() {
+        if(_alignment==-1) {
+            if(numMemberVariables==0) {
+                /// An empty tuple has align of 1
+                _alignment = 1;
+            } else {
+                import std.algorithm.searching;
+                _alignment = memberVariableTypes().map!(it=>it.alignment).maxElement;
+            }
+        }
+        return _alignment;
+    }
 
 /// Type interface
     int category() const { return Type.TUPLE; }

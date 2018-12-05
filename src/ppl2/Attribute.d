@@ -43,10 +43,10 @@ final class ModuleAttribute : Attribute {
 final class NotNullAttribute : Attribute {
 
 }
-/// @pack(4)
+/// @pack(true)
 /// Applies to structs
 final class PackAttribute : Attribute {
-    int value;
+    bool value;
 }
 /// @profile
 /// Applies to functions

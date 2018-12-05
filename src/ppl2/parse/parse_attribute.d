@@ -26,6 +26,9 @@ public:
             case "module":
                 parseModuleAttribute(t);
                 break;
+            case "pack":
+                parsePackAttribute(t);
+                break;
             default:
                 t.prev;
                 errorBadSyntax(module_, t, "Unknown attribute '%s'".format(name));
@@ -81,6 +84,20 @@ private:
                 a.priority = v.replace("_","").to!int;
             }
         }
+    }
+    void parsePackAttribute(Tokens t) {
+        auto a = new PackAttribute;
+
+        string value = getValueProperty(t);
+        a.value = "true"==value;
+
+        if(value!="true" && value!="false") {
+            t.prev(2);
+            module_.addError(t, "Expecting 'true' or 'false'", true);
+            t.next(2);
+        }
+
+        t.addAttribute(a);
     }
     string getValueProperty(Tokens t) {
         /// (

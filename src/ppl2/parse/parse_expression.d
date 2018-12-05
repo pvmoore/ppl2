@@ -57,6 +57,7 @@ private:
                 case "#initof":
                 case "#isptr":
                 case "#isvalue":
+                case "#alignof":
                     parseBuiltinFunc(t, parent);
                     return;
                 default:

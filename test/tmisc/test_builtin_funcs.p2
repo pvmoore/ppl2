@@ -6,11 +6,46 @@ testBuiltinFuncs {
         byte a = 0 as byte;     assert 1 == #sizeof(a)
         int b = 0;              assert 4 == #sizeof(b)
         double c = 0;           assert 8 == #sizeof(c)
-        [int,bool] d;           assert 5 == #sizeof(d)
+        [int,bool] d;           assert 8 == #sizeof(d)  // [4,4]
         
-        assert 4 == #sizeof(0)
+        struct A {}                     // align 1
+        struct B { byte a }             // align 1
+        struct C { short a, byte b }    // align 2
+        struct D { int a, byte b }      // align 4
+        struct E { double a, byte b }   // align 8
+        
+        assert #sizeof(A) == 0
+        assert #sizeof(B) == 1
+        assert #sizeof(C) == 4      // 2+2
+        assert #sizeof(D) == 8      // 4+4
+        assert #sizeof(E) == 16     // 8+8
+        
+        assert 4  == #sizeof(0)
         assert 12 == #sizeof([1,2,3])
         assert 16 == #sizeof([1,2,3,4] as [int,int,int,int])
+    }
+    alignof {
+        assert #alignof(byte) == 1
+        assert #alignof(short) == 2
+        assert #alignof(int) == 4
+        assert #alignof(long) == 8
+        assert #alignof(half) == 2
+        assert #alignof(float) == 4
+        assert #alignof(double) == 8
+        assert #alignof([int,byte]) == 4    // tuple
+        assert #alignof([1 as byte]) == 1   // array
+        
+        struct A {}
+        struct B { byte a }
+        struct C { short a, byte b }
+        struct D { int a, byte b }
+        struct E { double a, byte b }
+        
+        assert #alignof(A) == 1
+        assert #alignof(B) == 1
+        assert #alignof(C) == 2
+        assert #alignof(D) == 4
+        assert #alignof(E) == 8
     }
     typeof {
         assert #typeof(0)      is int
@@ -53,6 +88,7 @@ testBuiltinFuncs {
         assert not #isvalue(b)
     }
     sizeof()
+    alignof()
     typeof()
     initof()
     isptr() 

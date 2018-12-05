@@ -179,3 +179,23 @@ int getTypeOfLong(long l) {
 bool isInt(long l) {
     return l >= int.min && l <= int.max;
 }
+
+int calculateAggregateSize(Type[] types) {
+    int offset  = 0;
+    int largest = 1;
+
+    foreach(t; types) {
+        int align_    = t.alignment();
+        int and       = (align_-1);
+        int newOffset = (offset + and) & ~and;
+
+        offset = newOffset + t.size;
+
+        if(align_ > largest) largest = align_;
+    }
+
+    /// The final size must be a multiple of the largest alignment
+    offset = (offset + (largest-1)) & ~(largest-1);
+
+    return offset;
+}

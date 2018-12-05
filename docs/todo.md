@@ -9,6 +9,8 @@
 
 - Parallelise compilation 
 
+- Module destructors
+
 - If a var is never modified and no address taken, we can set it to const (Set resolver.setModified() also
   because we have changed the AST).
 

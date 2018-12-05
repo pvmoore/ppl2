@@ -118,7 +118,7 @@ shared static this() {
 
     g_keywords = new Set!string;
     g_keywords.add([
-        "#isptr", "#isvalue", "#initof", "#sizeof", "#typeof",
+        "#alignof", "#isptr", "#isvalue", "#initof", "#sizeof", "#typeof",
         "alias", "and", "as", "assert",
         "bool", "break", "byte",
         "const", "continue",

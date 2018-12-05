@@ -206,7 +206,7 @@ int size(Type t) {
     if(t.isPtr) return 8;
     final switch(t.category) with(Type) {
         case UNKNOWN:
-        case FUNCTION:
+        case FUNCTION: /// should always be a ptr
         case VOID:
             assert(false, "size - %s has no size".format(t));
         case BOOL:
@@ -217,10 +217,31 @@ int size(Type t) {
         case HALF: return 2;
         case FLOAT: return 4;
         case DOUBLE: return 8;
-        case STRUCT: return t.getStruct.memberVariableTypes().map!(it=>it.size).sum;
-        case TUPLE: return t.getTuple.memberVariableTypes().map!(it=>it.size).sum;
+        case STRUCT: return t.getStruct.getSize();
+        case TUPLE: return t.getTuple.getSize();
         case ARRAY: return t.getArrayType.countAsInt()*t.getArrayType.subtype.size();
         case ENUM: return t.getEnum().elementType.size();
+    }
+}
+int alignment(Type t) {
+    if(t.isPtr) return 8;
+    final switch(t.category) with(Type) {
+        case UNKNOWN:
+        case FUNCTION: /// should always be a ptr
+        case VOID:
+            assert(false, "size - %s has no size".format(t));
+        case BOOL:
+        case BYTE: return 1;
+        case SHORT: return 2;
+        case INT: return 4;
+        case LONG: return 8;
+        case HALF: return 2;
+        case FLOAT: return 4;
+        case DOUBLE: return 8;
+        case STRUCT: return t.getStruct.getAlignment();
+        case TUPLE: return t.getTuple.getAlignment();
+        case ARRAY: return t.getArrayType().subtype.alignment();
+        case ENUM: return t.getEnum().elementType.alignment();
     }
 }
 LLVMValueRef zeroValue(Type t) {

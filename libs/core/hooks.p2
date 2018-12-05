@@ -6,6 +6,7 @@
 public
 
 __assert { bool result, byte* moduleName, int line ->
+    @expect(false)
     if(not result) {
         print("ASSERTION FAILED in ") 
         print(moduleName) 

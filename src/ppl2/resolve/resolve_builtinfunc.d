@@ -23,6 +23,12 @@ public:
                     resolver.fold(n, LiteralNumber.makeConst(size, TYPE_INT));
                 }
                 break;
+            case "#alignof":
+                if(n.numExprs > 0) {
+                    int align_ = n.exprs()[0].getType().alignment();
+                    resolver.fold(n, LiteralNumber.makeConst(align_, TYPE_INT));
+                }
+                break;
             case "#typeof":
                 if(n.numExprs > 0) {
                     auto t = n.exprs()[0].getType;

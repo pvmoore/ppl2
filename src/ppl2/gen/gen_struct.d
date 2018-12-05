@@ -4,11 +4,11 @@ import ppl2.internal;
 
 void generateImportedStructDeclarations(Module module_) {
     foreach(s; module_.getImportedStructs()) {
-        setTypes(s.getLLVMType(), s.getLLVMTypes(), true);
+        setTypes(s.getLLVMType(), s.getLLVMTypes(), s.isPacked);
     }
 }
 void generateLocalStructDeclarations(Module module_) {
     foreach(s; module_.getStructsRecurse()) {
-        setTypes(s.getLLVMType(), s.getLLVMTypes(), true);
+        setTypes(s.getLLVMType(), s.getLLVMTypes(), s.isPacked);
     }
 }

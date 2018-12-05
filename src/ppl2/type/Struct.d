@@ -5,6 +5,9 @@ import ppl2.internal;
 final class Struct : ASTNode, Type, Container {
 protected:
     LLVMTypeRef _llvmType;
+    int _size      = -1;
+    int _alignment = -1;
+    bool _isPacked = false;
 public:
     string name;
     string moduleName;
@@ -29,7 +32,35 @@ public:
 /// end of template stuff
 
     int getSize() {
-        return memberVariableTypes().map!(it=>it.size).sum;
+        if(_size==-1) {
+            auto pack = attributes.get!PackAttribute;
+            if(pack) {
+                _isPacked = pack.value;
+            }
+            if(_isPacked) {
+                _size = memberVariableTypes().map!(it=>it.size).sum;
+            } else {
+                _size = calculateAggregateSize(memberVariableTypes());
+            }
+        }
+        return _size;
+    }
+    /// Alignment is alignment of largest member
+    int getAlignment() {
+        if(_alignment==-1) {
+            if(numMemberVariables==0) {
+                /// An empty struct has align of 1
+                _alignment = 1;
+            } else {
+                import std.algorithm.searching;
+                _alignment = memberVariableTypes().map!(it=>it.alignment).maxElement;
+            }
+        }
+        return _alignment;
+    }
+    bool isPacked() {
+        if(_size==-1) getSize();
+        return _isPacked;
     }
 
 /// ASTNode interface

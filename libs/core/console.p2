@@ -23,7 +23,7 @@ print { long n ->
     if(n<0) {
         print('-')
     } else if(n==0) {
-        print(0)
+        print('0')
         return
     }
     loop(int i; n>0; n /= 10) {
