@@ -35,7 +35,7 @@ public:
         if(_size==-1) {
             auto pack = attributes.get!PackAttribute;
             if(pack) {
-                _isPacked = pack.value;
+                _isPacked = true;
             }
             if(_isPacked) {
                 _size = memberVariableTypes().map!(it=>it.size).sum;

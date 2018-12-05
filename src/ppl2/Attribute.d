@@ -46,7 +46,7 @@ final class NotNullAttribute : Attribute {
 /// @pack(true)
 /// Applies to structs
 final class PackAttribute : Attribute {
-    bool value;
+
 }
 /// @profile
 /// Applies to functions

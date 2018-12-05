@@ -15,10 +15,10 @@ lib = "thing"
 
 [[openFile]]
 name = "tmisc/test_attributes.p2"
-line = 102
-active = 0
+line = 34
+active = 1
 
 [[openFile]]
 name = "tmisc/test_builtin_funcs.p2"
 line = 17
-active = 1
+active = 0

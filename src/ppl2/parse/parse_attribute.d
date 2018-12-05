@@ -88,15 +88,6 @@ private:
     void parsePackAttribute(Tokens t) {
         auto a = new PackAttribute;
 
-        string value = getValueProperty(t);
-        a.value = "true"==value;
-
-        if(value!="true" && value!="false") {
-            t.prev(2);
-            module_.addError(t, "Expecting 'true' or 'false'", true);
-            t.next(2);
-        }
-
         t.addAttribute(a);
     }
     string getValueProperty(Tokens t) {
