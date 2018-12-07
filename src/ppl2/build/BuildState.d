@@ -307,7 +307,9 @@ protected:
             prevUnresolved = unresolved;
         }
         /// If we get here we couldn't resolve something
-        convertUnresolvedNodesIntoErrors();
+        if(!hasErrors()) {
+            convertUnresolvedNodesIntoErrors();
+        }
     }
     void parseModules() {
         log("parseModules");

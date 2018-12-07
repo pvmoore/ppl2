@@ -2,22 +2,25 @@
 
 public
 
-struct string {
-public
-    byte* ptr
+struct string { // 16 bytes
+    byte* basePtr
+    int offset
 readonly
-    long length
+    int length
 
-    new { byte* ptr, long len ->
-        this.ptr    = ptr
-        this.length = len
+    new { byte* ptr, int offset, int len ->
+        this.basePtr = ptr
+        this.offset  = offset
+        this.length  = len
     }
+    
+    ptr { return basePtr+offset }
 
     empty {
         return length==0
     }
 
     operator[] { int index->
-        return ptr[index]
+        return (basePtr+offset)[index]
     }
 }

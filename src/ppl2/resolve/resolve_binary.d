@@ -65,25 +65,48 @@ public:
 
         if(n.type.isUnknown) {
 
-            //if(lt.isKnown && rt.isKnown) {
             /// If we are assigning then take the type of the lhs expression
             if(n.op.isAssign) {
                 n.type = lt;
+
+                if(n.op.isPtrArithmetic && lt.isPtr && rt.isInteger) {
+                    n.isPtrArithmetic = true;
+                }
+
             } else if(n.op.isBool) {
                 n.type = TYPE_BOOL;
             } else {
-                /// Set to largest of left or right type
 
-                auto t = getBestFit(lt, rt);
-                /// Promote byte, short to int
-                if(t.isValue && t.isInteger && t.category < TYPE_INT.category) {
-                    n.type = TYPE_INT;
+                if(n.op.isPtrArithmetic && lt.isPtr && rt.isInteger) {
+                    /// ptr +/- integer
+                    n.type = lt;
+                    n.isPtrArithmetic = true;
+                } else if(n.op.isPtrArithmetic && lt.isInteger && rt.isPtr) {
+                    /// integer +/- ptr
+                    n.type = rt;
+                    n.isPtrArithmetic = true;
                 } else {
-                    n.type = t;
+                    /// Set to largest of left or right type
+
+
+
+                    auto t = getBestFit(lt, rt);
+
+                    if(!t) {
+                        module_.addError(n, "Types are incompatible %s and %s".format(lt, rt), true);
+                        return;
+                    }
+
+                    /// Promote byte, short to int
+                    if(t.isValue && t.isInteger && t.category < TYPE_INT.category) {
+                        n.type = TYPE_INT;
+                    } else {
+                        n.type = t;
+                    }
                 }
             }
-            //}
         }
+
         /// If left and right expressions are const numbers then evaluate them now
         /// and replace the Binary with the result
         if(n.isResolved && n.isConst) {

@@ -206,3 +206,14 @@ bool isComparison(Operator o) {
             return false;
     }
 }
+bool isPtrArithmetic(Operator o) {
+    switch(o.id) with(Operator) {
+        case ADD.id:
+        case SUB.id:
+        case ADD_ASSIGN.id:
+        case SUB_ASSIGN.id:
+            return true;
+        default:
+            return false;
+    }
+}

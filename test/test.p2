@@ -97,7 +97,8 @@ main {
     import tnodes::test_select;         testSelect()
     import test_closures;               testClosures()
     import test_enum;                   testEnum()
-    import tmisc::test_attributes       testAttributes()
+    import tmisc::test_attributes;      testAttributes()
+    import tmisc::ptr_arithmetic;       testPtrArithmetic()
     
     import texpr = test_expressions
     texpr.testExpressions()

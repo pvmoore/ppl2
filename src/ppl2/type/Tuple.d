@@ -92,6 +92,7 @@ public:
         return getMemberVariables()[index];
     }
     int getMemberIndex(Variable var) {
+        if(!var) return -1;
         assert(!var.isStatic);
         foreach(int i, v; getMemberVariables()) {
             if(var is v) return i;

@@ -326,6 +326,7 @@ private:
             resolver.fold(dot, ExpressionRef.make(em));
             return;
         }
+
         /// Is it a static member?
         Struct struct_ = prevType.getStruct;
         if(struct_) {
@@ -345,9 +346,17 @@ private:
 
         if(tuple) {
             var   = tuple.getMemberVariable(n.name);
+            if(!var) {
+                module_.addError(n, "Tuple member '%s' not found".format(n.name), true);
+                return;
+            }
             index = tuple.getMemberIndex(var);
         } else {
-            var   = struct_.getMemberVariable(n.name);
+            var = struct_.getMemberVariable(n.name);
+            if(!var) {
+                module_.addError(n, "Struct '%s' does not have member '%s'".format(struct_.name, n.name), true);
+                return;
+            }
             index = struct_.getMemberIndex(var);
         }
 

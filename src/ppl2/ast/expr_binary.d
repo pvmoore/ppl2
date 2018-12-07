@@ -7,6 +7,7 @@ import ppl2.internal;
 public class Binary : Expression {
     Type type;
     Operator op;
+    bool isPtrArithmetic;   /// ptr +/- integer
 
     this() {
         type = TYPE_UNKNOWN;

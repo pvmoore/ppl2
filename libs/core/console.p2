@@ -5,7 +5,7 @@ public
 println { bool b -> print(b) putchar(10) }
 println { long n -> print(n) putchar(10) }
 println { string s ->
-    print(s.ptr, s.length)
+    print(s.ptr(), s.length)
     putchar(10)
 }
 println { byte* ptr,long len ->
@@ -35,7 +35,7 @@ print { long n ->
     }
 }
 print { string s ->
-    print(s.ptr, s.length)
+    print(s.ptr(), s.length)
 }
 print { byte* bytes ->
     if(not bytes) return

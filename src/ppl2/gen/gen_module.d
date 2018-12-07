@@ -512,11 +512,11 @@ public:
             rhs = builder.bitcast(v, to.getLLVMType, name);
             return rhs;
         }
-        if(from.isPtr && to.isLong) {
+        if(from.isPtr && to.isInteger) {
             rhs = builder.ptrToInt(v, to.getLLVMType, name);
             return rhs;
         }
-        if(from.isLong && to.isPtr) {
+        if(from.isInteger && to.isPtr) {
             rhs = builder.intToPtr(v, to.getLLVMType, name);
             return rhs;
         }

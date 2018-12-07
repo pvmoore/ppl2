@@ -38,17 +38,6 @@ public:
     void visit(Alias n) {
 
     }
-    void visit(Parameters n) {
-        /// Check that all arg names are unique
-        stringSet.clear();
-        foreach(i, a; n.paramNames) {
-            if(stringSet.contains(a)) {
-                module_.addError(n.getParam(i), "Duplicate parameter name", true);
-            }
-            stringSet.add(a);
-        }
-    }
-
     void visit(Array n) {
         if(!n.countExpr().isA!LiteralNumber) {
             module_.addError(n.countExpr(), "Array count expression must be a const", true);
@@ -60,9 +49,9 @@ public:
 
         if(fromType.isPtr && toType.isPtr) {
             /// ok - bitcast pointers
-        } else if(fromType.isPtr && !toType.isLong) {
+        } else if(fromType.isPtr && !toType.isInteger) {
             errorBadExplicitCast(module_, n, fromType, toType);
-        } else if(!fromType.isLong && toType.isPtr) {
+        } else if(!fromType.isInteger && toType.isPtr) {
             errorBadExplicitCast(module_, n, fromType, toType);
         }
     }
@@ -78,13 +67,22 @@ public:
         }
 
         /// Check the types
-        if(!areCompatible(n.rightType, n.leftType)) {
-            module_.addError(n, "Types are incompatible: %s and %s".format(n.rightType, n.leftType), true);
+        if(n.isPtrArithmetic) {
+
+        } else if(n.op.isAssign && n.leftType.isPtr && n.rightType.isInteger) {
+            /// int* a = 0
+        } else {
+            if(!areCompatible(n.rightType, n.leftType)) {
+                module_.addError(n, "Types are incompatible: %s and %s".format(n.leftType, n.rightType), true);
+            }
         }
 
         if(n.op.isAssign) {
 
-            if(!n.rightType.canImplicitlyCastTo(n.leftType)) {
+            if(n.op!=Operator.ASSIGN && n.leftType.isPtr && n.rightType.isInteger) {
+                /// int* a = 10
+                /// a += 10
+            } else if(!n.rightType.canImplicitlyCastTo(n.leftType)) {
                 errorBadImplicitCast(module_, n, n.rightType, n.leftType);
             }
 
@@ -95,6 +93,8 @@ public:
                     module_.addError(n, "Cannot modify const %s".format(id.name), true);
                 }
             }
+        } else {
+
         }
     }
     void visit(Break n) {
@@ -395,6 +395,16 @@ public:
     }
     void visit(ModuleAlias n) {
 
+    }
+    void visit(Parameters n) {
+        /// Check that all arg names are unique
+        stringSet.clear();
+        foreach(i, a; n.paramNames) {
+            if(stringSet.contains(a)) {
+                module_.addError(n.getParam(i), "Duplicate parameter name", true);
+            }
+            stringSet.add(a);
+        }
     }
     void visit(Struct n) {
         /// All variables must have a name

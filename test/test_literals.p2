@@ -56,7 +56,7 @@ strings {
     var s2    = r"there"
 
     var len = "stringy".length
-    var ptr = "stringy".ptr
+    var ptr = "stringy".ptr()
 
     //var ch = "stringy"[0] // todo
     //"stringy"[0] = 'S' // readonly

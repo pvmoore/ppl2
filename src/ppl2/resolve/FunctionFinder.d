@@ -294,9 +294,9 @@ public:
             }
 
             if(numRemoved>0) {
-                msg ~= "Struct %s %s function %s(%s) is not visible";
+                msg ~= "Struct '%s' %s function %s(%s) is not visible";
             } else {
-                msg ~= "Struct %s does not have %s function %s(%s)";
+                msg ~= "Struct '%s' does not have %s function %s(%s)";
             }
             msg = msg.format(ns.name, desc, call.name, argsStr);
 

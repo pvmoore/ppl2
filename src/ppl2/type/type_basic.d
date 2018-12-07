@@ -24,7 +24,7 @@ final class BasicType : Type {
     bool canImplicitlyCastTo(Type other) {
         /// Do the common checks
         if(!prelimCanImplicitlyCastTo(this,other)) return false;
-        /// Now check the base type
+
         if(!other.isBasicType) return false;
 
         auto right = other.getBasicType;

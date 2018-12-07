@@ -697,12 +697,13 @@ private:
         var.type = typeFinder.findType("string", parent);
         composite.add(var);
 
-        /// Call string.new(this, byte*, int)
+        /// Call string.new(this, byte*, int, int)
 
         Call call    = b.call("new", null);
         auto thisPtr = b.addressOf(b.identifier(var.name));
         call.add(thisPtr);
         call.add(s);
+        call.add(LiteralNumber.makeConst(0, TYPE_INT));
         call.add(LiteralNumber.makeConst(s.calculateLength(), TYPE_INT));
 
         auto dot = b.dot(b.identifier(var.name), call);

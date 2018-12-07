@@ -1,6 +1,11 @@
 # Todo  
 
 - Add gc
+    - Look at https://github.com/orangeduck/tgc or similar
+    - Need to provide some mechanism for memory ownership to be transferred to a different thread since this
+      gc is per thread but this can be done with some lib routine in core.thread for example.
+    - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
+      string range and it also holds the original ptr which is required by the gc
 
 - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
   string range
@@ -99,19 +104,13 @@ func<int>(10,20) // 1 explicit param, 1 missing
 ```
 
 ## Ref counting or garbage collection
-- Garbage collection option
-    - Look at https://github.com/orangeduck/tgc or similar
-    - Need to provide some mechanism for memory ownership to be transferred to a different thread since this
-      gc is per thread but this can be done with some lib routine in core.thread for example.
-    - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
-      string range and it also holds the original ptr which is required by the gc
 - Some sort of unique ptr / memory owner
 - Try to examine ptr lifetimes
 ```
 ref<Object> r
 ptr<Object> r
 ```
-- Find out how to add fast math flags via the LLVM C API 
+- Find out how to add fast math flags via the LLVM C API or add hooks for them if there is no c api access
 
 - Read this:
   http://llvm.org/docs/Frontend/PerformanceTips.html
