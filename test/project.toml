@@ -15,8 +15,8 @@ lib = "thing"
 
 [[openFile]]
 name = "tmisc/test_attributes.p2"
-line = 16
-active = 0
+line = 69
+active = 1
 
 [[openFile]]
 name = "core/string.p2"
@@ -29,11 +29,11 @@ line = 99
 active = 0
 
 [[openFile]]
-name = "tmisc/ptr_arithmetic.p2"
-line = 59
-active = 1
+name = "test_constructors.p2"
+line = 0
+active = 0
 
 [[openFile]]
-name = "tmisc/test_builtin_funcs.p2"
-line = 17
+name = "tstructs/test_structs.p2"
+line = 19
 active = 0

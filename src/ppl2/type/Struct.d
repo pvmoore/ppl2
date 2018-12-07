@@ -62,6 +62,9 @@ public:
         if(_size==-1) getSize();
         return _isPacked;
     }
+    bool isPOD() {
+        return attributes.get!PodAttribute !is null;
+    }
 
 /// ASTNode interface
     override bool isResolved() { return true; }

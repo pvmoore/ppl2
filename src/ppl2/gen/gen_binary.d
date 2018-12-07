@@ -185,32 +185,23 @@ private:
     auto ptrArithmetic(Binary b, LLVMValueRef left, LLVMValueRef right) {
         if(b.leftType.isPtr) {
             /// ptr +/- int
-            //left  = builder.ptrToInt(left, TYPE_LONG.getLLVMType);
             right = gen.castType(right, b.rightType, TYPE_LONG);
+
             if(b.op==Operator.SUB || b.op==Operator.SUB_ASSIGN) {
                 right = builder.binop(LLVMOpcode.LLVMSub, constI64(0), right);
             }
 
             gen.rhs = builder.getElementPointer(left, [right]);
-            //gen.rhs = builder.load(ptr);
         } else {
             /// int +/- ptr
             left  = gen.castType(left, b.leftType, TYPE_LONG);
-            //right = builder.ptrToInt(right, TYPE_LONG.getLLVMType);
+
             if(b.op==Operator.SUB || b.op==Operator.SUB_ASSIGN) {
                 left = builder.binop(LLVMOpcode.LLVMSub, constI64(0), left);
             }
 
             gen.rhs = builder.getElementPointer(right, [left]);
-            //gen.rhs = builder.load(ptr);
         }
-
-        //if(b.op==Operator.ADD) {
-        //    gen.rhs = builder.binop(LLVMOpcode.LLVMAdd, left, right);
-        //} else {
-        //    gen.rhs = builder.binop(LLVMOpcode.LLVMSub, left, right);
-        //}
-        //gen.rhs = builder.intToPtr(gen.rhs, b.type.getLLVMType);
         return gen.rhs;
     }
 

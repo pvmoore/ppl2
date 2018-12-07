@@ -69,8 +69,6 @@ public:
         /// Check the types
         if(n.isPtrArithmetic) {
 
-        } else if(n.op.isAssign && n.leftType.isPtr && n.rightType.isInteger) {
-            /// int* a = 0
         } else {
             if(!areCompatible(n.rightType, n.leftType)) {
                 module_.addError(n, "Types are incompatible: %s and %s".format(n.leftType, n.rightType), true);
@@ -549,34 +547,49 @@ private:
     }
     void checkAttributes() {
 
-        void check(ASTNode node, Attribute a, Attribute.ValidNode v) {
+        void check(ASTNode node, Attribute a) {
             bool ok = true;
-            final switch(v) with(Attribute.ValidNode) {
-                case FUNCTION:
+            final switch(a.type) with(Attribute.Type) {
+                case EXPECT:
+                    ok = node.isIf;
+                    break;
+                case INLINE:
                     ok = node.isFunction;
                     break;
-                case IF:
-                    ok = node.isIf;
+                case LAZY:
+                    ok = node.isFunction;
+                    break;
+                case MEMOIZE:
+                    ok = node.isFunction;
                     break;
                 case MODULE:
                     ok = node.isModule;
                     break;
-                case STRUCT:
+                case NOTNULL:
+                    break;
+                case PACK:
                     ok = node.id==NodeID.STRUCT;
+                    break;
+                case POD:
+                    ok = node.id==NodeID.STRUCT;
+                    break;
+                case PROFILE:
+                    ok = node.isFunction;
+                    break;
+                case RANGE:
+                    ok = node.isVariable;
                     break;
             }
             if(!ok) {
                 module_.addError(node, "%s attribute cannot be applied to %s".
-                    format(a.name(), node.id.to!string.toLower), true);
+                    format(a.name, node.id.to!string.toLower), true);
             }
         }
 
         module_.recurse!ASTNode((n) {
             auto attribs = n.attributes;
             foreach(a; attribs) {
-                foreach(v; a.getValidNodes()) {
-                    check(n, a, v);
-                }
+                check(n, a);
             }
         });
     }

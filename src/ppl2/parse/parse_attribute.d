@@ -29,6 +29,9 @@ public:
             case "pack":
                 parsePackAttribute(t);
                 break;
+            case "pod":
+                parsePodAttribute(t);
+                break;
             default:
                 t.prev;
                 errorBadSyntax(module_, t, "Unknown attribute '%s'".format(name));
@@ -94,6 +97,10 @@ private:
     void parsePackAttribute(Tokens t) {
         auto a = new PackAttribute;
 
+        t.addAttribute(a);
+    }
+    void parsePodAttribute(Tokens t) {
+        auto a = new PodAttribute;
         t.addAttribute(a);
     }
     string getValueProperty(Tokens t) {

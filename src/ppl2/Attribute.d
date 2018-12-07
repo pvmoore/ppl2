@@ -8,65 +8,91 @@ T get(T)(Attribute[] attribs) {
 }
 
 abstract class Attribute {
-    enum ValidNode {
-        FUNCTION,
-        IF,
-        MODULE,
-        STRUCT
+    enum Type {
+        EXPECT, INLINE, LAZY, MEMOIZE, MODULE, NOTNULL, PACK, POD, PROFILE, RANGE
     }
-    string name() { return "%s".format(this); }
-    ValidNode[] getValidNodes() { return null; }
+    string name;
+    Type type;
 }
-/// @bounds(min=0, max=200)
-/// Applies to variables
-final class RangeAttribute : Attribute {
 
-}
 /// @expect(true)
 final class ExpectAttribute : Attribute {
     bool value;
 
-    override string name() { return "@expect"; }
-    override ValidNode[] getValidNodes() { return [ValidNode.IF]; }
+    this() {
+        name = "@expect";
+        type = Type.EXPECT;
+    }
 }
 /// @inline(true)
 /// Applies to functions
 final class InlineAttribute : Attribute {
     bool value;
 
-    override string name() { return "@inline"; }
-    override ValidNode[] getValidNodes() { return [ValidNode.FUNCTION]; }
+    this() {
+        name = "@inline";
+        type = Type.INLINE;
+    }
 }
 /// @lazy
 /// Applies to function parameters
 final class LazyAttribute : Attribute {
-
+    this() {
+        name = "@lazy";
+        type = Type.LAZY;
+    }
 }
 /// @memoize
 /// Applies to functions
 final class MemoizeAttribute : Attribute {
-
+    this() {
+        name = "@memoize";
+        type = Type.MEMOIZE;
+    }
 }
 /// @module(priority=1)
 /// Applies to current module
 final class ModuleAttribute : Attribute {
     int priority;
-
-    override string name() { return "@module"; }
-    override ValidNode[] getValidNodes() { return [ValidNode.MODULE]; }
+    this() {
+        name = "@module";
+        type = Type.MODULE;
+    }
 }
 /// @notnull
 final class NotNullAttribute : Attribute {
-
+    this() {
+        name = "@notnull";
+        type = Type.NOTNULL;
+    }
 }
 /// @pack(true)
 /// Applies to structs
 final class PackAttribute : Attribute {
-    override string name() { return "@pack"; }
-    override ValidNode[] getValidNodes() { return [ValidNode.STRUCT]; }
+    this() {
+        name = "@pack";
+        type = Type.PACK;
+    }
+}
+final class PodAttribute : Attribute {
+    this() {
+        name = "@pod";
+        type = Type.POD;
+    }
 }
 /// @profile
 /// Applies to functions
 final class ProfileAttribute : Attribute {
-
+    this() {
+        name = "@profile";
+        type = Type.PROFILE;
+    }
+}
+/// @bounds(min=0, max=200)
+/// Applies to variables
+final class RangeAttribute : Attribute {
+    this() {
+        name = "@range";
+        type = Type.RANGE;
+    }
 }

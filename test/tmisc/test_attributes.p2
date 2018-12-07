@@ -67,6 +67,10 @@ struct G {  // size = 16, align 4
     A b     // offset 4, size 9, align 4
     byte c  // offset 13, size 1, align 1 
 }
+@pod
+struct H {
+    
+}
 
 @inline(false)
 testPack {
