@@ -16,7 +16,7 @@ public:
         if(!n.isResolved) {
 
             /// This should be imported implicitly
-            assert(findImportByCanonicalName("core::hooks", n));
+            assert(findImportByCanonicalName("core::assert", n));
 
             /// Wait until we know what the type is
             Type type = n.expr().getType();

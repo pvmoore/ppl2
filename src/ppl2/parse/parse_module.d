@@ -211,7 +211,7 @@ private:
         __gshared static string[] IMPORTS = [
             "core::core",
             "core::c",
-            "core::hooks",
+            "core::assert",
             "core::list",
             "core::string",
             "core::console",
