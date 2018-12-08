@@ -1,5 +1,5 @@
 
-import taccess::test_access2
+import access::access2
 
 public
 

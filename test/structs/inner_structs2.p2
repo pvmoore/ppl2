@@ -5,7 +5,7 @@ public
 
 testExternalInnerStructs {
     testAccess {
-        import tstructs::test_inner_structs
+        import structs::inner_structs
         // these are all public structs
         A a
         A::B ab
@@ -35,7 +35,7 @@ testExternalInnerStructs {
         //assert TA<int>::TE<int>.d == 52   // private 
     }
     testImportAlias {
-        import imp = tstructs::test_inner_structs
+        import imp = structs::inner_structs
 
         imp.A a
         imp.A::B ab

@@ -241,6 +241,6 @@ testInnerStructs {
     level2()
     level3()
     
-    import tstructs::test_inner_structs2
+    import structs::inner_structs2
     testExternalInnerStructs()
 }

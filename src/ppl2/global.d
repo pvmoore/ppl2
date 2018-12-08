@@ -127,12 +127,12 @@ shared static this() {
         "false", "float",
         "half",
         "if", "import", "int", "is",
-        "long", "loop",
+        "long", "loop", "lstring",
         "not", "null",
         "operator", "or",
         "private", "public",
         "readonly", "return",
-        "select", "short", "static", "struct",
+        "select", "short", "static", "string", "struct",
         "this", "true", "tuple",
         "var", "void"
     ]);

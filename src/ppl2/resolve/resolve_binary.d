@@ -37,7 +37,7 @@ public:
         /// Handle enums
         if(handleEnums(n, lt, rt)) return;
 
-        if(lt.isStruct) {
+        if(lt.isStruct && lt.isValue) {
             if(n.op.isOverloadable || n.op.isComparison) {
                 n.rewriteToOperatorOverloadCall();
                 resolver.setModified();

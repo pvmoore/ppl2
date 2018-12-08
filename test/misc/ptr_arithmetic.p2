@@ -2,12 +2,17 @@
 public
 
 testPtrArithmetic {
+    struct Alpha { int a; byte b }      // 8 bytes
+    @pack struct Beta { int a; byte b } // 5 bytes
+    
     byte* a   = 0 as byte*          ; assert a as long==0
     short* b  = 2 as short*         ; assert b as long==2
     int* c    = 4 as int*           ; assert c as long==4
     long* d   = 8 as long*          ; assert d as long==8
     float* e  = 4 as float*         ; assert e as long==4
     double* f = 8 as double*        ; assert f as long==8
+    Alpha* g  = 9 as Alpha*         ; assert g as long==9
+    Beta* h   = 10 as Beta*         ; assert h as long==10
     
     // +/-
     byte* a2 = a+1      ; assert a2 as long==1
@@ -29,6 +34,12 @@ testPtrArithmetic {
     
     var f2 = f+1        ; assert f2 as long==16
     var f3 = f2-1       ; assert f3 as long==8
+    
+    var g2 = g+1        ; assert g2 as long==17
+    var g3 = g2-1       ; assert g3 as long==9
+    
+    var h2 = h+1        ; assert h2 as long==15
+    var h3 = h2-1       ; assert h3 as long==10
     
     // += / -=
     byte* a4 = a // 0
@@ -54,6 +65,14 @@ testPtrArithmetic {
     double* f4 = f // 8
     f4 += 3             ; assert f4 as long==32
     f4 -= 1             ; assert f4 as long==24
+    
+    Alpha* g4 = g // 9
+    g4 += 3             ; assert g4 as long==24+9
+    g4 -= 1             ; assert g4 as long==16+9
+    
+    Beta* h4 = h  // 10
+    h4 += 3             ; assert h4 as long==15+10
+    h4 -= 1             ; assert h4 as long==10+10
     
     // odd address
     double* z = 1 as double*

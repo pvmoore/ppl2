@@ -117,7 +117,7 @@ public testEnum {
         assert Enum.A == 3
     }
     imported {
-        import timports::test_imports2
+        import imports::imports2
         Colour col = Colour.GREEN;     assert col == 1
     }
     initialisation()

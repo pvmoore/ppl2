@@ -2,6 +2,9 @@
 
 public
 
+//=================================================================================================
+// Standard or small string
+//=================================================================================================
 struct string { // 16 bytes
     byte* basePtr
     int offset
@@ -16,11 +19,19 @@ readonly
     
     ptr { return basePtr+offset }
 
-    empty {
-        return length==0
-    }
+    empty { return length==0 }
 
     operator[] { int index->
         return (basePtr+offset)[index]
     }
+}
+//=================================================================================================
+// Large string
+//=================================================================================================
+struct lstring { // 24 bytes
+    byte* basePtr
+    long offset
+readonly
+    long length
+    
 }

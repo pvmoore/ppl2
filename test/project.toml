@@ -14,26 +14,96 @@ optLevel = 3
 lib = "thing"
 
 [[openFile]]
-name = "tmisc/test_attributes.p2"
-line = 67
-active = 0
-
-[[openFile]]
 name = "core/string.p2"
-line = 11
-active = 1
-
-[[openFile]]
-name = "test.p2"
-line = 99
+line = 3
 active = 0
 
 [[openFile]]
-name = "test_constructors.p2"
+name = "structs/structs.p2"
+line = 74
+active = 0
+
+[[openFile]]
+name = "imports/imports3.p2"
 line = 0
 active = 0
 
 [[openFile]]
-name = "tstructs/test_structs.p2"
-line = 19
+name = "structs/inner_structs.p2"
+line = 243
+active = 0
+
+[[openFile]]
+name = "statics/statics2.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "core/c.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "test_enum.p2"
+line = 119
+active = 0
+
+[[openFile]]
+name = "access/access2.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "access/access.p2"
+line = 1
+active = 0
+
+[[openFile]]
+name = "tuples/literal_tuple.p2"
+line = 3
+active = 0
+
+[[openFile]]
+name = "core/assert.p2"
+line = 10
+active = 0
+
+[[openFile]]
+name = "imports/imports4.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "core/memory.p2"
+line = 28
+active = 0
+
+[[openFile]]
+name = "imports/imports2.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "statics/statics.p2"
+line = 1
+active = 0
+
+[[openFile]]
+name = "imports/imports.p2"
+line = 2
+active = 0
+
+[[openFile]]
+name = "test.p2"
+line = 270
+active = 1
+
+[[openFile]]
+name = "test_constructors.p2"
+line = 18
+active = 0
+
+[[openFile]]
+name = "structs/inner_structs2.p2"
+line = 37
 active = 0

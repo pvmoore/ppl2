@@ -1,6 +1,6 @@
 
-import timports::test_imports2
-import imp = timports::test_imports4
+import imports::imports2
+import imp = imports::imports4
 
 public
 

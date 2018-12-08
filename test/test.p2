@@ -9,7 +9,7 @@ main {
 
 var s = "hello"
 
-import timports::test_imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
+import imports::imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
 import test_literals       
 import test_arrays  
 import test_consts    
@@ -92,13 +92,13 @@ struct Array <A,B> {
 }
 
 main {
-    import tmisc::test_misc;            testMisc()
-    import tmisc::test_builtin_funcs;   testBuiltinFuncs() 
-    import tnodes::test_select;         testSelect()
-    import test_closures;               testClosures()
-    import test_enum;                   testEnum()
-    import tmisc::test_attributes;      testAttributes()
-    import tmisc::ptr_arithmetic;       testPtrArithmetic()
+    import misc::misc;              testMisc()
+    import misc::builtin_funcs;     testBuiltinFuncs() 
+    import nodes::select;           testSelect()
+    import test_closures;           testClosures()
+    import test_enum;               testEnum()
+    import misc::attributes;        testAttributes()
+    import misc::ptr_arithmetic;    testPtrArithmetic()
     
     import texpr = test_expressions
     texpr.testExpressions()
@@ -173,7 +173,7 @@ main {
         //float8 v8
     }
     testInnerImport {
-        import timports::test_imports3
+        import imports::imports3
 
         assert 77 == i3func()
         I3Object obj = I3Object()
@@ -187,7 +187,7 @@ main {
     test4()
     testInnerImport()
 
-    import taccess::test_access
+    import access::access
     testAccess()
 
     testModules()
@@ -201,7 +201,7 @@ main {
 bool yop
 
 testModules {
-    import tmisc::test_unreferenced_module
+    import misc::unreferenced_module
 
     testImports()
     
@@ -223,20 +223,20 @@ testModules {
     [int, Bat berty] bertyStruct
 }
 testStatements {
-    import l = tnodes::test_loop, 
+    import l = nodes::loop, 
            v = test_variables
 
     l.testLoop()
     v.testVariables()
 }
 testExpressions {
-    import tnodes::test_as, 
-           tnodes::test_if, 
-           test_literal_struct   
+    import nodes::as, 
+           nodes::if, 
+           tuples::literal_tuple   
     
     testAs()
     testIf()
-    testLiteralStruct()
+    testLiteralTuple()
 }
 testFunctions {
     import test_calls, test_inner_functions
@@ -245,9 +245,9 @@ testFunctions {
     testInnerFunctions()
 }
 testStructures {
-    import tstructs::test_structs, 
+    import structs::structs, 
            test_constructors, 
-           tstatics::test_statics, 
+           statics::statics, 
            test_operator_overloading
 
     testStructs()
@@ -256,19 +256,19 @@ testStructures {
     testOperatorOverloading()
 }
 testTemplates {
-    import ttemplates::test_template_functions, 
-           ttemplates::test_template_structs,
-           ttemplates::test_implicit_template_funcs
+    import templates::template_functions, 
+           templates::template_structs,
+           templates::implicit_template_funcs
            
     testTemplateStructs()
     testTemplateFunctions()
     testImplicitTemplateFunctions()
 }
 testCore {
-    import tcore::test_console, 
-           tcore::test_list, 
-           tcore::test_string, 
-           tcore::test_unsigned
+    import core_::console, 
+           core_::list, 
+           core_::string, 
+           core_::unsigned
 
     testConsole()   
     testList()   
