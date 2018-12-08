@@ -10,7 +10,7 @@ main {
 var s = "hello"
 
 import imports::imports             // Bat, Cat, Dog, IntPtrPtr, Wolf, importedFunc()
-import test_literals       
+import nodes::literals       
 import test_arrays  
 import test_consts    
 
@@ -95,7 +95,7 @@ main {
     import misc::misc;              testMisc()
     import misc::builtin_funcs;     testBuiltinFuncs() 
     import nodes::select;           testSelect()
-    import test_closures;           testClosures()
+    import functions::closures;     testClosures()
     import test_enum;               testEnum()
     import misc::attributes;        testAttributes()
     import misc::ptr_arithmetic;    testPtrArithmetic()
@@ -224,7 +224,7 @@ testModules {
 }
 testStatements {
     import l = nodes::loop, 
-           v = test_variables
+           v = nodes::variable
 
     l.testLoop()
     v.testVariables()
@@ -239,16 +239,16 @@ testExpressions {
     testLiteralTuple()
 }
 testFunctions {
-    import test_calls, test_inner_functions
+    import functions::calls, functions::inner_functions
 
     testCalls()
     testInnerFunctions()
 }
 testStructures {
     import structs::structs, 
-           test_constructors, 
-           statics::statics, 
-           test_operator_overloading
+           structs::constructors, 
+           structs::statics, 
+           structs::operator_overloading
 
     testStructs()
     testConstructors()
