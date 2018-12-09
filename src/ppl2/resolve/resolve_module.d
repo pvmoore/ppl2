@@ -11,6 +11,7 @@ private:
     BinaryResolver binaryResolver;
     BuiltinFuncResolver builtinFuncResolver;
     CallResolver callResolver;
+    ConstructorResolver constructorResolver;
     EnumResolver enumResolver;
     IfResolver ifResolver;
     IsResolver isResolver;
@@ -42,6 +43,7 @@ public:
         this.binaryResolver      = new BinaryResolver(this, module_);
         this.builtinFuncResolver = new BuiltinFuncResolver(this, module_);
         this.callResolver        = new CallResolver(this, module_);
+        this.constructorResolver = new ConstructorResolver(this, module_);
         this.identifierResolver  = new IdentifierResolver(this, module_);
         this.enumResolver        = new EnumResolver(this, module_);
         this.indexResolver       = new IndexResolver(this, module_);
@@ -236,7 +238,7 @@ public:
         }
     }
     void visit(Constructor n) {
-        resolveAlias(n, n.type);
+        constructorResolver.resolve(n);
     }
     void visit(Dot n) {
         auto lt      = n.leftType();

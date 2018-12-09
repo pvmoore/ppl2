@@ -313,9 +313,6 @@ public:
     void visit(ModuleAlias n) {
 
     }
-    void visit(Struct n) {
-
-    }
     void visit(Parameters n) {
         auto litFunc   = n.getLiteralFunction();
         auto llvmValue = litFunc.getLLVMValue();
@@ -349,6 +346,9 @@ public:
     }
     void visit(Select n) {
         selectGen.generate(n);
+    }
+    void visit(Struct n) {
+
     }
     void visit(Tuple n) {
 
@@ -388,10 +388,7 @@ public:
 
             lhs = builder.alloca(n.type.getLLVMType(), n.name);
 
-            // todo - can we remove this?
             n.llvmValue = lhs;
-
-            //setAlignment(lhs, 4);
 
             if(n.hasInitialiser) {
                 n.initialiser.visit!ModuleGenerator(this);

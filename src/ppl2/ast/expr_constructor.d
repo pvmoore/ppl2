@@ -1,23 +1,26 @@
 module ppl2.ast.expr_constructor;
 
 import ppl2.internal;
-///
+
 /// S(...)
-///    Variable _temp
-///    ValueOf
-///       Dot
-///          _temp
-///          Call new
-///             this*
-///
+///    Variable _temp (type=S)
+///    Dot
+///       _temp
+///       Call new
+///          addressof(_temp)
+///    _temp
+
 /// S*(...)
-///       Dot
-///          TypeExpr (S*)
-///          Call new
-///             calloc
+///    Variable _temp (type=S*)
+///    _temp = calloc
+///    Dot
+///       _temp
+///       Call new
+///          _temp
+///    _temp
 ///
 final class Constructor : Expression {
-    Type type;      /// Alias (later resolved to Struct)
+    Type type;               /// Struct (or Alias resolved to Struct)
 
     override bool isResolved() { return type.isKnown; }
     override bool isConst() { return false; }
@@ -28,16 +31,7 @@ final class Constructor : Expression {
     string getName() {
         return type.isStruct ? type.getStruct.name : type.getAlias.name;
     }
-    bool isPtr()     { return type.isPtr; }
-
-    Expression expr() {
-        if(type.isPtr) {
-            return children[0].as!Expression;
-        }
-        return children[1].as!Expression;
-    }
-
     override string toString() {
-        return "Constructor %s%s".format(getName(), isPtr ? "*":"");
+        return "Constructor %s%s".format(getName(), type.isPtr ? "*":"");
     }
 }

@@ -127,6 +127,7 @@ import ppl2.resolve.resolve_assert;
 import ppl2.resolve.resolve_binary;
 import ppl2.resolve.resolve_builtinfunc;
 import ppl2.resolve.resolve_call;
+import ppl2.resolve.resolve_constructor;
 import ppl2.resolve.resolve_enum;
 import ppl2.resolve.resolve_identifier;
 import ppl2.resolve.resolve_index;

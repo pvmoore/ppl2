@@ -15,5 +15,10 @@ lib = "thing"
 
 [[openFile]]
 name = "test.p2"
-line = 15
+line = 27
+active = 0
+
+[[openFile]]
+name = "misc/attributes.p2"
+line = 112
 active = 1

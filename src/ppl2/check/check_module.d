@@ -464,6 +464,14 @@ public:
                 }
             }
         }
+        if(n.isStructMember) {
+            ///
+            auto s = n.getStruct;
+            if(s.isPOD && !n.access.isPublic) {
+                module_.addError(n, "POD struct member variables must be public
+                ", true);
+            }
+        }
         if(n.isStatic) {
             if(!n.parent.id==NodeID.STRUCT) {
                 module_.addError(n, "Static variables are only allowed in a struct", true);

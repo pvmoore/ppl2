@@ -53,8 +53,8 @@ public:
         _access.push(a);
     }
     /// Start of Module level Struct
-    void startAccessScope() {
-        _access.push(Access.PRIVATE);
+    void startAccessScope(bool priv) {
+        _access.push(priv ? Access.PRIVATE : Access.PUBLIC);
         assert(_access.length==2);
     }
     /// End of Module level Struct

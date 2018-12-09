@@ -209,7 +209,9 @@ private: //=====================================================================
         }
     }
     void checkAccessScope(Tokens t, ASTNode parent) {
-        if(parent.id==NodeID.STRUCT) return;
+        if(parent.id==NodeID.STRUCT) {
+            return;
+        }
         if(parent.id==NodeID.MODULE) {
             if(t.value=="readonly") {
                 module_.addError(t, "readonly access is only allowed inside a struct", true);

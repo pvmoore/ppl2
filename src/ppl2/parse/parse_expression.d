@@ -716,19 +716,23 @@ private:
     /// cexpr :: expression | paramname ":" expression
     ///
     void parseConstructor(Tokens t, ASTNode parent) {
+        import common : contains;
         /// S(...)
-        ///    Variable _temp
-        ///    ValueOf
-        ///       Dot
-        ///          _temp
-        ///          Call new
-        ///             this*
-        ///
+        ///    Variable _temp (type=S)
+        ///    Dot
+        ///       _temp
+        ///       Call new
+        ///          addressof(_temp)
+        ///    _temp
+
         /// S*(...)
-        ///       Dot
-        ///          TypeExpr (S*)
-        ///          Call new
-        ///             malloc
+        ///    Variable _temp (type=S*)
+        ///    _temp = calloc
+        ///    Dot
+        ///       _temp
+        ///       Call new
+        ///          _temp
+        ///    _temp
         ///
         auto con = makeNode!Constructor(t);
         parent.add(con);
@@ -745,41 +749,46 @@ private:
             errorBadSyntax(module_, t, "Expecting a struct name here");
         }
 
+        Variable makeVariable() {
+            auto prefix = con.getName();
+            if(prefix.contains("__")) prefix = "constructor";
+            return b.variable(module_.makeTemporary(prefix), con.type, false);
+        }
+
         /// Prepare the call to new(this, ...)
         auto call       = b.call("new", null);
         Expression expr = call;
+        Variable var    = makeVariable();
 
-        Expression thisPtr;
+        /// variable _temp
+        con.add(var);
+
         /// allocate memory
         if(con.type.isPtr) {
             /// Heap calloc
+
+            /// _temp = calloc
             auto calloc  = makeNode!Calloc(t);
             calloc.valueType = con.type.getValueType;
+            con.add(b.assign(b.identifier(var.name), calloc));
 
-            thisPtr = calloc;
-
-            expr = b.dot(b.typeExpr(con.type), call);
+            call.add(b.identifier(var.name));
         } else {
             /// Stack alloca
-            import common : contains;
-            auto prefix = con.getName();
-            if(prefix.contains("__")) prefix = "constructor";
-            auto var  = b.variable(module_.makeTemporary(prefix), con.type, false);
-            con.add(var);
-
-            thisPtr = b.addressOf(b.identifier(var.name));
-
-            auto dot = b.dot(b.identifier(var), call);
-            expr = b.valueOf(dot);
+            call.add(b.addressOf(b.identifier(var.name)));
         }
-        call.add(thisPtr);
+        /// Dot
+        ///    _temp
+        ///    Call new
+        ///       _temp
+        auto dot = b.dot(b.identifier(var), call);
+        con.add(dot);
 
-        con.add(expr);
+        /// _temp
+        con.add(b.identifier(var));
 
         /// (
         t.skip(TT.LBRACKET);
-
-        import common : contains;
 
         /// Add args to a Composite to act as a ceiling so that
         /// the operator precedence never moves them above the call

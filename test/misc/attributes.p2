@@ -16,6 +16,7 @@ testAttributes {
     }
         
     testPack()
+    testPOD()
 }
 
 private
@@ -67,10 +68,6 @@ struct G {  // size = 16, align 4
     A b     // offset 4, size 9, align 4
     byte c  // offset 13, size 1, align 1 
 }
-@pod
-struct H {
-    
-}
 
 @inline(false)
 testPack {
@@ -108,4 +105,62 @@ testPack {
     assert #alignof(E) == 1
     assert #alignof(F) == 8
     assert #alignof(G) == 4
+}
+@pod struct H {
+    // default visibility of a POD is public
+    int a = 100
+    int b = 101   
+    int c = 102
+}
+testPOD {
+    var h0 = H(1,2,3)
+    assert h0.a == 1
+    assert h0.b == 2
+    assert h0.c == 3
+    
+    var h1 = H*(1,2,3)
+    assert h1.a == 1
+    assert h1.b == 2
+    assert h1.c == 3
+
+    var h2 = H(a:1, b:2, c:3)
+    assert h2.a == 1
+    assert h2.b == 2
+    assert h2.c == 3
+    
+    // mix up the names
+    var h3 = H(c:1, b:3, a:7)
+    assert h3.a == 7
+    assert h3.b == 3
+    assert h3.c == 1
+    
+    // partial initialisation
+    var h4 = H(1,2)
+    assert h4.a == 1
+    assert h4.b == 2
+    assert h4.c == 102
+    
+    var h5 = H(1)
+    assert h5.a == 1
+    assert h5.b == 101
+    assert h5.c == 102
+    
+    var h6 = H()
+    assert h6.a == 100
+    assert h6.b == 101
+    assert h6.c == 102
+    
+    var h7 = H*()
+    assert h7.a == 100
+    assert h7.b == 101
+    assert h7.c == 102
+    
+    var h8 = H(c:50)
+    assert h8.a == 100
+    assert h8.b == 101
+    assert h8.c == 50
+    
+    //var h = H(1,2,3,4) // too many initialisers
+    //var h = H(a:1, b:2, c:3, d:4) // d not found
+    //var h = H(a:1, b:2, c:3, c:4) // dupliate name
 }

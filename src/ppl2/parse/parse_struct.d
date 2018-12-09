@@ -73,7 +73,7 @@ public:
         bool isModuleScope = parent.isModule ||
                             (parent.isComposite && parent.as!Composite.parent.isModule);
         if(isModuleScope) {
-            t.startAccessScope();
+            t.startAccessScope(!n.isPOD);
         }
 
         if(t.type==TT.LANGLE) {
@@ -116,6 +116,7 @@ public:
 
             /// Do some house-keeping
             addDefaultConstructor(t, n);
+            checkPOD(t, n);
             addImplicitReturnThisToNonDefaultConstructors(n);
             addCallToDefaultConstructor(n);
             moveInitCodeInsideDefaultConstructor(n);
@@ -125,6 +126,7 @@ public:
             t.endAccessScope();
         }
     }
+private:
     void parseBody(Tokens t, Struct ns) {
         /// {
         t.skip(TT.LCURLY);
@@ -159,6 +161,15 @@ public:
             bdy.add(params);
             bdy.type = type;
             defCons.add(bdy);
+        }
+    }
+    void checkPOD(Tokens t, Struct s) {
+        if(!s.isPOD) return;
+
+        foreach(i, c; s.getConstructors()) {
+            if(c.params().numParams > 1) {
+                module_.addError(c, "POD structs can only have a default constructor", true);
+            }
         }
     }
     /// Add implicit return 'this' at the end of all constructors

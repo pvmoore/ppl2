@@ -26,6 +26,15 @@ final class NodeBuilder {
         a.add(typeExpr(type));
         return a;
     }
+    Binary assign(Expression left, Expression right, Type type=TYPE_UNKNOWN) {
+        auto b = makeNode!Binary(node);
+        b.type = type;
+        b.op   = Operator.ASSIGN;
+
+        b.add(left);
+        b.add(right);
+        return b;
+    }
     Binary binary(Operator op, Expression left, Expression right, Type type=TYPE_UNKNOWN) {
         auto b = makeNode!Binary(node);
         b.type = type;
