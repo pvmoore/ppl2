@@ -2,6 +2,8 @@ module ppl2.resolve.resolve_identifier;
 
 import ppl2.internal;
 
+const string VERBOSE = null; //"core::list";
+
 ///
 /// Resolve an identifier.
 /// All identifiers must be found within the same module.
@@ -34,6 +36,9 @@ public:
             this.func   = f;
             this.isFunc = true;
         }
+        int line() {
+            return isVar ? var.line : isFunc ? func.line : -1;
+        }
 
         bool found() { return isVar || isFunc; }
     }
@@ -41,14 +46,19 @@ public:
     Result find(string name, ASTNode node) {
         Result res;
 
+        chat("  %s %s", name, node.id);
+
         /// Check previous siblings at current level
         foreach(n; node.prevSiblings()) {
             isThisIt(name, n, res);
             if(res.found) return res;
         }
 
+        auto p = node.parent;
+        if(p.isComposite) p = p.previous();
+
         /// Recurse up the tree
-        findRecurse(name, node.parent, res);
+        findRecurse(name, p, res);
 
         return res;
     }
@@ -368,8 +378,10 @@ private:
         }
     }
     void chat(A...)(lazy string fmt, lazy A args) {
-        //if(module_.canonicalName=="test_variables") {
-        //    dd(format(fmt, args));
-        //}
+        static if(VERBOSE) {
+            if(module_.canonicalName==VERBOSE) {
+                dd(format(fmt, args));
+            }
+        }
     }
 }

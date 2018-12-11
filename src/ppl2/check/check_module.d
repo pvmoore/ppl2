@@ -10,11 +10,13 @@ private:
     StopWatch watch;
     Set!string stringSet;
     IdentifierResolver identifierResolver;
+    EscapeAnalysis escapeAnalysis;
 public:
     this(Module module_) {
         this.module_            = module_;
         this.stringSet          = new Set!string;
         this.identifierResolver = new IdentifierResolver(module_);
+        this.escapeAnalysis     = new EscapeAnalysis(module_);
     }
     void clearState() {
         watch.reset();
@@ -294,6 +296,33 @@ public:
     void visit(LiteralFunction n) {
         assert(n.first().isA!Parameters);
 
+        /// Check for duplicate Variable names
+        Variable[string] map;
+
+        n.recurse!Variable((v) {
+            if(v.name) {
+                auto ptr = v.name in map;
+                if(ptr) {
+                    auto v2 = *ptr;
+
+                    bool sameScope = v.parent is v2.parent;
+
+                    if(sameScope) {
+                        module_.addError(v, "Variable '%s' is declared more than once in this scope (Previous declaration is on line %s)"
+                            .format(v.name, v2.line+1), true);
+                    } else if(v.isLocalAlloc) {
+                        /// Check for shadowing
+                        auto res = identifierResolver.find(v.name, v.previous());
+                        if(res.found) {
+                            module_.addError(v, "Variable '%s' is shadowing another variable declared on line %s".format(v.name, res.line+1), true);
+                        }
+                    }
+                }
+                map[v.name] = v;
+            }
+        });
+
+        escapeAnalysis.analyse(n);
     }
     void visit(LiteralMap n) {
 
@@ -405,11 +434,18 @@ public:
         }
     }
     void visit(Struct n) {
-        /// All variables must have a name
+
         stringSet.clear();
         foreach(v; n.getMemberVariables()) {
+            /// Variables must have a name
             if(v.name.length==0) {
                 module_.addError(v, "Struct variable must have a name", true);
+            } else {
+                /// Names must be unique
+                if(stringSet.contains(v.name)) {
+                    module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name), true);
+                }
+                stringSet.add(v.name);
             }
         }
     }
@@ -442,7 +478,16 @@ public:
         }
     }
     void visit(Tuple n) {
-
+        stringSet.clear();
+        foreach(v; n.getMemberVariables()) {
+            /// Names must be unique
+            if(v.name) {
+                if(stringSet.contains(v.name)) {
+                    module_.addError(v, "Tuple has duplicate member %s".format(v.name), true);
+                }
+                stringSet.add(v.name);
+            }
+        }
     }
     void visit(TypeExpr n) {
 
@@ -465,11 +510,11 @@ public:
             }
         }
         if(n.isStructMember) {
-            ///
+
             auto s = n.getStruct;
+
             if(s.isPOD && !n.access.isPublic) {
-                module_.addError(n, "POD struct member variables must be public
-                ", true);
+                module_.addError(n, "POD struct member variables must be public", true);
             }
         }
         if(n.isStatic) {
@@ -478,37 +523,11 @@ public:
             }
         }
         if(n.type.isStruct) {
-            /// Check that member names are unique
-            stringSet.clear();
 
-            auto struct_ = n.type.getStruct;
-            auto vars    = struct_.getMemberVariables();
-
-            foreach(v; vars) {
-                if(v.name) {
-                    if(stringSet.contains(v.name)) {
-                        module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name), true);
-                    }
-                    stringSet.add(v.name);
-                }
-            }
         }
 
         if(n.type.isTuple) {
-            /// Check that member names are unique
-            stringSet.clear();
-
             auto tuple = n.type.getTuple();
-            auto vars  = tuple.getMemberVariables();
-
-            foreach(v; vars) {
-                if(v.name) {
-                    if(stringSet.contains(v.name)) {
-                        module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name), true);
-                    }
-                    stringSet.add(v.name);
-                }
-            }
 
             /// Tuples must only contain variable declarations
             foreach(v; tuple.children) {
@@ -525,23 +544,8 @@ public:
         if(n.isParameter) {
 
         }
-        if(n.isLocal && !n.isParameter) {
-            /// Check for duplicate variable names
-            stringSet.clear();
+        if(n.isLocalAlloc) {
 
-            auto res = identifierResolver.find(n.name, n);
-            if(res.found) {
-                if(res.isVar) {
-                    auto var = res.var;
-                    bool sameScope = var.parent==n.parent;
-                    if(sameScope) {
-                        module_.addError(n, "Variable %s declared more than once in this scope".format(n.name), true);
-                    }
-                    module_.addError(n, "Variable %s is shadowing another variable declared on line %s".format(n.name, var.line+1), true);
-                } else {
-                    /// check function?
-                }
-            }
         }
     }
     //==========================================================================

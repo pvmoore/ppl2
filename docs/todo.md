@@ -30,15 +30,13 @@
   
 - Ensure we remove static functions if they are not referenced. Aggressively remove functions etc if they are not referenced.  
 
-- Attributes eg (* inline). (* expect true) (* notnull) (* memoize)
-  or [[attribute]] [[expect 10]] [[min 0]] [[max 200]] [[profile]]
-
 - #if #else #endif compile-time operations. 
   Needs to be able to parse compile-time boolean expressions
   
 - Investigate co-routines (LLVM)
 
 - #is_visible(identifier)
+  #is_public(identifier)
   Return true if identifier is visible from current position
   This can be used for testing
   
@@ -94,7 +92,6 @@ func<int>(10,20) // 1 explicit param, 1 missing
 ## Think about
 - Do we need to worry about alignment?
 - How to do closures with captures
-- Should we allow ptr arithmentic?
 
 - Allow type inference here:
 ```

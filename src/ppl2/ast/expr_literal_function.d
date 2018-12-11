@@ -34,6 +34,10 @@ final class LiteralFunction : Expression, Container {
 
     bool isTemplate() { return false; }
 
+    Closure getClosure() {
+        assert(isClosure);
+        return parent.as!Closure;
+    }
     Function getFunction() {
         assert(parent.isA!Function);
         return parent.as!Function;

@@ -26,5 +26,21 @@ module ppl2.known_bugs;
         A a
     }
 
+    5) Missing return at end of function
+    func {
+        if(var a=0; true) return a
+
+        // should be a return here
+    }
+
+    6) Should be able to determine type of null
+    func {
+        if(int a=0; true) return &a
+        return null // <--- int*
+    }
+
+-   Determine type of null
+
+    call(null)
 
  */

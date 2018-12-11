@@ -1,38 +1,77 @@
 // This module should be first
 @module(priority=-1_000_000)
 
-//extern tgc_start { tgc_t* gc, void* stk -> void }
-//extern tgc_run { tgc_t* gc -> void }
-//extern tgc_pause { tgc_t* gc -> void }
-//extern tgc_resume { tgc_t* gc -> void }
+alias Destructor = {void*->void}
 
-//extern tgc_alloc { gc_t* gc, long size -> void* }
-//extern tgc_calloc { gc_t* gc, long num, long size -> void* }
-//extern tgc_realloc { gc_t* gc, void* ptr, long size -> void* }
-//extern tgc_free { gc_t* gc, void* ptr -> void }
-//extern tgc_set_flags { tgc_t* gc, void* ptr, int flags -> void}
-//extern tgc_get_size { tgc_t* gc, void* ptr -> long }
+struct tgc_ptr_t {
+    void* ptr
+    int flags
+    long size
+    long hash
+    Destructor dtor
+} 
+struct tgc_t {
+    void* bottom
+    int paused
+    long* minptr
+    long* maxptr
+    tgc_ptr_t* items
+    tgc_ptr_t* frees
+    double loadfactor
+    double sweepfactor
+    long nitems long nslots long mitems long nfrees
+}
 
-// todo - passing and retrieving c-style function ptrs
+extern tgc_start  { tgc_t* gc, void* stk -> void }
+extern tgc_stop   { tgc_t* gc -> void }
+extern tgc_pause  { tgc_t* gc -> void }
+extern tgc_resume { tgc_t* gc -> void }
+extern tgc_run    { tgc_t* gc -> void }
+
+extern tgc_alloc      { tgc_t* gc, long size -> void* }
+extern tgc_calloc     { tgc_t* gc, long num, long size -> void* }
+extern tgc_realloc    { tgc_t* gc, void* ptr, long size -> void* }
+extern tgc_alloc_opt  { tgc_t* gc, long size, int flags, Destructor dtor -> void* }
+extern tgc_calloc_opt { tgc_t* gc, long num, long size, int flags, Destructor dtor -> void* }
+extern tgc_free       { tgc_t* gc, void* ptr -> void }
+
+extern tgc_set_flags { tgc_t* gc, void* ptr, int flags -> void}
+extern tgc_get_flags { tgc_t* gc, void *ptr -> int }
+
+extern tgc_get_size { tgc_t* gc, void* ptr -> long }
+
+extern tgc_set_dtor { tgc_t* gc, void* ptr, Destructor dtor -> void}
+extern tgc_get_dtor { tgc_t* gc, void* ptr -> Destructor }
 
 public
 
-gcStart {
+struct GC {
+    static tgc_t gc
+public
+    static start {
 
-}
-gcStop {
+    }
+    static stop {
     
-}
-gcAlloc { long size ->
+    }
+    static collect {
     
-}
-gcCalloc { long elementSize, long count ->
+    }
+    static alloc { long size ->
     
-}
-gcRealloc { void* ptr, long size ->
+    }
+    static calloc { long elementSize, long count ->
     
-}
-gcFree { void* ptr ->
+    }
+    static realloc { void* ptr, long size ->
     
+    }
+    static free { void* ptr ->
+    
+    } 
+}
+
+new {
+
 }
 

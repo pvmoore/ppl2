@@ -192,6 +192,8 @@ private:
 
             varParser().parseTupleMember(t, s);
 
+            t.expect(TT.COMMA, TT.RSQBRACKET);
+
             if(t.type==TT.COMMA) t.next;
         }
         /// ]

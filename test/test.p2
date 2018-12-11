@@ -99,6 +99,7 @@ main {
     import test_enum;               testEnum()
     import misc::attributes;        testAttributes()
     import misc::ptr_arithmetic;    testPtrArithmetic()
+    import misc::escape_analysis;   testEscapees()
     
     import texpr = test_expressions
     texpr.testExpressions()

@@ -1,0 +1,30 @@
+
+public
+
+testEscapees {
+    //func1()
+    //func2()
+    //func3()
+    func4()
+}
+func1 {
+    int a
+    return &a   // bad
+}
+func2 {
+    int a
+    int* b = &a
+    var c = b
+    if(false) return c  // bad
+    c = null
+    return c    // ok
+}
+func3 {
+    if(int a=0; true) return &a // bad
+    return null as int* // ok
+}
+func4 {
+    int* a 
+    return a    // ok
+}
+

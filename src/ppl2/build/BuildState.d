@@ -379,7 +379,6 @@ protected:
     }
     bool generateIR() {
         log("Generating IR");
-        dd("gen IR");
         bool allOk = true;
         foreach(m; allModules) {
             allOk &= m.gen.generate();
@@ -388,7 +387,6 @@ protected:
                 unoptimisedIr[m.canonicalName] = m.llvmValue.dumpToString();
             }
         }
-        dd("IR ok:", allOk);
         return allOk;
     }
     void convertUnresolvedNodesIntoErrors() {

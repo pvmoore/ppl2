@@ -25,16 +25,8 @@ final class Variable : Statement {
     override NodeID id() const { return NodeID.VARIABLE; }
     override Type getType()    { return type; }
 
-    bool isLocal() {
-        //return !isStatic &&
-        //       parent.id != NodeID.STRUCT &&
-        //       parent.id != NodeID.TUPLE &&
-        //       //parent.id != NodeID.PARAMETERS &&
-        //       parent.id != NodeID.FUNC_TYPE &&
-        //       parent.id != NodeID.MODULE;
-
-        return parent.isLiteralFunction || parent.isIf || parent.isLoop || parent.isSelect;
-        //return getContainer().id()==NodeID.LITERAL_FUNCTION;
+    bool isLocalAlloc() {
+        return !isParameter && getContainer().id()==NodeID.LITERAL_FUNCTION;
     }
     bool isStructMember() {
         return !isStatic && parent.id==NodeID.STRUCT;
@@ -97,7 +89,7 @@ final class Variable : Statement {
         mod ~= isConst ? "const ":"";
 
         string loc = isParameter ? "PARAM" :
-                     isLocal ? "LOCAL" :
+                     isLocalAlloc ? "LOCAL" :
                      isGlobal ? "GLOBAL" : "STRUCT";
 
         if(name) {

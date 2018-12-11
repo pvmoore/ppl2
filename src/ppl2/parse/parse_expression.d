@@ -2,7 +2,7 @@ module ppl2.parse.parse_expression;
 
 import ppl2.internal;
 
-private const string VERBOSE_MODULE = null;//"timports::test_imports";
+private const string VERBOSE_MODULE = null; //"test";
 
 final class ExpressionParser {
 private:

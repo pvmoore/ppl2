@@ -2,7 +2,7 @@ module ppl2.parse.parse_statement;
 
 import ppl2.internal;
 
-private const string VERBOSE_MODULE = null; //"tstructs::test_inner_structs2";
+private const string VERBOSE_MODULE = null; //"test";
 
 final class StatementParser {
 private:

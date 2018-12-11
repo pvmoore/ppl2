@@ -147,6 +147,12 @@ public:
                 case IS:
                     type = parent.as!Is.oppositeSideType(n);
                     break;
+                case RETURN:
+                    auto lf = parent.as!Return.getLiteralFunction();
+                    if(lf.isResolved) {
+                        type = lf.getType.getFunctionType.returnType();
+                    }
+                    break;
                 case VARIABLE:
                     type = parent.as!Variable.type;
                     break;

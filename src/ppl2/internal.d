@@ -82,6 +82,7 @@ import ppl2.build.BuildState;
 import ppl2.build.ReferenceInformation;
 
 import ppl2.check.check_module;
+import ppl2.check.EscapeAnalysis;
 
 import ppl2.error.CompilationAborted;
 import ppl2.error.CompileError;

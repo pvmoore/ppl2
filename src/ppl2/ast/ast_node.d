@@ -292,6 +292,13 @@ public:
         }
         return (p !is null);
     }
+    bool isDescendentOf(ASTNode n) {
+        auto p = this.parent;
+        while(p && (p !is n)) {
+            p = p.parent;
+        }
+        return p !is null;
+    }
     bool hasDescendent(T)() {
         auto d = cast(T)this;
         if(d) return true;
