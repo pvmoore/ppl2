@@ -12,6 +12,10 @@ public:
         int line;
         bool active;
     }
+    struct Lib {
+        string name;
+        string directory;
+    }
     string name;
     string mainFile;
     string directory;
@@ -26,7 +30,7 @@ public:
     int[] currentLines;
     int[] currentColumns;
 
-    string[string] libs; /// key = lib name, value = directory
+    Lib[string] libs;   /// key = lib name
 
     this() {
         name      = "Test";
@@ -58,9 +62,12 @@ public:
     string getAbsPath(string relPath) {
         assert(!isAbsolute(relPath));
 
-        if(relPath.startsWith("core")) {
-            return libs["core"] ~ relPath;
+        foreach(k, lib; libs) {
+            if(relPath.startsWith(k)) {
+                return lib.directory ~ relPath;
+            }
         }
+
         return directory ~ relPath;
     }
     OpenFile* getOpenFile(string filename) {
@@ -105,7 +112,8 @@ public:
 
         /// [[dependency]]
         file.writefln("\n[[dependency]]");
-        file.writefln("lib = \"%s\"", "thing");
+        file.writefln("name = \"%s\"", "blah");
+        file.writefln("directory = \"%s\"", "./libs");
 
         /// [[openFile]]
         foreach(o; openFiles.values) {
@@ -119,7 +127,9 @@ private:
     void initialise() {
         assert(exists(directory));
 
-        libs["core"] = "./libs";
+        /// Add core and std libs
+        libs["core"] = Lib("core", "./libs");
+        libs["std"]  = Lib("std",  "./libs");
 
         foreach(ref d; excludeDirectories) {
             d = normaliseDir(d);
@@ -129,7 +139,7 @@ private:
             f = normaliseFile(f);
         }
         foreach(k,v; libs) {
-            libs[k] = normaliseDir(v, true);
+            libs[k].directory = normaliseDir(v.directory, true);
         }
 
         /// Remove any open files that don't exist
@@ -172,7 +182,7 @@ private:
                                                .array.map!(it=>it.str).array;
         }
         if("openFile" in doc) {
-            foreach (map; doc["openFile"].array) {
+            foreach(map; doc["openFile"].array) {
                 auto t = map.table;
                 this.openFiles[t["name"].str] = OpenFile(
                     t["name"].str,
@@ -182,8 +192,12 @@ private:
             }
         }
         if("dependency" in doc) {
-            foreach (k,v; doc["dependency"].array) {
-
+            foreach(map; doc["dependency"].array) {
+                auto t = map.table;
+                libs[t["name"].str] = Lib(
+                    t["name"].str,
+                    t["directory"].str
+                );
             }
         }
     }

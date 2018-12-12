@@ -56,8 +56,14 @@ public:
                 nodes[name] = items.newChild(name, name.toUTF32);
             }
         }
+
+        auto processedDirectories = new Set!string;
+
         void processDirectory(string directory) {
+            if(processedDirectories.contains(directory)) return;
+            processedDirectories.add(directory);
             //writefln("processDir %s", directory);
+
             lp:foreach (DirEntry e; dirEntries(directory, SpanMode.breadth)) {
                 string rel = asRelativePath(e.name, directory).array.replace("\\", "/");
                 if(e.isDir) rel ~= "/";
@@ -77,8 +83,9 @@ public:
             }
         }
         processDirectory(project.directory);
+
         foreach(lib; project.libs.values) {
-            processDirectory(lib);
+            processDirectory(lib.directory);
         }
 
         foreach(n; nodes.values) {

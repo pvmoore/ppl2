@@ -5,7 +5,10 @@ testEscapees {
     //func1()
     //func2()
     //func3()
-    func4()
+    //func4()
+    //func5()
+    //func6()
+    //func7()
 }
 func1 {
     int a
@@ -27,4 +30,38 @@ func4 {
     int* a 
     return a    // ok
 }
+func5 {
+    [int a, int b] t
+    int* ptr = &t.a
+    if(false) return ptr    // bad
+    ptr = &t as int*
+    return ptr // bad
+}
+func6 {
+    struct A { int a, int b }
+    one {
+        A a
+        return &a.b // bad
+    }
+    two {
+        A a
+        int* ptr = &a.a
+        return ptr  // bad
+    }
+    one()
+    two()
+}
+func7 {
+    one {
+        int[3] array
+        return &array // bad
+    }
+    two {
+        int[3] array
+        return &array[0] // bad
+    }
+    one()
+    two()
+}
+
 

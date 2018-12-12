@@ -212,10 +212,11 @@ private:
             "core::core",
             "core::c",
             "core::assert",
-            "core::list",
             "core::string",
-            "core::console",
             "core::unsigned",
+
+            "std::console",
+            "std::list",
         ];
 
         foreach(s; IMPORTS) {

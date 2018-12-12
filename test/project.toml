@@ -11,7 +11,8 @@ optLevel = 3
 [[debug]]
 
 [[dependency]]
-lib = "thing"
+name = "blah"
+directory = "./libs"
 
 [[openFile]]
 name = "test.p2"
@@ -19,6 +20,16 @@ line = 27
 active = 0
 
 [[openFile]]
-name = "misc/escape_analysis.p2"
-line = 16
+name = "std/console.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "core/assert.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "std/list.p2"
+line = 0
 active = 1
