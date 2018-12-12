@@ -61,13 +61,26 @@ private:
         switch(e.id) with(NodeID) {
             case ADDRESS_OF:
                 return findVariable(e.as!AddressOf.expr());
+            case AS:
+                return findVariable(e.as!As.left());
+            case DOT:
+                auto dot = e.as!Dot;
+                return findVariable(dot.right());
             case IDENTIFIER:
                 auto target = e.as!Identifier.target;
                 if(target.isVariable) return target.getVariable;
                 break;
-            default:
-                //assert(false, "implement %s".format(e.id));
+            case INDEX:
+                auto idx = e.as!Index;
+                return findVariable(idx.expr());
+            case LITERAL_NULL:
+            case LITERAL_NUMBER:
+            case BINARY:
+            case CLOSURE:
                 break;
+            default:
+                assert(false, "implement %s".format(e.id));
+                //break;
         }
         return null;
     }
@@ -100,11 +113,10 @@ private:
 
                 if(left && right) {
 
-                    PointsTo* rightPT = right.nid in vars;
-                    assert(rightPT);
+                    PointsTo rightPT = vars.get(right.nid, PointsTo());
 
                     chat(" %s(%s) = %s(%s)", left.name, left.nid, right.name, right.nid);
-                    vars[left.nid] = PointsTo(right, bin.rightType.isPtr || (*rightPT).poison);
+                    vars[left.nid] = PointsTo(right, bin.rightType.isPtr || rightPT.poison);
                 } else if(left) {
                     /// reset left
                     chat(" %s(%s) = ?", left.name, left.nid);

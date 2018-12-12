@@ -135,9 +135,9 @@ public:
                     break;
                 case IF:
                     auto if_ = parent.as!If;
-                    if(n.isAncestor(if_.thenStmt())) {
+                    if(n.isDescendentOf(if_.thenStmt())) {
                         type = if_.thenType();
-                    } else if(if_.hasElse && n.isAncestor(if_.elseStmt())) {
+                    } else if(if_.hasElse && n.isDescendentOf(if_.elseStmt())) {
                         type = if_.elseType();
                     }
                     break;

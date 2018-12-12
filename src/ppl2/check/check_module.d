@@ -187,7 +187,7 @@ public:
         //
             if(access.isReadOnly && moduleName!=module_.canonicalName) {
                 auto a = n.getAncestor!Binary;
-                if(a && a.op.isAssign && n.isAncestor(a.left)) {
+                if(a && a.op.isAssign && n.isDescendentOf(a.left)) {
                     module_.addError(n, "Property is readonly", true);
                 }
             }
