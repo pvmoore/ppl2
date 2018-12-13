@@ -237,7 +237,7 @@ private:
 
         mangler.addUniqueModuleName(canonicalName);
 
-        if(canonicalName==config.mainModuleCanonicalName) {
+        if(canonicalName==config.getMainModuleCanonicalName) {
             m.isMainModule = true;
             mainModule     = m;
         }

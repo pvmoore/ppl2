@@ -6,20 +6,17 @@ import std.file : exists;
 import ppl2;
 
 final class Project {
+private:
+
 public:
     struct OpenFile {
         string filename;
         int line;
         bool active;
     }
-    struct Lib {
-        string name;
-        string directory;
-    }
     string name;
-    string mainFile;
+    string configFile;
     string directory;
-    string targetDirectory = ".target";
 
     Config config;
 
@@ -29,8 +26,6 @@ public:
     OpenFile[string] openFiles; // key = filename
     int[] currentLines;
     int[] currentColumns;
-
-    Lib[string] libs;   /// key = lib name
 
     this() {
         name      = "Test";
@@ -50,7 +45,7 @@ public:
         //writefln("filename :%s", filename);
 
         if(exists(filename)) {
-            parseProjectToml(cast(string)read(filename));
+            parseProjectToml(filename);
             initialise();
         } else {
             writefln("Project file does not exist");
@@ -62,9 +57,9 @@ public:
     string getAbsPath(string relPath) {
         assert(!isAbsolute(relPath));
 
-        foreach(k, lib; libs) {
-            if(relPath.startsWith(k)) {
-                return lib.directory ~ relPath;
+        foreach(inc; config.getIncludes()) {
+            if(relPath.startsWith(inc.baseModuleName)) {
+                return inc.absPath ~ relPath;
             }
         }
 
@@ -93,27 +88,12 @@ public:
 
         scope file = File(directory ~ "project.toml", "w");
 
-        //scope file = stdout;
-
         /// [[general]]
         file.writefln("[[general]]");
         file.writefln("name = \"%s\"", name);
-        file.writefln("mainFile = \"%s\"", mainFile);
-        file.writefln("targetDirectory = \"%s\"", targetDirectory);
+        file.writefln("configFile = \"%s\"", configFile);
         file.writefln("excludeFiles = %s", excludeFiles);
         file.writefln("excludeDirectories = %s", excludeDirectories);
-
-        /// [[release]]
-        file.writefln("\n[[release]]");
-        file.writefln("optLevel = %s", 3);
-
-        /// [[debug]]
-        file.writefln("\n[[debug]]");
-
-        /// [[dependency]]
-        file.writefln("\n[[dependency]]");
-        file.writefln("name = \"%s\"", "blah");
-        file.writefln("directory = \"%s\"", "./libs");
 
         /// [[openFile]]
         foreach(o; openFiles.values) {
@@ -127,9 +107,8 @@ private:
     void initialise() {
         assert(exists(directory));
 
-        /// Add core and std libs
-        libs["core"] = Lib("core", "./libs");
-        libs["std"]  = Lib("std",  "./libs");
+        config = new ConfigReader(directory ~ configFile).read();
+        writefln("%s", config);
 
         foreach(ref d; excludeDirectories) {
             d = normaliseDir(d);
@@ -138,67 +117,41 @@ private:
         foreach(ref f; excludeFiles) {
             f = normaliseFile(f);
         }
-        foreach(k,v; libs) {
-            libs[k].directory = normaliseDir(v.directory, true);
-        }
 
         /// Remove any open files that don't exist
         foreach(k; openFiles.keys.idup) {
             if(!exists(getAbsPath(k))) openFiles.remove(k);
         }
 
-        targetDirectory = normaliseDir(targetDirectory);
-
         writefln("Project {");
         // general
         writefln("\tname               : %s", name);
-        writefln("\tmainFile           : %s", mainFile);
         writefln("\tdirectory          : %s", directory);
-        writefln("\ttargetDirectory    : %s", targetDirectory);
+        writefln("\tconfigFile         : %s", configFile);
+
         writefln("\texcludeFiles       : %s", excludeFiles);
         writefln("\texcludeDirectories : %s", excludeDirectories);
         // state
         writefln("\topenFiles          : %s", openFiles);
-        writefln("\tdependencies       : %s", libs);
         writefln("}");
-
-        config = new Config(directory ~ mainFile);
-        writefln("%s", config);
     }
-    void parseProjectToml(string text) {
-        import toml;
-        import std.conv : to;
+    void parseProjectToml(string tomlFile) {
 
-        auto doc = parseTOML(text);
+        auto doc = TomlDocument.fromFile(tomlFile);
 
-        foreach(map; doc["general"].array) {
-            auto t = map.table;
-            this.name            = t.get("name", TOMLValue("No-name")).str;
-            this.mainFile        = t.get("mainFile", TOMLValue("")).str;
-            this.targetDirectory = t.get("targetDirectory", TOMLValue("target")).str;
-            this.excludeFiles    = t.get("excludeFiles", TOMLValue([""]))
-                                         .array.map!(it=>it.str).array;
-            this.excludeDirectories = t.get("excludeDirectories", TOMLValue([""]))
-                                               .array.map!(it=>it.str).array;
-        }
-        if("openFile" in doc) {
-            foreach(map; doc["openFile"].array) {
-                auto t = map.table;
-                this.openFiles[t["name"].str] = OpenFile(
-                    t["name"].str,
-                    t.get("line", TOMLValue(0)).integer.to!int,
-                    t.get("active", TOMLValue(0)).integer!=0,
-                );
-            }
-        }
-        if("dependency" in doc) {
-            foreach(map; doc["dependency"].array) {
-                auto t = map.table;
-                libs[t["name"].str] = Lib(
-                    t["name"].str,
-                    t["directory"].str
-                );
-            }
-        }
+        doc.iterate("general", (t) {
+            this.name               = t.getString("name", "No-name");
+            this.configFile         = t.getString("configFile");
+            this.excludeFiles       = t.getStringArray("excludeFiles");
+            this.excludeDirectories = t.getStringArray("excludeDirectories");
+        });
+
+        doc.iterate("openFile", (t) {
+            this.openFiles[t.getString("name")] = OpenFile(
+                t.getString("name"),
+                t.getInt("line"),
+                t.getInt("active")!=0,
+            );
+        });
     }
 }

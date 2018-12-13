@@ -1,0 +1,22 @@
+[[general]]
+mainFile = "test.p2"
+targetPath = ".target/"
+targetExe = "test.exe"
+build = "release"
+
+[[release]]
+optLevel = 3
+
+[[debug]]
+
+[[linker]]
+enable = 1
+
+#[[src-dependency]]
+#name = "blah"
+#directory = "./libs"
+
+#[[lib-dependency]]
+#name = "hello"
+#debugLibs = []
+#releaseLibs = []

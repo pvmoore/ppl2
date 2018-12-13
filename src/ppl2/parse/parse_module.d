@@ -83,6 +83,7 @@ public:
         while(mainTokens.hasNext) {
             module_.stmtParser.parse(mainTokens, module_);
         }
+
         /// Parse subsequently added template tokens
         foreach(i, nav; templateTokens) {
             while(nav.hasNext()) {
@@ -209,8 +210,9 @@ private:
         }
 
         __gshared static string[] IMPORTS = [
-            "core::core",
             "core::c",
+            "core::memory",
+            "core::core",
             "core::assert",
             "core::string",
             "core::unsigned",

@@ -17,8 +17,7 @@ struct tgc_t {
     long* maxptr
     tgc_ptr_t* items
     tgc_ptr_t* frees
-    double loadfactor
-    double sweepfactor
+    double loadfactor double sweepfactor
     long nitems long nslots long mitems long nfrees
 }
 
@@ -43,35 +42,40 @@ extern tgc_get_size { tgc_t* gc, void* ptr -> long }
 extern tgc_set_dtor { tgc_t* gc, void* ptr, Destructor dtor -> void}
 extern tgc_get_dtor { tgc_t* gc, void* ptr -> Destructor }
 
+tgc_t gc
+
 public
 
 struct GC {
-    static tgc_t gc
 public
     static start {
-
+        int local
+        tgc_start(&gc, &local)
     }
     static stop {
-    
+        tgc_stop(&gc)
     }
     static collect {
-    
+        tgc_run(&gc)
     }
     static alloc { long size ->
-    
+        return tgc_alloc(&gc, size)
     }
     static calloc { long elementSize, long count ->
-    
+        return tgc_calloc(&gc, count, elementSize)
     }
     static realloc { void* ptr, long size ->
-    
+        return tgc_realloc(&gc, ptr, size)
     }
     static free { void* ptr ->
-    
+        tgc_free(&gc, ptr)
     } 
+    static getSize { void* ptr ->
+        return tgc_get_size(&gc, ptr)
+    }
 }
 
 new {
-
+    
 }
 

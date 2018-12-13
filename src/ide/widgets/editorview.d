@@ -77,7 +77,7 @@ public:
         string filename = project.getAbsPath(name);
         assert(From!"std.file".exists(filename), "file not found");
 
-        writefln("loadFile %s %s", name, filename); flushConsole();
+        //writefln("loadFile %s %s", name, filename); flushConsole();
 
         auto openFile = project.getOpenFile(name);
 

@@ -116,9 +116,13 @@ void generateFunctionDeclaration(Module module_, Function f) {
 
     //// linkage
     //if(!f.isExport && f.access==Access.PRIVATE) {
-    if(f.numExternalRefs==0 && !f.isProgramEntry && !config.disableInternalLinkage) {
+
+    if(f.isExtern) {
+        f.llvmValue.setLinkage(LLVMLinkage.LLVMExternalLinkage);
+    } else if(f.numExternalRefs==0 && !f.isProgramEntry) {
         f.llvmValue.setLinkage(LLVMLinkage.LLVMInternalLinkage);
     }
+
 
     //if(module_.canonicalName=="test_imports" && f.name=="new") {
     //    dd("!! linkage", f.getUniqueName, f.numExternalRefs, isInline, f.llvmValue.getLinkage);

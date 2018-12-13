@@ -18,22 +18,22 @@ void main(string[] argv) {
     writefln("PPL %s".format(VERSION));
     writefln("======================================");
 
-    auto mainFile = "test/./test.p2";
-
     /// Get the PPL2 singleton
     auto ppl2 = PPL2.instance();
 
-    /// Create a project builder
-    auto builder = ppl2.createProjectBuilder(new Config(mainFile));
+    /// Read config file
+    auto config = new ConfigReader("test/config.toml").read();
 
-    /// Setup the configuration
-    builder.config.enableLink = true;
-    builder.config.writeASM   = true;
-    builder.config.writeOBJ   = true;
-    builder.config.writeAST   = true;
-    builder.config.writeIR    = true;
-    builder.config.enableOptimisation = true;
-    writefln("\n%s", builder.config.toString());
+    /// Alter the configuration
+    config.writeASM = true;
+    config.writeOBJ = true;
+    config.writeAST = true;
+    config.writeIR  = true;
+
+    writefln("\n%s", config.toString());
+
+    /// Create a project builder
+    auto builder = ppl2.createProjectBuilder(config);
 
     /// Build the project
     builder.build();
@@ -47,7 +47,6 @@ void main(string[] argv) {
             writefln("[%s] %s\n", i, err.toPrettyString());
         }
     } else {
-        dumpDependencies(builder);
         //dumpModuleReferences(builder);
         builder.dumpStats();
 
@@ -56,13 +55,6 @@ void main(string[] argv) {
         //writefln("Active modules ... %s", mods.length);
     }
 
-}
-void dumpDependencies(BuildState b) {
-    writefln("\nDependencies {");
-    foreach (lib; b.config.libs) {
-        writefln("\t%s \t %s", lib.baseModuleName, lib.absPath);
-    }
-    writefln("}");
 }
 void dumpModuleReferences(BuildState b) {
     writefln("\nModule outgoing references {");

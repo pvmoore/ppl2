@@ -64,14 +64,14 @@ public:
             processedDirectories.add(directory);
             //writefln("processDir %s", directory);
 
-            lp:foreach (DirEntry e; dirEntries(directory, SpanMode.breadth)) {
+            lp:foreach(DirEntry e; dirEntries(directory, SpanMode.breadth)) {
                 string rel = asRelativePath(e.name, directory).array.replace("\\", "/");
                 if(e.isDir) rel ~= "/";
 
-                foreach (excl; project.excludeDirectories) {
+                foreach(excl; project.excludeDirectories) {
                     if(rel.startsWith(excl)) continue lp;
                 }
-                foreach (excl; project.excludeFiles) {
+                foreach(excl; project.excludeFiles) {
                     if(rel.endsWith(excl)) continue lp;
                 }
 
@@ -84,8 +84,8 @@ public:
         }
         processDirectory(project.directory);
 
-        foreach(lib; project.libs.values) {
-            processDirectory(lib.directory);
+        foreach(inc; project.config.getIncludes()) {
+            processDirectory(inc.absPath);
         }
 
         foreach(n; nodes.values) {

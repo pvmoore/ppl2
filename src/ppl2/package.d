@@ -2,7 +2,6 @@ module ppl2;
 
 public:
 
-import ppl2.config;
 import ppl2.global;
 import ppl2.ppl2;
 import ppl2.tokens;
@@ -14,10 +13,14 @@ import ppl2.build.ModuleBuilder;
 import ppl2.build.ProjectBuilder;
 import ppl2.build.BuildState;
 
+import ppl2.config.config;
+import ppl2.config.ConfigReader;
+
 import ppl2.error.CompilationAborted;
 import ppl2.error.CompileError;
 
 import ppl2.misc.lexer;
+import ppl2.misc.toml;
 
 import ppl2.type.type;
 
@@ -53,4 +56,22 @@ string convertTabsToSpaces(string s, int tabsize=4) {
         else buf ~= ch;
     }
     return buf.data;
+}
+
+private import std.path;
+private import std.file;
+private import std.array : array, replace;
+
+string normaliseDir(string path, bool makeAbsolute=false) {
+    if(makeAbsolute) {
+        path = asAbsolutePath(path).array;
+    }
+    path = asNormalizedPath(path).array;
+    path = path.replace("\\", "/") ~ "/";
+    return path;
+}
+string normaliseFile(string path,) {
+    path = asNormalizedPath(path).array;
+    path = path.replace("\\", "/");
+    return path;
 }

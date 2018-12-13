@@ -4,15 +4,6 @@ import ppl2.internal;
 
 final class Linker {
 private:
-    const string[] dynamicRuntime = [
-        "msvcrt.lib",
-        "ucrt.lib",
-        "vcruntime.lib"];
-    const string[] staticRuntime = [
-        "libcmt.lib",
-        "libucrt.lib",
-        "libvcruntime.lib"
-    ];
     LLVMWrapper llvm;
     StopWatch watch;
 public:
@@ -26,13 +17,11 @@ public:
     }
 
     bool link(Module m) {
-        // /OPT:REF		remove unreferenced functions and data
-        // /OPT:NOREF	don't remove unreferenced
-        // /WX          treat linker warnings as errors
         watch.start();
-        auto runtime     = dynamicRuntime;
         string targetObj = m.config.targetPath ~ m.canonicalName ~ ".obj";
         string targetExe = m.config.targetPath ~ m.config.targetExe;
+
+        auto config = m.config;
 
         writeOBJ(llvm, m);
 
@@ -41,12 +30,31 @@ public:
             "/NOLOGO",
             //"/VERBOSE",
             "/MACHINE:X64",
-            "/OPT:REF",
-            "/WX",
-            "/SUBSYSTEM:console",
+            "/WX",              /// Treat linker warnings as errors
+            "/SUBSYSTEM:console"    // todo - get the subsystem from config
+        ];
+
+        if(config.isDebug) {
+            args ~= [
+                "/DEBUG:NONE",  /// Don't generate a PDB for now
+                "/OPT:NOREF"    /// Don't remove unreferenced functions and data
+            ];
+        } else {
+            args ~= [
+                "/RELEASE",
+                "/OPT:REF",     /// Remove unreferenced functions and data
+                "/LTCG",        /// Link time code gen
+            ];
+        }
+
+        args ~= [
             targetObj,
             "/OUT:" ~ targetExe
-        ] ~ runtime;
+        ];
+
+        args ~= m.config.getExternalLibs();
+
+        //dd("link command:", args);
 
         import std.process : spawnProcess, wait;
 

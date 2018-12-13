@@ -83,6 +83,14 @@ public:
             log("\t import %s", imp.moduleName);
             remove(imp);
         }
+
+        /// Remove asserts
+        if(!module_.config.enableAsserts) {
+            module_.recurse!Assert((n) {
+                n.detach();
+            });
+        }
+
         watch.stop();
     }
 private:

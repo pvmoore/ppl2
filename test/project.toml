@@ -1,27 +1,12 @@
 [[general]]
 name = "test"
-mainFile = "test.p2"
-targetDirectory = ".target/"
+configFile = "config.toml"
 excludeFiles = ["blah", "blah2"]
 excludeDirectories = [".target/"]
 
-[[release]]
-optLevel = 3
-
-[[debug]]
-
-[[dependency]]
-name = "blah"
-directory = "./libs"
-
 [[openFile]]
-name = "test.p2"
-line = 27
-active = 0
-
-[[openFile]]
-name = "std/console.p2"
-line = 0
+name = "core/string.p2"
+line = 17
 active = 0
 
 [[openFile]]
@@ -30,6 +15,16 @@ line = 0
 active = 0
 
 [[openFile]]
+name = "core/core.p2"
+line = 6
+active = 0
+
+[[openFile]]
 name = "std/list.p2"
-line = 0
+line = 15
 active = 1
+
+[[openFile]]
+name = "test_enum.p2"
+line = 16
+active = 0

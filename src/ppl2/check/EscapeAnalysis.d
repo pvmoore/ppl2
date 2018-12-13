@@ -63,6 +63,8 @@ private:
                 return findVariable(e.as!AddressOf.expr());
             case AS:
                 return findVariable(e.as!As.left());
+            case CALL:
+                break;
             case DOT:
                 auto dot = e.as!Dot;
                 return findVariable(dot.right());

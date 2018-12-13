@@ -455,11 +455,7 @@ private: //=====================================================================
         t.skip("assert");
 
         auto a = makeNode!Assert(t);
-
-        /// Only add if asserts are enabled
-        if(module_.config.enableAsserts) {
-            parent.add(a);
-        }
+        parent.add(a);
 
         exprParser().parse(t, a);
     }
