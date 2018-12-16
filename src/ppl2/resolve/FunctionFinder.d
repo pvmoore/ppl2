@@ -436,93 +436,64 @@ private:
         assert(overloads.length>0);
         import common : indexOf;
 
-        lp:foreach(callable; overloads[]) {
-            Type[] params = callable.paramTypes();
+        void filter(bool delegate(Type,Type) matcher) {
+            lp:foreach(callable; overloads[]) {
+                Type[] params = callable.paramTypes();
 
-            if(call.paramNames.length > 0) {
-                /// name=value arg list
-                string[] names = callable.paramNames();
-                foreach(i, name; call.paramNames) {
-                    int index = names.indexOf(name);
-                    assert(index != -1);
+                if(call.paramNames.length > 0) {
+                    /// name=value arg list
+                    string[] names = callable.paramNames();
+                    foreach(i, name; call.paramNames) {
+                        int index = names.indexOf(name);
+                        assert(index != -1);
 
-                    auto arg   = call.argTypes[i];
-                    auto param = params[index];
+                        auto arg   = call.argTypes[i];
+                        auto param = params[index];
 
-                    if(!arg.exactlyMatches(param)) continue lp;
+                        if(!matcher(arg,param)) continue lp;
+
+                        //if(!arg.exactlyMatches(param)) continue lp;
+                    }
+                } else {
+                    /// standard arg list
+                    foreach(i, a; call.argTypes) {
+                        if(!matcher(a, params[i])) continue lp;
+                        //if(!a.exactlyMatches(params[i])) continue lp;
+                    }
                 }
-            } else {
-                /// standard arg list
-                foreach(i, a; call.argTypes) {
-                    if(!a.exactlyMatches(params[i])) continue lp;
+
+                //dd("  exact match", callable.id, overloads[]);
+
+                /// Exact match found
+                foreach(o; overloads[].dup) {
+                    if(o.id != callable.id) overloads.remove(o);
                 }
+                assert(overloads.length==1);
             }
-
-            //dd("  exact match", callable.id, overloads[]);
-
-            /// Exact match found
-            foreach(o; overloads[].dup) {
-                if(o.id != callable.id) overloads.remove(o);
-            }
-            assert(overloads.length==1);
         }
+
+        /// Try to exactly match all arguments
+        filter((arg,param) {
+            return arg.exactlyMatches(param);
+        });
+
         if(overloads.length>1) {
-            selectAlmostExactMatch(call, overloads);
-        }
-    }
-    /// Called after selectExactMatch fails.
-    /// Try an almost exact match where integer types will match any larger integer type
-    /// and real types match any larger real types.
-    void selectAlmostExactMatch(Call call, DynamicArray!Callable overloads) {
-        import common : indexOf;
+            /// Try an almost exact match where integer types will match any larger integer type
+            /// and real types match any larger real type
 
-        bool isMatch(Type arg, Type param) {
-            if(arg.exactlyMatches(param)) {
-                /// match
-            } else if(arg.isInteger==param.isInteger && arg.category<param.category) {
-                /// integer and arg is smaller than param
-            } else if(arg.isReal==param.isReal && arg.category<param.category) {
-                /// real and arg is smaller than param
-            } else {
-                /// nope
-                return false;
-            }
-            return true;
-        }
-
-        lp:foreach(callable; overloads[]) {
-            Type[] params = callable.paramTypes();
-
-            if(call.paramNames.length > 0) {
-                /// name=value arg list
-                string[] names = callable.paramNames();
-                foreach(i, name; call.paramNames) {
-                    int index = names.indexOf(name);
-                    assert(index != -1);
-
-                    auto arg   = call.argTypes[i];
-                    auto param = params[index];
-
-                    if(!isMatch(arg, param)) {
-                        continue lp;
-                    }
+            filter((arg, param) {
+                if(arg.exactlyMatches(param)) {
+                    /// match
+                } else if(arg.isInteger==param.isInteger && arg.category<param.category) {
+                    /// integer and arg is smaller than param
+                } else if(arg.isReal==param.isReal && arg.category<param.category) {
+                    /// real and arg is smaller than param
+                } else {
+                    /// nope
+                    return false;
                 }
-            } else {
-                /// standard arg list
-                foreach(i, a; call.argTypes) {
-                    if(!isMatch(a, params[i])) {
-                        continue lp;
-                    }
-                }
-            }
-
-            //dd("  exactish match", callable.id, overloads[]);
-
-            /// Exactish match found
-            foreach(o; overloads[].dup) {
-                if(o.id != callable.id) overloads.remove(o);
-            }
-            assert(overloads.length==1);
+                return true;
+            });
         }
     }
     ///
