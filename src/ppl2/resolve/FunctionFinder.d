@@ -466,6 +466,64 @@ private:
             }
             assert(overloads.length==1);
         }
+        if(overloads.length>1) {
+            selectAlmostExactMatch(call, overloads);
+        }
+    }
+    /// Called after selectExactMatch fails.
+    /// Try an almost exact match where integer types will match any larger integer type
+    /// and real types match any larger real types.
+    void selectAlmostExactMatch(Call call, DynamicArray!Callable overloads) {
+        import common : indexOf;
+
+        bool isMatch(Type arg, Type param) {
+            if(arg.exactlyMatches(param)) {
+                /// match
+            } else if(arg.isInteger==param.isInteger && arg.category<param.category) {
+                /// integer and arg is smaller than param
+            } else if(arg.isReal==param.isReal && arg.category<param.category) {
+                /// real and arg is smaller than param
+            } else {
+                /// nope
+                return false;
+            }
+            return true;
+        }
+
+        lp:foreach(callable; overloads[]) {
+            Type[] params = callable.paramTypes();
+
+            if(call.paramNames.length > 0) {
+                /// name=value arg list
+                string[] names = callable.paramNames();
+                foreach(i, name; call.paramNames) {
+                    int index = names.indexOf(name);
+                    assert(index != -1);
+
+                    auto arg   = call.argTypes[i];
+                    auto param = params[index];
+
+                    if(!isMatch(arg, param)) {
+                        continue lp;
+                    }
+                }
+            } else {
+                /// standard arg list
+                foreach(i, a; call.argTypes) {
+                    if(!isMatch(a, params[i])) {
+                        continue lp;
+                    }
+                }
+            }
+
+            //dd("  exactish match", callable.id, overloads[]);
+
+            /// Exactish match found
+            foreach(o; overloads[].dup) {
+                if(o.id != callable.id) overloads.remove(o);
+            }
+            assert(overloads.length==1);
+        }
     }
     ///
     /// Extract one or more function templates:

@@ -154,7 +154,7 @@ public:
             string moduleName = f.getModule.canonicalName;
             auto paramTokens  = f.blueprint.getParamTokens();
 
-            string s1 = "%s Line %4s:%-2s".format(moduleName, f.line+1, f.column);
+            string s1 = "%s Line %4s".format(moduleName, f.line+1);
             string s2 = "%35s\t%s <%s>".format(s1, call.name,
                 templateParams[i].toString);
 
@@ -168,7 +168,7 @@ public:
             string moduleName = callable.getModule.canonicalName;
             auto node         = callable.getNode;
 
-            string s1 = "%s Line %4s:%-2s".format(moduleName, node.line+1, node.column);
+            string s1 = "%s Line %4s".format(moduleName, node.line+1);
             string s2 = "%35s\t%s %s".format(s1, call.name, getFuncSignature(params, retType));
 
             buf.add("\t%s\n", s2);

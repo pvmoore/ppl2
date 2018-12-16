@@ -207,6 +207,22 @@ public:
             auto var = n.target.getVariable;
             checkPrivateAccess(var.access, var.getModule.canonicalName);
             checkReadOnlyAssignment(var.access, var.getModule.canonicalName);
+
+            /// Check for static access to non-static variable
+            if(!var.isStatic) {
+                ///
+                if(n.parent.isDot) {
+                    auto s = n.previous();
+                    // todo
+                } else {
+                    auto con = n.getContainer;
+                    if(con.isFunction) {
+                        if(con.as!LiteralFunction.getFunction.isStatic) {
+                            module_.addError(n, "Static access to non-static variable", true);
+                        }
+                    } else assert(false, "todo");
+                }
+            }
         }
         if(n.target.isMemberFunction) {
             auto func = n.target.getFunction;

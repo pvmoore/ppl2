@@ -20,12 +20,11 @@ echo.
 echo Running test\.target\test.exe (%filesize% bytes)
 echo.
 test\.target\test.exe
-echo.
-echo.
 IF %ERRORLEVEL% NEQ 0 (
+  echo.
+  echo.
   echo Exit code was %ERRORLEVEL%
 )
-echo.
 goto END
 
 

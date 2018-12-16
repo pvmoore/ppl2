@@ -21,9 +21,9 @@ print { long n ->
     List<byte> list
 
     if(n<0) {
-        print('-')
+        print("-")
     } else if(n==0) {
-        print('0')
+        print("0")
         return
     }
     loop(int i; n>0; n /= 10) {
@@ -33,6 +33,10 @@ print { long n ->
     list.eachReverse { ch ->
         putchar(ch)
     }
+}
+print { double n ->
+    // todo
+    print("TODO")
 }
 print { string s ->
     print(s.ptr(), s.length)

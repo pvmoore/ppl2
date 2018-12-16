@@ -42,11 +42,15 @@ extern tgc_get_size { tgc_t* gc, void* ptr -> long }
 extern tgc_set_dtor { tgc_t* gc, void* ptr, Destructor dtor -> void}
 extern tgc_get_dtor { tgc_t* gc, void* ptr -> Destructor }
 
+/// This needs to be thread-local
 tgc_t gc
 
 public
 
 struct GC {
+    static long numAllocs 
+    static long numFrees  
+    static long totalAlloced
 public
     static start {
         int local
@@ -59,19 +63,41 @@ public
         tgc_run(&gc)
     }
     static alloc { long size ->
+        numAllocs    += 1
+        totalAlloced += size
         return tgc_alloc(&gc, size)
     }
+    static alloc { long size, Destructor d ->
+        numAllocs    += 1
+        totalAlloced += size
+        return tgc_alloc_opt(&gc, size, 0, d)
+    }
     static calloc { long size ->
+        numAllocs    += 1
+        totalAlloced += size
         return tgc_calloc(&gc, 1, size)
+    }
+    static calloc { long size, Destructor d ->
+        numAllocs    += 1
+        totalAlloced += size
+        return tgc_calloc_opt(&gc, 1, size, 0, d)
     }
     static realloc { void* ptr, long size ->
         return tgc_realloc(&gc, ptr, size)
     }
     static free { void* ptr ->
+        numFrees += 1
         tgc_free(&gc, ptr)
     } 
     static getSize { void* ptr ->
         return tgc_get_size(&gc, ptr)
+    }
+    static dump {
+        println("")
+        println("")
+        println("GC Stats:")
+        print("Num allocs ... ") print(numAllocs) print(" (") print(totalAlloced/1) println(" bytes)")
+        print("Num Frees .... ") println(numFrees)
     }
 }
 

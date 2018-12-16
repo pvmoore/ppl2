@@ -5,11 +5,11 @@ excludeFiles = ["blah", "blah2"]
 excludeDirectories = [".target/"]
 
 [[openFile]]
-name = "core/string.p2"
-line = 26
+name = "std/console.p2"
+line = 38
 active = 0
 
 [[openFile]]
-name = "test.p2"
-line = 211
+name = "core/memory.p2"
+line = 99
 active = 1
