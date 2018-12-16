@@ -111,6 +111,7 @@ import ppl2.misc.writer;
 import ppl2.parse.detect_type;
 import ppl2.parse.parse_attribute;
 import ppl2.parse.parse_expression;
+import ppl2.parse.parse_function;
 import ppl2.parse.parse_helper;
 import ppl2.parse.parse_module;
 import ppl2.parse.parse_struct;
@@ -119,6 +120,7 @@ import ppl2.parse.parse_type;
 import ppl2.parse.parse_variable;
 
 import ppl2.resolve.AfterResolution;
+import ppl2.resolve.resolve_calloc;
 import ppl2.resolve.FunctionFinder;
 import ppl2.resolve.ImportFinder;
 import ppl2.resolve.TypeFinder;

@@ -44,7 +44,7 @@ final class NodeBuilder {
         b.add(right);
         return b;
     }
-    Call call(string name, Function f) {
+    Call call(string name, Function f = null) {
         auto call   = makeNode!Call(node);
         call.target = new Target(module_);
         call.name   = name;
@@ -60,6 +60,15 @@ final class NodeBuilder {
             }
         }
         return call;
+    }
+    /// eg. GC.start()
+    /// Dot
+    ///     TypeExpr
+    ///     identifier
+    Expression callStatic(string typeName, string memberName, ASTNode parent) {
+        Type t = module_.typeFinder.findType(typeName, parent);
+        assert(t);
+        return dot(typeExpr(t), call(memberName));
     }
     Dot dot(ASTNode left, ASTNode right) {
         auto d = makeNode!Dot(node);
@@ -79,6 +88,24 @@ final class NodeBuilder {
         emv.enum_ = enum_;
         emv.add(expr);
         return emv;
+    }
+    Function function_(string name) {
+        Function f   = makeNode!Function(node);
+        f.name       = name;
+        f.moduleName = module_.canonicalName;
+
+        auto body_ = makeNode!LiteralFunction(node);
+
+        auto params = makeNode!Parameters(node);
+        body_.add(params);
+
+        auto type   = makeNode!FunctionType(node);
+        type.params = params;
+        body_.type  = Pointer.of(type, 1);
+
+        f.add(body_);
+
+        return f;
     }
     Identifier identifier(Variable v) {
         auto id   = makeNode!Identifier(node);
@@ -109,6 +136,9 @@ final class NodeBuilder {
         i.add(left);
         i.add(right);
         return i;
+    }
+    Expression integer(int value) {
+        return LiteralNumber.makeConst(value, TYPE_INT);
     }
     Return return_(Expression expr) {
         auto ret = makeNode!Return(node);
@@ -142,7 +172,7 @@ final class NodeBuilder {
         con.add(var);
 
         /// Call string.new(this, byte*, int)
-        Call call = call("new", null);
+        Call call = call("new");
             call.add(addressOf(identifier(var.name)));
             call.add(lit);
             call.add(LiteralNumber.makeConst(lit.calculateLength(), TYPE_INT));

@@ -13,6 +13,7 @@ private:
     auto typeParser()   { return module_.typeParser; }
     auto typeDetector() { return module_.typeDetector; }
     auto exprParser()   { return module_.exprParser; }
+    auto funcParser()   { return module_.funcParser; }
     auto attrParser()   { return module_.attrParser; }
 
     auto builder()      { return module_.nodeBuilder; }
@@ -95,9 +96,9 @@ public:
                     /// static name {
                     /// static name <
                     if (t.peek(2).type==TT.LCURLY) {
-                        parseFunction(t, parent);
+                        funcParser().parse(t, parent);
                     } else if (t.peek(2).type==TT.LANGLE) {
-                        parseFunction(t, parent);
+                        funcParser().parse(t, parent);
                     } else {
                         varParser().parseStructMember(t, parent);
                     }
@@ -107,7 +108,7 @@ public:
                     return;
                 case "operator":
                     if(isOperatorOverloadFunction(module_, t)) {
-                        parseFunction(t, parent);
+                        funcParser().parse(t, parent);
                         return;
                     }
                     break;
@@ -124,7 +125,7 @@ public:
 
             /// name {
             if(t.peek(1).type==TT.LCURLY) {
-                parseFunction(t, parent);
+                funcParser().parse(t, parent);
                 return;
             }
         }
@@ -132,9 +133,9 @@ public:
             case SEMICOLON:
                 t.next;
                 return;
-            case LBRACKET:
-                errorBadSyntax(module_, t, "Parenthesis not allowed here");
-                break;
+            //case LBRACKET:
+            //    errorBadSyntax(module_, t, "Parenthesis not allowed here");
+            //    break;
             default:
                 break;
         }
@@ -181,7 +182,7 @@ public:
 
                 /// name <T> {
                 if(nextTok.type==TT.LCURLY) {
-                    parseFunction(t, parent);
+                    funcParser().parse(t, parent);
                     return;
                 }
 
@@ -294,14 +295,14 @@ private: //=====================================================================
             imp.mod = module_.buildState.getOrCreateModule(imp.moduleName);
 
             /// For each exported function and type, add proxies to this module
-            foreach (f; imp.mod.parser.publicFunctions.values) {
+            foreach(f; imp.mod.parser.publicFunctions.values) {
                 auto fn       = makeNode!Function(t);
                 fn.name       = f;
                 fn.moduleName = imp.moduleName;
                 fn.isImport   = true;
                 imp.add(fn);
             }
-            foreach (d; imp.mod.parser.publicTypes.values) {
+            foreach(d; imp.mod.parser.publicTypes.values) {
                 auto def        = makeNode!Alias(t);
                 def.name        = d;
                 def.type        = TYPE_UNKNOWN;
@@ -341,94 +342,6 @@ private: //=====================================================================
 
         alias_.isImport   = false;
         alias_.moduleName = module_.canonicalName;
-    }
-    ///
-    /// function::= [ "static" ] identifier [ template params] expr_function_literal
-    ///
-    void parseFunction(Tokens t, ASTNode parent) {
-
-        auto f = makeNode!Function(t);
-        parent.add(f);
-
-        auto ns = f.getAncestor!Struct;
-
-        if(t.value=="static") {
-            f.isStatic = true;
-            t.next;
-        }
-
-        /// name
-        f.name           = t.value;
-        f.moduleName     = module_.canonicalName;
-        f.isProgramEntry = module_.isMainModule && f.name=="main";
-        t.next;
-
-        if(f.isStatic && f.name=="new") {
-            module_.addError(t, "Struct constructors cannot be static", true);
-        }
-
-        if(f.name=="operator" && ns) {
-            /// Operator overload
-
-            f.op = parseOperator(t);
-            f.name ~= f.op.value;
-            t.next;
-
-            if(f.op==Operator.NOTHING) errorBadSyntax(module_, t, "Expecting an overloadable operator");
-        }
-
-        /// Function readonly access is effectively public
-        f.access = t.access()==Access.PRIVATE ? Access.PRIVATE : Access.PUBLIC;
-
-        /// =
-        if(t.type==TT.EQUALS) {
-            t.skip(TT.EQUALS);
-            assert(false, "shouldn't get here");
-        }
-
-        /// Function template
-        if(t.type==TT.LANGLE) {
-            /// Template function - just gather the args and tokens
-            t.skip(TT.LANGLE);
-
-            f.blueprint = new TemplateBlueprint(module_);
-            string[] paramNames;
-
-            /// < .. >
-            while(t.type!=TT.RANGLE) {
-
-                if(typeDetector().isType(t, f)) {
-                    module_.addError(t, "Template param name cannot be a type", true);
-                }
-
-                paramNames ~= t.value;
-                t.next;
-                t.expect(TT.RANGLE, TT.COMMA);
-                if(t.type==TT.COMMA) t.next;
-            }
-            t.skip(TT.RANGLE);
-
-            /// {
-            t.expect(TT.LCURLY);
-
-            int start = t.index;
-            int end   = t.findEndOfBlock(TT.LCURLY);
-            f.blueprint.setFunctionTokens(ns, paramNames, t[start..start+end+1].dup);
-            t.next(end+1);
-
-            //dd("Function template decl", f.name, f.blueprint.paramNames, f.blueprint.tokens.toString);
-
-        } else {
-
-            /// function literal
-            t.expect(TT.LCURLY);
-            exprParser().parse(t, f);
-
-            /// Add implicit this* parameter if this is a non-static struct member function
-            if(ns && !f.isStatic) {
-                f.params.addThisParameter(ns);
-            }
-        }
     }
     ///
     /// return_statement ::= "return" [ expression ]

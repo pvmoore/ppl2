@@ -4,6 +4,9 @@ public
 
 // Externs are assumed to be C calling convention/mangling
 
+alias size_t    = long
+alias ptrdiff_t = long
+
 // stdio.h
 extern putchar {int char -> int}
 extern puts {byte* str -> int}
@@ -16,9 +19,14 @@ extern free {void* ptr->void}
 extern malloc {long size->void*}
 extern realloc {void* ptr, long size -> void*}
 
+extern __argc {void->int} 
+extern __argv {void->byte**}
+extern __wargv {void->short**}
+
 // string.h
+extern memchr  {void* ptr, int value, long num -> void*}
 extern memcmp  {void* ptr1,void* ptr2, long numBytes->int}
 extern memcpy  {void* destination, void* source, long num -> void*}
-extern memmove {void* dest, void* src, long numBytes->void*}
+extern memmove {void* dest, void* src, long numBytes -> void*}
 extern memset  {void* ptr, int value, long num -> void*}
 extern strlen  {byte* str -> long}

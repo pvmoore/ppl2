@@ -92,17 +92,6 @@ struct Array <A,B> {
 }
 
 main {
-    GC.start()
-    
-    var mem = GC.alloc(1000)
-    var size = GC.getSize(mem)
-    assert size==1000
-    
-    GC.stop()
-    
-    //GC gc = GC()
-    
-    
     import misc::misc;              testMisc()
     import misc::builtin_funcs;     testBuiltinFuncs() 
     import nodes::select;           testSelect()

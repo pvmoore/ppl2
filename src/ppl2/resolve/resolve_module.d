@@ -10,6 +10,7 @@ private:
     AsResolver asResolver;
     BinaryResolver binaryResolver;
     BuiltinFuncResolver builtinFuncResolver;
+    CallocResolver callocResolver;
     CallResolver callResolver;
     ConstructorResolver constructorResolver;
     EnumResolver enumResolver;
@@ -42,6 +43,7 @@ public:
         this.asResolver          = new AsResolver(this, module_);
         this.binaryResolver      = new BinaryResolver(this, module_);
         this.builtinFuncResolver = new BuiltinFuncResolver(this, module_);
+        this.callocResolver      = new CallocResolver(this, module_);
         this.callResolver        = new CallResolver(this, module_);
         this.constructorResolver = new ConstructorResolver(this, module_);
         this.identifierResolver  = new IdentifierResolver(this, module_);
@@ -195,7 +197,7 @@ public:
         callResolver.resolve(n);
     }
     void visit(Calloc n) {
-        resolveAlias(n, n.valueType);
+        callocResolver.resolve(n);
     }
     void visit(Case n) {
 
@@ -436,7 +438,9 @@ public:
                 }
             }
 
-            if(!type.isAlias) {
+            if(alias_.parent && alias_.parent.id==NodeID.IMPORT) {
+                /// This is an import alias. Leave it attached
+            } else if(!type.isAlias) {
                 alias_.detach();
             }
         }
@@ -575,6 +579,7 @@ private:
         static if(VERBOSE) {
             dd("  resolve", typeid(m), "nid:", m.nid, module_.canonicalName, "line:", m.line+1);
         }
+
         /// Resolve this node
         m.visit!ModuleResolver(this);
 

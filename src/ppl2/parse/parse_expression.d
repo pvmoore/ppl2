@@ -83,7 +83,7 @@ private:
         if(eot!=-1) {
             auto nextTok = t.peek(eot+1);
 
-            if(nextTok.type==TT.LBRACKET) {
+            if(nextTok.type==TT.LBRACKET && t.onSameLine(eot+1)) {
                 /// type(
                 parseConstructor(t, parent);
                 return;
@@ -107,7 +107,7 @@ private:
         /// name
         if(t.type==TT.IDENTIFIER) {
 
-            if(t.peek(1).type==TT.LBRACKET) {
+            if(t.peek(1).type==TT.LBRACKET && t.onSameLine(1)) {
                 parseCall(t, parent);
                 return;
             }

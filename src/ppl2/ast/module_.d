@@ -29,6 +29,7 @@ public:
     AttributeParser attrParser;
     StatementParser stmtParser;
     ExpressionParser exprParser;
+    FunctionParser funcParser;
     TypeParser typeParser;
     TypeDetector typeDetector;
     StructParser structParser;
@@ -64,6 +65,7 @@ public:
         attrParser        = new AttributeParser(this);
         stmtParser        = new StatementParser(this);
         exprParser        = new ExpressionParser(this);
+        funcParser        = new FunctionParser(this);
         typeParser        = new TypeParser(this);
         typeDetector      = new TypeDetector(this);
         structParser      = new StructParser(this);

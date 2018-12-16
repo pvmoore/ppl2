@@ -10,7 +10,7 @@ private:
 public:
     Type valueType;
 
-    override bool isResolved() { return valueType.isKnown; }
+    override bool isResolved() { return false; }
     override bool isConst() { return false; }
     override NodeID id() const { return NodeID.CALLOC; }
     override int priority() const { return 15; }

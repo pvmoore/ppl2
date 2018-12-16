@@ -13,7 +13,6 @@ public:
     string moduleName;      /// canonical name of module (!=this.getModule.canonicalName if isImport)
     Access access = Access.PUBLIC;
     bool isStatic;
-    bool isProgramEntry;    /// true if this is the program main function
 
     Operator op = Operator.NOTHING; /// Set if this is an operator overload
 
@@ -47,6 +46,9 @@ public:
         return getBody().getType;
     }
 ///
+    bool isProgramEntry() {
+        return "main"==name;
+    }
     bool isStructMember() const {
         return getContainer().id==NodeID.STRUCT;
     }

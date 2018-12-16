@@ -43,7 +43,7 @@ public:
             args ~= [
                 "/RELEASE",
                 "/OPT:REF",     /// Remove unreferenced functions and data
-                "/LTCG",        /// Link time code gen
+                //"/LTCG",        /// Link time code gen
             ];
         }
 

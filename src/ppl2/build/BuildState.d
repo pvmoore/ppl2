@@ -19,7 +19,7 @@ protected:
     StopWatch watch;
 
     CompileError[string] errors;
-    ReferenceInformation refInfo;
+    //ReferenceInformation refInfo;
 public:
     struct Task {
         enum Enum { FUNC, TYPE }
@@ -37,7 +37,7 @@ public:
 
     ulong getElapsedNanos() const { return watch.peek().total!"nsecs"; }
     bool hasErrors() const        { return errors.length>0; }
-    auto refs()                   { return refInfo; }
+    //auto refs()                   { return refInfo; }
 
     CompileError[] getErrors() {
         import std.algorithm.comparison : cmp;
@@ -64,7 +64,7 @@ public:
         this.requestedAliasOrStruct = new Set!string;
         this.requestedFunction      = new Set!string;
         this.mangler                = new Mangler;
-        this.refInfo                = new ReferenceInformation(this);
+        //this.refInfo                = new ReferenceInformation(this);
     }
     /// Tasks
     bool tasksOutstanding()       { return !taskQueue.empty; }

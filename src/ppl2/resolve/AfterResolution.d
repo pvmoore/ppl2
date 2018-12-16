@@ -53,13 +53,20 @@ private:
             return a.getPriority < b.getPriority;
         };
 
+        auto builder = mainModule.builder(entry);
+
         foreach_reverse(mod; buildState.allModules.sort!(comparator)) {
             //writefln("[%s] %s", mod.getPriority, mod.canonicalName);
 
-            auto call = mainModule.nodeBuilder.call("new", mod.getInitFunction());
+            auto call = builder.call("new", mod.getInitFunction());
 
-            /// Arguments should always be the 1st child of body
-            entry.getBody().insertAt(1, call);
+            /// Add after Parameters and call to GC.start()
+            entry.getBody().insertAt(2, call);
         }
+
+        assert(entry.getBody().first().isA!Parameters);
+        assert(entry.getBody().children[1].isA!Dot &&
+               entry.getBody().children[1].as!Dot.right().isA!Call &&
+               entry.getBody().children[1].as!Dot.right().as!Call.name=="start");
     }
 }

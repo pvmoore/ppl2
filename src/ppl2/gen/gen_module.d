@@ -150,10 +150,6 @@ public:
             builder.store(rhs, lhs);
         }
     }
-    void visit(Calloc n) {
-        rhs = builder.malloc(n.valueType.getLLVMType(), "calloc");
-        memsetZero(rhs, n.valueType.size);
-    }
     void visit(Closure n) {
         assert(n.llvmValue);
         rhs = n.llvmValue;

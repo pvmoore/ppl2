@@ -61,8 +61,8 @@ public
     static alloc { long size ->
         return tgc_alloc(&gc, size)
     }
-    static calloc { long elementSize, long count ->
-        return tgc_calloc(&gc, count, elementSize)
+    static calloc { long size ->
+        return tgc_calloc(&gc, 1, size)
     }
     static realloc { void* ptr, long size ->
         return tgc_realloc(&gc, ptr, size)

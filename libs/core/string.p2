@@ -10,19 +10,45 @@ struct string { // 16 bytes
     int offset
 readonly
     int length
-
+public 
     new { byte* ptr, int offset, int len ->
         this.basePtr = ptr
         this.offset  = offset
         this.length  = len
     }
-    
-    ptr { return basePtr+offset }
-
+    ptr   { return basePtr+offset }
     empty { return length==0 }
-
-    operator[] { int index->
-        return (basePtr+offset)[index]
+    first { assert not empty; return ptr()[0] }
+    last  { assert not empty; return ptr()[length-1] }
+    
+    operator[] { int index-> return ptr()[index] }
+    
+    //operator== { string s ->}
+    //operator<  { string -> }
+    operator<> { string s -> 
+        return if(length==s.length and memcmp(ptr(), s.ptr(), length)) 0 else -1 
+    } 
+           
+    indexOf { int ch ->
+        var p = memchr(ptr(), ch, length)
+        return if(p) (p-ptr()) as int else -1
+    }
+    contains { int ch ->
+        return indexOf(ch) <> -1   
+    }
+    startsWith { int ch ->
+        return length>0 and ptr()[0]==ch   
+    }
+    startsWith { string s ->
+        return length >= s.length and memcmp(ptr(), s.ptr(), s.length) == 0           
+    }
+    endsWith { int ch ->
+        return length>0 and ptr()[length-1]==ch 
+    }
+    endsWith { string s ->
+        if(s.length==0) return false
+        var off = length-s.length;
+        return length >= s.length and memcmp(ptr()+off, s.ptr(), s.length) == 0   
     }
 }
 //=================================================================================================
@@ -33,5 +59,12 @@ struct lstring { // 24 bytes
     long offset
 readonly
     long length
+public
+        
+}
     
+private    
+new {
+    assert #sizeof(string)==16   
+    assert #sizeof(lstring)==24   
 }

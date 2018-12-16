@@ -279,11 +279,65 @@ private:
             } else {
                 /// Add an external ref to the entry function
                 mainfns[0].numRefs++;
+
+                /// Add a ref to the main module
                 module_.numRefs++;
+
+                addRealProgramEntry(mainfns[0]);
             }
         }
 
         /// Request init function resolution
         module_.buildState.functionRequired(module_.canonicalName, "new");
+    }
+    ///
+    /// Rename main function to __user_main
+    /// Add main {void->int} function that calls __user_main
+    ///
+    /// See https://docs.microsoft.com/en-us/cpp/build/reference/entry-entry-point-symbol?view=vs-2017
+    ///
+    void addRealProgramEntry(Function main) {
+        auto b = module_.builder(main);
+
+        /// Rename "main" to "__user_main"
+        main.name = "__user_main";
+
+        bool mainReturnsAnInt = main.getBody().getReturns().any!(it=>it.hasExpr);
+        Type gc = module_.typeFinder.findType("GC", main);
+
+        /// Create a new "main" function
+        auto func = b.function_("main");
+
+        /// Add GC.start()
+        auto start = b.dot(b.typeExpr(gc), b.call("start"));
+
+        /// Exit code
+        auto retVar = b.variable("__exitCode", TYPE_INT);
+        auto ret = b.return_(b.identifier("__exitCode"));
+
+        /// Call main
+        Expression call = b.call("__user_main");
+
+        if(mainReturnsAnInt) {
+            call = b.assign(b.identifier("__exitCode"), call, TYPE_INT);
+        }
+
+        /// Add GC.stop()
+        auto stop = b.dot(b.typeExpr(gc), b.call("stop"));
+
+        func.getBody().add(start);
+        func.getBody().add(retVar);
+        func.getBody().add(call);
+        func.getBody().add(stop);
+        func.getBody().add(ret);
+
+        /// Call exit?
+        //auto exit = b.call("exit");
+        //exit.add(b.identifier("__exitCode"));
+        //func.getBody().add(exit);
+
+        func.numRefs++;
+        module_.add(func);
+        module_.buildState.functionRequired(module_.canonicalName, "__user_main");
     }
 }

@@ -7,10 +7,13 @@
     - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
       string range and it also holds the original ptr which is required by the gc
 
+-   Add back operator== because <> can be inefficient if you only need equal/not equal
+    I think we only need operator== and operator< . Everything else can be derived from those.
+      
+- __argc etc: https://docs.microsoft.com/en-us/cpp/c-runtime-library/argc-argv-wargv?view=vs-2017      
+      
 - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
   string range
-
-- Add object files in config to be added to the linker
 
 - Parallelise compilation 
 
