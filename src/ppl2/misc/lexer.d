@@ -374,7 +374,7 @@ public:
                     break;
                 case '<':
                     if(peek(1)=='>') {
-                        addToken(TT.COMPARE, 2);
+                        addToken(TT.BOOL_NE, 2);
                         index++;
                     } else if(peek(1)=='=') {
                         addToken(TT.LTE, 2);
@@ -391,17 +391,20 @@ public:
                     break;
                 case '>':
                     if(peek(1)=='=') {
+                        /// >=
                         addToken(TT.GTE, 2);
                         index++;
                     } else if(peek(1)=='>' && peek(2)=='=') {
+                        /// >>=
                         addToken(TT.SHR_ASSIGN, 3);
                         index+=2;
                     } else if(peek(1)=='>' && peek(2)=='>' && peek(3)=='=') {
+                        /// >>>=
                         addToken(TT.USHR_ASSIGN, 4);
                         index+=3;
                     } else {
                         /// Keep '>' tokens separate so that we can parse
-                        /// List<List<int>> correctly/
+                        /// List<List<int>> correctly
                         /// We will need to merge tokens when determining >> and >>> operators.
                         ///
                     //} else if(peek(1)=='>' && peek(2)=='>' ) {

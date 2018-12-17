@@ -10,6 +10,11 @@ line = 38
 active = 0
 
 [[openFile]]
+name = "structs/operator_overloading.p2"
+line = 54
+active = 1
+
+[[openFile]]
 name = "core/memory.p2"
 line = 99
-active = 1
+active = 0

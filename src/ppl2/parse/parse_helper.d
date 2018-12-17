@@ -53,15 +53,22 @@ bool isOperatorOverloadableType(Tokens t, int offset, ref int endOffset) {
         case TT.BIT_AND_ASSIGN:
         case TT.BIT_XOR_ASSIGN:
 
-        case TT.COMPARE:
+        case TT.LANGLE:     /// <
+        case TT.BOOL_EQ:    /// ==
+        case TT.BOOL_NE:    /// <>
+        case TT.LTE:        /// <=
+        case TT.GTE:        /// >=
 
             endOffset = offset+1;
             return true;
-        case TT.RANGLE: // SHR, USHR
+
+        case TT.RANGLE:
             if(t.peek(offset+1).type==TT.RANGLE && t.peek(offset+2).type==TT.RANGLE) {
+                /// USHR
                 /// >>>
                 endOffset = offset+3;
             } else if(t.peek(offset+1).type==TT.RANGLE) {
+                /// SHR
                 /// >>
                 endOffset = offset+2;
             } else {

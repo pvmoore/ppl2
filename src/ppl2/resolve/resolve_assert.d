@@ -33,11 +33,11 @@ public:
             /// value
             Expression value;
             if(type.isPtr) {
-                value = b.binary(Operator.COMPARE, n.expr(), LiteralNull.makeConst(type));
+                value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNull.makeConst(type));
             } else if(type.isBool) {
                 value = n.expr();
             } else {
-                value = b.binary(Operator.COMPARE, n.expr(), LiteralNumber.makeConst(0));
+                value = b.binary(Operator.BOOL_NE, n.expr(), LiteralNumber.makeConst(0));
             }
             c.add(value);
 

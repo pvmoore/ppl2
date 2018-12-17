@@ -406,10 +406,14 @@ public:
                     if(d.left.id==MODULE_ALIAS) {
                         isStaticAccess = d.right().isTypeExpr;
                     } else {
-                        assert(false, "implement me %s %s %s".format(d.left.id, expr.line+1, module_.canonicalName));
+                        isStaticAccess = false;
+                        //assert(false, "implement me %s.%s %s %s".format(d.left.id, d.right.id, expr.line+1, module_.canonicalName));
                     }
                     break;
                 case TYPE_EXPR:
+                    break;
+                case VALUE_OF:
+                    isStaticAccess = false;
                     break;
                 default:
                     assert(false, "implement me %s %s %s".format(expr.id, expr.line+1, module_.canonicalName));

@@ -239,7 +239,7 @@ private:
                 case TT.SHR_ASSIGN:
                 case TT.USHR_ASSIGN:
                 case TT.BOOL_EQ:
-                case TT.COMPARE:
+                case TT.BOOL_NE:
                     parent = attachAndRead(t, parent, parseBinary(t));
                     break;
                 case TT.ASTERISK:

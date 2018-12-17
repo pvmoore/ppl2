@@ -162,7 +162,7 @@ private:
         call.add(builder.addressOf(n.right()));
         call.add(LiteralNumber.makeConst(n.leftType.size, TYPE_INT));
 
-        auto op = n.negate ? Operator.COMPARE : Operator.BOOL_EQ;
+        auto op = n.negate ? Operator.BOOL_NE : Operator.BOOL_EQ;
         auto ne = builder.binary(op, call, LiteralNumber.makeConst(0, TYPE_INT));
 
         resolver.fold(n, ne);
@@ -170,7 +170,7 @@ private:
     void rewriteToBoolEquals(Is n) {
         auto builder = module_.builder(n);
 
-        auto op = n.negate ? Operator.COMPARE : Operator.BOOL_EQ;
+        auto op = n.negate ? Operator.BOOL_NE : Operator.BOOL_EQ;
 
         auto binary = builder.binary(op, n.left, n.right, TYPE_BOOL);
 

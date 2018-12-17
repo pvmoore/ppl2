@@ -283,8 +283,8 @@ enum TT {
     LANGLE,
     RANGLE,
 
-    LTE,
-    GTE,
+    LTE,            // <=
+    GTE,            // >=
 
     SHL,
     SHR,
@@ -326,7 +326,7 @@ enum TT {
     USHR_ASSIGN,    // >>>=
 
     BOOL_EQ,        // ==
-    COMPARE,        // <>
+    BOOL_NE,        // <>
 }
 bool isComment(TT t) {
     return t==TT.LINE_COMMENT || t==TT.MULTILINE_COMMENT;
@@ -389,7 +389,7 @@ string toString(TT t) {
         map[USHR_ASSIGN] = ">>>=";
 
         map[BOOL_EQ] = "==";
-        map[COMPARE] = "<>";
+        map[BOOL_NE] = "<>";
     }
     return map.get(t, "%s".format(t));
 }

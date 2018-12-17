@@ -35,6 +35,15 @@ final class NodeBuilder {
         b.add(right);
         return b;
     }
+    Binary or(Expression left, Expression right, Type type=TYPE_UNKNOWN) {
+        auto b = makeNode!Binary(node);
+        b.type = type;
+        b.op   = Operator.BOOL_OR;
+
+        b.add(left);
+        b.add(right);
+        return b;
+    }
     Binary binary(Operator op, Expression left, Expression right, Type type=TYPE_UNKNOWN) {
         auto b = makeNode!Binary(node);
         b.type = type;
@@ -149,6 +158,18 @@ final class NodeBuilder {
         auto e = makeNode!TypeExpr(node);
         e.type = t;
         return e;
+    }
+    Unary unary(Operator op, Expression expr) {
+        auto u = makeNode!Unary(node);
+        u.op = op;
+        u.add(expr);
+        return u;
+    }
+    Unary not(Expression expr) {
+        auto u = makeNode!Unary(node);
+        u.op = Operator.BOOL_NOT;
+        u.add(expr);
+        return u;
     }
     ValueOf valueOf(Expression expr) {
         auto v = makeNode!ValueOf(node);

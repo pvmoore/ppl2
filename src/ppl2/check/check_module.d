@@ -152,12 +152,17 @@ public:
         auto retType = n.getType.getFunctionType.returnType;
 
         switch(n.name) {
+            case "operator==":
             case "operator<>":
-                if(retType.isPtr || !retType.isInt) {
-                    module_.addError(n, "operator<> must return int", true);
+            case "operator<":
+            case "operator>":
+            case "operator<=":
+            case "operator>=":
+                if(retType.isPtr || !retType.isBool) {
+                    module_.addError(n, "%s must return bool".format(n.name), true);
                 }
                 break;
-            case "operator:":
+            case "operator[]":
                 if(n.params.numParams==2) {
                     /// get
                     if(retType.isValue && retType.isVoid) {

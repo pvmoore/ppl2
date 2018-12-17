@@ -95,9 +95,10 @@ public
     static dump {
         println("")
         println("")
-        println("GC Stats:")
+        println("== GC Stats =====================")
         print("Num allocs ... ") print(numAllocs) print(" (") print(totalAlloced/1) println(" bytes)")
         print("Num Frees .... ") println(numFrees)
+        println("=================================")
     }
 }
 

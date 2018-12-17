@@ -37,13 +37,19 @@ public:
         /// Handle enums
         if(handleEnums(n, lt, rt)) return;
 
-        if(lt.isStruct && lt.isValue) {
+        if((lt.isStruct && lt.isValue) || (rt.isStruct && rt.isValue)) {
             if(n.op.isOverloadable || n.op.isComparison) {
-                n.rewriteToOperatorOverloadCall();
-                resolver.setModified();
+                rewriteToOperatorOverloadCall(n);
                 return;
             }
         }
+
+        //if(lt.isStruct && lt.isPtr) {
+        //    if(n.op.isComparison) {
+        //        rewriteToOperatorOverloadCall(n);
+        //        return;
+        //    }
+        //}
 
         /// ==
         if(n.op==Operator.BOOL_EQ) {
@@ -198,5 +204,141 @@ private:
         //    }
         //}
         return false;
+    }
+    void rewriteToOperatorOverloadCall(Binary n) {
+        Struct leftStruct = n.leftType.getStruct;
+        Struct rightStruct = n.rightType.getStruct;
+
+        assert(leftStruct || rightStruct);
+
+        /// Swap left and right if the struct is on the rhs and op is commutative
+        if(!leftStruct) {
+            /// eg.
+            /// 1 + struct
+            /// 1 == struct
+
+            if(n.op.isCommutative || n.op.isBool) {
+
+                /// Reverse the operation
+                auto op2 = n.op;
+                if(!n.op.isCommutative) {
+                    op2 = n.op.switchLeftRightBool();
+                }
+
+                if(rightStruct.hasOperatorOverload(op2)) {
+                    /// Swap left and right
+                    auto left = n.left();
+                    left.detach();
+                    n.add(left);
+
+                    leftStruct  = rightStruct;
+                    rightStruct = null;
+
+                    n.op = op2;
+                } else {
+                    module_.addError(n, "Struct %s does not overload operator%s"
+                        .format(rightStruct.name, op2.value), true);
+                    return;
+                }
+            } else {
+                module_.addError(n, "Invalid overload %s.operator%s(%s)"
+                                    .format(n.leftType, n.op.value, n.rightType), true);
+                return;
+            }
+        }
+
+        auto b = module_.builder(n);
+
+        Expression expr;
+
+        /// Try to call the requested operator overload if it is defined.
+
+        if(leftStruct.hasOperatorOverload(n.op)) {
+            if(n.op.isAssign) {
+                auto leftPtr = leftStruct.isValue ? b.addressOf(n.left) : n.left;
+                expr = b.dot(leftPtr, b.call("operator"~n.op.value).add(n.right));
+            } else {
+                expr = b.dot(n.left, b.call("operator"~n.op.value).add(n.right));
+            }
+            resolver.fold(n, expr);
+            return;
+        }
+
+        /// The specific operator overload is not defined.
+        /// We can still continue if it is a bool operation
+        /// and we can make it work using other defined operators
+
+        /// Missing op | Rewrite to
+        /// -----------------------------------------
+        ///    ==      | not left.operator<>(right)
+        ///    <>      | not left.operator==(right)
+        ///     <      | not left.operator>=(right) ** right.operator>(left)  / not right.operator<=(left)
+        ///     >      | not left.operator<=(right) ** right.operator<(left)  / not right.operator>=(left)
+        ///    <=      | not left.operator>(right)  ** right.operator>=(left) / not right.operator<(left)
+        ///    >=      | not left.operator<(right)  ** right.operator<=(left) / not right.operator>(left)
+
+        /// ** Not implemented (Only works if right is a struct) Also there could be subtle issues
+
+        switch(n.op.id) with(Operator) {
+            case BOOL_EQ.id:
+                if(leftStruct.hasOperatorOverload(BOOL_NE)) {
+                    expr = b.dot(n.left, b.call("operator<>").add(n.right));
+                    expr = b.not(expr);
+                    resolver.fold(n, expr);
+                    return;
+                }
+                break;
+            case BOOL_NE.id:
+                if(leftStruct.hasOperatorOverload(Operator.BOOL_EQ)) {
+                    expr = b.dot(n.left, b.call("operator==").add(n.right));
+                    expr = b.not(expr);
+                    resolver.fold(n, expr);
+                    return;
+                }
+                break;
+            case LT.id:
+                if(leftStruct.hasOperatorOverload(Operator.GTE)) {
+                    expr = b.dot(n.left, b.call("operator>=").add(n.right));
+                    expr = b.not(expr);
+                    resolver.fold(n, expr);
+                    return;
+                }
+                break;
+            case GT.id:
+                if(leftStruct.hasOperatorOverload(Operator.LTE)) {
+                    expr = b.dot(n.left, b.call("operator<=").add(n.right));
+                    expr = b.not(expr);
+                    resolver.fold(n, expr);
+                    return;
+                }
+                if(rightStruct) {
+
+                }
+                break;
+            case LTE.id:
+                if(leftStruct.hasOperatorOverload(Operator.GT)) {
+                    expr = b.dot(n.left, b.call("operator>").add(n.right));
+                    expr = b.not(expr);
+                    resolver.fold(n, expr);
+                    return;
+                }
+                if(rightStruct) {
+
+                }
+                break;
+            case GTE.id:
+                if(leftStruct.hasOperatorOverload(Operator.LT)) {
+                    expr = b.dot(n.left, b.call("operator<").add(n.right));
+                    expr = b.not(expr);
+                    resolver.fold(n, expr);
+                    return;
+                }
+                break;
+            default:
+                break;
+        }
+
+        module_.addError(n, "Struct %s does not overload operator%s"
+                            .format(leftStruct.name, n.op.value), true);
     }
 }

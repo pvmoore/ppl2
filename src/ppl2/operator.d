@@ -74,7 +74,7 @@ enum Operator : Op {
     LTE      = Op(18, 9, "<="),
     GTE      = Op(19, 9, ">="),
     BOOL_EQ  = Op(20, 9, "=="),
-    COMPARE  = Op(21, 9, "<>"),     /// BOOL_NE
+    BOOL_NE  = Op(21, 9, "<>"),
 
     /// Is = 9
 
@@ -136,7 +136,7 @@ bool isBool(Operator o) {
         case BOOL_OR.id:
         case BOOL_NOT.id:
         case BOOL_EQ.id:
-        case COMPARE.id:
+        case BOOL_NE.id:
         case LT.id:
         case GT.id:
         case LTE.id:
@@ -146,11 +146,35 @@ bool isBool(Operator o) {
             return false;
     }
 }
+Operator switchLeftRightBool(Operator o) {
+    switch(o.id) with(Operator) {
+        case BOOL_EQ.id: return BOOL_EQ;
+        case BOOL_NE.id: return BOOL_NE;
+        case LT.id: return GTE;
+        case GT.id: return LTE;
+        case LTE.id: return GT;
+        case GTE.id: return LT;
+        default:
+            assert(false, "not a bool");
+    }
+}
 bool isUnary(Operator o) {
     switch(o.id) with(Operator) {
         case NEG.id:
         case BIT_NOT.id:
         case BOOL_NOT.id:
+            return true;
+        default:
+            return false;
+    }
+}
+bool isCommutative(Operator o) {
+    switch(o.id) with(Operator) {
+        case ADD.id:
+        case MUL.id:
+        case BIT_AND.id:
+        case BIT_OR.id:
+        case BIT_XOR.id:
             return true;
         default:
             return false;
@@ -182,8 +206,12 @@ bool isOverloadable(Operator o) {
         case BIT_AND_ASSIGN.id:
         case BIT_XOR_ASSIGN.id:
 
-        case BOOL_EQ.id:
-        case COMPARE.id:
+        case BOOL_EQ.id:    /// ==
+        case BOOL_NE.id:    /// <>
+        case LT.id:         /// <
+        case GT.id:         /// >
+        case LTE.id:        /// <=
+        case GTE.id:        /// >=
 
         case NEG.id:
 
@@ -200,7 +228,7 @@ bool isComparison(Operator o) {
         case GT.id:
         case GTE.id:
         case BOOL_EQ.id:
-        case COMPARE.id:
+        case BOOL_NE.id:
             return true;
         default:
             return false;

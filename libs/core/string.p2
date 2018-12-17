@@ -23,11 +23,10 @@ public
     
     operator[] { int index-> return ptr()[index] }
     
-    //operator== { string s ->}
-    //operator<  { string -> }
-    operator<> { string s -> 
-        return if(length==s.length and memcmp(ptr(), s.ptr(), length)) 0 else -1 
+    operator== { string s -> 
+        return length==s.length and memcmp(ptr(), s.ptr(), length) == 0 
     } 
+    //operator< { string s -> return todo }
            
     indexOf { int ch ->
         var p = memchr(ptr(), ch, length)
