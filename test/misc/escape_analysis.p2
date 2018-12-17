@@ -9,6 +9,7 @@ testEscapees {
     //func5()
     //func6()
     //func7()
+    //func8()
 }
 func1 {
     int a
@@ -62,6 +63,25 @@ func7 {
     }
     one()
     two()
+}
+func8 {
+    one {
+        int[] a = [1,2,3]
+        return &a // bad
+    }
+    two {
+        return &[1,2,3]   // bad
+    }
+    three {
+        return [1,2,3] // ok
+    }
+    four {
+        return &([1,2] as [int,int])  // bad
+    }
+    one()
+    two()
+    three()
+    four()
 }
 
 

@@ -10,8 +10,13 @@ line = 38
 active = 0
 
 [[openFile]]
-name = "structs/operator_overloading.p2"
-line = 54
+name = "test.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "misc/escape_analysis.p2"
+line = 11
 active = 1
 
 [[openFile]]

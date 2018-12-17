@@ -75,14 +75,34 @@ private:
             case INDEX:
                 auto idx = e.as!Index;
                 return findVariable(idx.expr());
+            case LITERAL_ARRAY:
             case LITERAL_NULL:
             case LITERAL_NUMBER:
+            case LITERAL_TUPLE:
             case BINARY:
             case CLOSURE:
                 break;
+
             default:
                 assert(false, "implement %s".format(e.id));
                 //break;
+        }
+        return null;
+    }
+    T probeFor(T)(Expression e) {
+        if(e.isA!T) {
+            return e.as!T;
+        }
+        switch(e.id) with(NodeID) {
+            case ADDRESS_OF: return probeFor!T(e.as!AddressOf.expr());
+            case LITERAL_ARRAY:
+            case LITERAL_NULL:
+            case LITERAL_TUPLE:
+            case BINARY:
+            case CALL:
+                break;
+            default:
+                assert(false, "implement %s".format(e.id));
         }
         return null;
     }
@@ -141,6 +161,13 @@ private:
                                 chat("POISON");
                                 error(ret.expr());
                             }
+                        }
+                    } else {
+                        if(probeFor!LiteralArray(ret.expr()) ||
+                           probeFor!LiteralTuple(ret.expr()))
+                        {
+                            chat("POISON");
+                            error(ret.expr());
                         }
                     }
                 }

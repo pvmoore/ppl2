@@ -12,6 +12,7 @@ public:
         this.module_  = module_;
     }
     void resolve(LiteralArray n) {
+        //if(module_.canonicalName=="misc::escape_analysis") dd("array:", n.line+1);
         if(n.type.isUnknown) {
             Type parentType;
             switch(n.parent.id) with(NodeID) {
@@ -37,7 +38,7 @@ public:
                         }
                         break;
                     }
-                    case DOT:
+                case DOT:
                     break;
                 case INDEX:
                     break;
@@ -47,6 +48,8 @@ public:
                 case IS:
                     break;
                 case LITERAL_FUNCTION:
+                    break;
+                case RETURN:
                     break;
                 case VARIABLE:
                     parentType = n.parent.as!Variable.type;
@@ -99,8 +102,105 @@ public:
     }
     void resolve(LiteralExpressionList n) {
         /// Try to convert this into either a LiteralTuple or a LiteralArray
-        n.resolve();
-        resolver.setModified();
+
+        void convertToLiteralArray() {
+            auto array = makeNode!LiteralArray(n);
+
+            foreach(ch; n.children[].dup) {
+                array.add(ch);
+            }
+            resolver.fold(n, array);
+        }
+        void convertToLiteralTuple() {
+            auto struct_ = makeNode!LiteralTuple(n);
+
+            foreach(ch; n.children[].dup) {
+                struct_.add(ch);
+            }
+            resolver.fold(n, struct_);
+        }
+
+        switch(n.parent.id) with(NodeID) {
+            case AS:
+                As p   = n.parent.as!As;
+                auto t = p.getType;
+                if(p.getType.isArray) {
+                    if(t.getArrayType.numChildren==0) {
+                        /// No length eg. [1,2,3] as type[]
+
+                        auto count = LiteralNumber.makeConst(n.numChildren, TYPE_INT);
+                        t.getArrayType.add(count);
+                    }
+                    convertToLiteralArray();
+                } else if(p.getType.isTuple) {
+                    convertToLiteralTuple();
+                }
+                break;
+            case BINARY:
+                auto p     = n.parent.as!Binary;
+                auto other = p.otherSide(n);
+                if(other.getType.isArray) {
+                    convertToLiteralArray();
+                } else if(other.getType.isTuple) {
+                    convertToLiteralTuple();
+                }
+                break;
+            case CALL:
+                auto p = n.parent.as!Call;
+                auto t = p.isResolved ? p.target.paramTypes()[n.index()] : TYPE_UNKNOWN;
+                if(t.isArray) {
+                    convertToLiteralArray();
+                } else if(t.isTuple) {
+                    convertToLiteralTuple();
+                } else {
+                    /// Assume array
+                    convertToLiteralArray();
+                }
+                break;
+            case ADDRESS_OF:
+            case BUILTIN_FUNC:
+            case DOT:
+            case INDEX:
+            case LITERAL_FUNCTION:
+                /// Assume array
+                convertToLiteralArray();
+                break;
+            case INITIALISER:
+                auto p = n.parent.as!Initialiser;
+                if(p.var.isImplicit) {
+                    /// Assume array
+                    convertToLiteralArray();
+                } else if(p.var.type.isArray) {
+                    convertToLiteralArray();
+                } else if(p.var.type.isTuple) {
+                    convertToLiteralTuple();
+                }
+                break;
+            case IS:
+                auto p = n.parent.as!Is;
+                auto t = p.oppositeSideType(n);
+                if(t.isArray) {
+                    convertToLiteralArray();
+                } else if(t.isTuple) {
+                    convertToLiteralTuple();
+                }
+                break;
+            case RETURN:
+                auto p = n.parent.as!Return;
+                if(p.getReturnType.isKnown) {
+                    if(p.getReturnType().isArray) {
+                        convertToLiteralArray();
+                    } else if (p.getReturnType().isTuple) {
+                        convertToLiteralTuple();
+                    }
+                } else if(resolver.isStalemate) {
+                    /// Cannot make any progress - assume it's an array
+                    convertToLiteralArray();
+                }
+                break;
+            default:
+                assert(false, "Parent of LiteralExpressionList is %s".format(n.parent.id));
+        }
     }
     void resolve(LiteralFunction n) {
         if(n.type.isUnknown) {
@@ -189,6 +289,8 @@ public:
             Type type;
             /// Determine type from parent
             switch(n.parent.id) with(NodeID) {
+                case ADDRESS_OF:
+                    break;
                 case AS:
                     type = n.parent.as!As.getType;
                     break;
