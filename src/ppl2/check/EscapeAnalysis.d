@@ -91,17 +91,17 @@ private:
         }
     }
 
-    Ref findVariable(Expression e) {
+    Ref findRef(Expression e) {
         switch(e.id) with(NodeID) {
             case ADDRESS_OF:
-                return findVariable(e.as!AddressOf.expr());
+                return findRef(e.as!AddressOf.expr());
             case AS:
-                return findVariable(e.as!As.left());
+                return findRef(e.as!As.left());
             case CALL:
                 break;
             case DOT:
                 auto dot = e.as!Dot;
-                return findVariable(dot.right());
+                return findRef(dot.right());
             case IDENTIFIER:
                 auto target = e.as!Identifier.target;
                 if(target.isVariable) return Ref(target.getVariable);
@@ -154,8 +154,8 @@ private:
                 vars[n.nid] = PointsTo();
             } else if(n.id==NodeID.BINARY && n.as!Binary.op==Operator.ASSIGN) {
                 auto bin   = n.as!Binary;
-                auto left  = findVariable(bin.left());
-                auto right = findVariable(bin.right());
+                auto left  = findRef(bin.left());
+                auto right = findRef(bin.right());
 
                 if(left.exists && right.exists) {
 
@@ -174,7 +174,7 @@ private:
                     int depth = ret.getType.getPtrDepth;
                     chat("      return ptr depth:%s ==> vars = %s", depth, vars);
 
-                    auto var = findVariable(ret.expr());
+                    auto var = findRef(ret.expr());
                     if(var.exists) {
                         if(var.ptrDepth < depth) {
                             chat("POISON");

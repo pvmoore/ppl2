@@ -259,6 +259,13 @@ public:
                 case BINARY:
                     type = parent.as!Binary.leftType();
                     break;
+                case CALL: {
+                    auto call = parent.as!Call;
+                    if(call.isResolved) {
+                        type = call.target.paramTypes()[n.index()];
+                    }
+                    break;
+                }
                 case CASE:
                     auto c = parent.as!Case;
                     if(c.isCond(n)) {

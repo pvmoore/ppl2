@@ -200,7 +200,10 @@ returns {
 }
 
 arguments {
-
+    one { int* p ->
+        
+    }
+    one(null)
 }
 
 

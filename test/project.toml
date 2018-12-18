@@ -11,13 +11,13 @@ active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 0
-active = 0
+line = 278
+active = 1
 
 [[openFile]]
 name = "misc/escape_analysis.p2"
-line = 66
-active = 1
+line = 68
+active = 0
 
 [[openFile]]
 name = "core/memory.p2"
