@@ -2,86 +2,206 @@
 public
 
 testEscapees {
-    //func1()
-    //func2()
-    //func3()
-    //func4()
-    //func5()
-    //func6()
-    //func7()
-    //func8()
+    //returns()
+    arguments()
 }
-func1 {
-    int a
-    return &a   // bad
-}
-func2 {
-    int a
-    int* b = &a
-    var c = b
-    if(false) return c  // bad
-    c = null
-    return c    // ok
-}
-func3 {
-    if(int a=0; true) return &a // bad
-    return null as int* // ok
-}
-func4 {
-    int* a 
-    return a    // ok
-}
-func5 {
-    [int a, int b] t
-    int* ptr = &t.a
-    if(false) return ptr    // bad
-    ptr = &t as int*
-    return ptr // bad
-}
-func6 {
-    struct A { int a, int b }
-    one {
-        A a
-        return &a.b // bad
+
+returns {
+    variables {
+        // simple local values
+        bad1a {
+            int a
+            return &a   // bad
+        }
+        bad1b {
+            int[1] b
+            return &b   // bad
+        }
+        bad1c {
+            [int,int] c
+            return &c   // bad
+        }
+        bad1d {
+            struct D {int a}
+            D d
+            return &d   // bad
+        }
+        // nested local
+        bad2 {
+            if(int a=0; true) return &a // bad
+            return null as int*
+        }
+        // local ref to local alloca
+        bad3 {
+            int a
+            int* ptr = &a
+            return ptr    // bad
+        }
+        bad4 {
+            int a
+            int* b = &a
+            var c = b
+            if(false) return c  // bad
+            c = null
+            return c    // ok
+        }
+        // no local alloca
+        ok1 {
+            int* a 
+            return a    // ok
+        }
+        ok2 {
+            return null as int* // ok
+        }
+        bad1a()
+        bad1b()
+        bad1c()
+        bad1d()
+        bad2()
+        bad3()
+        bad4()
+        ok1()
+        ok2()
     }
-    two {
-        A a
-        int* ptr = &a.a
-        return ptr  // bad
+    structMembers {
+        struct A { int a, int b }
+        struct B { int a, int* b }
+        bad1 {
+            A a
+            return &a.b // bad
+        }
+        bad2 {
+            A a
+            int* ptr = &a.a
+            return ptr  // bad
+        }
+        bad3 {
+            B b
+            return &b.b // bad - address of int*
+        }
+        ok1 {
+            B b
+            return b // ok is value
+        }
+        ok2 {
+            B b
+            return b.b  // ok - b.b is an int* value
+        }
+        ok3 {
+            B* b
+            return b    // ok
+        }
+        bad1()
+        bad2() 
+        bad3()
+        ok1()
+        ok2()
+        ok3()
     }
-    one()
-    two()
+    tupleMembers {
+        bad1 {
+            [int a, int b] t
+            return &t.a // bad
+        }
+        bad2 {
+            [int a, int* b] t
+            return &t.b     // bad 
+        }
+        ok1 {
+            [int a, int* b] t
+            return t.b    // ok int* value
+        }
+        ok2 {
+            [int a, int b] t
+            return t.a   // ok
+        }
+        ok3 {
+            [int a, int b] t
+            return t[0]     // ok
+        }
+        ok4 {
+            [int* a, int b] t
+            return t[0]     // ok
+        }
+        bad3 {
+            [int* a, int b] t
+            return &t[0]     // bad
+        }
+        bad1()
+        bad2()
+        bad3()
+        ok1()
+        ok2()
+        ok3()
+        ok4()
+    }
+    arrayMembers {
+        bad1 {
+            int[3] array
+            return &array[0]    // bad
+        }
+        ok1 {
+            int[3] array
+            return array[0]    // ok
+        }
+        ok2 {
+            int*[3] array
+            return array[0] // ok - value
+        }
+        bad2 {
+            int*[3] array
+            return &array[0] // bad
+        }
+        ok3 {
+            int* ptr = GC.alloc(3) as int*
+            return ptr[1]   // ok
+        }
+        bad1()
+        bad2()
+        ok1()
+        ok2()
+        ok3()
+    }
+    literalArrays {
+        bad1 {
+            int[] a = [1,2,3]
+            return &a           // bad
+        }
+        bad2 {
+            return &[1,2,3]     // bad
+        }
+        ok1 {
+            return [1,2,3]      // ok
+        }
+        bad3 {
+            return &[1,2,3][1]    // bad
+        }
+        bad1()
+        bad2()
+        bad3()
+        ok1()
+    }
+    literalTuples {
+        bad1 {
+            return &([1,2] as [int,int])  // bad
+        }
+        ok1 {
+            return [1,2] as [int,int]   // ok     
+        }
+        bad1()
+        ok1()   
+    }
+    variables()
+    structMembers()
+    tupleMembers()
+    arrayMembers()
+    literalArrays()
+    literalTuples()
 }
-func7 {
-    one {
-        int[3] array
-        return &array // bad
-    }
-    two {
-        int[3] array
-        return &array[0] // bad
-    }
-    one()
-    two()
+
+arguments {
+
 }
-func8 {
-    one {
-        int[] a = [1,2,3]
-        return &a // bad
-    }
-    two {
-        return &[1,2,3]   // bad
-    }
-    three {
-        return [1,2,3] // ok
-    }
-    four {
-        return &([1,2] as [int,int])  // bad
-    }
-    one()
-    two()
-    three()
-    four()
-}
+
 
 

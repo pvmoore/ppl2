@@ -44,8 +44,12 @@ private:
         console.logln("Build failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
         ide.getStatusLine().setBuildStatus("Build Failed", b.getElapsedNanos());
 
-        foreach(i, err; b.getErrors()) {
-            console.logln("[%s] %s\n", i, err.toPrettyString());
+        if(numErrors==1) {
+            console.logln("%s\n", b.getErrors()[0].toPrettyString());
+        } else {
+            foreach(i, err; b.getErrors()) {
+                console.logln("[%s] %s", i+1, err.toConciseString());
+            }
         }
     }
     void updateViews(BuildState b) {

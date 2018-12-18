@@ -18,31 +18,29 @@ public:
         this.column  = column;
     }
     abstract string getKey();
+    abstract string toConciseString();
     abstract string toPrettyString();
 protected:
-    string prettyErrorMsg(Module module_, string msg) {
-        auto buf = new StringBuffer;
-
-        void showMessageWithoutLine() {
-            buf.add("Error: [%s] %s\n", module_.fullPath, msg);
-        }
-        void showMessageWithLine() {
-            buf.add("Error: [%s Line %s:%s] %s\n", module_.fullPath, line+1, column, msg);
-        }
-
+    string conciseErrorMsg(string msg) {
         if(line==-1 || column==-1) {
-            showMessageWithoutLine();
-            return buf.toString();
+            return "[%s] %s".format(module_.fullPath, msg);
+        }
+        return "[%s Line %s:%s] %s".format(module_.fullPath, line+1, column, msg);
+    }
+    string prettyErrorMsg(string msg) {
+        if(line==-1 || column==-1) {
+            return conciseErrorMsg(msg);
         }
 
         auto lines = From!"std.stdio".File(module_.fullPath, "rb").byLineCopy().array;
 
         if(lines.length<=line) {
-            showMessageWithoutLine();
-            return buf.toString();
+            return conciseErrorMsg(msg);
         }
 
-        showMessageWithLine();
+        auto buf = new StringBuffer;
+
+        buf.add(conciseErrorMsg(msg));
 
         string spaces;
         for(int i=0; i<column; i++) { spaces ~= " "; }
@@ -68,8 +66,11 @@ public:
     override string getKey() {
         return "%s|%s|%s|%s".format(module_.canonicalName, line, column, msg);
     }
+    override string toConciseString() {
+        return conciseErrorMsg(msg);
+    }
     override string toPrettyString() {
-        return prettyErrorMsg(module_, msg);
+        return prettyErrorMsg(msg);
     }
 }
 //====================================================================================
@@ -92,8 +93,11 @@ public:
     override string getKey() {
         return "%s|%s|%s".format(module_.canonicalName, line, column);
     }
+    override string toConciseString() {
+        return conciseErrorMsg(msg);
+    }
     override string toPrettyString() {
-        return prettyErrorMsg(module_, msg);
+        return prettyErrorMsg(msg);
     }
 }
 //====================================================================================
@@ -102,11 +106,14 @@ private:
     string msg;
 public:
     this(Module m, string msg) {
-        super(m, 0, 0);
+        super(m, -1, -1);
         this.msg = msg;
     }
     override string getKey() {
         return "%s".format(msg);
+    }
+    override string toConciseString() {
+        return conciseErrorMsg(msg);
     }
     override string toPrettyString() {
         return msg;
@@ -136,10 +143,13 @@ public:
     override string getKey() {
         return "%s|%s|%s".format(module_.canonicalName, call.line, call.column);
     }
+    override string toConciseString() {
+        return conciseErrorMsg("Ambiguous call");
+    }
     override string toPrettyString() {
         auto buf = new StringBuffer;
 
-        buf.add(prettyErrorMsg(module_, "Ambiguous call"));
+        buf.add(prettyErrorMsg("Ambiguous call"));
 
         auto numMatches = overloadSet.length + templateFunctions.length;
 
@@ -189,6 +199,9 @@ public:
     }
     override string getKey() {
         return "%s|%s".format(status, msg);
+    }
+    override string toConciseString() {
+        return conciseErrorMsg("Link error: "~msg);
     }
     override string toPrettyString() {
         return "Link error: Status code: %s, msg: %s".format(status, msg);

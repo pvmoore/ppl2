@@ -1,14 +1,8 @@
 # Todo  
 
-- Add gc
-    - Look at https://github.com/orangeduck/tgc or similar
+- GC
     - Need to provide some mechanism for memory ownership to be transferred to a different thread since this
       gc is per thread but this can be done with some lib routine in core.thread for example.
-    - Change string to struct string { byte* ptr, int offset, int count } - this can then be used as a partial 
-      string range and it also holds the original ptr which is required by the gc
-
--   Add back operator== because <> can be inefficient if you only need equal/not equal
-    I think we only need operator== and operator< . Everything else can be derived from those.
       
 - __argc etc: https://docs.microsoft.com/en-us/cpp/c-runtime-library/argc-argv-wargv?view=vs-2017      
       

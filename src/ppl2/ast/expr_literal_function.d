@@ -59,37 +59,6 @@ final class LiteralFunction : Expression, Container {
         ).array;
     }
 
-    ///
-    /// Look through returns. All returns must be implicitly castable  
-    /// to a single base type.                                         
-    /// If there are no returns then the return type is void.          
-    ///
-    Type determineReturnType() {
-        Type rt;
-
-        void setTypeTo(Type t) {
-            if(rt is null) {
-                rt = t;
-            } else {
-                rt = getBestFit(t, rt);
-                if(type is null) {
-                    getModule.addError(this, "All return types must be implicitly castable to the largest return type", true);
-                }
-            }
-        }
-
-        foreach(r; getReturns()) {
-            if(r.hasExpr) {
-                if(r.expr().getType.isUnknown) return TYPE_UNKNOWN;
-                setTypeTo(r.expr().getType);
-            } else {
-                setTypeTo(TYPE_VOID);
-            }
-        }
-        if(rt) return rt;
-        return TYPE_VOID;
-    }
-
     override string toString() {
         return "{} (type=%s)".format(type);
     }

@@ -30,6 +30,39 @@ public:
         }
     }
 private:
+    struct Ref {
+        int nid;
+        string name;
+        int ptrDepth;
+
+        this(Variable v) {
+            nid = v.nid;
+            name = v.name;
+            ptrDepth = v.type.getPtrDepth;
+        }
+        this(Type t, string name) {
+            this.nid      = g_nodeid++;
+            this.name     = name;
+            this.ptrDepth = t.getPtrDepth;
+        }
+        bool exists() { return nid!=0; }
+
+        string toString() {
+            if(!exists()) return "Ref()";
+            return "Ref(%s,%s,%s)".format(name,nid,ptrDepth);
+        }
+    }
+    struct PointsTo {
+        Ref r;
+        bool poison;
+
+        string toString() {
+            return "->%s%s".format(r.toString(), poison?"!!!":"");
+        }
+    }
+    alias RefNID = int;
+    PointsTo[RefNID] vars;
+
     //bool hasPtrReturnOrParam(FunctionType type) {
     //    if(type.returnType.isPtr) return true;
     //    foreach(t; type.paramTypes) {
@@ -57,7 +90,8 @@ private:
             dd(format(fmt, args));
         }
     }
-    Variable findVariable(Expression e) {
+
+    Ref findVariable(Expression e) {
         switch(e.id) with(NodeID) {
             case ADDRESS_OF:
                 return findVariable(e.as!AddressOf.expr());
@@ -70,11 +104,11 @@ private:
                 return findVariable(dot.right());
             case IDENTIFIER:
                 auto target = e.as!Identifier.target;
-                if(target.isVariable) return target.getVariable;
+                if(target.isVariable) return Ref(target.getVariable);
                 break;
             case INDEX:
                 auto idx = e.as!Index;
-                return findVariable(idx.expr());
+                return Ref(idx.getType, "index");
             case LITERAL_ARRAY:
             case LITERAL_NULL:
             case LITERAL_NUMBER:
@@ -87,7 +121,7 @@ private:
                 assert(false, "implement %s".format(e.id));
                 //break;
         }
-        return null;
+        return Ref();
     }
     T probeFor(T)(Expression e) {
         if(e.isA!T) {
@@ -107,17 +141,7 @@ private:
         return null;
     }
     void checkVariablesAndAssigns() {
-        struct PointsTo {
-            Variable var;
-            bool poison;
 
-            string toString() {
-                if(!var) return "->_";
-                return "->%s(%s)%s".format(var.name, var.nid, poison?"!!!":"");
-            }
-        }
-        alias Var = int;
-        PointsTo[Var] vars;
 
         void error(ASTNode n) {
             module_.addError(n, "Escaping reference to stack memory", true);
@@ -133,13 +157,13 @@ private:
                 auto left  = findVariable(bin.left());
                 auto right = findVariable(bin.right());
 
-                if(left && right) {
+                if(left.exists && right.exists) {
 
                     PointsTo rightPT = vars.get(right.nid, PointsTo());
 
                     chat(" %s(%s) = %s(%s)", left.name, left.nid, right.name, right.nid);
                     vars[left.nid] = PointsTo(right, bin.rightType.isPtr || rightPT.poison);
-                } else if(left) {
+                } else if(left.exists) {
                     /// reset left
                     chat(" %s(%s) = ?", left.name, left.nid);
                     vars[left.nid] = PointsTo();
@@ -147,11 +171,12 @@ private:
             } else if(n.id==NodeID.RETURN) {
                 auto ret = n.as!Return;
                 if(ret.getType.isPtr) {
-                    chat("      return ==> vars = %s", vars);
+                    int depth = ret.getType.getPtrDepth;
+                    chat("      return ptr depth:%s ==> vars = %s", depth, vars);
 
                     auto var = findVariable(ret.expr());
-                    if(var) {
-                        if(var.type.isValue) {
+                    if(var.exists) {
+                        if(var.ptrDepth < depth) {
                             chat("POISON");
                             error(ret.expr());
                         } else {

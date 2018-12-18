@@ -29,6 +29,7 @@ goto END
 
 
 :FAIL
+echo.
 echo Compile or config error
 
 

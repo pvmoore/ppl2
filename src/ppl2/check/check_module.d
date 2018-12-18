@@ -457,22 +457,6 @@ public:
             stringSet.add(a);
         }
     }
-    void visit(Struct n) {
-
-        stringSet.clear();
-        foreach(v; n.getMemberVariables()) {
-            /// Variables must have a name
-            if(v.name.length==0) {
-                module_.addError(v, "Struct variable must have a name", true);
-            } else {
-                /// Names must be unique
-                if(stringSet.contains(v.name)) {
-                    module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name), true);
-                }
-                stringSet.add(v.name);
-            }
-        }
-    }
     void visit(Parenthesis n) {
 
     }
@@ -498,6 +482,22 @@ public:
                 if(!lit || (!lit.getType.isInteger && !lit.getType.isBool)) {
                     module_.addError(expr, "Switch-style Select clauses must be of const integer type", true);
                 }
+            }
+        }
+    }
+    void visit(Struct n) {
+
+        stringSet.clear();
+        foreach(v; n.getMemberVariables()) {
+            /// Variables must have a name
+            if(v.name.length==0) {
+                module_.addError(v, "Struct variable must have a name", true);
+            } else {
+                /// Names must be unique
+                if(stringSet.contains(v.name)) {
+                    module_.addError(v, "Struct %s has duplicate member %s".format(n.name, v.name), true);
+                }
+                stringSet.add(v.name);
             }
         }
     }

@@ -203,11 +203,43 @@ public:
         }
     }
     void resolve(LiteralFunction n) {
+        ///
+        /// Look through returns. All returns must be implicitly castable
+        /// to a single base type.
+        /// If there are no returns then the return type is void.
+        ///
+        Type determineReturnType() {
+            Type rt;
+
+            void setTypeTo(ASTNode node, Type t) {
+                if(rt is null) {
+                    rt = t;
+                } else {
+                    auto combined = getBestFit(t, rt);
+                    if(combined is null) {
+                        module_.addError(node, "Return types are not compatible: %s and %s".format(t, rt), true);
+                    }
+                    rt = combined;
+                }
+            }
+
+            foreach(r; n.getReturns()) {
+                if(r.hasExpr) {
+                    if(r.expr().getType.isUnknown) return TYPE_UNKNOWN;
+                    setTypeTo(r, r.expr().getType);
+                } else {
+                    setTypeTo(n, TYPE_VOID);
+                }
+            }
+            if(rt) return rt;
+            return TYPE_VOID;
+        }
+
         if(n.type.isUnknown) {
 
             auto ty = n.type.getFunctionType;
             if(ty.returnType.isUnknown) {
-                ty.returnType = n.determineReturnType();
+                ty.returnType = determineReturnType();
             }
         }
     }

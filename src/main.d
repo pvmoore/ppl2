@@ -41,10 +41,14 @@ void main(string[] argv) {
     /// Handle any errors
     if(builder.hasErrors()) {
         auto numErrors = builder.getErrors().length;
-        writefln("Build failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
+        writefln("\nBuild failed with %s error%s:\n", numErrors, numErrors>1?"s":"");
 
-        foreach(i, err; builder.getErrors()) {
-            writefln("[%s] %s\n", i, err.toPrettyString());
+        if(numErrors==1) {
+            writefln("%s\n", builder.getErrors()[0].toPrettyString());
+        } else {
+            foreach (i, err; builder.getErrors()) {
+                writefln("[%s] %s", i+1, err.toConciseString());
+            }
         }
     } else {
         //dumpModuleReferences(builder);
