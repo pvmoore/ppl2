@@ -213,7 +213,7 @@ public:
     }
     void visit(Identifier n) {
         if(n.target.isMemberFunction) {
-            assert(false);
+            assert(false, "%s line %s".format(n.name, n.line+1));
             //int index = n.target.structMemberIndex;
             //lhs = builder.getElementPointer_struct(lhs, index);
             //rhs = builder.load(lhs);

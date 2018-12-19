@@ -236,7 +236,7 @@ private:
 
                     n.op = op2;
                 } else {
-                    module_.addError(n, "Struct %s does not overload operator%s"
+                    module_.addError(n, "Struct '%s' does not overload operator%s"
                         .format(rightStruct.name, op2.value), true);
                     return;
                 }

@@ -18,22 +18,46 @@ public
     }
     ptr   { return basePtr+offset }
     empty { return length==0 }
-    first { assert not empty; return ptr()[0] }
-    last  { assert not empty; return ptr()[length-1] }
+    first { assert not empty(); return ptr()[0] }
+    last  { assert not empty(); return ptr()[length-1] }
     
     operator[] { int index-> return ptr()[index] }
     
     operator== { string s -> 
         return length==s.length and memcmp(ptr(), s.ptr(), length) == 0 
     } 
-    //operator< { string s -> return todo }
            
     indexOf { int ch ->
         var p = memchr(ptr(), ch, length)
         return if(p) (p-ptr()) as int else -1
     }
-    contains { int ch ->
-        return indexOf(ch) <> -1   
+    indexOf { string s ->
+        //return indexOf(s, 0)  // fixme
+        return this.indexOf(s, 0)
+    }
+    indexOf { int ch, int startIndex ->
+        if(startIndex<0 or startIndex>=length) return -1
+        var p = memchr(basePtr+offset+startIndex, ch, length-startIndex)
+        return if(p) (p-ptr()) as int else -1
+    }
+    indexOf { string s, int startIndex ->
+        if(s.empty()) return -1
+        if(startIndex<0) return -1
+            
+        var end = length-s.length
+        if(end<0) return -1
+        
+        loop(int pos=startIndex; pos<=end; pos += 1) {
+            pos = indexOf(s.first(), pos)
+            
+            select(pos) {
+                -1 : break
+                else : {
+                    if(memcmp(ptr()+pos, s.ptr(), s.length)==0) return pos 
+                }   
+            }
+        }
+        return -1   
     }
     startsWith { int ch ->
         return length>0 and ptr()[0]==ch   
@@ -49,6 +73,14 @@ public
         var off = length-s.length;
         return length >= s.length and memcmp(ptr()+off, s.ptr(), s.length) == 0   
     }
+    contains { int ch ->
+        return indexOf(ch) <> -1   
+    }
+    contains { string s ->
+        return indexOf(s) <> -1
+    }
+private
+
 }
 //=================================================================================================
 // Large string

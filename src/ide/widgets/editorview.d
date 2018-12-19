@@ -73,33 +73,45 @@ public:
             selectTab("TAB-"~active.filename);
         }
     }
-    void loadFile(string name) {
-        string filename = project.getAbsPath(name);
-        assert(From!"std.file".exists(filename), "file not found");
+    void loadFile(string relPath) {
+        string absPath = project.getAbsPath(relPath);
+        assert(From!"std.file".exists(absPath), "file not found");
 
-        //writefln("loadFile %s %s", name, filename); flushConsole();
+        //writefln("loadFile %s %s", relPath, filename); flushConsole();
 
-        auto openFile = project.getOpenFile(name);
+        auto openFile = project.getOpenFile(relPath);
 
-        auto t = tab("TAB-"~name);
+        auto t = tab("TAB-"~relPath);
         if(!t) {
-            addTab(makeTab(name, filename, openFile), From!"std.path".baseName(name).toUTF32, null, true, null);
+            auto widget = makeTab(relPath, absPath, openFile);
+            addTab(widget, getLabel(relPath), null, true, null);
+        } else {
+
         }
-        selectTab("TAB-"~name);
+        selectTab("TAB-"~relPath);
 
         //foreach(int i; 0..tabCount()) {
         //    writefln("[%s] %s", i, this.tab(i).id);
         //}
     }
 private:
-    Widget makeTab(string name, string filename, Project.OpenFile* info) {
+    dstring getLabel(string relPath) {
+        auto label  = From!"std.path".baseName(relPath).toUTF32;
+        foreach(int i; 0..tabCount()) {
+            if(tab(i).text == label) {
+                return relPath.toUTF32;
+            }
+        }
+        return label;
+    }
+    Widget makeTab(string relPath, string absPath, Project.OpenFile* info) {
         int line = 0;
         if(info) {
             line = info.line;
         }
 
-        auto editor = new EditorTab(ide, "TAB-"~name, name, filename, line);
-        editors["TAB-"~name] = editor;
+        auto editor = new EditorTab(ide, "TAB-"~relPath, relPath, absPath, line);
+        editors["TAB-"~relPath] = editor;
 
         return editor;
     }

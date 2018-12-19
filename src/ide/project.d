@@ -58,7 +58,7 @@ public:
         assert(!isAbsolute(relPath));
 
         foreach(inc; config.getIncludes()) {
-            if(relPath.startsWith(inc.baseModuleName)) {
+            if(relPath.startsWith(inc.baseModuleName~"/")) {
                 return inc.absPath ~ relPath;
             }
         }

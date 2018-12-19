@@ -29,4 +29,7 @@ extern memcmp  {void* ptr1,void* ptr2, long numBytes->int}
 extern memcpy  {void* destination, void* source, long num -> void*}
 extern memmove {void* dest, void* src, long numBytes -> void*}
 extern memset  {void* ptr, int value, long num -> void*}
+extern strcmp  {byte* str1, byte* str2 -> byte*}
 extern strlen  {byte* str -> long}
+extern strstr  {byte* str1, byte* str2 -> byte*}
+

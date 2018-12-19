@@ -142,7 +142,6 @@ private:
     }
     void checkVariablesAndAssigns() {
 
-
         void error(ASTNode n) {
             module_.addError(n, "Escaping reference to stack memory", true);
         }

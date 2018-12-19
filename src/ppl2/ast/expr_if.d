@@ -50,6 +50,13 @@ final class If : Expression {
             case LITERAL_FUNCTION:
             case LOOP:
                 return false;
+            case SELECT:
+                if(parent.isComposite) {
+                    if(parent.last().nid == nid) return p.as!Select.isExpr;
+                } else {
+                    assert(false, "implement me");
+                }
+                assert(false, "implement me");
             case BINARY:
             case INITIALISER:
             case RETURN:
@@ -60,7 +67,7 @@ final class If : Expression {
             case IF:
                 return p.as!If.isExpr();
             default:
-                assert(false, "dunno parent=%s".format(p));
+                assert(false, "dunno p=%s parent=%s".format(p, parent));
         }
     }
     bool thenBlockEndsWithReturn() {
