@@ -3,7 +3,6 @@
 public
 
 struct List <T> {
-private
     T* array
     int arrayLength
 readonly
