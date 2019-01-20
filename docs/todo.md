@@ -1,5 +1,29 @@
 # Todo  
 
+- heap scopes 
+    func {
+        // using global scope here
+        scope { // scope 1
+            __scopeStart // implicit call
+            func2 {
+                // using scope 1
+                scope { // scope 2
+                    val f = S*() // using scope 2
+                    
+                    __scopeEnd(2) // implicit call
+                    return 3
+                }
+            }
+            
+            var e = global S*() // use global scope
+            
+            __scopeEnd(1) // implicit call
+        }
+        __scopeEnd(1) // implicit call
+    }
+    Scopes are thread-local
+    Application begins with a global scope which is not thread-local
+
 - GC
     - Need to provide some mechanism for memory ownership to be transferred to a different thread since this
       gc is per thread but this can be done with some lib routine in core.thread for example.
