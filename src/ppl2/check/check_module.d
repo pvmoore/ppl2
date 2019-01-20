@@ -177,7 +177,7 @@ public:
                 if(retType.isVoid && retType.isValue) break; // void ok
                 if(retType.category()==Type.INT && retType.isValue) break; // int ok
 
-                module_.addError(n, "main can only return int or void", true);
+                module_.addError(n, "main/WinMain can only return int or void", true);
                 break;
             default:
                 break;

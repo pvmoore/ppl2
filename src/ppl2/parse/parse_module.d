@@ -270,7 +270,7 @@ private:
 
         if(isMainModule) {
             /// Check for a program entry point
-            auto mainfns = module_.getFunctions("main");
+            auto mainfns = module_.getFunctions(module_.config.getEntryFunctionName());
 
             if(mainfns.length > 1) {
                 module_.addError(mainfns[1], "Multiple program entry points found", true);
@@ -299,14 +299,14 @@ private:
     void addRealProgramEntry(Function main) {
         auto b = module_.builder(main);
 
-        /// Rename "main" to "__user_main"
+        /// Rename "main"/"WinMain" to "__user_main"
         main.name = "__user_main";
 
         bool mainReturnsAnInt = main.getBody().getReturns().any!(it=>it.hasExpr);
         Type gc = module_.typeFinder.findType("GC", main);
 
-        /// Create a new "main" function
-        auto func = b.function_("main");
+        /// Create a new "main"/"WinMain" function
+        auto func = b.function_(module_.config.getEntryFunctionName());
 
         /// Add GC.start()
         auto start = b.dot(b.typeExpr(gc), b.call("start"));
@@ -330,11 +330,6 @@ private:
         func.getBody().add(call);
         func.getBody().add(stop);
         func.getBody().add(ret);
-
-        /// Call exit?
-        //auto exit = b.call("exit");
-        //exit.add(b.identifier("__exitCode"));
-        //func.getBody().add(exit);
 
         func.numRefs++;
         module_.add(func);

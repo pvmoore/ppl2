@@ -90,6 +90,7 @@ struct Array <A,B> {
     B b 
 }
 
+//WinMain {   
 main {
     import misc::misc;              testMisc()
     import misc::builtin_funcs;     testBuiltinFuncs() 

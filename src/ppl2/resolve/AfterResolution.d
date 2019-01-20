@@ -14,7 +14,9 @@ public:
     void process(Module[] modules) {
         bool hasMainModule = buildState.mainModule !is null;
         Module mainModule  = buildState.mainModule;
-        Function entry     = hasMainModule ? mainModule.getFunctions("main")[0] : null;
+        Function entry     = hasMainModule ?
+                mainModule.getFunctions(buildState.config.getEntryFunctionName())[0]
+                : null;
 
         auto calls = new DynamicArray!Call;
 
@@ -47,7 +49,7 @@ private:
         if(buildState.mainModule is null) return;
 
         Module mainModule = buildState.mainModule;
-        Function entry    = mainModule.getFunctions("main")[0];
+        Function entry    = mainModule.getFunctions(buildState.config.getEntryFunctionName())[0];
 
         alias comparator = (Module a, Module b) {
             return a.getPriority < b.getPriority;

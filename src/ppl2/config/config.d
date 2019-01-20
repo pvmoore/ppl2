@@ -30,7 +30,8 @@ public:
     bool fastMaths          = true;
 
     /// Link options
-    bool enableLink = true;
+    bool enableLink  = true;
+    string subsystem = "console";
 
     int maxErrors = int.max;
 
@@ -53,6 +54,12 @@ public:
     bool isRelease() { return mode==Mode.RELEASE; }
     string getMainModuleCanonicalName() { return mainModuleCanonicalName; }
     Include[] getIncludes() { return includes.values; }
+
+    string getEntryFunctionName() {
+        if(subsystem=="console") return "main";
+        if(subsystem=="windows") return "WinMain";
+        assert(false, "Unknown susbystem : " ~ subsystem);
+    }
 
     void initialise() {
         mainModuleCanonicalName = mainFile.stripExtension.replace("/", "::").replace("\\", "::");
@@ -144,7 +151,8 @@ public:
         buf.add("Optimise ..... %s\n".format(enableOptimisation));
         buf.add("Fast maths ... %s\n\n".format(fastMaths));
 
-        buf.add("Link ......... %s\n\n".format(enableLink));
+        buf.add("Link ......... %s\n".format(enableLink));
+        buf.add("Subsystem .... %s\n\n".format(subsystem));
 
         foreach(lib; includes) {
             buf.add("include .. %s %s\n", lib.baseModuleName, lib.absPath);

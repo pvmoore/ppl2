@@ -31,7 +31,7 @@ public:
             //"/VERBOSE",
             "/MACHINE:X64",
             "/WX",              /// Treat linker warnings as errors
-            "/SUBSYSTEM:console"    // todo - get the subsystem from config
+            "/SUBSYSTEM:" ~ config.subsystem
         ];
 
         if(config.isDebug) {

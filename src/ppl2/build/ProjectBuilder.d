@@ -18,7 +18,7 @@ public:
         bool astDumped;
         try{
             /// We know we need the program entry point
-            functionRequired(config.getMainModuleCanonicalName, "main");
+            functionRequired(config.getMainModuleCanonicalName, config.getEntryFunctionName());
 
             ///============================ Start
             parseAndResolve();

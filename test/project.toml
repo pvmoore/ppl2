@@ -6,10 +6,20 @@ excludeDirectories = [".target/"]
 
 [[openFile]]
 name = "core/string.p2"
-line = 34
-active = 1
+line = 40
+active = 0
+
+[[openFile]]
+name = "vulkan/common.p2"
+line = 10
+active = 0
 
 [[openFile]]
 name = "core_/string.p2"
 line = 53
 active = 0
+
+[[openFile]]
+name = "windows/common.p2"
+line = 4
+active = 1

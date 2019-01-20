@@ -11,10 +11,20 @@ optLevel = 3
 
 [[linker]]
 enable = 1
+subsystem = "console"
+#subsystem="windows"
 
 #[[src-dependency]]
 #name = "blah"
 #directory = "./libs"
+
+[[src-dependency]]
+name = "windows"
+directory = "./libs"
+
+[[src-dependency]]
+name = "vulkan"
+directory = "./libs"
 
 #[[lib-dependency]]
 #name = "hello"

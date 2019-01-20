@@ -1,0 +1,5 @@
+
+alias DWORD  = int
+alias HANDLE = void*
+alias HWND   = HANDLE
+

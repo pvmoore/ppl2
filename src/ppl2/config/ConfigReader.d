@@ -79,6 +79,7 @@ public:
         doc.iterate("linker", (t) {
             bool enable = t.getInt("enable")==1;
             config.enableLink = enable;
+            config.subsystem  = t.getString("subsystem", "console");
         });
         config.initialise();
 

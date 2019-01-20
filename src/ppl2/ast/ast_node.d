@@ -192,12 +192,12 @@ public:
     }
     int indexOf(ASTNode child) {
         /// Do the happy path first, assuming child is an immediate descendent
-        foreach(int i, ch; children[]) {
-            if(ch is child) return i;
+        foreach(i, ch; children[]) {
+            if(ch is child) return i.as!int;
         }
         /// Do the slower version looking at all descendents
-        foreach(int i, ch; children[]) {
-            if(ch.hasDescendent(child)) return i;
+        foreach(i, ch; children[]) {
+            if(ch.hasDescendent(child)) return i.as!int;
         }
         return -1;
     }

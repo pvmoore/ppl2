@@ -47,7 +47,7 @@ public:
     }
 ///
     bool isProgramEntry() {
-        return "main"==name;
+        return "main"==name || "WinMain"==name;
     }
     bool isStructMember() const {
         return getContainer().id==NodeID.STRUCT;
