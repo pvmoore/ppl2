@@ -26,12 +26,12 @@ public:
         linkedIRView = new IRView("LINKED-IR-VIEW", ide);
         asmView      = new ASMView("ASM-VIEW", ide);
 
-        addTab(tokensView, "Tokens"d, null, false, null);
-        addTab(astView, "AST"d, null, false, null);
         addTab(irView, "IR"d, null, false, null);
         addTab(optIRView, "OptIR"d, null, false, null);
         addTab(linkedIRView, "LinkedIR"d, null, false, null);
         addTab(asmView, "ASM"d, null, false, null);
+        addTab(astView, "AST"d, null, false, null);
+        addTab(tokensView, "Tokens"d, null, false, null);
     }
     TokensView getTokensView() { return tokensView; }
     ASTView getASTView()       { return astView; }

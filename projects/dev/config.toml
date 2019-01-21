@@ -1,0 +1,31 @@
+[[general]]
+mainFile = "test.p2"
+targetPath = ".target/"
+targetExe = "test.exe"
+build = "release"
+
+[[release]]
+optLevel = 3
+
+[[debug]]
+
+[[linker]]
+enable = 1
+subsystem="console"
+
+#[[src-dependency]]
+#name = "windows"
+#directory = "./libs"
+
+#[[src-dependency]]
+#name = "glfw"
+#directory = "./libs"
+
+#[[src-dependency]]
+#name = "vulkan"
+#directory = "./libs"
+
+#[[lib-dependency]]
+#name = "glfw"
+#debugLibs   = ["./libs/glfw/glfw3dll.lib"]
+#releaseLibs = ["./libs/glfw/glfw3dll.lib"]

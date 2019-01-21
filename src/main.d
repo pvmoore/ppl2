@@ -18,11 +18,19 @@ void main(string[] argv) {
     writefln("PPL %s".format(VERSION));
     writefln("======================================");
 
+    string configFile = "projects/test/config.toml";
+
+    if(argv.length>1) {
+        configFile = normaliseDir(argv[1]) ~ "config.toml";
+    }
+
+    writefln("Reading config file %s", configFile);
+
     /// Get the PPL2 singleton
     auto ppl2 = PPL2.instance();
 
     /// Read config file
-    auto config = new ConfigReader("test/config.toml").read();
+    auto config = new ConfigReader(configFile).read();
 
     /// Alter the configuration
     config.writeASM = true;

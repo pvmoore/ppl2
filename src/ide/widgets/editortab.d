@@ -161,7 +161,8 @@ public:
         auto seconds = timeSinceLastEdit.peek().total!"seconds";
         //writefln("seconds=%s", seconds); flushConsole();
         if(seconds > 5) {
-            dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
+
+            //dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
 
             /// Reset clock and stop it. Any edit will restart it
             timeSinceLastEdit.reset();

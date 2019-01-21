@@ -1,0 +1,44 @@
+[[general]]
+name = "glfw"
+excludeFiles = []
+excludeDirectories = [".target/"]
+
+[[openFile]]
+name = "core/string.p2"
+line = 18
+active = 1
+
+[[openFile]]
+name = "std/console.p2"
+line = 0
+active = 0
+
+[[openFile]]
+name = "core/c.p2"
+line = 10
+active = 0
+
+[[openFile]]
+name = "core/memory.p2"
+line = 67
+active = 0
+
+[[openFile]]
+name = "std/file.p2"
+line = 3
+active = 0
+
+[[openFile]]
+name = "glfw/common.p2"
+line = 5
+active = 0
+
+[[openFile]]
+name = "test.p2"
+line = 7
+active = 0
+
+[[openFile]]
+name = "core/core.p2"
+line = 0
+active = 0

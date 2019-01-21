@@ -1,0 +1,4 @@
+[[general]]
+name = "vulkan"
+excludeFiles = []
+excludeDirectories = [".target/"]

@@ -1,0 +1,21 @@
+
+import glfw::common
+
+WinMain {  
+    
+    var file = fopen("myfile.txt", "w")
+    fputs("blah\n", file)
+    fclose(file)  
+    
+    if(int r = glfwInit(); r) {
+        glfwTerminate() 
+    }
+    
+    //int major;
+    //int minor;
+    //int rev;
+    //glfwGetVersion(&major, &minor, &rev)
+
+    println("Hello")
+}
+

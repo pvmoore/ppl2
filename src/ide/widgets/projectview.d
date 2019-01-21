@@ -40,8 +40,13 @@ public:
     void setProject(Project project) {
         import std.file, std.path;
 
+        writefln("projectView.setProject"); flushConsole();
+
         if(nodes.length>0) {
-            assert(false, "TODO - clear items before setting project again");
+            nodes.clear();
+            leaves.clear();
+
+            clearAllItems();
         }
 
         void makeNode(string name) {

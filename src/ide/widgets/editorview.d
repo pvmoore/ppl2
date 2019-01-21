@@ -57,6 +57,8 @@ public:
     void setProject(Project project) {
         this.project = project;
 
+        writefln("editorView.setProject"); flushConsole();
+
         /// Remove all current tabs
         foreach(i; editors.keys) {
             removeTab(i);

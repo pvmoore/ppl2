@@ -21,6 +21,17 @@ public
     first { assert not empty(); return ptr()[0] }
     last  { assert not empty(); return ptr()[length-1] }
     
+    cstr {
+        // todo - this might seg fault
+        if(ptr()[length]==0) return ptr() 
+            
+        var copy = GC.alloc(length+1) as byte*
+        memcpy(copy, ptr(), length)
+        copy[length] = 0 as byte
+        
+        return copy
+    }
+    
     operator[] { int index-> return ptr()[index] }
     
     operator== { string s -> 

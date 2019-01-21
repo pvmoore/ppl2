@@ -22,6 +22,6 @@ enum ActionID : int {
     TOOLBAR_BUILD_PROJECT,
     TOOLBAR_BUILD_OPT_PROJECT,
 
-
     ///
+    PROJECT_OPEN
 }

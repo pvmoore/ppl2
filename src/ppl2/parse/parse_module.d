@@ -219,6 +219,7 @@ private:
 
             "std::console",
             "std::list",
+            "std::file"
         ];
 
         foreach(s; IMPORTS) {

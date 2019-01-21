@@ -1,0 +1,9 @@
+
+public
+
+alias GLFWWIndow = void
+
+extern glfwInit { void->int } 	
+extern glfwTerminate {void->void}
+extern glfwGetVersion { int* major, int* minor, int* rev -> void } 	
+

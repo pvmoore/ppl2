@@ -7,7 +7,18 @@ public
 alias size_t    = long
 alias ptrdiff_t = long
 
+struct FILE {
+    void* _Placeholder  
+}
+
 // stdio.h
+extern fopen { byte* filename, byte* mode -> FILE* }
+extern fclose { FILE* -> int }
+extern fflush { FILE* -> int }
+extern fputs { byte* str, FILE* stream -> int }
+extern fread {  byte* ptr, long size, long count, FILE* stream -> long }
+extern fwrite { byte* ptr, long size, long count, FILE* stream -> long }
+extern getchar { void->int }
 extern putchar {int char -> int}
 extern puts {byte* str -> int}
 

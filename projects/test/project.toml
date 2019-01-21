@@ -1,6 +1,5 @@
 [[general]]
 name = "test"
-configFile = "config.toml"
 excludeFiles = ["blah", "blah2"]
 excludeDirectories = [".target/"]
 
@@ -8,6 +7,11 @@ excludeDirectories = [".target/"]
 name = "core/string.p2"
 line = 40
 active = 0
+
+[[openFile]]
+name = "glfw/common.p2"
+line = 4
+active = 1
 
 [[openFile]]
 name = "vulkan/common.p2"
@@ -22,4 +26,4 @@ active = 0
 [[openFile]]
 name = "windows/common.p2"
 line = 4
-active = 1
+active = 0

@@ -1,0 +1,14 @@
+[[general]]
+name = "testing"
+excludeFiles = []
+excludeDirectories = [".target/"]
+
+[[openFile]]
+name = "core/string.p2"
+line = 24
+active = 0
+
+[[openFile]]
+name = "test.p2"
+line = 7
+active = 1

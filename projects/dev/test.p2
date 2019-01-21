@@ -1,0 +1,15 @@
+
+main {  
+    println("Testing ...")
+    
+    var s = "i am a string"
+    var c = s.cstr()
+    
+    assert c is byte*
+    assert c == s.ptr()
+    
+    println("Finished")
+    
+    GC.dump()
+}
+

@@ -14,6 +14,7 @@ private:
     ConsoleView consoleView;
     Project project;
     BuildState currentBuild;
+    IDEConfig ideConfig;
 
     BuildJob buildJob;
 
@@ -37,8 +38,9 @@ public:
     }
     void ready() {
         this.buildCompleted = new BuildCompleted(this);
+        this.ideConfig      = new IDEConfig(this);
 
-        loadProject();
+        loadProject(ideConfig.currentProjectDir);
         assert(project);
 
         writefln("Main thread id = %s", Thread.getThis.id); flushConsole();
@@ -54,10 +56,11 @@ public:
             if(projectView) projectView.onClosing();
             if(editorView) editorView.onClosing();
             if(project) project.save();
+            ideConfig.save();
         });
 
         /// Initiate a build
-        dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
+        //dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
     }
     void setCurrentBuildState(BuildState b) {
         currentBuild = b;
@@ -129,6 +132,15 @@ protected:
             switch(a.id) with(ActionID) {
                 case FILE_EXIT:
                     window.close();
+                    break;
+                case FILE_OPEN_PROJECT:
+                    import dlangui.dialogs.filedlg;
+                    auto caption = UIString.fromRaw("Select project file"d);
+                    auto dlg = new FileDialog(caption, window, new Action(PROJECT_OPEN, "PROJECT_OPEN"d), FileDialogFlag.Open);
+                    dlg.show();
+                    break;
+                case PROJECT_OPEN:
+                    loadProject(a.stringParam);
                     break;
                 case PROJECT_VIEW_FILE_ACTIVATED:
                     editorView.loadFile(a.stringParam);
@@ -215,13 +227,19 @@ protected:
         return dock;
     }
 private:
-    void loadProject() {
-        project = new Project("test/");
+    void loadProject(string filename) {
+        writefln("LoadProject %s", filename);
+
+        project = new Project(filename);
 
         projectView.setProject(project);
         editorView.setProject(project);
 
         assert(cast(DockWindow)projectView.parent);
         projectView.parent.child(0).child(0).text = "Project :: %s"d.format(project.name);
+
+        ideConfig.currentProjectDir = project.directory;
+
+        //dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
     }
 }

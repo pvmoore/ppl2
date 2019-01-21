@@ -1,7 +1,7 @@
 module ide.project;
 
 import ide.internal;
-import std.path : isAbsolute;
+import std.path : baseName, dirName, isAbsolute;
 import std.file : exists;
 import ppl2;
 
@@ -15,7 +15,6 @@ public:
         bool active;
     }
     string name;
-    string configFile;
     string directory;
 
     Config config;
@@ -27,22 +26,31 @@ public:
     int[] currentLines;
     int[] currentColumns;
 
-    this() {
-        name      = "Test";
-        directory = normaliseDir("/pvmoore/d/apps/PPL2/test", true);
-
-        initialise();
-    }
-    this(string directory) {
+    this(string path) {
         import toml;
         import std.file;
-        assert(exists(directory) && isDir(directory));
 
-        this.directory = normaliseDir(directory, true);
-        auto filename = this.directory ~ "project.toml";
+        string filename;
 
-        //writefln("directory:%s", this.directory);
-        //writefln("filename :%s", filename);
+        if(isDir(path)) {
+            /// Assume it's the directory containing the project.toml file
+
+            assert(exists(path));
+
+            this.directory = normaliseDir(path, true);
+            filename = this.directory ~ "project.toml";
+        } else {
+            /// Assume it's the project.toml file itself
+
+            this.directory = normaliseDir(dirName(path));
+            filename = path;
+        }
+
+        writefln("Loading project %s", filename);
+
+        //writefln("directory : %s", directory);
+        //writefln("filename  : %s", filename);
+        //flushConsole();
 
         if(exists(filename)) {
             parseProjectToml(filename);
@@ -91,7 +99,6 @@ public:
         /// [[general]]
         file.writefln("[[general]]");
         file.writefln("name = \"%s\"", name);
-        file.writefln("configFile = \"%s\"", configFile);
         file.writefln("excludeFiles = %s", excludeFiles);
         file.writefln("excludeDirectories = %s", excludeDirectories);
 
@@ -105,9 +112,10 @@ public:
     }
 private:
     void initialise() {
+
         assert(exists(directory));
 
-        config = new ConfigReader(directory ~ configFile).read();
+        config = new ConfigReader(directory ~ "config.toml").read();
         writefln("%s", config);
 
         foreach(ref d; excludeDirectories) {
@@ -127,7 +135,6 @@ private:
         // general
         writefln("\tname               : %s", name);
         writefln("\tdirectory          : %s", directory);
-        writefln("\tconfigFile         : %s", configFile);
 
         writefln("\texcludeFiles       : %s", excludeFiles);
         writefln("\texcludeDirectories : %s", excludeDirectories);
@@ -141,7 +148,6 @@ private:
 
         doc.iterate("general", (t) {
             this.name               = t.getString("name", "No-name");
-            this.configFile         = t.getString("configFile");
             this.excludeFiles       = t.getStringArray("excludeFiles");
             this.excludeDirectories = t.getStringArray("excludeDirectories");
         });

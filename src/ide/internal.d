@@ -20,6 +20,7 @@ import ppl2 = ppl2;
 
 import ide.actions;
 import ide.ide;
+import ide.IDEConfig;
 import ide.project;
 import ide.util;
 
