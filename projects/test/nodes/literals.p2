@@ -47,8 +47,8 @@ realNumbers {
     double d5 = 3.14d
 }
 chars {
-    int ch1 = 'a'
-    int ch2 = '\n'
+    int ch1 = 'a'   ;   assert ch1 == 97
+    int ch2 = '\n'  ;   assert ch2 == 10
 }
 strings {
     string s    // set to an empty string
@@ -58,6 +58,14 @@ strings {
     var len = "stringy".length
     var ptr = "stringy".ptr()
 
-    //var ch = "stringy"[0] // todo
+    var ch = "stringy"[0] ; assert ch == 's'
+    
+    assert "abcd\tefg\0".length == 9
+    assert r"abcd\tefg\0".length == 11
+    
+    assert "a\n"[1] == 10
+    
+    var s3 = "a" "b" ; assert s3=="ab"
+    
     //"stringy"[0] = 'S' // readonly
 }

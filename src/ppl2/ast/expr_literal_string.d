@@ -13,11 +13,11 @@ protected:
     LLVMValueRef  _llvmValue;
     LiteralString _original;
 public:
-    enum Encoding { U8, RAW }
+    enum Encoding { UNKNOWN, UTF8, RAW }
 
     Type type;
     string value;
-    Encoding enc;
+    Encoding enc = Encoding.UNKNOWN;
 
     LLVMValueRef llvmValue() {
         if(_original) return _original._llvmValue;
@@ -29,7 +29,7 @@ public:
 
     this() {
         type = Pointer.of(new BasicType(Type.BYTE), 1);
-        enc  = Encoding.U8;
+        enc  = Encoding.UNKNOWN;
     }
     LiteralString copy() {
         auto c      = new LiteralString;
@@ -49,14 +49,14 @@ public:
     override int priority() const { return 15; }
     override Type getType()       { return type; }
 
-
     ///
     /// Fixme. These counts are probably wrong.
     ///
     int calculateLength() {
         final switch(enc) with(Encoding) {
-            case U8:  return value.length.toInt;
-            case RAW: return value.length.toInt;
+            case UNKNOWN: assert(false);
+            case UTF8: return value.length.toInt;
+            case RAW:  return value.length.toInt;
         }
     }
 

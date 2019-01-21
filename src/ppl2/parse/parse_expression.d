@@ -666,26 +666,37 @@ private:
 
         auto s = makeNode!LiteralString(t);
 
-        /// todo - Concatenate strings here if possible
-        string text = t.value;
-        t.next;
+        string combinedText;
+        auto enc = LiteralString.Encoding.UNKNOWN;
 
-        assert(text.length>1);
-        if(text[0]=='\"') {
-            /// Default UTF8 string
-            assert(text[0]=='\"' && text[$-1]=='\"');
-            text = text[1..$-1];
-            s.enc = LiteralString.Encoding.U8;
-        } else if(text[0]=='r') {
-            /// Raw string
-            assert(text[1]=='\"' && text[$-1]=='\"');
-            text = text[2..$-1];
-            s.enc = LiteralString.Encoding.RAW;
-        } else {
-            assert(false, "How did we get here? string is %s".format(text));
+        /// Concatenate strings
+        while(t.type==TT.STRING) {
+
+            string text = t.value;
+            t.next;
+
+            if(text[0]=='\"') {
+                if(enc==LiteralString.Encoding.RAW) {
+                    module_.addError(t, "Can't combine UTF8 and RAW strings", true);
+                }
+                enc  = LiteralString.Encoding.UTF8;
+                text = parseStringLiteral(text[1..$-1]);
+
+            } else if(text[0]=='r') {
+                if(enc==LiteralString.Encoding.UTF8) {
+                    module_.addError(t, "Can't combine UTF8 and RAW strings", true);
+                }
+                enc  = LiteralString.Encoding.RAW;
+                text = text[2..$-1];
+
+            } else {
+                module_.addError(t, "Unknown string encoding", false);
+            }
+            combinedText ~= text;
         }
 
-        s.value = text;
+        s.value = combinedText;
+        s.enc   = enc;
 
         module_.addLiteralString(s);
 

@@ -3,8 +3,8 @@ import glfw::common
 
 WinMain {  
     
-    var file = fopen("myfile.txt", "w")
-    fputs("blah\n", file)
+    var file = fopen("myfile.txt".cstr(), "w".cstr())
+    fputs("blah\n".cstr(), file)
     fclose(file)  
     
     if(int r = glfwInit(); r) {

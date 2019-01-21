@@ -45,8 +45,6 @@ module ppl2.known_bugs;
 
 -   config.enableOptimisation = false produces link errors
 
--   println("\nindexOf ") // new line not working
-
 -   indexOf { string s ->
         indexOf(s, 0)   // this.indexOf(s,0) works
     }

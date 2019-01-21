@@ -70,26 +70,45 @@ long hexToLong(string hex) {
     }
     return total;
 }
-/// f  \n  \x12 \u1234 \U12345678
+
 int parseCharLiteral(string s) {
+    int pos;
+    return parseCharLiteral(s, &pos);
+}
+/// f  \n  \x12 \u1234 \U12345678
+/// pos is set to the final char that was consumed
+int parseCharLiteral(string s, int* pos) {
     if(s[0]=='\\') {
         switch(s[1]) {
-            case '0' : return 0;
-            case 'b' : return 8;
-            case 't' : return 9;
-            case 'n' : return 10;
-            case 'f' : return 12;
-            case 'r' : return 13;
-            case '\"': return 34;
-            case '\'': return 39;
-            case '\\': return 92;
-            case 'x' : return cast(uint)hexToLong(s[2..4]);
-            case 'u' : return cast(uint)hexToLong(s[2..6]);
-            //case 'U' : return cast(ulong)hexToLong(s[2..10]);
+            case '0' : *pos=1; return 0;
+            case 'b' : *pos=1; return 8;
+            case 't' : *pos=1; return 9;
+            case 'n' : *pos=1; return 10;
+            case 'f' : *pos=1; return 12;
+            case 'r' : *pos=1; return 13;
+            case '\"': *pos=1; return 34;
+            case '\'': *pos=1; return 39;
+            case '\\': *pos=1; return 92;
+            case 'x' : *pos=3; return cast(uint)hexToLong(s[2..4]);
+            case 'u' : *pos=5; return cast(uint)hexToLong(s[2..6]);
+            //case 'U' : *pos=9; return cast(ulong)hexToLong(s[2..10]);
             default: return -1;
         }
     }
+    *pos = 0;
     return s[0];
+}
+/// Convert escape codes
+string parseStringLiteral(string text) {
+    auto buf = appender!string;
+    int pos;
+    for(auto i=0;i<text.length;i++) {
+        int c = parseCharLiteral(text[i..$], &pos);
+        // todo - this char might be unicode
+        buf.put(cast(char)c);
+        i += pos;
+    }
+    return buf.data;
 }
 From!"std.typecons".Tuple!(Type,string) parseNumberLiteral(string v) {
     import std.typecons : tuple;
