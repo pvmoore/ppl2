@@ -8,7 +8,8 @@ main {
     GC.dump()
 }
 test {
-    var s = "peter\n"
+    var s = "0123a990"
     
+    string.of(123)
 }
 

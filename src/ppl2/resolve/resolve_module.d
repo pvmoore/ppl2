@@ -445,7 +445,11 @@ public:
             if(alias_.parent && alias_.parent.id==NodeID.IMPORT) {
                 /// This is an import alias. Leave it attached
             } else if(!type.isAlias) {
-                alias_.detach();
+                //dd("!! detaching alias", alias_);
+
+                if(alias_.isInnerType) {
+                    alias_.detach();
+                }
             }
         }
         /+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++/

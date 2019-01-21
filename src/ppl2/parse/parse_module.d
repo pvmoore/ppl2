@@ -218,8 +218,9 @@ private:
             "core::unsigned",
 
             "std::console",
-            "std::list",
-            "std::file"
+            "std::List",
+            "std::file",
+            "std::StringBuffer"
         ];
 
         foreach(s; IMPORTS) {

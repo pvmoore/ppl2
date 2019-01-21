@@ -10,7 +10,12 @@ active = 0
 
 [[openFile]]
 name = "glfw/common.p2"
-line = 2
+line = 7
+active = 0
+
+[[openFile]]
+name = "test.p2"
+line = 268
 active = 1
 
 [[openFile]]

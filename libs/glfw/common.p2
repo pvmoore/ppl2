@@ -1,9 +1,35 @@
 
 public
 
-alias GLFWWIndow = void
+alias GLFWmonitor = void
+alias GLFWwindow  = void
+
+struct GLFWimage {
+    int width
+    int height
+    byte* pixels   
+}
 
 extern glfwInit { void->int } 	
 extern glfwTerminate {void->void}
 extern glfwGetVersion { int* major, int* minor, int* rev -> void } 	
+extern glfwGetVersionString { void->byte* }
 
+// Window functions
+extern glfwCreateWindow { int width, int height, byte* title, GLFWmonitor* monitor, GLFWwindow* share -> GLFWwindow* }
+extern glfwDestroyWindow { GLFWwindow* window -> void }
+extern glfwWindowHint { int hint, int value -> void }
+extern glfwWindowShouldClose { GLFWwindow* window -> int }
+extern glfwSetWindowShouldClose { GLFWwindow* window, int value -> void }
+extern glfwShowWindow { GLFWwindow* window -> void }
+extern glfwHideWindow { GLFWwindow* window -> void }
+extern glfwIconifyWindow { GLFWwindow* window -> void }
+extern glfwMaximizeWindow { GLFWwindow* window -> void }
+extern glfwSetWindowTitle { GLFWwindow* window, byte* title -> void }
+extern glfwPollEvents { void->void }
+
+int GLFW_NOT_INITIALIZED = 0x00010001
+
+enum GLFWError : int {
+    NOT_INITIALIZED = 0x00010001
+}

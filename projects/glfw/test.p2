@@ -3,19 +3,27 @@ import glfw::common
 
 WinMain {  
     
-    var file = fopen("myfile.txt".cstr(), "w".cstr())
-    fputs("blah\n".cstr(), file)
-    fclose(file)  
-    
     if(int r = glfwInit(); r) {
+        
+        int major;  // 3
+        int minor;  // 2
+        int rev;    // 1
+        glfwGetVersion(&major, &minor, &rev)
+        
+        var str = glfwGetVersionString()
+        
+        var window = glfwCreateWindow(640, 480, "Hello World".cstr(), null, null)
+        if(window) {
+            loop( ; not glfwWindowShouldClose(window); ) {
+
+                glfwPollEvents();
+            } 
+            
+            glfwDestroyWindow(window)      
+        }
         glfwTerminate() 
     }
     
-    //int major;
-    //int minor;
-    //int rev;
-    //glfwGetVersion(&major, &minor, &rev)
-
     println("Hello")
 }
 

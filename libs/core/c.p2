@@ -24,6 +24,7 @@ extern puts {byte* str -> int}
 
 // stdlib
 extern _itoa {int value,byte* str,int base->byte*}
+extern atoi { byte* str -> int }
 extern calloc {long numElements, long elementSize->void*}
 extern exit {int status->void}
 extern free {void* ptr->void}

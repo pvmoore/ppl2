@@ -1,4 +1,4 @@
-@module(priority=-900_000)
+@module(priority=-100_000)
 
 public
 
@@ -22,6 +22,7 @@ print { long n ->
 
     if(n<0) {
         print("-")
+        n = -n
     } else if(n==0) {
         print("0")
         return

@@ -16,6 +16,9 @@ public
         this.offset  = offset
         this.length  = len
     }
+    static of { int v ->
+          // todo     
+    }
     ptr   { return basePtr+offset }
     empty { return length==0 }
     first { assert not empty(); return ptr()[0] }
@@ -90,6 +93,26 @@ public
     contains { string s ->
         return indexOf(s) <> -1
     }
+    trim {
+        // todo   
+        assert false
+    }
+    toInt { int default ->
+        var value = 0
+        var mul   = 1
+            
+        loop(int i = length-1; i>=0; i -= 1) {
+             //var ch = this[i] - '0' // fixme
+            var ch = operator[](i) - '0'
+            if(ch<0 or ch>9) return default    
+            value += ch*mul
+            mul   *= 10     
+        }
+        return value          
+    }
+    toFloat { float default -> 
+        assert false
+    }    
 private
 
 }
