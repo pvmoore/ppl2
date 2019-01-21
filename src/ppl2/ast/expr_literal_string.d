@@ -55,8 +55,8 @@ public:
     ///
     int calculateLength() {
         final switch(enc) with(Encoding) {
-            case U8:  return value.length.as!int;
-            case RAW: return value.length.as!int;
+            case U8:  return value.length.toInt;
+            case RAW: return value.length.toInt;
         }
     }
 

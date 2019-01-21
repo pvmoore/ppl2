@@ -130,7 +130,7 @@ private:
         if(start != nav.index) {
             addParam();
         }
-        this.numParams = paramTokens.length.as!int;
+        this.numParams = paramTokens.length.toInt;
 
         assert(proxyLists.length==numParams);
         assert(regexes.length==numParams);

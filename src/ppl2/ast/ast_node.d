@@ -179,7 +179,7 @@ public:
     }
     void removeLast() {
         assert(children.length>0);
-        auto child = children.removeAt(children.length.as!int-1);
+        auto child = children.removeAt(children.length.toInt-1);
         child.parent = null;
     }
     void replaceChild(ASTNode child, ASTNode otherChild) {
@@ -193,11 +193,11 @@ public:
     int indexOf(ASTNode child) {
         /// Do the happy path first, assuming child is an immediate descendent
         foreach(i, ch; children[]) {
-            if(ch is child) return i.as!int;
+            if(ch is child) return i.toInt;
         }
         /// Do the slower version looking at all descendents
         foreach(i, ch; children[]) {
-            if(ch.hasDescendent(child)) return i.as!int;
+            if(ch.hasDescendent(child)) return i.toInt;
         }
         return -1;
     }

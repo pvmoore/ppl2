@@ -186,11 +186,11 @@ public:
             }
 
             /// Update tokens to appropriate category
-            foreach(int j, tok; toks) {
+            foreach(j, tok; toks) {
                 //ppl2.dd("line:", i, "tok", tok, j, "attribs:",attribs.length);
                 if(tok.line+lineOffset==i) {
 
-                    auto c = getCategory(tok, j, toks);
+                    auto c = getCategory(tok, j.toInt, toks);
 
                     for(auto n=tok.column; n<tok.column+tok.length; n++) {
                         assert(attribs.length>n);

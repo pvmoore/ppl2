@@ -21,7 +21,7 @@ public:
     }
 
     int numTemplateParams() {
-        return paramNames.length.as!int;
+        return paramNames.length.toInt;
     }
     int numFuncParams() {
         return paramTokens.numParams;
@@ -30,8 +30,8 @@ public:
         return paramTokens;
     }
     int indexOf(string paramName) {
-        foreach(int i, n; paramNames) {
-            if(n==paramName) return i;
+        foreach(i, n; paramNames) {
+            if(n==paramName) return i.toInt;
         }
         return -1;
     }

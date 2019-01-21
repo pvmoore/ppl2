@@ -23,11 +23,11 @@ final class LiteralGenerator {
         }
 
         /// Set the values
-        foreach(int i, ch; n.elementValues()) {
+        foreach(i, ch; n.elementValues()) {
             ch.visit!ModuleGenerator(gen);
             gen.rhs = gen.castType(gen.rhs, ch.getType, n.type.subtype);
 
-            gen.setArrayValue(ptr, gen.rhs, i, "[%s]".format(i));
+            gen.setArrayValue(ptr, gen.rhs, i.toInt, "[%s]".format(i));
         }
 
         /// Set literal array ptr as the lhs
@@ -118,11 +118,11 @@ final class LiteralGenerator {
                 gen.setStructValue(structPtr, gen.rhs, index);
             }
         } else {
-            foreach(int i, e; elements) {
+            foreach(i, e; elements) {
                 e.visit!ModuleGenerator(gen);
                 gen.rhs = gen.castType(gen.rhs, elementTypes[i], varTypes[i]);
 
-                gen.setStructValue(structPtr, gen.rhs, i);
+                gen.setStructValue(structPtr, gen.rhs, i.toInt);
             }
         }
 

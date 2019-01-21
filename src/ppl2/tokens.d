@@ -92,7 +92,7 @@ public:
         if(pos+offset < 0 || pos+offset >= tokens.length) return NO_TOKEN;
         return tokens[pos+offset];
     }
-    int length() { return tokens.length.as!int; }
+    int length() { return tokens.length.toInt; }
     bool isKeyword(string k) {
         return type()==TT.IDENTIFIER && value()==k;
     }

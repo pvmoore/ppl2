@@ -23,7 +23,7 @@ final class LiteralArray : Expression {
     override Type getType() { return type; }
 
     int length() {
-        return children.length.as!int;
+        return children.length.toInt;
     }
 
     string generateName() {

@@ -38,10 +38,10 @@ public:
         if(f.name.startsWith("__") && !module_.canonicalName.startsWith("core::")) {
             module_.addError(t, "Function names starting with __ are reserved", true);
         }
-        if(f.name=="main" && module_.config.getEntryFunctionName()!="main") {
-            module_.addError(t, "'main' function found. Expecting %s".format(module_.config.getEntryFunctionName()), false);
-            return;
-        }
+        //if(f.name=="main" && module_.config.getEntryFunctionName()!="main") {
+        //    module_.addError(t, "'main' function found. Expecting %s".format(module_.config.getEntryFunctionName()), false);
+        //    return;
+        //}
 
         if(f.name=="operator" && ns) {
             /// Operator overload

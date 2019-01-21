@@ -14,7 +14,7 @@ import std.algorithm.searching : any;
 import std.algorithm.iteration : map;
 
 import common : DynamicArray = Array, From, Set, StringBuffer;
-import common : as, containsKey, endsWith, flushConsole, repeat, startsWith;
+import common : as, containsKey, endsWith, flushConsole, repeat, startsWith, toInt;
 import dlangui;
 import ppl2 = ppl2;
 

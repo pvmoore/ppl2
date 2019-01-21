@@ -143,7 +143,7 @@ public:
 
             /// Check to see whether we need to add an implicit "this." prefix
             if(n.isStartOfChain() &&
-               n.argTypes.length == n.target.paramTypes.length.as!int-1 &&
+               n.argTypes.length == n.target.paramTypes.length.toInt-1 &&
               !n.implicitThisArgAdded)
             {
                 auto ns = n.getAncestor!Struct;
@@ -170,13 +170,13 @@ public:
                 auto targetNames = n.target.paramNames();
                 auto args        = new Expression[n.numArgs];
 
-                foreach(int i, name; n.paramNames) {
+                foreach(i, name; n.paramNames) {
                     auto index = targetNames.indexOf(name);
                     if(index==-1) {
                         module_.addError(n, "Parameter name %s not found".format(name), true);
                         return;
                     }
-                    args[index] = n.arg(i);
+                    args[index] = n.arg(i.toInt);
                 }
                 assert(args.length==n.numArgs);
 

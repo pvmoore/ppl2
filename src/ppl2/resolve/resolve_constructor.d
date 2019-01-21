@@ -98,8 +98,8 @@ private:
 
         //dd("!! args:", args, names);
 
-        foreach(int i, arg; args) {
-            auto name = getMemberName(i);
+        foreach(i, arg; args) {
+            auto name = getMemberName(i.toInt);
             if(!name) return;
 
             //dd("!! name[", i, "]:", name);

@@ -65,8 +65,13 @@ public:
             //writefln("processDir %s", directory);
 
             lp:foreach(DirEntry e; dirEntries(directory, SpanMode.breadth)) {
+
                 string rel = asRelativePath(e.name, directory).array.replace("\\", "/");
-                if(e.isDir) rel ~= "/";
+                if(e.isDir) {
+                    rel ~= "/";
+                } else {
+                    if(!e.name.endsWith(".p2")) continue lp;
+                }
 
                 foreach(excl; project.excludeDirectories) {
                     if(rel.startsWith(excl)) continue lp;

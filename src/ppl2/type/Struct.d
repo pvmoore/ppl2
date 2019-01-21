@@ -153,7 +153,7 @@ public:
     }
     ///========================================================================================
     int numMemberVariables() {
-        return getMemberVariables().length.as!int;
+        return getMemberVariables().length.toInt;
     }
     Variable[] getMemberVariables() {
         return children[].filter!(it=>it.id==NodeID.VARIABLE)
@@ -208,16 +208,16 @@ public:
         return false;
     }
     int getMemberIndex(Function var) {
-        foreach(int i, v; getMemberFunctions()) {
-            if(var is v) return i;
+        foreach( i, v; getMemberFunctions()) {
+            if(var is v) return i.toInt;
         }
         return -1;
     }
     int getMemberIndex(Variable var) {
         if(!var) return -1;
         assert(!var.isStatic);
-        foreach(int i, v; getMemberVariables()) {
-            if(var is v) return i;
+        foreach(i, v; getMemberVariables()) {
+            if(var is v) return i.toInt;
         }
         return -1;
     }

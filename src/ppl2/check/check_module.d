@@ -110,9 +110,9 @@ public:
         }
 
         /// Ensure the arguments can implicitly cast to the parameters
-        foreach(int i, p; n.target.paramTypes()) {
+        foreach(i, p; n.target.paramTypes()) {
             if(!argTypes[i].canImplicitlyCastTo(p)) {
-                errorBadImplicitCast(module_, n.arg(i), argTypes[i], p);
+                errorBadImplicitCast(module_, n.arg(i.to!int), argTypes[i], p);
             }
         }
     }

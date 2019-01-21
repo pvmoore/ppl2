@@ -215,7 +215,7 @@ private:
                     return;
                 case '\"':
                     import std.string : indexOf;
-                    auto idx = line[i+1..line.length].indexOf("\"").as!int;
+                    auto idx = line[i+1..line.length].indexOf("\"").toInt;
                     assert(idx!=-1);
                     i += idx + 1;
                     break;

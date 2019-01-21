@@ -14,19 +14,19 @@ enable = 1
 subsystem = "console"
 #subsystem="windows"
 
-#[[src-dependency]]
-#name = "blah"
-#directory = "./libs"
-
 [[src-dependency]]
 name = "windows"
+directory = "./libs"
+
+[[src-dependency]]
+name = "glfw"
 directory = "./libs"
 
 [[src-dependency]]
 name = "vulkan"
 directory = "./libs"
 
-#[[lib-dependency]]
-#name = "hello"
-#debugLibs = []
-#releaseLibs = []
+[[lib-dependency]]
+name = "glfw"
+debugLibs   = ["./libs/glfw/glfw3.lib"]
+releaseLibs = ["./libs/glfw/glfw3.lib"]

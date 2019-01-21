@@ -10,7 +10,7 @@ final class Parameters : ASTNode {
     override NodeID id() const { return NodeID.PARAMETERS; }
 
     int numParams() const {
-        return children.length.as!int;
+        return children.length.toInt;
     }
     string[] paramNames() {
         return getParams().map!(it=>it.name).array;
@@ -26,8 +26,8 @@ final class Parameters : ASTNode {
         return r.empty ? null : r.front;
     }
     int getIndex(Variable param) {
-        foreach(int i, p; getParams) {
-            if(p.nid==param.nid) return i;
+        foreach(i, p; getParams) {
+            if(p.nid==param.nid) return i.toInt;
         }
         return -1;
     }

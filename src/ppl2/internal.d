@@ -22,7 +22,7 @@ import std.algorithm.sorting   : sort;
 import common : DynamicArray = Array;
 import common : From, Hash, Hasher, Queue, Set, Stack, StringBuffer,
                 as, dynamicDispatch, isA, firstNotNull, flushConsole, endsWith,
-                removeChars, repeat, visit;
+                removeChars, repeat, toInt, visit;
 
 import llvm.all;
 import ppl2;
