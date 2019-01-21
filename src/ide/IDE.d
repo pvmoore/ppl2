@@ -18,6 +18,8 @@ private:
 
     BuildJob buildJob;
 
+    MenuItem recentProjects;
+
     /// Use cases
     BuildCompleted buildCompleted;
 
@@ -35,10 +37,10 @@ public:
     this(string[] args, Window window) {
         this.window         = window;
         this.buildListeners = new DynamicArray!BuildListener;
+        this.ideConfig      = new IDEConfig(this);
     }
     void ready() {
         this.buildCompleted = new BuildCompleted(this);
-        this.ideConfig      = new IDEConfig(this);
 
         loadProject(ideConfig.currentProjectDir);
         assert(project);
@@ -58,6 +60,10 @@ public:
             if(project) project.save();
             ideConfig.save();
         });
+
+        foreach(i, rp; ideConfig.recentProjects.values) {
+            recentProjects.add(new Action(ActionID.PROJECT_OPEN, rp.toUTF32).stringParam(rp));
+        }
 
         /// Initiate a build
         //dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
@@ -85,11 +91,16 @@ protected:
         file.add(new MenuItem().type(MenuItemType.Separator));
         file.add(new Action(ActionID.FILE_OPEN_PROJECT, "Open Project"d));
 
+        recentProjects = new MenuItem(new Action(ActionID.FILE_RECENT_PROJECTS, "Recent projects"d));
+
+        file.add(recentProjects);
+
         MenuItem help = new MenuItem(new Action(ActionID.HELP_MENU, "Help"d));
         help.add(new Action(ActionID.HELP_ABOUT, "About"d));
 
         menuBar.add(file);
         menuBar.add(help);
+
 
         return new MainMenu(menuBar);
     }
@@ -137,6 +148,7 @@ protected:
                     import dlangui.dialogs.filedlg;
                     auto caption = UIString.fromRaw("Select project file"d);
                     auto dlg = new FileDialog(caption, window, new Action(PROJECT_OPEN, "PROJECT_OPEN"d), FileDialogFlag.Open);
+                    dlg.addFilter(FileFilterEntry(UIString.fromRaw("hello"d), "project.toml"));
                     dlg.show();
                     break;
                 case PROJECT_OPEN:
@@ -228,7 +240,7 @@ protected:
     }
 private:
     void loadProject(string filename) {
-        writefln("LoadProject %s", filename);
+        writefln("LoadProject %s", filename); flushConsole();
 
         project = new Project(filename);
 
@@ -239,6 +251,8 @@ private:
         projectView.parent.child(0).child(0).text = "Project :: %s"d.format(project.name);
 
         ideConfig.currentProjectDir = project.directory;
+
+        ideConfig.recentProjects.add(project.directory);
 
         //dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
     }

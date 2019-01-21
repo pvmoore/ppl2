@@ -5,7 +5,7 @@ excludeDirectories = [".target/"]
 
 [[openFile]]
 name = "core/string.p2"
-line = 18
+line = 16
 active = 1
 
 [[openFile]]

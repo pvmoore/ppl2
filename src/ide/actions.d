@@ -10,6 +10,8 @@ enum ActionID : int {
     FILE_EXIT,
     FILE_OPEN_PROJECT,
 
+    FILE_RECENT_PROJECTS,
+
     HELP_ABOUT,
 
     ///
