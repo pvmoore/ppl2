@@ -286,6 +286,7 @@ public:
 
             string msg;
             string desc;
+            Suggestions suggestions;
 
             if(staticOnly) {
                 desc = "static";
@@ -297,10 +298,14 @@ public:
                 msg ~= "Struct '%s' %s function %s(%s) is not visible";
             } else {
                 msg ~= "Struct '%s' does not have %s function %s(%s)";
+
+                if(fns.length>0) {
+                    suggestions = new FunctionSuggestions(fns);
+                }
             }
             msg = msg.format(ns.name, desc, call.name, argsStr);
 
-            module_.addError(call, msg, true);
+            module_.addError(new ParseError(module_, call, msg).addSuggestions(suggestions), true);
 
             return CALLABLE_NOT_READY;
 

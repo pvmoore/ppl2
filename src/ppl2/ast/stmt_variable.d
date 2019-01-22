@@ -16,8 +16,9 @@ final class Variable : Statement {
     bool isConst;
     bool isImplicit;    /// true if this is a "var"
     bool isStatic;
-    int numRefs;
     Access access = Access.PUBLIC;
+
+    int numRefs;
 
     LLVMValueRef llvmValue;
 

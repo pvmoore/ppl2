@@ -5,10 +5,10 @@ excludeDirectories = [".target/"]
 
 [[openFile]]
 name = "glfw/common.p2"
-line = 19
-active = 0
+line = 29
+active = 1
 
 [[openFile]]
 name = "test.p2"
 line = 10
-active = 1
+active = 0

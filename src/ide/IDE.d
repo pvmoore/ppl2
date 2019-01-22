@@ -166,7 +166,7 @@ protected:
                     break;
                 case TOOLBAR_BUILD_PROJECT:
                     statusLine.setStatusText("Building...");
-                    consoleView.logln("Starting debug build");
+                    consoleView.log("Starting debug build ... ");
 
                     editorView.saveAll();
 
@@ -183,7 +183,7 @@ protected:
                     break;
                 case TOOLBAR_BUILD_OPT_PROJECT:
                     statusLine.setStatusText("Building...");
-                    consoleView.logln("Starting release build");
+                    consoleView.log("Starting release build ... ");
 
                     editorView.saveAll();
 
@@ -254,6 +254,6 @@ private:
 
         ideConfig.recentProjects.add(project.directory);
 
-        //dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
+        dispatchAction(new Action(ActionID.TOOLBAR_BUILD_OPT_PROJECT));
     }
 }

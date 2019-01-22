@@ -15,7 +15,7 @@ public
     empty {
         return length==0
     }
-    add { T value ->
+    add { T value -> 
         expand(1)
         array[length] = value
         length += 1
@@ -24,7 +24,7 @@ public
     operator[] { int index->
         return array[index]
     }
-    operator[] { int index, T value ->
+    operator[] { int index, T value -> 
         array[index] = value
     }
     operator== { List<T> other ->
@@ -70,7 +70,15 @@ public
         return this
     }
     pack {
+        // todo
         return this
+    }
+    reversed {
+        var copy = List<T>(length)
+        loop(var dest = 0, var src=length-1; src>=0; src -= 1) {
+            copy.array[dest] = array[src] 
+        }
+        return copy   
     }
 private
     expand { int required ->

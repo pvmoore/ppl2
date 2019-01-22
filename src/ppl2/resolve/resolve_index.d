@@ -22,7 +22,7 @@ public:
             if(n.parent.isBinary) {
                 auto bin = n.parent.as!Binary;
                 if(bin.op.isAssign && n.nid==bin.left.nid) {
-                    /// Rewrite to operator:(int,value)
+                    /// Rewrite to operator[](int,value)
 
                     /// Binary =
                     ///     Index
@@ -43,10 +43,12 @@ public:
                     auto dot = b.dot(left, call);
 
                     resolver.fold(bin, dot);
+
                     return;
                 }
             }
-            /// Rewrite to operator:(int)
+
+            /// Rewrite to operator[](int)
 
             /// Index
             ///     struct
@@ -63,6 +65,7 @@ public:
             auto dot = b.dot(left, call);
 
             resolver.fold(n, dot);
+
             return;
 
         }

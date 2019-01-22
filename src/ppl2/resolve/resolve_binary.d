@@ -39,7 +39,9 @@ public:
 
         if((lt.isStruct && lt.isValue) || (rt.isStruct && rt.isValue)) {
             if(n.op.isOverloadable || n.op.isComparison) {
-                rewriteToOperatorOverloadCall(n);
+                if(rewriteToOperatorOverloadCall(n)) {
+
+                }
                 return;
             }
         }
@@ -205,7 +207,8 @@ private:
         //}
         return false;
     }
-    void rewriteToOperatorOverloadCall(Binary n) {
+    /// @return true if we modified something
+    bool rewriteToOperatorOverloadCall(Binary n) {
         Struct leftStruct = n.leftType.getStruct;
         Struct rightStruct = n.rightType.getStruct;
 
@@ -238,12 +241,12 @@ private:
                 } else {
                     module_.addError(n, "Struct '%s' does not overload operator%s"
                         .format(rightStruct.name, op2.value), true);
-                    return;
+                    return true;
                 }
             } else {
                 module_.addError(n, "Invalid overload %s.operator%s(%s)"
                                     .format(n.leftType, n.op.value, n.rightType), true);
-                return;
+                return true;
             }
         }
 
@@ -261,7 +264,7 @@ private:
                 expr = b.dot(n.left, b.call("operator"~n.op.value).add(n.right));
             }
             resolver.fold(n, expr);
-            return;
+            return true;
         }
 
         /// The specific operator overload is not defined.
@@ -285,7 +288,7 @@ private:
                     expr = b.dot(n.left, b.call("operator<>").add(n.right));
                     expr = b.not(expr);
                     resolver.fold(n, expr);
-                    return;
+                    return true;
                 }
                 break;
             case BOOL_NE.id:
@@ -293,7 +296,7 @@ private:
                     expr = b.dot(n.left, b.call("operator==").add(n.right));
                     expr = b.not(expr);
                     resolver.fold(n, expr);
-                    return;
+                    return true;
                 }
                 break;
             case LT.id:
@@ -301,7 +304,7 @@ private:
                     expr = b.dot(n.left, b.call("operator>=").add(n.right));
                     expr = b.not(expr);
                     resolver.fold(n, expr);
-                    return;
+                    return true;
                 }
                 break;
             case GT.id:
@@ -309,7 +312,7 @@ private:
                     expr = b.dot(n.left, b.call("operator<=").add(n.right));
                     expr = b.not(expr);
                     resolver.fold(n, expr);
-                    return;
+                    return true;
                 }
                 if(rightStruct) {
 
@@ -320,7 +323,7 @@ private:
                     expr = b.dot(n.left, b.call("operator>").add(n.right));
                     expr = b.not(expr);
                     resolver.fold(n, expr);
-                    return;
+                    return true;
                 }
                 if(rightStruct) {
 
@@ -331,14 +334,15 @@ private:
                     expr = b.dot(n.left, b.call("operator<").add(n.right));
                     expr = b.not(expr);
                     resolver.fold(n, expr);
-                    return;
+                    return true;
                 }
                 break;
             default:
                 break;
         }
 
-        module_.addError(n, "Struct %s does not overload operator%s"
-                            .format(leftStruct.name, n.op.value), true);
+        //module_.addError(n, "Struct '%s' does not overload operator%s"
+        //                    .format(leftStruct.name, n.op.value), true);
+        return false;
     }
 }

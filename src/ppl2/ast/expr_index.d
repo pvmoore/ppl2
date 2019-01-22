@@ -22,7 +22,7 @@ final class Index : Expression {
             /// Check if we are waiting to be rewritten to operator:
             auto ns = exprType().getStruct;
             assert(ns);
-            if(ns.getMemberFunctions("operator:")) return false;
+            if(ns.hasOperatorOverload(Operator.INDEX)) return false;
         }
         /// Struct index must be a const number
         return index().isResolved && index().isA!LiteralNumber;

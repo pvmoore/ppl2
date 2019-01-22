@@ -131,6 +131,9 @@ public:
     void addError(Tokens t, string msg, bool canContinue) {
         buildState.addError(new ParseError(this, t, msg), canContinue);
     }
+    void addError(CompileError err, bool canContinue) {
+        buildState.addError(err, canContinue);
+    }
 
     string makeTemporary(string prefix) {
         return "__%s%s".format(prefix, tempCounter++);

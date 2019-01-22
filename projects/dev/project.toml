@@ -4,36 +4,16 @@ excludeFiles = []
 excludeDirectories = [".target/"]
 
 [[openFile]]
-name = "std/stringbuffer.p2"
-line = 6
-active = 0
-
-[[openFile]]
 name = "core/string.p2"
-line = 11
-active = 0
-
-[[openFile]]
-name = "std/console.p2"
-line = 0
-active = 0
-
-[[openFile]]
-name = "core/c.p2"
-line = 26
-active = 0
-
-[[openFile]]
-name = "std/list.p2"
-line = 6
-active = 1
-
-[[openFile]]
-name = "std/file.p2"
-line = 0
+line = 126
 active = 0
 
 [[openFile]]
 name = "test.p2"
-line = 10
+line = 14
+active = 1
+
+[[openFile]]
+name = "std/List.p2"
+line = 0
 active = 0

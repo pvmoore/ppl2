@@ -8,8 +8,10 @@ main {
     GC.dump()
 }
 test {
-    var s = "0123a990"
+    var s = "123"
+    var i = "123".toInt(0)    
     
-    string.of(123)
+    //string.of(123)
 }
+
 

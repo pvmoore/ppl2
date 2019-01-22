@@ -12,8 +12,8 @@ WinMain {
         
         var str = glfwGetVersionString()
         
-        var window = glfwCreateWindow(640, 480, "Hello World".cstr(), null, null)
-        if(window) {
+        if(var window = glfwCreateWindow(640, 480, "Hello World".cstr(), null, null); window) {
+
             loop( ; not glfwWindowShouldClose(window); ) {
 
                 glfwPollEvents();
@@ -23,7 +23,5 @@ WinMain {
         }
         glfwTerminate() 
     }
-    
-    println("Hello")
 }
 

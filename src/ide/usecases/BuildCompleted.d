@@ -25,7 +25,7 @@ public:
     }
 private:
     void buildSucceeded(BuildState b) {
-        console.logln("Build OK");
+        console.logln("OK");
         ide.getStatusLine().setBuildStatus("Build OK", b.getElapsedNanos());
 
         //b.dumpStats((string it)=>console.logln(it));

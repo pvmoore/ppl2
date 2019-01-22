@@ -91,6 +91,13 @@ public:
             });
         }
 
+        /// Unreferenced module scope variables
+        foreach(v; module_.getVariables()) {
+            if(v.numRefs==0) {
+                v.detach();
+            }
+        }
+
         watch.stop();
     }
 private:

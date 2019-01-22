@@ -10,6 +10,7 @@ public:
     int line;
     int column;
     Module module_;
+    Suggestions suggestions;
 
     this(Module module_, int line, int column) {
         this.id      = g_errorIDs++;
@@ -20,6 +21,11 @@ public:
     abstract string getKey();
     abstract string toConciseString();
     abstract string toPrettyString();
+
+    auto addSuggestions(Suggestions s) {
+        this.suggestions = s;
+        return this;
+    }
 protected:
     string conciseErrorMsg(string msg) {
         if(line==-1 || column==-1) {
@@ -50,6 +56,11 @@ protected:
         buf.add("\n%s|\n", spaces);
         buf.add("%sv\n", spaces);
         buf.add("%s", errorLineStr);
+
+        if(suggestions) {
+            buf.add("\n\n");
+            buf.add(suggestions.toPrettyString());
+        }
 
         return buf.toString();
     }
@@ -205,6 +216,37 @@ public:
     }
     override string toPrettyString() {
         return "Link error: Status code: %s, msg: %s".format(status, msg);
+    }
+}
+//====================================================================================
+abstract class Suggestions {
+    abstract string toPrettyString();
+}
+final class FunctionSuggestions : Suggestions {
+    Function[] funcs;
+    this(Function[] funcs) {
+        this.funcs = funcs;
+    }
+    override string toPrettyString() {
+
+        string getFuncSignature(Type[] params, Type retType) {
+            string a = params.length==0 ? "void" : params.toString;
+            return "{%s -> %s}".format(a, retType);
+        }
+
+        auto buf = new StringBuffer;
+        buf.add("Suggestions:\n\n");
+        foreach(f; funcs) {
+            string moduleName = f.moduleName;
+            auto funcType     = f.getType().getFunctionType;
+            auto params       = funcType.paramTypes();
+            auto retType      = funcType.returnType();
+
+            string s = "[%s L:%s] %s(%s)".format(moduleName, f.line+1, f.name, params.toString());
+
+            buf.add("\t%s", s);
+        }
+        return buf.toString();
     }
 }
 //====================================================================================

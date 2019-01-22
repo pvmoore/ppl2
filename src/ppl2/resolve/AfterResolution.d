@@ -35,6 +35,7 @@ public:
             }
             /// Move global var initialisers into module new()
             foreach_reverse(v; mod.getVariables()) {
+
                 if(v.hasInitialiser) {
                     /// Arguments should always be the 1st child of body so we insert at 1
                     initBody.insertAt(1, v.initialiser);
